@@ -32,7 +32,8 @@ jobs:
         else
           echo "Versions are the same"
           echo "should_build=false" >> $GITHUB_ENV
-
+        fi
+        
     - name: Checkout rmats-turbo repository
       if: env.should_build == 'true'
       run: git clone --branch ${{ env.latest_version }} https://github.com/Xinglab/rmats-turbo.git
