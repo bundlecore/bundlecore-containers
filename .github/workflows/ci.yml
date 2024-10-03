@@ -1,0 +1,77 @@
+name: Build and Push Docker Image
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Read version from release.tag
+      id: read_version
+      run: echo "version=$(cat containers/rmats-turbo/release.tag)" >> $GITHUB_ENV
+
+    - name: Get latest release version from GitHub
+      id: get_latest_version
+      run: |
+        latest_version=$(curl -s https://api.github.com/repos/Xinglab/rmats-turbo/releases/latest | jq -r '.tag_name')
+        echo "latest_version=$latest_version" >> $GITHUB_ENV
+
+    - name: Compare versions
+      id: compare_versions
+      run: |
+        if [ "$version" != "$latest_version" ]; then
+          echo "Versions are different"
+          echo "should_build=true" >> $GITHUB_ENV
+        else
+          echo "Versions are the same"
+          echo "should_build=false" >> $GITHUB_ENV
+
+    - name: Checkout rmats-turbo repository
+      if: env.should_build == 'true'
+      run: git clone --branch ${{ env.latest_version }} https://github.com/Xinglab/rmats-turbo.git
+
+    - name: Build Docker image
+      if: env.should_build == 'true'
+      run: docker build -t ghcr.io/your-username/rmats-turbo:${{ env.latest_version }} rmats-turbo
+
+    - name: Log in to GitHub Container Registry
+      if: env.should_build == 'true'
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push Docker image
+      if: env.should_build == 'true'
+      run: docker push ghcr.io/your-username/rmats-turbo:${{ env.latest_version }}
+
+    - name: Update release.tag
+      if: env.should_build == 'true'
+      run: echo ${{ env.latest_version }} > containers/rmats-turbo/release.tag
+
+    - name: Commit changes
+      if: env.should_build == 'true'
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add containers/rmats-turbo/release.tag
+        git commit -m "Update release.tag to ${{ env.latest_version }}"
+        git push origin HEAD:main
+
+    - name: Create Pull Request
+      if: env.should_build == 'true'
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update release.tag to ${{ env.latest_version }}"
+        branch: update-release-tag
+        title: "Update release.tag to ${{ env.latest_version }}"
+        body: "This PR updates the release.tag file to version ${{ env.latest_version }}."
