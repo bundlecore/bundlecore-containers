@@ -40,7 +40,7 @@ jobs:
 
     - name: Build Docker image
       if: env.should_build == 'true'
-      run: docker build -t ghcr.io/your-username/rmats-turbo:${{ env.latest_version }} rmats-turbo
+      run: docker build -t ghcr.io/${{ github.actor }}/rmats-turbo:${{ env.latest_version }} rmats-turbo
 
     - name: Log in to GitHub Container Registry
       if: env.should_build == 'true'
@@ -52,7 +52,7 @@ jobs:
 
     - name: Push Docker image
       if: env.should_build == 'true'
-      run: docker push ghcr.io/your-username/rmats-turbo:${{ env.latest_version }}
+      run: docker push ghcr.io/${{ github.actor }}/rmats-turbo:${{ env.latest_version }}
 
     - name: Update release.tag
       if: env.should_build == 'true'
