@@ -61,16 +61,16 @@ jobs:
 
     - name: Build Docker image
       if: env.should_build == 'true'
-      run: |
-          docker build -t ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} rmats-turbo
-          image_digest=$(docker image ls ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} --no-trunc -q)
-          echo "---- Image digest is $image_digest ----"
-          echo "image_digest=$image_digest" >> $GITHUB_ENV
+      run: docker build -t ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} rmats-turbo
+          
     - name: Push Docker image
       id: push
       if: env.should_build == 'true'
-      run: docker push ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }}
-
+      run: |
+        docker push ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }}
+        image_digest=$(docker image ls ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} --no-trunc -q)
+          echo "---- Image digest is $image_digest ----"
+          echo "image_digest=$image_digest" >> $GITHUB_ENV
 
     - name: Sign the published Docker image
       uses: actions/attest-build-provenance@v1
