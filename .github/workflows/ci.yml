@@ -63,7 +63,7 @@ jobs:
       if: env.should_build == 'true'
       run: |
           docker build -t ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} rmats-turbo
-          image_digest=$(docker image ls ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} -q)
+          image_digest=$(docker image ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} --no-trunc -q)
           echo "---- Image digest is $image_digest ----"
           echo "image_digest=$image_digest" >> $GITHUB_ENV
     - name: Push Docker image
