@@ -31,7 +31,14 @@ jobs:
           version=$(jq -r '.latest_version' $release_file)
           repo_url=$(jq -r '.repo_url' $release_file)
           
-          latest_version=$(curl -s https://api.github.com/repos/${repo_url}/releases/latest | jq -r '.tag_name')
+          # sample release.json
+          # {
+          #   "latest_version": "v0.0.2",
+          #   "repo_url": "https://github.com/mwess/miit.git"
+          # }
+
+            repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
+            latest_version=$(curl -s https://api.github.com/repos/${repo_name}/releases/latest | jq -r '.tag_name')
           
           if [ "$version" != "$latest_version" ]; then
             echo "Building and pushing Docker image for $app_name"
@@ -48,7 +55,7 @@ jobs:
 
     - name: Checkout app repository
       if: env.should_build == 'true'
-      run: git clone --branch ${{ env.latest_version }} https://github.com/${{ env.repo_url }}.git ${{ env.app_name }}
+      run: git clone --branch ${{ env.latest_version }} ${{ env.repo_url }} ${{ env.app_name }}
 
     - name: Log in to GitHub Container Registry
       if: env.should_build == 'true'
