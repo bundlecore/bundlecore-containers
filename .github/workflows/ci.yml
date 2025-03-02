@@ -83,7 +83,7 @@ jobs:
 
     - name: Build Docker image
       if: env.should_build == 'true'
-      run: docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} ${{ env.app_name }}
+      run: docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
           
     - name: Push Docker image
       id: push
