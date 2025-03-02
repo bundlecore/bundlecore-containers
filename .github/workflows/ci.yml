@@ -42,7 +42,7 @@ jobs:
             if [ "$latest_version" == "null" ]; then ## some of the repos do not have releases, so we get the latest tag instead
               latest_version=$(curl -s https://api.github.com/repos/${repo_name}/tags | jq -r '.[0].name')
             fi
-            echo "Latest version for $app_name is $latest_version"
+            echo "Latest version preset in Github for $app_name is $latest_version"
 
           
           if [ "$version" != "$latest_version" ]; then
