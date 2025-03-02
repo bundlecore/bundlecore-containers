@@ -31,6 +31,13 @@ jobs:
           version=$(jq -r '.latest_version' $release_file)
           repo_url=$(jq -r '.repo_url' $release_file)
           dockerfile_location=$(jq -r '.dockerfile_location // "Dockerfile"' $release_file) # if not present, default to Dockerfile
+          repo_without_dockerfile=$(jq -r '.repo_without_dockerfile // false' $release_file) # if not present, default to false
+          # if [ "$repo_without_dockerfile" == "false" ]; then
+          #   echo "Skipping $app_name as it does not need to be built"
+          #   continue
+          # fi
+          echo "Checking for updates for $app_name"
+
 
 
           # sample release.json
@@ -38,6 +45,7 @@ jobs:
           #   "latest_version": "v0.0.2",
           #   "repo_url": "https://github.com/mwess/miit.git"
           #   "dockerfile_location": "docker/Dockerfile"
+          #    "repo_without_dockerfile": true
           # }
 
             repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
@@ -56,6 +64,7 @@ jobs:
             echo "latest_version=$latest_version" >> $GITHUB_ENV
             echo "repo_url=$repo_url" >> $GITHUB_ENV
             echo "dockerfile_location=$dockerfile_location" >> $GITHUB_ENV
+            echo "repo_without_dockerfile=$repo_without_dockerfile" >> $GITHUB_ENV
             break
           else
             echo "Skipping $app_name as the versions are the same"
@@ -84,7 +93,12 @@ jobs:
 
     - name: Build Docker image
       if: env.should_build == 'true'
-      run: docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
+      run: |
+        # Check if repo_without_dockerfile is set to true, if so, copy the Dockerfile from the containers/app_name directory
+        if [ "${{ env.repo_without_dockerfile }}" == "true" ]; then
+          cp containers/${{ env.app_name }}/Dockerfile ${{ env.app_name }}/Dockerfile
+        fi
+        docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
           
     - name: Push Docker image
       id: push
