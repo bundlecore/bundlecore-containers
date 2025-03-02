@@ -30,11 +30,14 @@ jobs:
           release_file="$dir/release.json"
           version=$(jq -r '.latest_version' $release_file)
           repo_url=$(jq -r '.repo_url' $release_file)
-          
+          dockerfile_location=$(jq -r '.dockerfile_location // "Dockerfile"' $release_file) # if not present, default to Dockerfile
+
+
           # sample release.json
           # {
           #   "latest_version": "v0.0.2",
           #   "repo_url": "https://github.com/mwess/miit.git"
+          #   "dockerfile_location": "docker/Dockerfile"
           # }
 
             repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
