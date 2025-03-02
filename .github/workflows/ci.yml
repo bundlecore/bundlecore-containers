@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   schedule:
@@ -20,31 +20,35 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Read version from release.tag
-      id: read_version
-      run: echo "version=$(cat containers/rmats-turbo/release.tag)" >> $GITHUB_ENV
+    - name: Set up jq
+      run: sudo apt-get install jq
 
-    - name: Get latest release version from GitHub
-      id: get_latest_version
+    - name: Loop through containers
       run: |
-        latest_version=$(curl -s https://api.github.com/repos/Xinglab/rmats-turbo/releases/latest | jq -r '.tag_name')
-        echo "latest_version=$latest_version" >> $GITHUB_ENV
+        for dir in containers/*/; do
+          app_name=$(basename $dir)
+          release_file="$dir/release.json"
+          version=$(jq -r '.latest_version' $release_file)
+          repo_url=$(jq -r '.repo_url' $release_file)
+          
+          latest_version=$(curl -s https://api.github.com/repos/${repo_url}/releases/latest | jq -r '.tag_name')
+          
+          if [ "$version" != "$latest_version" ]; then
+            echo "Building and pushing Docker image for $app_name"
+            echo "should_build=true" >> $GITHUB_ENV
+            echo "app_name=$app_name" >> $GITHUB_ENV
+            echo "version=$version" >> $GITHUB_ENV
+            echo "latest_version=$latest_version" >> $GITHUB_ENV
+            echo "repo_url=$repo_url" >> $GITHUB_ENV
+            break
+          else
+            echo "Skipping $app_name as the versions are the same"
+          fi
+        done
 
-    - name: Compare versions
-      id: compare_versions
-      run: |
-        if [ "$version" != "$latest_version" ]; then
-          echo "Versions are different"
-          echo "should_build=true" >> $GITHUB_ENV
-        else
-          echo "Versions are the same"
-          echo "should_build=false" >> $GITHUB_ENV
-          echo "Skipping remaining steps as the versions '$version' are same!" 
-        fi
-
-    - name: Checkout rmats-turbo repository
+    - name: Checkout app repository
       if: env.should_build == 'true'
-      run: git clone --branch ${{ env.latest_version }} https://github.com/Xinglab/rmats-turbo.git
+      run: git clone --branch ${{ env.latest_version }} https://github.com/${{ env.repo_url }}.git ${{ env.app_name }}
 
     - name: Log in to GitHub Container Registry
       if: env.should_build == 'true'
@@ -60,40 +64,42 @@ jobs:
       uses: docker/metadata-action@v5.6.1
       with:
         images: |
-          ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }}
+          ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }}
 
     - name: Build Docker image
       if: env.should_build == 'true'
-      run: docker build -t ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} rmats-turbo
+      run: docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} ${{ env.app_name }}
           
     - name: Push Docker image
       id: push
       if: env.should_build == 'true'
       run: |
-        docker push ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }}
-        image_digest=$(docker image ls ghcr.io/${{ github.repository }}/rmats-turbo:${{ env.latest_version }} --no-trunc -q)
-          echo "---- Image digest is $image_digest ----"
-          echo "image_digest=$image_digest" >> $GITHUB_ENV
+        docker push ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }}
+        image_digest=$(docker image ls ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} --no-trunc -q)
+        echo "---- Image digest is $image_digest ----"
+        echo "image_digest=$image_digest" >> $GITHUB_ENV
 
     - name: Sign the published Docker image
       if: env.should_build == 'true'
       uses: actions/attest-build-provenance@v2.2.0
       with:
-        subject-name: ghcr.io/${{ github.repository }}/rmats-turbo
+        subject-name: ghcr.io/${{ github.repository }}/${{ env.app_name }}
         subject-digest: ${{ env.image_digest }}
         # push-to-registry: true
 
-    - name: Update release.tag
+    - name: Update release.json
       if: env.should_build == 'true'
-      run: echo ${{ env.latest_version }} > containers/rmats-turbo/release.tag
+      run: |
+        jq --arg version "${{ env.latest_version }}" '.latest_version = $version' containers/${{ env.app_name }}/release.json > containers/${{ env.app_name }}/release.json.tmp
+        mv containers/${{ env.app_name }}/release.json.tmp containers/${{ env.app_name }}/release.json
 
     - name: Commit changes
       if: env.should_build == 'true'
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git add containers/rmats-turbo/release.tag
-        git commit -m "Update release.tag to ${{ env.latest_version }}"
+        git add containers/${{ env.app_name }}/release.json
+        git commit -m "Update release.json for ${{ env.app_name }} to ${{ env.latest_version }}"
         git push origin HEAD:main
 
     - name: Create Pull Request
@@ -101,7 +107,7 @@ jobs:
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Update release.tag to ${{ env.latest_version }}"
-        branch: update-release-tag
-        title: "Update release.tag to ${{ env.latest_version }}"
-        body: "This PR updates the release.tag file to version ${{ env.latest_version }}."
+        commit-message: "Update release.json for ${{ env.app_name }} to ${{ env.latest_version }}"
+        branch: update-release-json-${{ env.app_name }}
+        title: "Update release.json for ${{ env.app_name }} to ${{ env.latest_version }}"
+        body: "This PR updates the release.json file for ${{ env.app_name }} to version ${{ env.latest_version }}."
