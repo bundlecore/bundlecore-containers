@@ -143,8 +143,8 @@ jobs:
           await github.rest.pulls.create({
             owner,
             repo,
-            title: `Update release.json for ${process.env.APP_NAME} to ${process.env.LATEST_VERSION}`,
-            head: `update-release-json-${process.env.APP_NAME}`,
+            title: `Update release.json for ${{ env.app_name }} to ${{ env.latest_version }}`,
+            head: `update-release-json-${{ env.app_name }}`,
             base: 'main',
-            body: `This PR updates the release.json file for ${process.env.APP_NAME} to version ${process.env.LATEST_VERSION}.`
+            body: `This PR updates the release.json file for ${{ env.app_name }} to version ${{ env.latest_version }}.`
           });
