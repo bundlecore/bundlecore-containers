@@ -38,14 +38,6 @@ jobs:
     - name: Set up jq
       run: sudo apt-get install jq
 
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
@@ -109,8 +101,7 @@ jobs:
         if [ "${{ env.repo_without_dockerfile }}" == "true" ]; then
           cp containers/${{ env.app_name }}/Dockerfile ${{ env.app_name }}/Dockerfile
         fi
-        docker buildx build --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new --output=type=docker --tag ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+        docker buildx build --output=type=docker --tag ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
 
     - name: Push Docker image
       id: push
