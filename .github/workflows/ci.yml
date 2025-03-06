@@ -23,6 +23,17 @@ jobs:
     - name: Set up jq
       run: sudo apt-get install jq
 
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
     - name: Loop through containers
       run: |
         for dir in containers/*/; do
@@ -32,30 +43,15 @@ jobs:
           repo_url=$(jq -r '.repo_url' $release_file)
           dockerfile_location=$(jq -r '.dockerfile_location // "Dockerfile"' $release_file) # if not present, default to Dockerfile
           repo_without_dockerfile=$(jq -r '.repo_without_dockerfile // false' $release_file) # if not present, default to false
-          # if [ "$repo_without_dockerfile" == "false" ]; then
-          #   echo "Skipping $app_name as it does not need to be built"
-          #   continue
-          # fi
           echo "Checking for updates for $app_name"
 
+          repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
+          latest_version=$(curl -s https://api.github.com/repos/${repo_name}/releases/latest | jq -r '.tag_name')
+          if [ "$latest_version" == "null" ]; then ## some of the repos do not have releases, so we get the latest tag instead
+            latest_version=$(curl -s https://api.github.com/repos/${repo_name}/tags | jq -r '.[0].name')
+          fi
+          echo "Latest version preset in Github for $app_name is $latest_version"
 
-
-          # sample release.json
-          # {
-          #   "latest_version": "v0.0.2",
-          #   "repo_url": "https://github.com/mwess/miit.git"
-          #   "dockerfile_location": "docker/Dockerfile"
-          #    "repo_without_dockerfile": true
-          # }
-
-            repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
-            latest_version=$(curl -s https://api.github.com/repos/${repo_name}/releases/latest | jq -r '.tag_name')
-            if [ "$latest_version" == "null" ]; then ## some of the repos do not have releases, so we get the latest tag instead
-              latest_version=$(curl -s https://api.github.com/repos/${repo_name}/tags | jq -r '.[0].name')
-            fi
-            echo "Latest version preset in Github for $app_name is $latest_version"
-
-          
           if [ "$version" != "$latest_version" ]; then
             echo "Building and pushing Docker image for $app_name"
             echo "should_build=true" >> $GITHUB_ENV
@@ -98,8 +94,9 @@ jobs:
         if [ "${{ env.repo_without_dockerfile }}" == "true" ]; then
           cp containers/${{ env.app_name }}/Dockerfile ${{ env.app_name }}/Dockerfile
         fi
-        docker build -t ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
-          
+        docker buildx build --cache-from type=local,src=/tmp/.buildx-cache --cache-to type=local,dest=/tmp/.buildx-cache-new --output=type=docker --tag ghcr.io/${{ github.repository }}/${{ env.app_name }}:${{ env.latest_version }} -f ${{ env.app_name }}/$dockerfile_location ${{ env.app_name }}
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
     - name: Push Docker image
       id: push
       if: env.should_build == 'true'
