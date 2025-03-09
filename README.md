@@ -1,3 +1,6 @@
+[![Dependabot Updates](https://github.com/bundlecore/bundlecore-containers/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/dependabot/dependabot-updates)
+[![Build and Push Docker Images](https://github.com/bundlecore/bundlecore-containers/actions/workflows/ci.yml/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/ci.yml)
+
 # Bundle Core Containers
 
 This repository is the parent for all bundle core containers. It will contain multiple sub-repos following the git submodule pattern. See [this blog post](https://github.blog/open-source/git/working-with-submodules/) for more information.
