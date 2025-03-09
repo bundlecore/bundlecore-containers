@@ -14,16 +14,24 @@ The repository includes automated CI workflows that:
 - Run daily at midnight to check for new releases
 - Can be manually triggered via GitHub Actions
 - Build and push Docker images to GitHub Container Registry
-- Sign container images for security
-- Automatically update version tags
+- Sign container images using build provenance attestation
+- Automatically update version information via pull requests
 
 ### Container Versioning
 
-Each container's version is tracked in a `release.tag` file within its directory. The CI workflow:
+Each container's version information is tracked in a `release.json` file within its directory. The file contains:
+- `latest_version`: Current version of the container
+- `repo_url`: Source repository URL
+- Optional fields:
+  - `dockerfile_location`: Custom Dockerfile path (defaults to "Dockerfile")
+  - `repo_without_dockerfile`: Boolean indicating if Dockerfile should be copied from this repo
 
-1. Checks the current version against the latest upstream release
-2. Builds and pushes new container images when updates are available
-3. Updates the `release.tag` file via pull request when new versions are published
+The CI workflow:
+1. Checks each container's current version against the latest upstream GitHub release/tag
+2. For outdated containers:
+   - Builds and pushes new container images to ghcr.io
+   - Creates a pull request to update the release.json file
+3. Signs the published container images using build provenance attestation
 
-Container images are published to `ghcr.io` with tags matching the upstream release versions.
+Container images are published to `ghcr.io/<repository-name>/<container-name>:<version>`.
 
