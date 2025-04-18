@@ -35,7 +35,7 @@ jobs:
         run: |
           set -e
           for appdir in biocontainers/*/; do
-            app=$(basename "$appdir")
+            app=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
             release_json="${appdir}release.json"
             if [ ! -f "$release_json" ]; then
               echo "No release.json for $app, skipping"
