@@ -1,0 +1,54 @@
+name: Retag and Sign BioContainer Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  retag-sign:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@v3.4.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retag and sign images
+        env:
+          GHCR_ORG: ${{ github.repository }}
+        run: |
+          set -e
+          for appdir in biocontainers/*/; do
+            app=$(basename "$appdir")
+            release_json="${appdir}release.json"
+            if [ ! -f "$release_json" ]; then
+              echo "No release.json for $app, skipping"
+              continue
+            fi
+            images=$(jq -r '.images[]' "$release_json")
+            for img in $images; do
+              tag="${img##*:}"
+              dest="ghcr.io/${GHCR_ORG}/${app}:${tag}"
+              echo "Processing $img -> $dest"
+              docker pull "$img"
+              docker tag "$img" "$dest"
+              docker push "$dest"
+              cosign sign --yes "$dest"
+            done
+          done
