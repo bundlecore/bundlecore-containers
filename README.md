@@ -16,6 +16,7 @@ The repository includes automated CI workflows that:
 - Build and push Docker images to GitHub Container Registry
 - Sign container images using build provenance attestation
 - Automatically update version information via pull requests
+- **Retag and sign BioContainer images from `biocontainers/<app>/release.json` to GitHub Container Registry (GHCR)**
 
 ### Container Versioning
 
@@ -33,5 +34,12 @@ The CI workflow:
    - Creates a pull request to update the release.json file
 3. Signs the published container images using build provenance attestation
 
+**BioContainer Retagging Workflow:**
+- Iterates through each app in `biocontainers/<app>/`
+- Reads all images from `release.json`
+- Retags and pushes each image to `ghcr.io/<org>/<app>:<tag>`
+- Signs the retagged images using Cosign
+
 Container images are published to `ghcr.io/<repository-name>/<container-name>:<version>`.
+
 
