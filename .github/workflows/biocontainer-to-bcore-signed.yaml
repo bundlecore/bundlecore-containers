@@ -51,6 +51,10 @@ jobs:
             for img in $images; do
               tag="${img##*:}"
               dest="ghcr.io/${GHCR_ORG}/${app_lower}:${tag}"
+              if docker manifest inspect "$dest" > /dev/null 2>&1; then
+                echo "Image $dest already exists, skipping"
+                continue
+              fi
               echo "Processing $img -> $dest"
               docker pull "$img"
               docker tag "$img" "$dest"
