@@ -1,5 +1,8 @@
 import json
 import sys
+import requests
+import os
+
 
 def fill_lua_template_from_api(tool_name, lua_template_path):
     """
@@ -30,51 +33,41 @@ def fill_lua_template_from_api(tool_name, lua_template_path):
         try:
             response = requests.get(API_URL, headers=headers)
             if response.status_code == 200:
-                tooldata = response.json()
-                #print(json.dumps(tooldata, indent=4))
-                toolname = tooldata.get("data", {}).get("tool", {}).get("name","N/A")
-                print (f"{toolname} versions available on bundlecore")
-                versions = tooldata.get("data", {}).get("tool", {}).get("versions", [])
-                for idx, version in enumerate(versions):
-                    toolversion = version.get("version", "N/A")
-                    #print(json.dumps(tooldata, indent=4))
-                    print(toolversion)
+                data = response.json()
+                print(json.dumps(data, indent=4))
+                versions  = data.get("data", {}).get("tool", {}).get("versions", [])
+                data_tool = data.get("data", {}).get("tool", {})
             else:
                 print(f"Failed to retrieve data. Status code: {response.status_code}")
                 print("Response:", response.text)
         except requests.RequestException as e:
             print(f"Bcore remote host not reachable. Please contact support team for help.")
-            print(e)
-        
-        # Extract tags from the JSON data
-        tags = data.get("data", {}).get("tool", {}).get("tags", [])
-        data_tool = data.get("data", {}).get("tool", {})
+            print(e)              
                 
-        if not tags:
-            print("No tags found in the JSON data.")
+        if not versions:
+            print("No versions found from Bcore api data.")
             return
 
         # Generate Lua scripts for each tag
-        for idx, tag in enumerate(tags):
+        for idx, version in enumerate(versions):
             try:
             
-                version=tag.get("version", "N/A")
-                uri=tag.get("uri", "N/A")
-                #cmds=tag.get("cmds", "N/A")
+                tool_version = version.get("version", "N/A")
+                uri = version.get("bcRegistryUrl", "N/A")
                 
-                cmds=', '.join('"{0}"'.format(w) for w in tag.get("cmds", "N/A"))
-                name=data_tool.get("name","N/A")
-                description=data_tool.get("description","N/A")
-                url=data_tool.get("url","N/A")
-                doi=data_tool.get("doi","N/A")
-                license=data_tool.get("license","N/A")
-                categories=', '.join('"{0}"'.format(w) for w in data_tool.get("categories","N/A"))
-                entrypoint_args=data_tool.get("entrypoint_args","N/A")
+                cmds = ', '.join('"{0}"'.format(w) for w in version.get("commands", "N/A"))
+                name = data_tool.get("name", "N/A")
+                description = data_tool.get("description", "N/A")
+                url = data_tool.get("url", "N/A")
+                doi = data_tool.get("doi", "N/A")
+                license = data_tool.get("license", "N/A")
+                categories = ', '.join('"{0}"'.format(w) for w in data_tool.get("categories", "N/A"))
+                entrypoint_args = ', '.join('"{0}"'.format(w) for w in version.get("entryCmds", "N/A")) 
                 #print(version,uri,cmds,description,url,doi,license,categories,entrypoint_args)
                 # Fill template with tag details
 
                 filled_lua = lua_template_content.format( 
-                    version = version, 
+                    version = tool_version, 
                     uri = uri,
                     cmds = cmds,
                     name = name,
@@ -87,7 +80,7 @@ def fill_lua_template_from_api(tool_name, lua_template_path):
                 )
                 
                 # Output file path
-                lua_output_path = version+".lua"
+                lua_output_path = tool_version+".lua"
 
                 # Write the filled Lua file
                 with open(lua_output_path, 'w') as output_file:
@@ -117,7 +110,7 @@ if __name__ == "__main__":
     
     try:
         lua_template_path = 'template_file.lua'  # Path to the Lua template file
-        if not os.path.exists(lua_template_path):
+        if not os.path.isfile(lua_template_path):
             print(f"Error: Lua template file '{lua_template_path}' not found.")
             sys.exit(1)
     except Exception as e:
