@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Set up Cosign
-        uses: sigstore/cosign-installer@v3.4.0
+        uses: sigstore/cosign-installer@v3.8.1
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -51,6 +51,10 @@ jobs:
             for img in $images; do
               tag="${img##*:}"
               dest="ghcr.io/${GHCR_ORG}/${app_lower}:${tag}"
+              if docker manifest inspect "$dest" > /dev/null 2>&1; then
+                echo "Image $dest already exists, skipping"
+                continue
+              fi
               echo "Processing $img -> $dest"
               docker pull "$img"
               docker tag "$img" "$dest"
