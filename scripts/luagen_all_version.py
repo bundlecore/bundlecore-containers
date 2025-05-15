@@ -4,17 +4,16 @@ import requests
 import os
 
 
-def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
+def fill_lua_template_from_api(tool_name, lua_template_path):
     """
-    Reads JSON data from Bundlecore API and generates one Lua file per version of rgw tool using a template.
+    Reads JSON data from Bundlecore API, processes tags, and generates one Lua file per tag using a template.
 
     :param tool_name: Tool name to be used in the API URL
-    :param tool_version: Tool version to be filled in the Lua template
     :param lua_template_path: Path to the Lua template file
-
+    
     """
     try:
-
+    
         # Read the Lua template
         with open(lua_template_path, 'r') as lua_file:
             lua_template_content = lua_file.read()
@@ -26,7 +25,6 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
 
         # Set up the headers with Authorization
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
             "Authorization": f"Bearer {AUTH_TOKEN}",
             "Accept": "application/json"
         }
@@ -36,7 +34,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
             response = requests.get(API_URL, headers=headers)
             if response.status_code == 200:
                 data = response.json()
-                #print(json.dumps(data, indent=4))
+                print(json.dumps(data, indent=4))
                 versions  = data.get("data", {}).get("tool", {}).get("versions", [])
                 data_tool = data.get("data", {}).get("tool", {})
             else:
@@ -53,10 +51,8 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
         # Generate Lua scripts for each tag
         for idx, version in enumerate(versions):
             try:
-                if version.get("version") != tool_version:
-                    continue
-
-                tool_version_ = version.get("version", "N/A")
+            
+                tool_version = version.get("version", "N/A")
                 uri = version.get("bcRegistryUrl", "N/A")
                 
                 cmds = ', '.join('"{0}"'.format(w) for w in version.get("commands", "N/A"))
@@ -71,7 +67,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
                 # Fill template with tag details
 
                 filled_lua = lua_template_content.format( 
-                    version = tool_version_, 
+                    version = tool_version, 
                     uri = uri,
                     cmds = cmds,
                     name = name,
@@ -107,11 +103,9 @@ if __name__ == "__main__":
 
     # Input and output file paths
     try:
-        tool_name    = sys.argv[0].strip()  #"star" # Tool name from command line argument
-        tool_version = sys.argv[1].strip()  #"2.7.11b--h5ca1c30_5" # Tool version from command line argument
-             
+        tool_name = sys.argv[0].strip()  # Tool name from command line argument
     except IndexError:
-        print("Error: Missing command line argument for tool/version.")
+        print("Error: Missing command line argument for tool name.")
         sys.exit(1)
     
     try:
@@ -125,4 +119,4 @@ if __name__ == "__main__":
     
 
     # Generate Lua files
-    fill_lua_template_from_api(tool_name, tool_version, lua_template_path)
+    fill_lua_template_from_api(tool_name, lua_template_path)
