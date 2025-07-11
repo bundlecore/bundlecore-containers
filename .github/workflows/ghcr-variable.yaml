@@ -1,0 +1,17 @@
+name: Test GHCR_ORG Variable
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print GitHub Context Variables
+        env:
+          GHCR_ORG: ${{ github.repository_owner }}
+        run: |
+          echo "github.repository: ${{ github.repository }}"
+          echo "github.repository_owner: ${{ github.repository_owner }}"
+          echo "GHCR_ORG (env): $GHCR_ORG"
+          echo "Image URL: ghcr.io/${GHCR_ORG}/products/bio/test-image:latest"
