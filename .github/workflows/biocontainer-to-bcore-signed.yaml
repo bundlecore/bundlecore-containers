@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'bio/**'
+      - 'bfx/**'
 
 jobs:
   retag-sign:
@@ -37,7 +37,7 @@ jobs:
           GHCR_ORG: ${{ github.repository_owner }}
         run: |
           set -e
-          for appdir in bio/*/; do
+          for appdir in bfx/*/; do
             app=$(basename "$appdir")
             app_lower=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
             release_json="${appdir}release.json"
