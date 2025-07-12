@@ -21,7 +21,9 @@ def fill_lua_template_from_api(tool_name, lua_template_path):
         # Connect with Bundlecore API and get the JSON data
         """Call Bcore appstore and list new apps and versions. Usage: appstore <tool name>"""
         API_URL = f"https://bundlecore.com/api/tools/{tool_name}"
-        AUTH_TOKEN = "bcore_eb75f26d7c3d1b46dfdf3f3452df7e461274c135ceb5a5297a4b8e286af97560"
+        AUTH_TOKEN = os.getenv('BCORE_AUTH_TOKEN')
+        if not AUTH_TOKEN:
+            raise ValueError("BCORE_AUTH_TOKEN environment variable is not set")
 
         # Set up the headers with Authorization
         headers = {
