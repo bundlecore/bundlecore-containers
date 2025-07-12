@@ -37,14 +37,13 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_
 
         try:
             response = requests.get(API_URL, headers=headers)
-            print(f"Received response with status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
                 #print(json.dumps(data, indent=4))
                 versions  = data.get("data", {}).get("tool", {}).get("versions", [])
                 data_tool = data.get("data", {}).get("tool", {})
             else:
-                print(f"Failed to retrieve data. Status code: {response.status_code}")
+                print(f"Failed to retrieve data for {tool_name}. Status code: {response.status_code}")
                 print("Response:", response.text)
         except requests.RequestException as e:
             print(f"Bcore remote host not reachable. Please contact support team for help.")
@@ -89,7 +88,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_
                 # Ensure the output directory exists
                 # os.makedirs(os.path.join(tool_domain, tool_name), exist_ok=True)
                 
-                # Output file path
+                # Output lua file to doamin/tool_name/version.lua
                 lua_output_path = os.path.join(tool_domain, tool_name, tool_version + ".lua")
 
                 # Write the filled Lua file
