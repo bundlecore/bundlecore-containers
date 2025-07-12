@@ -4,7 +4,7 @@ import requests
 import os
 
 
-def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
+def fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_domain):
     """
     Reads JSON data from Bundlecore API and generates one Lua file per version of rgw tool using a template.
 
@@ -22,7 +22,10 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
         # Connect with Bundlecore API and get the JSON data
         """Call Bcore appstore and list new apps and versions. Usage: appstore <tool name>"""
         API_URL = f"https://bundlecore.com/api/tools/{tool_name}"
-        AUTH_TOKEN = "bcore_eb75f26d7c3d1b46dfdf3f3452df7e461274c135ceb5a5297a4b8e286af97560"
+        AUTH_TOKEN = os.environ.get("BCORE_AUTH_TOKEN")
+        if not AUTH_TOKEN:
+            print("Error: BCORE_AUTH_TOKEN environment variable not set.")
+            sys.exit(1)
 
         # Set up the headers with Authorization
         headers = {
@@ -34,6 +37,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
 
         try:
             response = requests.get(API_URL, headers=headers)
+            print(f"Received response with status code: {response.status_code}")
             if response.status_code == 200:
                 data = response.json()
                 #print(json.dumps(data, indent=4))
@@ -47,7 +51,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
             print(e)              
                 
         if not versions:
-            print("No versions found from Bcore api data.")
+            print(f"No versions found for tool {tool_name} from Bcore api data.")
             return
 
         # Generate Lua scripts for each tag
@@ -82,9 +86,11 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path):
                     categories = categories,
                     entrypoint_args = entrypoint_args
                 )
+                # Ensure the output directory exists
+                # os.makedirs(os.path.join(tool_domain, tool_name), exist_ok=True)
                 
                 # Output file path
-                lua_output_path = tool_version+".lua"
+                lua_output_path = os.path.join(tool_domain, tool_name, tool_version + ".lua")
 
                 # Write the filled Lua file
                 with open(lua_output_path, 'w') as output_file:
@@ -107,15 +113,16 @@ if __name__ == "__main__":
 
     # Input and output file paths
     try:
-        tool_name    = sys.argv[0].strip()  #"star" # Tool name from command line argument
-        tool_version = sys.argv[1].strip()  #"2.7.11b--h5ca1c30_5" # Tool version from command line argument
+        tool_name    = sys.argv[1].strip()  #"star" # Tool name from command line argument
+        tool_version = sys.argv[2].strip()  #"2.7.11b--h5ca1c30_5" # Tool version from command line argument
+        tool_domain = sys.argv[3].strip()  ## bfx # Tool domain from command line argument
              
     except IndexError:
         print("Error: Missing command line argument for tool/version.")
         sys.exit(1)
     
     try:
-        lua_template_path = 'template_file.lua'  # Path to the Lua template file
+        lua_template_path = 'scripts/template_file.lua'  # Path to the Lua template file
         if not os.path.isfile(lua_template_path):
             print(f"Error: Lua template file '{lua_template_path}' not found.")
             sys.exit(1)
@@ -125,4 +132,4 @@ if __name__ == "__main__":
     
 
     # Generate Lua files
-    fill_lua_template_from_api(tool_name, tool_version, lua_template_path)
+    fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_domain)
