@@ -128,6 +128,12 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
+    # Check if the Lua file already exists
+    lua_output_path = os.path.join(tool_domain, tool_name, tool_version + ".lua")
+    if os.path.exists(lua_output_path):
+        print(f"Lua file already exists at {lua_output_path}. Skipping generation.")
+        sys.exit(0)
     
 
     # Generate Lua files
