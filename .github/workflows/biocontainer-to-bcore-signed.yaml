@@ -35,11 +35,13 @@ jobs:
       - name: Retag and sign images
         env:
           GHCR_ORG: ${{ github.repository_owner }}
+          BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN }}
+          PROD_DOMAIN: bfx
         run: |
           set -e
           for appdir in bfx/*/; do
             app=$(basename "$appdir")
-            app_lower=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
+            slug=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
             release_json="${appdir}release.json"
             if [ ! -f "$release_json" ]; then
               echo "No release.json for $app, skipping"
@@ -48,7 +50,7 @@ jobs:
             images=$(jq -r '.images[]' "$release_json")
             for img in $images; do
               tag="${img##*:}"
-              dest="ghcr.io/${GHCR_ORG}/products/bfx/${app_lower}:${tag}"
+              dest="ghcr.io/${GHCR_ORG}/products/${PROD_DOMAIN}/${slug}:${tag}"
               if docker manifest inspect "$dest" > /dev/null 2>&1; then
               echo "Image $dest already exists, skipping"
               continue
@@ -58,5 +60,22 @@ jobs:
               docker tag "$img" "$dest"
               docker push "$dest"
               cosign sign --yes "$dest"
+
+              ## TODO: Update the image via bcore API
+              # curl -X POST "https://bundlecore.com/api/tools/${slug}" \
+              #      -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+              #      -H "Content-Type: application/json" \
+              #      -d "{\"image\": \"${dest}\", \"tag\": \"${tag}\"}"
+
+            #  curl -X PUT \
+            # 'https://your-domain.com/api/tools/star/versions/2.7.11a--h0033a41_0' \
+            # -H 'Authorization: Bearer YOUR_API_KEY' \
+            # -H 'Content-Type: application/json' \
+            # -d '{
+            #   "registryUrl": "quay.io/biocontainers/star:2.7.11a--h0033a41_0",
+            #   "entryCmds": [],
+            #   "commands": ["STAR", "STARlong"]
+            # }'
+
             done
           done
