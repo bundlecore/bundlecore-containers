@@ -8,9 +8,15 @@ on:
 jobs:
     check-releases:
         runs-on: ubuntu-latest
+        permissions:
+          contents: write
+          pull-requests: write
+
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Install jq
               run: sudo apt-get install -y jq curl
@@ -89,8 +95,9 @@ jobs:
 
                 # If updates were found, create a PR
                 if [[ "$UPDATES_FOUND" == "true" ]]; then
-                    git config --global user.name 'GitHub Actions'
-                    git config --global user.email 'actions@github.com'
+                    git config --global user.name 'github-actions[bot]'
+                    git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                    git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
                     git add bfx/*/release.json
                     git commit -m "Update container versions"
                     git push origin "$BRANCH_NAME"
