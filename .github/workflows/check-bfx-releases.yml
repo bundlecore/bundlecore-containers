@@ -61,7 +61,7 @@ jobs:
                             # Update the release.json file
                             jq --arg images "$image_list" '.images = ($images|fromjson)' "$file_path" > "$file_path.tmp"
                             mv "$file_path.tmp" "$file_path"
-                            echo "::set-output name=updates::true"
+                            echo "updates=true" >> $GITHUB_OUTPUT
                         fi
                     else
                         echo "Error fetching tags for $repo"
@@ -94,7 +94,7 @@ jobs:
                     git add bfx/*/release.json
                     git commit -m "Update container versions"
                     git push origin "$BRANCH_NAME"
-                    echo "::set-output name=branch_name::$BRANCH_NAME"
+                    echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
                 fi
 
             - name: Create Pull Request
