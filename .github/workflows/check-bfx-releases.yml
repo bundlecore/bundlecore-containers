@@ -1,0 +1,113 @@
+name: Check BFX Container Releases
+
+on:
+    schedule:
+        - cron: '0 8 * * *'  # Run at 8:00 AM UTC daily
+    workflow_dispatch:  # Allow manual trigger
+
+jobs:
+    check-releases:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Install jq
+              run: sudo apt-get install -y jq curl
+
+            - name: Check for new releases
+              run: |
+                #!/bin/bash
+                
+                check_quay_tags() {
+                    local image_name=$1
+                    # Add limit=3 and order by last_modified
+                    curl -s "https://quay.io/api/v1/repository/${image_name}/tag/?limit=3&onlyActiveTags=true&orderBy=last_modified" || return 1
+                }
+
+                process_release_file() {
+                    local file_path=$1
+                    local current_images=($(jq -r '.images[]' "$file_path"))
+                    
+                    if [[ ${#current_images[@]} -eq 0 ]]; then
+                        return
+                    fi
+                    
+                    # Extract the repository name from the first image
+                    local repo=$(echo "${current_images[0]}" | cut -d':' -f1 | sed 's|quay.io/||')
+                    echo "Checking $repo..."
+                    
+                    local tags_data=$(check_quay_tags "$repo")
+                    
+                    if [[ $? -eq 0 ]]; then
+                        # Get the latest 3 tags sorted by last_modified
+                        local latest_tags=$(echo "$tags_data" | jq -r '.tags | sort_by(.last_modified) | .[0:3] | .[].name')
+                        local updates_needed=false
+                        
+                        # Get current image list
+                        local image_list=$(jq -r '.images' "$file_path")
+                        
+                        while read -r tag; do
+                            local full_image="quay.io/${repo}:${tag}"
+                            if ! printf '%s\n' "${current_images[@]}" | grep -q "^${full_image}$"; then
+                                # Add new version to the beginning of images array
+                                image_list=$(jq --arg img "$full_image" '. |= [$img] + .' <<< "$image_list")
+                                updates_needed=true
+                            fi
+                        done <<< "$latest_tags"
+                        
+                        if [[ "$updates_needed" == true ]]; then
+                            echo "Updating $file_path with new versions"
+                            # Update the release.json file
+                            jq --arg images "$image_list" '.images = ($images|fromjson)' "$file_path" > "$file_path.tmp"
+                            mv "$file_path.tmp" "$file_path"
+                            echo "::set-output name=updates::true"
+                        fi
+                    else
+                        echo "Error fetching tags for $repo"
+                    fi
+                }
+
+                # Create a new branch for updates
+                BRANCH_NAME="update-containers-$(date +%Y%m%d-%H%M%S)"
+                git checkout -b "$BRANCH_NAME"
+
+                # Process all release files
+                UPDATES_FOUND=false
+                for prod_slug in bfx/*; do
+                    if [[ -d "$prod_slug" ]]; then
+                        release_file="$prod_slug/release.json"
+                        if [[ -f "$release_file" ]]; then
+                            echo "Checking $(basename $prod_slug)..."
+                            process_release_file "$release_file"
+                            if [[ $? -eq 0 ]]; then
+                                UPDATES_FOUND=true
+                            fi
+                        fi
+                    fi
+                done
+
+                # If updates were found, create a PR
+                if [[ "$UPDATES_FOUND" == "true" ]]; then
+                    git config --global user.name 'GitHub Actions'
+                    git config --global user.email 'actions@github.com'
+                    git add bfx/*/release.json
+                    git commit -m "Update container versions"
+                    git push origin "$BRANCH_NAME"
+                    echo "::set-output name=branch_name::$BRANCH_NAME"
+                fi
+
+            - name: Create Pull Request
+              if: steps.check-releases.outputs.updates == 'true'
+              uses: actions/github-script@v6
+              with:
+                script: |
+                    const branch = process.env.BRANCH_NAME;
+                    await github.rest.pulls.create({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        title: 'Update container versions',
+                        head: branch,
+                        base: 'main',
+                        body: 'This PR updates container versions in release.json files with newly available versions.'
+                    });
