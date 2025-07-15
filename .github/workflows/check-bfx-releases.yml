@@ -98,11 +98,11 @@ jobs:
                 if [[ "$UPDATES_FOUND" == "true" ]]; then
                     git config --global user.name 'github-actions'
                     git config --global user.email 'github-actions@github.com'
-                    # git checkout -b "$BRANCH_NAME"
+                    
                     git add bfx/*/release.json
                     git commit -m "Update container versions"
                     git push origin "$BRANCH_NAME"
-                    echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+                    echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
                 fi
 
             - name: Create Pull Request
@@ -111,7 +111,7 @@ jobs:
               with:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
                 script: |
-                    const branch = process.env.BRANCH_NAME;
+                    const branch = ${{ env.branch_name }};
                     const { repo, owner } = context.repo;
                     await github.rest.pulls.create({
                         owner,
