@@ -88,7 +88,7 @@ jobs:
                     if [[ -d "$prod_slug" ]]; then
                         release_file="$prod_slug/release.json"
                         if [[ -f "$release_file" ]]; then
-                            echo "Checking $(basename $prod_slug)..."
+                            echo "Checking new releases for $(basename $prod_slug)..."
                             # process_release_file will set updates=true in output and env if updates found
                             process_release_file "$release_file"
                         fi
@@ -96,7 +96,7 @@ jobs:
                 done
 
                 # If updates were found (checked by env.updates), commit and push changes
-                if [[ "$updates" == "true" ]]; then
+                if [[ "${env.updates}" == "true" ]]; then
                     git config --global user.name 'github-actions'
                     git config --global user.email 'github-actions@github.com'
 
