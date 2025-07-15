@@ -89,7 +89,6 @@ jobs:
                             process_release_file "$release_file"
                             if [[ $? -eq 0 ]]; then
                                 UPDATES_FOUND=true
-                                echo "updates=true" >> $GITHUB_OUTPUT
                             fi
                         fi
                     fi
@@ -104,6 +103,7 @@ jobs:
                     git commit -m "Update container versions"
                     git push origin "$BRANCH_NAME"
                     echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+                    echo "updates=true" >> $GITHUB_OUTPUT
                 fi
 
             - name: Create Pull Request
