@@ -96,15 +96,16 @@ jobs:
                 done
 
                 # If updates were found (checked by env.updates), commit and push changes
-                if [[ "$updates" == "true" ]]; then
-                    git config --global user.name 'github-actions'
-                    git config --global user.email 'github-actions@github.com'
-
-                    git add bfx/*/release.json
-                    git commit -m "Update container versions"
-                    git push origin "$BRANCH_NAME"
-                    echo "Updates found and pushed to branch $BRANCH_NAME, ready for PR"
-                fi
+            - name: Commit changes
+              if: env.updates == 'true'
+              run: |
+                git config --global user.name 'github-actions'
+                git config --global user.email 'github-actions@github.com'
+                git add bfx/*/release.json
+                git commit -m "Update container versions"
+                git push origin "$BRANCH_NAME"
+                echo "Updates found and pushed to branch $BRANCH_NAME, ready for PR"
+            
 
             - name: Create Pull Request
               if: env.updates == 'true'
