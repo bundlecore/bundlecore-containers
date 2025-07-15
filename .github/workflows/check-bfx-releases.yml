@@ -96,9 +96,9 @@ jobs:
 
                 # If updates were found, create a PR
                 if [[ "$UPDATES_FOUND" == "true" ]]; then
-                    git config --global user.name 'github-actions[bot]'
-                    git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                    git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+                    git config --global user.name 'github-actions'
+                    git config --global user.email 'github-actions@github.com'
+                    git checkout -b "$BRANCH_NAME"
                     git add bfx/*/release.json
                     git commit -m "Update container versions"
                     git push origin "$BRANCH_NAME"
@@ -112,9 +112,10 @@ jobs:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
                 script: |
                     const branch = process.env.BRANCH_NAME;
+                    const { repo, owner } = context.repo;
                     await github.rest.pulls.create({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
+                        owner,
+                        repo,
                         title: 'Update container versions',
                         head: branch,
                         base: 'main',
