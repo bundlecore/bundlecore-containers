@@ -113,7 +113,7 @@ jobs:
               with:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
                 script: |
-                    const branch = process.env.branch_name; // Access from environment variables
+                    const branch = ${{ env.BRANCH_NAME }}; // Access from environment variables
                     const { repo, owner } = context.repo;
                     await github.rest.pulls.create({
                         owner,
