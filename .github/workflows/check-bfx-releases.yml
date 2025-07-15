@@ -1,4 +1,26 @@
-- name: Check for new releases
+name: Check BFX Container Releases
+
+on:
+    schedule:
+        - cron: '0 8 * * *'  # Run at 8:00 AM UTC daily
+    workflow_dispatch:  # Allow manual trigger
+
+jobs:
+    check-releases:
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write
+          pull-requests: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Install jq
+              run: sudo apt-get install -y jq curl
+            - name: Check for new releases
               id: check-releases
               run: |
                 #!/bin/bash
