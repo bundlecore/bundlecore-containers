@@ -76,11 +76,7 @@ jobs:
                     fi
                 }
 
-                # Create a new branch for updates
-                BRANCH_NAME="update-containers-$(date +%Y%m%d-%H%M%S)"
-                git checkout -b "$BRANCH_NAME"
-                # Always set the branch name in the environment
-                echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+           
 
 
                 # Process all release files
@@ -99,6 +95,12 @@ jobs:
             - name: Commit changes
               if: env.updates == 'true'
               run: |
+                # Create a new branch for updates
+                BRANCH_NAME="update-containers-$(date +%Y%m%d-%H%M%S)"
+                git checkout -b "$BRANCH_NAME"
+                # Always set the branch name in the environment
+                echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+
                 git config --global user.name 'github-actions'
                 git config --global user.email 'github-actions@github.com'
                 git add bfx/*/release.json
