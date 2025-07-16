@@ -105,8 +105,8 @@ jobs:
                 git config --global user.email 'github-actions@github.com'
                 git add bfx/*/release.json
                 git commit -m "Update container versions"
-                git push origin "${{ env.BRANCH_NAME }}"
-                echo "Updates found and pushed to branch ${{ env.BRANCH_NAME }}, ready for PR"
+                git push origin "$BRANCH_NAME"
+                echo "Updates found and pushed to branch $BRANCH_NAME, ready for PR"
             
 
             - name: Create Pull Request
@@ -115,7 +115,7 @@ jobs:
               with:
                 github-token: ${{ secrets.GITHUB_TOKEN }}
                 script: |
-                    const branch = ${{ env.BRANCH_NAME }}; // Access from environment variables
+                    const branch = process.env.branch_name; // Access from environment variables
                     const { repo, owner } = context.repo;
                     await github.rest.pulls.create({
                         owner,
