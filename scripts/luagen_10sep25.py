@@ -74,7 +74,8 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_
                 # Fill template with tag details
 
                 filled_lua = lua_template_content.format( 
-                    version = tool_version_,
+                    version = tool_version_, 
+                    uri = uri,
                     cmds = cmds,
                     name = name,
                     description = description,
