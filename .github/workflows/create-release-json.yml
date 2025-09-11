@@ -34,13 +34,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         for dir in bfx/*/; do
-          tool_slug=$(basename $dir)
+          tool_slug=$(basename "$dir")
           release_file="$dir/release.json"
-          images=$(curl -s "https://bundlecore.com/api/tools/${tool_slug}/versions" \
-            -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
-            -H "Content-Type: application/json" \
-            | jq -r '.data.versions[].registryUrl' | jq -R -s -c 'split("\n")[:-1]')
-          echo "{\"images\": $images}" > "$release_file"
+          api_url="https://bundlecore.com/api/tools/${tool_slug}/versions"
+
+          # Fetch API response and status code in one go
+          http_response=$(curl -s -w "\n%{http_code}" \
+              -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              "$api_url")
+
+          # Split response and status code
+          status_code=$(echo "$http_response" | tail -n1)
+          body=$(echo "$http_response" | sed '$d')
+
+          if [ "$status_code" != "200" ]; then
+              echo "Error: API responded with status code $status_code for $tool_slug"
+              echo "Response body: $body"
+          else
+              images=$(echo "$body" | jq -r '.data.versions[].registryUrl' | jq -R -s -c 'split("\n")[:-1]')
+              echo "{\"images\": $images}" > "$release_file"
+              echo "Updated $release_file with images for $tool_slug"
+          fi
 
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
