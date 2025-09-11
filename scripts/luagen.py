@@ -74,8 +74,7 @@ def fill_lua_template_from_api(tool_name, tool_version, lua_template_path, tool_
                 # Fill template with tag details
 
                 filled_lua = lua_template_content.format( 
-                    version = tool_version_, 
-                    uri = uri,
+                    version = tool_version_,
                     cmds = cmds,
                     name = name,
                     description = description,
@@ -114,7 +113,7 @@ if __name__ == "__main__":
     try:
         tool_name    = sys.argv[1].strip()  #"star" # Tool name from command line argument
         tool_version = sys.argv[2].strip()  #"2.7.11b--h5ca1c30_5" # Tool version from command line argument
-        tool_domain = sys.argv[3].strip()  ## bfx # Tool domain from command line argument
+        tool_domain  = sys.argv[3].strip()  ## bfx # Tool domain from command line argument
              
     except IndexError:
         print("Error: Missing command line argument for tool/version.")

@@ -23,7 +23,7 @@ whatis("Home page: {url}")
 
 conflict(myModuleName())
 
-local image = "{uri}"
+local image = "{IMAGE_NAME}"
 local programs = {{{cmds}}}
 local entrypoint_args = "{entrypoint_args}"
 
@@ -31,15 +31,15 @@ local entrypoint_args = "{entrypoint_args}"
 -- nodes without the corresponding module necessarily being loaded.
 local apptainer = capture("which apptainer | head -c -1")
 
-if (os.getenv("BC_IMAGE_DIR")) then
-   local cimage = pathJoin(os.getenv("BC_IMAGE_DIR"), image)
-   if not (isFile(cimage)) then
-      -- The image could not be found in the container directory
-      if (mode() == "load") then
-         LmodMessage("file not found: " .. cimage)
-      end
+
+local cimage = pathJoin(os.getenv("{BC_IMAGE_DIR}"), image)
+if not (isFile(cimage)) then
+   -- The image could not be found in the container directory
+   if (mode() == "load") then
+      LmodMessage("file not found: " .. cimage)
    end
 end
+
 
 -- Determine Nvidia and/or AMD GPUs (set the flag to Apptainer)
 local run_args = {{}}
