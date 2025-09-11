@@ -31,6 +31,8 @@ jobs:
         run: pip install requests
 
       - name: Verify Secret
+        env:
+          BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
         run: |
           if [ -z "$BCORE_AUTH_TOKEN" ]; then
             echo "Error: BCORE_AUTH_TOKEN is not set"
