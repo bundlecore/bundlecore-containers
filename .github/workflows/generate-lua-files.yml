@@ -32,6 +32,12 @@ jobs:
         env:
           BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN }}
         run: |
+          # Debug: Check if token is set (will only show if it's set or not, not the value)
+          if [ -n "$BCORE_AUTH_TOKEN" ]; then
+            echo "BCORE_AUTH_TOKEN is set"
+          else
+            echo "BCORE_AUTH_TOKEN is NOT set"
+          fi
           # Function to extract tool name from path
           get_tool_name() {
             local file_path=$1
@@ -60,9 +66,8 @@ jobs:
             while IFS= read -r version; do
               if [ ! -z "$version" ]; then
                 echo "Generating Lua file for $tool_name version $version"
-                # Export the token so it's available to the Python script
-                export BCORE_AUTH_TOKEN=$BCORE_AUTH_TOKEN
-                python scripts/luagen.py "$tool_name" "$version" "bfx"
+                # Run Python with environment variable passed directly
+                BCORE_AUTH_TOKEN="$BCORE_AUTH_TOKEN" python scripts/luagen.py "$tool_name" "$version" "bfx"
                 
                 # If new file was created, mark that we have changes
                 if [ $? -eq 0 ]; then
