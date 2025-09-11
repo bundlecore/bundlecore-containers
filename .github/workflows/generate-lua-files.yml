@@ -9,9 +9,10 @@ on:
 jobs:
   generate-lua:
     runs-on: ubuntu-latest
-    environment: prod  # Specify the environment where the secret is stored
+    
     permissions:
       contents: write
+      id-token: write
       pull-requests: write
       
     steps:
@@ -40,8 +41,9 @@ jobs:
         id: process-files
         env:
           BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN }}
+          GHCR_ORG: ${{ github.repository_owner }}
         run: |
-          # Debug: Check if token is set (will only show if it's set or not, not the value)
+          # Process files
           if [ -n "$BCORE_AUTH_TOKEN" ]; then
             echo "BCORE_AUTH_TOKEN is set"
           else
