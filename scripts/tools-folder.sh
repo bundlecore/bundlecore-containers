@@ -11,5 +11,7 @@ do
         echo "Folder bfx/$tool already exists, skipping."
     else
         mkdir -p bfx/$tool
+        touch bfx/$tool/release.json
+        echo "Created folder and release.json for $tool"
     fi
 done
