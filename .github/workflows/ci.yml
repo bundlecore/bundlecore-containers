@@ -114,7 +114,7 @@ jobs:
 
     - name: Sign the published Docker image
       if: env.should_build == 'true'
-      uses: actions/attest-build-provenance@v2.4.0
+      uses: actions/attest-build-provenance@v3.0.0
       with:
         subject-name: ghcr.io/${{ github.repository }}/${{ env.app_name }}
         subject-digest: ${{ env.image_digest }}
@@ -138,7 +138,7 @@ jobs:
 
     - name: Create Pull Request
       if: env.should_build == 'true'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
