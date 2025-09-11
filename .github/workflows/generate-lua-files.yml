@@ -60,6 +60,8 @@ jobs:
             while IFS= read -r version; do
               if [ ! -z "$version" ]; then
                 echo "Generating Lua file for $tool_name version $version"
+                # Export the token so it's available to the Python script
+                export BCORE_AUTH_TOKEN=$BCORE_AUTH_TOKEN
                 python scripts/luagen.py "$tool_name" "$version" "bfx"
                 
                 # If new file was created, mark that we have changes
