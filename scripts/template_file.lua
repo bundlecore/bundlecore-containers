@@ -23,7 +23,6 @@ whatis("Home page: {url}")
 
 conflict(myModuleName())
 
-local image = "{IMAGE_NAME}"
 local programs = {{{cmds}}}
 local entrypoint_args = "{entrypoint_args}"
 
@@ -31,8 +30,7 @@ local entrypoint_args = "{entrypoint_args}"
 -- nodes without the corresponding module necessarily being loaded.
 local apptainer = capture("which apptainer | head -c -1")
 
-
-local cimage = pathJoin(os.getenv("{BC_IMAGE_DIR}"), image)
+local cimage = pathJoin(os.getenv("{BC_IMAGE_DIR}"), ("{IMAGE_NAME}"))
 if not (isFile(cimage)) then
    -- The image could not be found in the container directory
    if (mode() == "load") then
