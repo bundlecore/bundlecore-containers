@@ -9,10 +9,11 @@ on:
 jobs:
   generate-lua:
     runs-on: ubuntu-latest
+    environment: prod  # Specify the environment where the secret is stored
     permissions:
       contents: write
       pull-requests: write
-    
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -26,6 +27,14 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests
+
+      - name: Verify Secret
+        run: |
+          if [ -z "$BCORE_AUTH_TOKEN" ]; then
+            echo "Error: BCORE_AUTH_TOKEN is not set"
+            exit 1
+          fi
+          echo "BCORE_AUTH_TOKEN is properly set"
 
       - name: Process changed release.json files
         id: process-files
