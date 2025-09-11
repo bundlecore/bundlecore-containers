@@ -1,0 +1,99 @@
+name: Generate Lua Files
+
+on:
+  push:
+    paths:
+      - 'bfx/*/release.json'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  generate-lua:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Process changed release.json files
+        id: process-files
+        env:
+          BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN }}
+        run: |
+          # Function to extract tool name from path
+          get_tool_name() {
+            local file_path=$1
+            echo $(basename $(dirname "$file_path"))
+          }
+
+          # Initialize a flag for changes
+          CHANGES_MADE=false
+
+          # Get list of changed release.json files
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "bfx/.*/release.json" || true)
+          
+          # If manually triggered, check all release.json files
+          if [ -z "$changed_files" ]; then
+            changed_files=$(find bfx -name "release.json")
+          fi
+
+          for file in $changed_files; do
+            tool_name=$(get_tool_name "$file")
+            echo "Processing $tool_name..."
+            
+            # Extract versions from release.json
+            versions=$(jq -r '.images[] | split(":")[1]' "$file")
+            
+            # Generate Lua file for each version
+            while IFS= read -r version; do
+              if [ ! -z "$version" ]; then
+                echo "Generating Lua file for $tool_name version $version"
+                python scripts/luagen.py "$tool_name" "$version" "bfx"
+                
+                # If new file was created, mark that we have changes
+                if [ $? -eq 0 ]; then
+                  CHANGES_MADE=true
+                fi
+              fi
+            done <<< "$versions"
+          done
+
+          # Set output for use in subsequent steps
+          echo "changes_made=$CHANGES_MADE" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.process-files.outputs.changes_made == 'true'
+        run: |
+          # Create a new branch
+          BRANCH_NAME="update-lua-files-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          # Configure git
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+
+          # Stage and commit changes
+          git add 'bfx/**/*.lua'
+          git commit -m "Add generated Lua files"
+          git push origin "$BRANCH_NAME"
+
+          # Create PR
+          gh pr create \
+            --title "Add generated Lua files" \
+            --body "This PR adds newly generated Lua files based on updates to release.json files." \
+            --base main \
+            --head "$BRANCH_NAME"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
