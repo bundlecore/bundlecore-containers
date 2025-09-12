@@ -13,7 +13,7 @@ More information
  - Home page: https://www.htslib.org/
  - DOI:	https://dx.doi.org/10.1093/bioinformatics/btp352
  - License: https://spdx.org/licenses/MIT
- - Category: {"Genetic variation", "DNA polymorphism"}
+ - Category: {"Genetic variation", "DNA polymorphism", "GWAS study", "Genotyping experiment", "Data handling", "Variant calling"}
 ]==])
 
 whatis("Name: BCFtools")
@@ -23,7 +23,6 @@ whatis("Home page: https://www.htslib.org/")
 
 conflict(myModuleName())
 
-local image = ""
 local programs = {"bcftools", "color-chrs.pl", "guess-ploidy.py", "plot-roh.py", "plot-vcfstats", "run-roh.pl", "vcfutils.pl"}
 local entrypoint_args = ""
 
@@ -31,15 +30,14 @@ local entrypoint_args = ""
 -- nodes without the corresponding module necessarily being loaded.
 local apptainer = capture("which apptainer | head -c -1")
 
-if (os.getenv("BC_IMAGE_DIR")) then
-   local cimage = pathJoin(os.getenv("BC_IMAGE_DIR"), image)
-   if not (isFile(cimage)) then
-      -- The image could not be found in the container directory
-      if (mode() == "load") then
-         LmodMessage("file not found: " .. cimage)
-      end
+local cimage = "BC_IMAGE_DIR/IMAGE_NAME"
+if not (isFile(cimage)) then
+   -- The image could not be found in the container directory
+   if (mode() == "load") then
+      LmodMessage("file not found: " .. cimage)
    end
 end
+
 
 -- Determine Nvidia and/or AMD GPUs (set the flag to Apptainer)
 local run_args = {}
