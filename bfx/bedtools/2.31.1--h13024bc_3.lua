@@ -13,7 +13,7 @@ More information
  - Home page: https://bedtools.readthedocs.io/en/latest/
  - DOI:	https://doi.org/10.1093/bioinformatics/btq033
  - License: https://spdx.org/licenses/MIT.html
- - Category: {"Genomics"}
+ - Category: {"Genomics", "Data formatting", "Sequence merging"}
 ]==])
 
 whatis("Name: BEDTools")
@@ -23,7 +23,6 @@ whatis("Home page: https://bedtools.readthedocs.io/en/latest/")
 
 conflict(myModuleName())
 
-local image = ""
 local programs = {"annotateBed", "bamToBed", "bamToFastq", "bed12ToBed6", "bedpeToBam", "bedToBam", "bedToIgv", "bedtools", "closestBed", "clusterBed", "complementBed", "coverageBed", "expandCols", "fastaFromBed", "flankBed", "genomeCoverageBed", "getOverlap", "groupBy", "intersectBed", "linksBed", "mapBed", "maskFastaFromBed", "mergeBed", "multiBamCov", "multiIntersectBed", "nucBed", "pairToBed", "pairToPair", "randomBed", "shiftBed", "shuffleBed", "slopBed", "sortBed", "subtractBed", "tagBam", "unionBedGraphs", "windowBed", "windowMaker"}
 local entrypoint_args = ""
 
@@ -31,15 +30,14 @@ local entrypoint_args = ""
 -- nodes without the corresponding module necessarily being loaded.
 local apptainer = capture("which apptainer | head -c -1")
 
-if (os.getenv("BC_IMAGE_DIR")) then
-   local cimage = pathJoin(os.getenv("BC_IMAGE_DIR"), image)
-   if not (isFile(cimage)) then
-      -- The image could not be found in the container directory
-      if (mode() == "load") then
-         LmodMessage("file not found: " .. cimage)
-      end
+local cimage = "BC_IMAGE_DIR/IMAGE_NAME"
+if not (isFile(cimage)) then
+   -- The image could not be found in the container directory
+   if (mode() == "load") then
+      LmodMessage("file not found: " .. cimage)
    end
 end
+
 
 -- Determine Nvidia and/or AMD GPUs (set the flag to Apptainer)
 local run_args = {}
