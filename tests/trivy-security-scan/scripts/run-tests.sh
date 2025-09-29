@@ -123,7 +123,7 @@ check_environment() {
     log_info "Checking test environment..."
     
     # Check required tools
-    local required_tools=("jq" "curl")
+    local required_tools=("jq")
     local missing_tools=()
     
     for tool in "${required_tools[@]}"; do
@@ -250,6 +250,7 @@ run_unit_tests() {
     log_header "Running Unit Tests"
     
     local unit_tests=(
+        "$TEST_DIR/unit/test-github-cli-integration.sh:GitHub CLI Integration"
         "$TEST_DIR/unit/test-image-discovery.sh:Image Discovery API Integration"
         "$TEST_DIR/unit/test-sarif-validation.sh:SARIF Output Format and Content Validation"
     )

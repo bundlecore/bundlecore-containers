@@ -307,23 +307,61 @@ test_empty_response_handling() {
     fi
 }
 
-# Test: Complete image discovery simulation
+# Test: Complete image discovery simulation using GitHub CLI approach
 test_complete_image_discovery() {
     local output_file="$TEMP_DIR/discovered_images.txt"
     local org_name="test-org"
     
-    # Simulate the complete image discovery process
+    # Create mock gh command for testing
+    cat > "$TEMP_DIR/gh" << 'EOF'
+#!/bin/bash
+case "$2" in
+    "/orgs/test-org/packages"*)
+        cat "$FIXTURES_DIR/mock-packages-response.json"
+        ;;
+    "/orgs/test-org/packages/container/products%2Fbfx%2Fsamtools/versions"*)
+        cat "$FIXTURES_DIR/mock-samtools-versions.json"
+        ;;
+    "/orgs/test-org/packages/container/products%2Fbfx%2Fbcftools/versions"*)
+        cat "$FIXTURES_DIR/mock-bcftools-versions.json"
+        ;;
+    *)
+        echo "Unknown endpoint: $2" >&2
+        exit 1
+        ;;
+esac
+EOF
+    chmod +x "$TEMP_DIR/gh"
+    export PATH="$TEMP_DIR:$PATH"
+    
+    # Simulate the complete image discovery process using GitHub CLI approach
     {
+        # Get packages using mock gh cli
+        local packages_response
+        packages_response=$(gh api "/orgs/${org_name}/packages?package_type=container&per_page=100")
+        
         # Process packages response
-        jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' "$FIXTURES_DIR/mock-packages-response.json" | while read -r package_name; do
+        echo "$packages_response" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | while read -r package_name; do
             if [ "$package_name" = "products/bfx/samtools" ]; then
+                # Get versions using mock gh cli
+                local encoded_name
+                encoded_name=$(echo "$package_name" | sed 's|/|%2F|g')
+                local versions_response
+                versions_response=$(gh api "/orgs/${org_name}/packages/container/${encoded_name}/versions?per_page=100")
+                
                 # Process samtools versions
-                jq -r '.[].metadata.container.tags[]?' "$FIXTURES_DIR/mock-samtools-versions.json" | while read -r tag; do
+                echo "$versions_response" | jq -r '.[].metadata.container.tags[]?' | while read -r tag; do
                     echo "ghcr.io/${org_name}/${package_name}:${tag}"
                 done
             elif [ "$package_name" = "products/bfx/bcftools" ]; then
+                # Get versions using mock gh cli
+                local encoded_name
+                encoded_name=$(echo "$package_name" | sed 's|/|%2F|g')
+                local versions_response
+                versions_response=$(gh api "/orgs/${org_name}/packages/container/${encoded_name}/versions?per_page=100")
+                
                 # Process bcftools versions
-                jq -r '.[].metadata.container.tags[]?' "$FIXTURES_DIR/mock-bcftools-versions.json" | while read -r tag; do
+                echo "$versions_response" | jq -r '.[].metadata.container.tags[]?' | while read -r tag; do
                     echo "ghcr.io/${org_name}/${package_name}:${tag}"
                 done
             fi
