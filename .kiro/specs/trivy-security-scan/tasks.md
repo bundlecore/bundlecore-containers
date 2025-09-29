@@ -54,3 +54,10 @@
   - Test workflow execution with sample images
   - Verify GitHub Security tab integration works correctly
   - _Requirements: 3.2, 4.3_
+
+- [x] 9. Fix GitHub Packages API URL format
+  - Update the GitHub API call to use the correct packages endpoint format
+  - Change from `/orgs/${ORG_NAME}/packages?package_type=container` to the proper format that includes repository context
+  - Test the API call format to ensure it returns the expected package list
+  - Verify the API response structure matches the expected format for package filtering
+  - _Requirements: 1.1, 1.4_
