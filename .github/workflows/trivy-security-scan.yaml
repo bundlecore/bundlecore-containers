@@ -24,8 +24,6 @@ jobs:
 
 
       - name: Setup GitHub CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false  
         run: |
           # GitHub CLI is pre-installed on GitHub Actions runners
@@ -316,7 +314,7 @@ jobs:
               fi
               
               # URL encode the package name for API call
-              encoded_package_name=$(echo "$package_name" | sed 's|/|%2F|g')
+              encoded_package_name=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$package_name")
               echo "  → Encoded package name: $encoded_package_name"
               
               # Get all versions/tags for this package with retry logic using GitHub CLI
@@ -474,7 +472,9 @@ jobs:
             echo "  4. Verify repository: $ORG_NAME/$REPO_NAME"
             echo "  5. Check if packages are public or workflow has access to private packages"
             
-            echo "images-file=" >> $GITHUB_OUTPUT
+            # Always set images-file to a valid file path, even if empty
+            touch "$IMAGES_FILE"
+            echo "images-file=$IMAGES_FILE" >> $GITHUB_OUTPUT
             echo "image-count=0" >> $GITHUB_OUTPUT
             echo "valid-images=0" >> $GITHUB_OUTPUT
             echo "invalid-images=0" >> $GITHUB_OUTPUT
@@ -493,7 +493,7 @@ jobs:
 
           # Validate image URL format
           while IFS= read -r image_url; do
-            if [[ ! "$image_url" =~ ^ghcr\.io/.+/products/bfx/.+:.+ ]]; then
+            if [[ ! "$image_url" =~ ^ghcr\.io/[^/]+/products/bfx/.+:.+$ ]]; then
               echo "Warning: Invalid image URL format: $image_url"
             else
               echo "✓ Valid image URL: $image_url"
@@ -518,7 +518,7 @@ jobs:
   # Separate job for Trivy scanning using the official action
   trivy-scan:
     name: Trivy Security Scan
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: security-scan
     if: needs.security-scan.outputs.image-count > 0
@@ -1188,8 +1188,9 @@ jobs:
               SARIF_COUNT=$((SARIF_COUNT + 1))
               
               # Extract image name from filename for better organization
+              # Filename format: trivy-ghcr_io_{org}_products_bfx_{tool}_{tag}.sarif
               BASENAME=$(basename "$sarif_file" .sarif)
-              IMAGE_NAME=$(echo "$BASENAME" | sed 's/^trivy-//' | sed 's/ghcr_io_[^_]*_products_bfx_//' | sed 's/_[^_]*$//')
+              IMAGE_NAME=$(echo "$BASENAME" | sed -E 's/^trivy-ghcr_io_([^_]+)_products_bfx_([^_]+)_.+$/\2/')
               
               # Create descriptive filename with timestamp
               NEW_FILENAME="trivy-scan-${IMAGE_NAME}-${TIMESTAMP}.sarif"
@@ -1487,14 +1488,18 @@ jobs:
           echo "✓ Comprehensive report generated:"
           echo "  → Markdown report: $REPORT_FILE"
           echo "  → JSON error analysis: $ERROR_REPORT"
-
       - name: Upload scan results as artifacts
+        continue-on-error: true
+        run: |
+          mkdir -p trivy-results
+          mkdir -p sarif-upload
         uses: actions/upload-artifact@v4
         with:
           name: trivy-scan-results
           path: |
             trivy-results/
             sarif-upload/
+          retention-days: 30
           retention-days: 30
 
     # Add outputs to pass batch scanning results to summary job
