@@ -186,10 +186,10 @@ jobs:
           # Using repository-specific packages endpoint instead of organization endpoint
           # This matches the GitHub packages URL format: /repos/{owner}/{repo}/packages
           echo "📦 Fetching container packages using GitHub CLI..."
-          echo "  → Endpoint: /repos/${ORG_NAME}/${REPO_NAME}/packages?package_type=container&per_page=100"
+          echo "  → Endpoint: /repos/${ORG_NAME}/packages?ecosystem=container&per_page=100"
 
-          PACKAGES_RESPONSE=$(make_gh_api_call "/repos/${ORG_NAME}/${REPO_NAME}/packages?package_type=container&per_page=100")
-          API_EXIT_CODE=$?
+            PACKAGES_RESPONSE=$(make_gh_api_call "/orgs/${ORG_NAME}/packages?ecosystem=container&per_page=100")
+            API_EXIT_CODE=$?
 
           echo ""
           echo "🔍 DEBUG: API Response Analysis"
