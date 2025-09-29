@@ -56,7 +56,7 @@ jobs:
                                      -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                                      -H "Accept: application/vnd.github.v3+json" \
                                      "$url")
-                      
+                      echo "API response received, ${#response:0:100}..."  # Print first 100 chars for brevity
                       http_code="${response: -3}"
                       response="${response%???}"
                       
@@ -120,6 +120,7 @@ jobs:
                   # Get all container packages for the organization with retry logic
                   echo "Fetching container packages from GitHub API..."
                   PACKAGES_RESPONSE=$(make_api_call "https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
+
 
                   # Validate API response
                   if [ $? -ne 0 ] || [ -z "$PACKAGES_RESPONSE" ]; then
