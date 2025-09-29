@@ -22,6 +22,35 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Setup GitHub CLI
+              run: |
+                  # GitHub CLI is pre-installed on GitHub Actions runners
+                  # Verify installation and authenticate
+                  echo "Verifying GitHub CLI installation..."
+                  gh --version
+                  
+                  # Test authentication
+                  echo "Testing GitHub CLI authentication..."
+                  if gh auth status; then
+                    echo "✓ GitHub CLI authenticated successfully"
+                  else
+                    echo "✗ GitHub CLI authentication failed"
+                    exit 1
+                  fi
+                  
+                  # Test basic API access
+                  echo "Testing basic API access..."
+                  echo "Organization: $GITHUB_REPOSITORY_OWNER"
+                  
+                  # Test if we can access the organization
+                  if gh api "/orgs/$GITHUB_REPOSITORY_OWNER" >/dev/null 2>&1; then
+                    echo "✓ Organization API access successful"
+                  else
+                    echo "⚠ Organization API access failed - may affect package discovery"
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Discover container images
               id: discover-images
               run: |
@@ -35,73 +64,61 @@ jobs:
                   ORG_NAME="${GITHUB_REPOSITORY_OWNER}"
                   echo "Scanning packages for organization: $ORG_NAME"
 
-                  # Function to make API calls with retry logic and rate limit optimization
-                  make_api_call() {
-                    local url="$1"
+                  # Function to make GitHub API calls using gh CLI with retry logic
+                  make_gh_api_call() {
+                    local endpoint="$1"
                     local max_retries=3
                     local retry_delay=5
                     local attempt=1
-                    local rate_limit_delay=2
                     
                     while [ $attempt -le $max_retries ]; do
-                      echo "  → API call attempt $attempt/$max_retries: $url"
+                      echo "  → GitHub CLI API call attempt $attempt/$max_retries: $endpoint"
                       
-                      # Make the API call with timeout and proper error handling
+                      # Make the API call using gh CLI
                       local response
-                      local http_code
+                      local exit_code
                       
-                      response=$(curl -s -w "%{http_code}" \
-                                     --max-time 30 \
-                                     --retry 0 \
-                                     -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                                     -H "Accept: application/vnd.github.v3+json" \
-                                     "$url")
+                      if response=$(gh api "$endpoint" --paginate 2>&1); then
+                        exit_code=0
+                      else
+                        exit_code=$?
+                      fi
                       
-                      http_code="${response: -3}"
-                      response="${response%???}"
-                      
-                      case "$http_code" in
-                        200)
-                          echo "  ✓ API call successful (HTTP $http_code)"
+                      case "$exit_code" in
+                        0)
+                          echo "  ✓ API call successful"
                           echo "$response"
                           return 0
                           ;;
-                        401)
-                          echo "  ✗ Authentication failed (HTTP $http_code)"
-                          echo "    → Check GITHUB_TOKEN permissions"
-                          echo "    → Ensure token has 'packages:read' scope"
-                          return 1
-                          ;;
-                        403)
-                          echo "  ✗ Access forbidden (HTTP $http_code)"
-                          echo "    → Check repository permissions"
-                          echo "    → Verify organization access rights"
-                          return 1
-                          ;;
-                        404)
-                          echo "  ✗ Resource not found (HTTP $http_code)"
-                          echo "    → Organization or packages may not exist"
-                          echo "    → Verify organization name: $ORG_NAME"
-                          return 1
-                          ;;
-                        429)
-                          echo "  ⚠ Rate limit exceeded (HTTP $http_code)"
-                          if [ $attempt -lt $max_retries ]; then
-                            # Exponential backoff with jitter for rate limits
-                            local backoff_delay=$((retry_delay * attempt * 2 + RANDOM % 10))
-                            echo "    → Rate limit backoff: waiting ${backoff_delay}s before retry..."
-                            sleep $backoff_delay
-                          fi
-                          ;;
-                        5*)
-                          echo "  ⚠ Server error (HTTP $http_code)"
-                          if [ $attempt -lt $max_retries ]; then
-                            echo "    → Retrying in ${retry_delay}s..."
-                            sleep $retry_delay
+                        1)
+                          echo "  ✗ GitHub CLI error: $response"
+                          if [[ "$response" =~ "authentication" ]] || [[ "$response" =~ "401" ]]; then
+                            echo "    → Check GITHUB_TOKEN permissions"
+                            echo "    → Ensure token has 'packages:read' scope"
+                            return 1
+                          elif [[ "$response" =~ "forbidden" ]] || [[ "$response" =~ "403" ]]; then
+                            echo "    → Check repository permissions"
+                            echo "    → Verify organization access rights"
+                            return 1
+                          elif [[ "$response" =~ "not found" ]] || [[ "$response" =~ "404" ]]; then
+                            echo "    → Organization or packages may not exist"
+                            echo "    → Verify organization name: $ORG_NAME"
+                            return 1
+                          elif [[ "$response" =~ "rate limit" ]] || [[ "$response" =~ "429" ]]; then
+                            if [ $attempt -lt $max_retries ]; then
+                              local backoff_delay=$((retry_delay * attempt * 2))
+                              echo "    → Rate limit backoff: waiting ${backoff_delay}s before retry..."
+                              sleep $backoff_delay
+                            fi
+                          else
+                            if [ $attempt -lt $max_retries ]; then
+                              echo "    → Retrying in ${retry_delay}s..."
+                              sleep $retry_delay
+                            fi
                           fi
                           ;;
                         *)
-                          echo "  ✗ Unexpected response (HTTP $http_code)"
+                          echo "  ✗ Unexpected error (exit code: $exit_code)"
                           echo "    → Response: $response"
                           if [ $attempt -lt $max_retries ]; then
                             echo "    → Retrying in ${retry_delay}s..."
@@ -113,13 +130,13 @@ jobs:
                       attempt=$((attempt + 1))
                     done
                     
-                    echo "  ✗ API call failed after $max_retries attempts"
+                    echo "  ✗ GitHub CLI API call failed after $max_retries attempts"
                     return 1
                   }
 
                   # Get all container packages for the organization with retry logic
-                  echo "Fetching container packages from GitHub API..."
-                  PACKAGES_RESPONSE=$(make_api_call "https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
+                  echo "Fetching container packages using GitHub CLI..."
+                  PACKAGES_RESPONSE=$(make_gh_api_call "/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
 
                   # Validate API response
                   if [ $? -ne 0 ] || [ -z "$PACKAGES_RESPONSE" ]; then
@@ -173,9 +190,8 @@ jobs:
                       # URL encode the package name for API call
                       encoded_package_name=$(echo "$package_name" | sed 's|/|%2F|g')
                       
-                      # Get all versions/tags for this package with retry logic
-                      VERSIONS_URL="https://api.github.com/orgs/${ORG_NAME}/packages/container/${encoded_package_name}/versions?per_page=100"
-                      VERSIONS_RESPONSE=$(make_api_call "$VERSIONS_URL")
+                      # Get all versions/tags for this package with retry logic using GitHub CLI
+                      VERSIONS_RESPONSE=$(make_gh_api_call "/orgs/${ORG_NAME}/packages/container/${encoded_package_name}/versions?per_page=100")
                       
                       if [ $? -eq 0 ] && [ -n "$VERSIONS_RESPONSE" ]; then
                         # Validate versions response
