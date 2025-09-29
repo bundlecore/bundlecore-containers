@@ -1,0 +1,1456 @@
+name: Trivy Security Scan
+
+on:
+    schedule:
+        # Run every Sunday at 2:00 AM UTC
+        - cron: "0 2 * * 0"
+    workflow_dispatch:
+        # Allow manual triggering of the workflow
+
+permissions:
+    packages: read # Required to access GitHub Container Registry
+    security-events: write # Required to upload SARIF results to Security tab
+    contents: read # Required for checkout action
+
+jobs:
+    security-scan:
+        name: Container Security Scan
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Discover container images
+              id: discover-images
+              run: |
+                  echo "Discovering container images to scan..."
+
+                  # Create output file for discovered images
+                  IMAGES_FILE="images_to_scan.txt"
+                  > "$IMAGES_FILE"
+
+                  # Get organization name from repository
+                  ORG_NAME="${GITHUB_REPOSITORY_OWNER}"
+                  echo "Scanning packages for organization: $ORG_NAME"
+
+                  # Function to make API calls with retry logic and rate limit optimization
+                  make_api_call() {
+                    local url="$1"
+                    local max_retries=3
+                    local retry_delay=5
+                    local attempt=1
+                    local rate_limit_delay=2
+                    
+                    while [ $attempt -le $max_retries ]; do
+                      echo "  → API call attempt $attempt/$max_retries: $url"
+                      
+                      # Make the API call with timeout and proper error handling
+                      local response
+                      local http_code
+                      
+                      response=$(curl -s -w "%{http_code}" \
+                                     --max-time 30 \
+                                     --retry 0 \
+                                     -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                                     -H "Accept: application/vnd.github.v3+json" \
+                                     "$url")
+                      
+                      http_code="${response: -3}"
+                      response="${response%???}"
+                      
+                      case "$http_code" in
+                        200)
+                          echo "  ✓ API call successful (HTTP $http_code)"
+                          echo "$response"
+                          return 0
+                          ;;
+                        401)
+                          echo "  ✗ Authentication failed (HTTP $http_code)"
+                          echo "    → Check GITHUB_TOKEN permissions"
+                          echo "    → Ensure token has 'packages:read' scope"
+                          return 1
+                          ;;
+                        403)
+                          echo "  ✗ Access forbidden (HTTP $http_code)"
+                          echo "    → Check repository permissions"
+                          echo "    → Verify organization access rights"
+                          return 1
+                          ;;
+                        404)
+                          echo "  ✗ Resource not found (HTTP $http_code)"
+                          echo "    → Organization or packages may not exist"
+                          echo "    → Verify organization name: $ORG_NAME"
+                          return 1
+                          ;;
+                        429)
+                          echo "  ⚠ Rate limit exceeded (HTTP $http_code)"
+                          if [ $attempt -lt $max_retries ]; then
+                            # Exponential backoff with jitter for rate limits
+                            local backoff_delay=$((retry_delay * attempt * 2 + RANDOM % 10))
+                            echo "    → Rate limit backoff: waiting ${backoff_delay}s before retry..."
+                            sleep $backoff_delay
+                          fi
+                          ;;
+                        5*)
+                          echo "  ⚠ Server error (HTTP $http_code)"
+                          if [ $attempt -lt $max_retries ]; then
+                            echo "    → Retrying in ${retry_delay}s..."
+                            sleep $retry_delay
+                          fi
+                          ;;
+                        *)
+                          echo "  ✗ Unexpected response (HTTP $http_code)"
+                          echo "    → Response: $response"
+                          if [ $attempt -lt $max_retries ]; then
+                            echo "    → Retrying in ${retry_delay}s..."
+                            sleep $retry_delay
+                          fi
+                          ;;
+                      esac
+                      
+                      attempt=$((attempt + 1))
+                    done
+                    
+                    echo "  ✗ API call failed after $max_retries attempts"
+                    return 1
+                  }
+
+                  # Get all container packages for the organization with retry logic
+                  echo "Fetching container packages from GitHub API..."
+                  PACKAGES_RESPONSE=$(make_api_call "https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
+
+                  # Validate API response
+                  if [ $? -ne 0 ] || [ -z "$PACKAGES_RESPONSE" ]; then
+                    echo "✗ Failed to fetch packages from GitHub API"
+                    echo "  → Check network connectivity"
+                    echo "  → Verify GITHUB_TOKEN permissions"
+                    echo "  → Ensure organization exists and is accessible"
+                    exit 1
+                  fi
+
+                  # Validate JSON response format
+                  if ! echo "$PACKAGES_RESPONSE" | jq empty 2>/dev/null; then
+                    echo "✗ Invalid JSON response from GitHub API"
+                    echo "  → Response: $PACKAGES_RESPONSE"
+                    exit 1
+                  fi
+
+                  # Check if response is an array
+                  if ! echo "$PACKAGES_RESPONSE" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                    echo "✗ Unexpected API response format (expected array)"
+                    echo "  → Response type: $(echo "$PACKAGES_RESPONSE" | jq -r 'type')"
+                    exit 1
+                  fi
+
+                  # Filter packages matching products/bfx/* pattern and get their versions
+                  PACKAGE_COUNT=0
+                  PROCESSED_PACKAGES=0
+                  FAILED_PACKAGES=0
+
+                  # Count total packages first for progress tracking
+                  TOTAL_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | wc -l)
+                  echo "Found $TOTAL_PACKAGES packages matching products/bfx/* pattern"
+
+                  if [ "$TOTAL_PACKAGES" -eq 0 ]; then
+                    echo "⚠ No packages found matching products/bfx/* pattern"
+                    echo "  → Verify packages are published with correct naming convention"
+                    echo "  → Check that packages exist in organization: $ORG_NAME"
+                    echo "  → Ensure workflow has access to organization packages"
+                  fi
+
+                  echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | while read -r package_name; do
+                    if [ -n "$package_name" ]; then
+                      PACKAGE_COUNT=$((PACKAGE_COUNT + 1))
+                      echo "[$PACKAGE_COUNT/$TOTAL_PACKAGES] Processing package: $package_name"
+                      
+                      # Rate limiting: small delay between API calls to avoid hitting limits
+                      if [ $PACKAGE_COUNT -gt 1 ]; then
+                        sleep 1
+                      fi
+                      
+                      # URL encode the package name for API call
+                      encoded_package_name=$(echo "$package_name" | sed 's|/|%2F|g')
+                      
+                      # Get all versions/tags for this package with retry logic
+                      VERSIONS_URL="https://api.github.com/orgs/${ORG_NAME}/packages/container/${encoded_package_name}/versions?per_page=100"
+                      VERSIONS_RESPONSE=$(make_api_call "$VERSIONS_URL")
+                      
+                      if [ $? -eq 0 ] && [ -n "$VERSIONS_RESPONSE" ]; then
+                        # Validate versions response
+                        if ! echo "$VERSIONS_RESPONSE" | jq empty 2>/dev/null; then
+                          echo "  ✗ Invalid JSON response for package versions"
+                          FAILED_PACKAGES=$((FAILED_PACKAGES + 1))
+                          continue
+                        fi
+                        
+                        # Check if response is an array
+                        if ! echo "$VERSIONS_RESPONSE" | jq -e 'type == "array"' >/dev/null 2>&1; then
+                          echo "  ✗ Unexpected versions response format"
+                          FAILED_PACKAGES=$((FAILED_PACKAGES + 1))
+                          continue
+                        fi
+                        
+                        # Count versions for this package
+                        VERSION_COUNT=$(echo "$VERSIONS_RESPONSE" | jq '. | length')
+                        echo "  → Found $VERSION_COUNT versions for package"
+                        
+                        if [ "$VERSION_COUNT" -eq 0 ]; then
+                          echo "  ⚠ No versions found for package $package_name"
+                          continue
+                        fi
+                        
+                        # Extract tags and create full image URLs with validation
+                        TAGS_FOUND=0
+                        echo "$VERSIONS_RESPONSE" | jq -r '.[].metadata.container.tags[]?' | while read -r tag; do
+                          if [ -n "$tag" ]; then
+                            # Validate tag format (basic validation)
+                            if [[ "$tag" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+                              image_url="ghcr.io/${ORG_NAME}/${package_name}:${tag}"
+                              echo "$image_url" >> "$IMAGES_FILE"
+                              echo "    ✓ Found image: $image_url"
+                              TAGS_FOUND=$((TAGS_FOUND + 1))
+                            else
+                              echo "    ⚠ Skipping invalid tag format: $tag"
+                            fi
+                          fi
+                        done
+                        
+                        if [ "$TAGS_FOUND" -eq 0 ]; then
+                          echo "  ⚠ No valid tags found for package $package_name"
+                        fi
+                        
+                        PROCESSED_PACKAGES=$((PROCESSED_PACKAGES + 1))
+                      else
+                        echo "  ✗ Failed to fetch versions for package $package_name"
+                        echo "    → Package may be private or inaccessible"
+                        echo "    → Check package permissions and visibility"
+                        FAILED_PACKAGES=$((FAILED_PACKAGES + 1))
+                      fi
+                    fi
+                  done
+
+                  # Package processing summary
+                  echo ""
+                  echo "Package Discovery Summary:"
+                  echo "  → Total packages found: $TOTAL_PACKAGES"
+                  echo "  → Successfully processed: $PROCESSED_PACKAGES"
+                  echo "  → Failed to process: $FAILED_PACKAGES"
+
+                  if [ "$FAILED_PACKAGES" -gt 0 ]; then
+                    echo "  ⚠ Some packages failed to process - check logs above for details"
+                  fi
+
+                  # Display summary of discovered images with enhanced validation
+                  if [ -f "$IMAGES_FILE" ] && [ -s "$IMAGES_FILE" ]; then
+                    IMAGE_COUNT=$(wc -l < "$IMAGES_FILE")
+                    echo ""
+                    echo "✓ Discovery complete. Found $IMAGE_COUNT images to scan:"
+                    
+                    # Validate each discovered image URL format
+                    VALID_IMAGES=0
+                    INVALID_IMAGES=0
+                    
+                    while IFS= read -r image_url; do
+                      if [[ "$image_url" =~ ^ghcr\.io/[^/]+/products/bfx/.+:.+$ ]]; then
+                        echo "  ✓ $image_url"
+                        VALID_IMAGES=$((VALID_IMAGES + 1))
+                      else
+                        echo "  ✗ Invalid format: $image_url"
+                        INVALID_IMAGES=$((INVALID_IMAGES + 1))
+                      fi
+                    done < "$IMAGES_FILE"
+                    
+                    echo ""
+                    echo "Image Validation Summary:"
+                    echo "  → Valid images: $VALID_IMAGES"
+                    echo "  → Invalid images: $INVALID_IMAGES"
+                    
+                    if [ "$INVALID_IMAGES" -gt 0 ]; then
+                      echo "  ⚠ Some images have invalid URL format and may cause scan failures"
+                    fi
+                    
+                    # Set output for next steps
+                    echo "images-file=$IMAGES_FILE" >> $GITHUB_OUTPUT
+                    echo "image-count=$IMAGE_COUNT" >> $GITHUB_OUTPUT
+                    echo "valid-images=$VALID_IMAGES" >> $GITHUB_OUTPUT
+                    echo "invalid-images=$INVALID_IMAGES" >> $GITHUB_OUTPUT
+                  else
+                    echo ""
+                    echo "⚠ No images found to scan"
+                    echo ""
+                    echo "Troubleshooting Steps:"
+                    echo "  1. Verify container images are published to ghcr.io"
+                    echo "  2. Check images follow naming pattern: ghcr.io/{org}/products/bfx/{tool}:{tag}"
+                    echo "  3. Ensure workflow has 'packages:read' permission"
+                    echo "  4. Verify organization name: $ORG_NAME"
+                    echo "  5. Check if packages are public or workflow has access to private packages"
+                    
+                    echo "images-file=" >> $GITHUB_OUTPUT
+                    echo "image-count=0" >> $GITHUB_OUTPUT
+                    echo "valid-images=0" >> $GITHUB_OUTPUT
+                    echo "invalid-images=0" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Validate discovered images
+              if: steps.discover-images.outputs.image-count > 0
+              run: |
+                  echo "Validating discovered images..."
+                  IMAGES_FILE="${{ steps.discover-images.outputs.images-file }}"
+
+                  if [ ! -f "$IMAGES_FILE" ]; then
+                    echo "Error: Images file not found"
+                    exit 1
+                  fi
+
+                  # Validate image URL format
+                  while IFS= read -r image_url; do
+                    if [[ ! "$image_url" =~ ^ghcr\.io/.+/products/bfx/.+:.+ ]]; then
+                      echo "Warning: Invalid image URL format: $image_url"
+                    else
+                      echo "✓ Valid image URL: $image_url"
+                    fi
+                  done < "$IMAGES_FILE"
+
+                  echo "Image validation complete"
+
+            - name: Upload discovered images list
+              if: steps.discover-images.outputs.image-count > 0
+              uses: actions/upload-artifact@v4
+              with:
+                  name: discovered-images
+                  path: ${{ steps.discover-images.outputs.images-file }}
+                  retention-days: 7
+
+        # Add outputs to pass data to the scanning job
+        outputs:
+            image-count: ${{ steps.discover-images.outputs.image-count }}
+            images-file: ${{ steps.discover-images.outputs.images-file }}
+
+    # Separate job for Trivy scanning using the official action
+    trivy-scan:
+        name: Trivy Security Scan
+        runs-on: ubuntu-latest-4-cores
+        timeout-minutes: 120
+        needs: security-scan
+        if: needs.security-scan.outputs.image-count > 0
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Trivy database cache
+              uses: actions/cache@v4
+              with:
+                  path: ~/.cache/trivy
+                  key: trivy-db-${{ runner.os }}-${{ github.run_id }}
+                  restore-keys: |
+                      trivy-db-${{ runner.os }}-
+                      trivy-db-
+
+            - name: Download discovered images list
+              uses: actions/download-artifact@v4
+              with:
+                  name: discovered-images
+
+            - name: Pre-warm Trivy database cache
+              run: |
+                  echo "Pre-warming Trivy database cache..."
+
+                  # Create cache directory if it doesn't exist
+                  mkdir -p ~/.cache/trivy
+
+                  # Download and cache Trivy database to improve scan performance
+                  docker run --rm \
+                    -v "$HOME/.cache/trivy:/root/.cache/trivy" \
+                    -e TRIVY_CACHE_DIR="/root/.cache/trivy" \
+                    aquasec/trivy:latest image --download-db-only
+
+                  echo "✓ Trivy database cache pre-warmed"
+
+                  # Display cache info
+                  if [ -d "$HOME/.cache/trivy" ]; then
+                    CACHE_SIZE=$(du -sh "$HOME/.cache/trivy" | cut -f1)
+                    echo "  → Cache size: $CACHE_SIZE"
+                    echo "  → Cache location: $HOME/.cache/trivy"
+                  fi
+
+            - name: Prepare batch scanning environment
+              id: prepare-images
+              run: |
+                  echo "Preparing batch scanning environment..."
+                  IMAGES_FILE="images_to_scan.txt"
+
+                  # Comprehensive environment validation
+                  echo "🔍 Environment Validation:"
+                  echo "=========================="
+
+                  # Validate images file exists and is readable
+                  if [ ! -f "$IMAGES_FILE" ]; then
+                    echo "✗ Images file not found: $IMAGES_FILE"
+                    echo "  → Check image discovery step completed successfully"
+                    exit 1
+                  fi
+                  echo "✓ Images file exists: $IMAGES_FILE"
+
+                  # Validate file is not empty
+                  if [ ! -s "$IMAGES_FILE" ]; then
+                    echo "✗ Images file is empty"
+                    echo "  → No images were discovered in previous step"
+                    echo "  → Check image discovery logs for issues"
+                    exit 1
+                  fi
+                  echo "✓ Images file contains data"
+
+                  # Validate file permissions
+                  if [ ! -r "$IMAGES_FILE" ]; then
+                    echo "✗ Images file is not readable"
+                    echo "  → Check file permissions"
+                    exit 1
+                  fi
+                  echo "✓ Images file is readable"
+
+                  # Display batch scanning configuration
+                  TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
+                  echo ""
+                  echo "📋 Batch Scanning Configuration:"
+                  echo "================================="
+                  echo "  → Total images to process: $TOTAL_IMAGES"
+                  echo "  → Scanning strategy: Sequential with retry logic"
+                  echo "  → Continue on individual failures: Yes"
+                  echo "  → Max retries per image: 2"
+                  echo "  → Timeout per scan: 10 minutes"
+                  echo "  → Results format: SARIF"
+                  echo "  → Severity filter: CRITICAL,HIGH"
+                  echo ""
+
+                  # Validate each image URL format before scanning
+                  echo "🔍 Image URL Validation:"
+                  echo "========================"
+                  VALID_URLS=0
+                  INVALID_URLS=0
+
+                  while IFS= read -r image_url; do
+                    if [[ "$image_url" =~ ^ghcr\.io/[^/]+/products/bfx/.+:.+$ ]]; then
+                      VALID_URLS=$((VALID_URLS + 1))
+                    else
+                      echo "⚠ Invalid URL format: $image_url"
+                      INVALID_URLS=$((INVALID_URLS + 1))
+                    fi
+                  done < "$IMAGES_FILE"
+
+                  echo "✓ Valid image URLs: $VALID_URLS"
+                  if [ $INVALID_URLS -gt 0 ]; then
+                    echo "⚠ Invalid image URLs: $INVALID_URLS"
+                    echo "  → These images may cause scan failures"
+                  fi
+
+                  echo ""
+                  echo "📂 Images to scan:"
+                  cat "$IMAGES_FILE"
+                  echo ""
+
+                  # Set up results directory with proper structure and permissions
+                  echo "🔧 Setting up results directory..."
+                  mkdir -p trivy-results
+
+                  # Verify directory was created and is writable
+                  if [ ! -d "trivy-results" ]; then
+                    echo "✗ Failed to create results directory"
+                    exit 1
+                  fi
+
+                  if [ ! -w "trivy-results" ]; then
+                    echo "✗ Results directory is not writable"
+                    exit 1
+                  fi
+                  echo "✓ Results directory ready: trivy-results/"
+
+                  # Comprehensive Docker environment validation
+                  echo ""
+                  echo "🐳 Docker Environment Validation:"
+                  echo "=================================="
+
+                  # Check if Docker command is available
+                  if ! command -v docker &> /dev/null; then
+                    echo "✗ Docker command not found"
+                    echo "  → Docker is required for Trivy scanning"
+                    echo "  → Check GitHub Actions runner configuration"
+                    exit 1
+                  fi
+                  echo "✓ Docker command available"
+
+                  # Test Docker daemon connectivity
+                  if ! docker info &> /dev/null; then
+                    echo "✗ Cannot connect to Docker daemon"
+                    echo "  → Docker daemon may not be running"
+                    echo "  → Check GitHub Actions runner Docker service"
+                    exit 1
+                  fi
+                  echo "✓ Docker daemon accessible"
+
+                  # Check Docker version
+                  DOCKER_VERSION=$(docker --version 2>/dev/null || echo "unknown")
+                  echo "✓ Docker version: $DOCKER_VERSION"
+
+                  # Test Docker pull capability with Trivy image
+                  echo ""
+                  echo "🔍 Trivy Container Validation:"
+                  echo "=============================="
+
+                  echo "→ Testing Trivy container availability..."
+                  if docker pull aquasec/trivy:latest >/dev/null 2>&1; then
+                    echo "✓ Trivy container pulled successfully"
+                  else
+                    echo "⚠ Failed to pull Trivy container"
+                    echo "  → Will attempt to use existing image or pull during scan"
+                  fi
+
+                  # Test Trivy container execution
+                  echo "→ Testing Trivy container execution..."
+                  if docker run --rm aquasec/trivy:latest --version >/dev/null 2>&1; then
+                    TRIVY_VERSION=$(docker run --rm aquasec/trivy:latest --version 2>/dev/null | head -1)
+                    echo "✓ Trivy container executable: $TRIVY_VERSION"
+                  else
+                    echo "⚠ Trivy container execution test failed"
+                    echo "  → May indicate Docker or container issues"
+                  fi
+
+                  # Registry authentication validation
+                  echo ""
+                  echo "🔐 Registry Authentication Validation:"
+                  echo "======================================"
+
+                  # Test GitHub Container Registry access
+                  if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+                    echo "✓ GITHUB_TOKEN is available"
+                    
+                    # Test registry login capability
+                    echo "→ Testing registry authentication..."
+                    if echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin >/dev/null 2>&1; then
+                      echo "✓ Registry authentication successful"
+                      docker logout ghcr.io >/dev/null 2>&1
+                    else
+                      echo "⚠ Registry authentication failed"
+                      echo "  → May affect private image access"
+                      echo "  → Public images should still be accessible"
+                    fi
+                  else
+                    echo "⚠ GITHUB_TOKEN not available"
+                    echo "  → Only public images will be accessible"
+                  fi
+
+                  # System resource validation
+                  echo ""
+                  echo "💾 System Resources Validation:"
+                  echo "==============================="
+
+                  # Check available disk space
+                  AVAILABLE_SPACE=$(df . | awk 'NR==2 {print $4}')
+                  echo "✓ Available disk space: ${AVAILABLE_SPACE}KB"
+
+                  if [ "$AVAILABLE_SPACE" -lt 1048576 ]; then  # Less than 1GB
+                    echo "⚠ Low disk space (< 1GB available)"
+                    echo "  → May cause issues with large container images"
+                  fi
+
+                  # Check available memory
+                  if command -v free >/dev/null 2>&1; then
+                    AVAILABLE_MEM=$(free -m | awk 'NR==2{print $7}')
+                    echo "✓ Available memory: ${AVAILABLE_MEM}MB"
+                    
+                    if [ "$AVAILABLE_MEM" -lt 512 ]; then
+                      echo "⚠ Low available memory (< 512MB)"
+                      echo "  → May cause issues with large image scans"
+                    fi
+                  fi
+
+                  echo ""
+                  echo "✅ Environment validation completed successfully"
+                  echo "   Ready to proceed with batch scanning"
+
+            - name: Batch scan images with Trivy
+              id: batch-scan
+              timeout-minutes: 90
+              run: |
+                  IMAGES_FILE="images_to_scan.txt"
+                  SCAN_COUNT=0
+                  SUCCESS_COUNT=0
+                  FAILURE_COUNT=0
+                  TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
+                  SCAN_LOG="trivy-results/scan-log.txt"
+                  RESULTS_SUMMARY="trivy-results/scan-summary.json"
+
+                  echo "Starting optimized batch scan of $TOTAL_IMAGES images using Trivy..."
+                  echo "Batch Scan Configuration:"
+                  echo "- Continue on individual failures: enabled"
+                  echo "- Severity filter: CRITICAL,HIGH"
+                  echo "- Output format: SARIF"
+                  echo "- Results directory: trivy-results/"
+                  echo "- Individual scan timeout: 15 minutes"
+                  echo "- Resource limits: 2GB memory, 2 CPUs per scan"
+                  echo "- Database caching: enabled"
+                  echo "- Scan optimization: skip-update enabled"
+                  echo ""
+
+                  # Display system resources for monitoring
+                  echo "System Resources:"
+                  echo "- Available memory: $(free -h | awk 'NR==2{print $7}')"
+                  echo "- Available disk: $(df -h . | awk 'NR==2{print $4}')"
+                  echo "- CPU cores: $(nproc)"
+                  echo ""
+
+                  # Initialize scan log and results tracking
+                  echo "Trivy Batch Scan Log - $(date)" > "$SCAN_LOG"
+                  echo "===============================" >> "$SCAN_LOG"
+
+                  # Initialize results summary JSON
+                  cat > "$RESULTS_SUMMARY" << EOF
+                  {
+                    "scan_timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+                    "total_images": $TOTAL_IMAGES,
+                    "successful_scans": 0,
+                    "failed_scans": 0,
+                    "scan_results": []
+                  }
+                  EOF
+
+                  # Process each image with error handling and logging
+                  while IFS= read -r image_url; do
+                    if [ -n "$image_url" ]; then
+                      SCAN_COUNT=$((SCAN_COUNT + 1))
+                      echo "[$SCAN_COUNT/$TOTAL_IMAGES] Processing: $image_url"
+                      echo "[$SCAN_COUNT/$TOTAL_IMAGES] Processing: $image_url" >> "$SCAN_LOG"
+                      
+                      # Create safe filename for outputs
+                      SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
+                      SARIF_FILE="trivy-results/trivy-${SAFE_NAME}.sarif"
+                      
+                      # Record scan start time
+                      SCAN_START=$(date +%s)
+                      
+                      # Function to perform Trivy scan with retry logic
+                      perform_trivy_scan() {
+                        local image="$1"
+                        local output_file="$2"
+                        local max_retries=2
+                        local retry_delay=10
+                        local attempt=1
+                        
+                        while [ $attempt -le $max_retries ]; do
+                          echo "    → Trivy scan attempt $attempt/$max_retries"
+                          
+                          # Pre-scan validation: check image accessibility
+                          echo "    → Validating image accessibility..."
+                          if ! docker manifest inspect "$image" >/dev/null 2>&1; then
+                            echo "    ✗ Image manifest not accessible: $image"
+                            echo "      → Check image exists and is publicly accessible"
+                            echo "      → Verify registry authentication if image is private"
+                            return 1
+                          fi
+                          echo "    ✓ Image manifest accessible"
+                          
+                          # Attempt Trivy scan with comprehensive error handling
+                          local scan_output
+                          local scan_exit_code
+                          
+                          scan_output=$(timeout 15m docker run --rm \
+                            --memory=2g \
+                            --cpus=2 \
+                            -v "$(pwd)/trivy-results:/output" \
+                            -v "$HOME/.cache/trivy:/root/.cache/trivy" \
+                            -e TRIVY_USERNAME="${{ github.actor }}" \
+                            -e TRIVY_PASSWORD="${{ secrets.GITHUB_TOKEN }}" \
+                            -e TRIVY_QUIET=false \
+                            -e TRIVY_DEBUG=false \
+                            -e TRIVY_CACHE_DIR="/root/.cache/trivy" \
+                            -e TRIVY_DB_REPOSITORY="ghcr.io/aquasecurity/trivy-db" \
+                            aquasec/trivy:latest image \
+                            --format sarif \
+                            --severity CRITICAL,HIGH \
+                            --timeout 12m \
+                            --exit-code 0 \
+                            --skip-update \
+                            --cache-backend fs \
+                            --output "/output/trivy-${SAFE_NAME}.sarif" \
+                            "$image" 2>&1)
+                          
+                          scan_exit_code=$?
+                          
+                          # Log scan output for debugging
+                          echo "$scan_output" | tee -a "$SCAN_LOG"
+                          
+                          case $scan_exit_code in
+                            0)
+                              echo "    ✓ Trivy scan completed successfully"
+                              return 0
+                              ;;
+                            1)
+                              echo "    ⚠ Trivy scan completed with vulnerabilities found (exit code 1)"
+                              # Exit code 1 means vulnerabilities found, which is still success
+                              return 0
+                              ;;
+                            5)
+                              echo "    ✗ Trivy database error (exit code 5)"
+                              if [ $attempt -lt $max_retries ]; then
+                                echo "      → Retrying in ${retry_delay}s..."
+                                sleep $retry_delay
+                              else
+                                echo "      → Database update may be required"
+                              fi
+                              ;;
+                            125)
+                              echo "    ✗ Docker container error (exit code 125)"
+                              echo "      → Check Docker daemon status"
+                              echo "      → Verify container image availability"
+                              return 1
+                              ;;
+                            126)
+                              echo "    ✗ Container command not executable (exit code 126)"
+                              return 1
+                              ;;
+                            127)
+                              echo "    ✗ Container command not found (exit code 127)"
+                              return 1
+                              ;;
+                            *)
+                              echo "    ✗ Trivy scan failed with exit code: $scan_exit_code"
+                              if echo "$scan_output" | grep -q "timeout"; then
+                                echo "      → Scan timeout - image may be too large"
+                                echo "      → Consider increasing timeout or scanning smaller images"
+                                return 1
+                              elif echo "$scan_output" | grep -q "network"; then
+                                echo "      → Network connectivity issue"
+                                if [ $attempt -lt $max_retries ]; then
+                                  echo "      → Retrying in ${retry_delay}s..."
+                                  sleep $retry_delay
+                                fi
+                              elif echo "$scan_output" | grep -q "authentication\|unauthorized"; then
+                                echo "      → Authentication failed"
+                                echo "      → Check GITHUB_TOKEN permissions"
+                                return 1
+                              else
+                                echo "      → Unknown error, check scan output above"
+                                if [ $attempt -lt $max_retries ]; then
+                                  echo "      → Retrying in ${retry_delay}s..."
+                                  sleep $retry_delay
+                                fi
+                              fi
+                              ;;
+                          esac
+                          
+                          attempt=$((attempt + 1))
+                        done
+                        
+                        echo "    ✗ Trivy scan failed after $max_retries attempts"
+                        return 1
+                      }
+
+                      # Attempt Trivy scan with enhanced error handling and retry logic
+                      echo "  → Starting Trivy scan with retry logic..."
+                      if perform_trivy_scan "$image_url" "/output/trivy-${SAFE_NAME}.sarif"; then
+                        
+                        # Scan successful
+                        SCAN_END=$(date +%s)
+                        SCAN_DURATION=$((SCAN_END - SCAN_START))
+                        SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                        
+                        echo "  ✓ Scan completed successfully (${SCAN_DURATION}s)"
+                        echo "  ✓ Scan completed successfully (${SCAN_DURATION}s)" >> "$SCAN_LOG"
+                        
+                        # Check if SARIF file was created and get vulnerability count
+                        if [ -f "$SARIF_FILE" ]; then
+                          VULN_COUNT=$(jq -r '.runs[0].results | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+                          echo "  → Found $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
+                          echo "  → Found $VULN_COUNT vulnerabilities (CRITICAL/HIGH)" >> "$SCAN_LOG"
+                        else
+                          VULN_COUNT="unknown"
+                          echo "  ⚠ SARIF file not found, but scan reported success"
+                          echo "  ⚠ SARIF file not found, but scan reported success" >> "$SCAN_LOG"
+                        fi
+                        
+                        # Add to results summary
+                        TEMP_JSON=$(mktemp)
+                        jq --arg image "$image_url" \
+                           --arg status "success" \
+                           --arg duration "$SCAN_DURATION" \
+                           --arg vulns "$VULN_COUNT" \
+                           '.scan_results += [{
+                             "image": $image,
+                             "status": $status,
+                             "duration_seconds": ($duration | tonumber),
+                             "vulnerabilities_found": $vulns,
+                             "sarif_file": "trivy-'$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')'.sarif"
+                           }] | .successful_scans += 1' "$RESULTS_SUMMARY" > "$TEMP_JSON" && mv "$TEMP_JSON" "$RESULTS_SUMMARY"
+                        
+                      else
+                        # Scan failed - continue with next image but provide detailed error analysis
+                        SCAN_END=$(date +%s)
+                        SCAN_DURATION=$((SCAN_END - SCAN_START))
+                        FAILURE_COUNT=$((FAILURE_COUNT + 1))
+                        
+                        echo "  ✗ Scan failed (${SCAN_DURATION}s) - continuing with next image"
+                        echo "  ✗ Scan failed (${SCAN_DURATION}s) - continuing with next image" >> "$SCAN_LOG"
+                        
+                        # Analyze failure reason for better error reporting
+                        FAILURE_REASON="Unknown error"
+                        ERROR_CATEGORY="general"
+                        
+                        # Check for common failure patterns
+                        if ! docker manifest inspect "$image_url" >/dev/null 2>&1; then
+                          FAILURE_REASON="Image not accessible or does not exist"
+                          ERROR_CATEGORY="image_access"
+                          echo "    → Error Category: Image Access"
+                          echo "    → Recommendation: Verify image exists and is accessible"
+                        elif ! docker info >/dev/null 2>&1; then
+                          FAILURE_REASON="Docker daemon not available"
+                          ERROR_CATEGORY="docker_daemon"
+                          echo "    → Error Category: Docker Infrastructure"
+                          echo "    → Recommendation: Check Docker daemon status"
+                        elif [ ! -w "$(pwd)/trivy-results" ]; then
+                          FAILURE_REASON="Output directory not writable"
+                          ERROR_CATEGORY="filesystem"
+                          echo "    → Error Category: Filesystem Permissions"
+                          echo "    → Recommendation: Check directory permissions"
+                        else
+                          # Check if it's a timeout or resource issue
+                          if docker run --rm aquasec/trivy:latest --help >/dev/null 2>&1; then
+                            FAILURE_REASON="Trivy scan execution failed"
+                            ERROR_CATEGORY="trivy_execution"
+                            echo "    → Error Category: Trivy Execution"
+                            echo "    → Recommendation: Check image size and scan complexity"
+                          else
+                            FAILURE_REASON="Trivy container not available"
+                            ERROR_CATEGORY="trivy_container"
+                            echo "    → Error Category: Trivy Container"
+                            echo "    → Recommendation: Check network connectivity to Docker Hub"
+                          fi
+                        fi
+                        
+                        # Add detailed failure to results summary
+                        TEMP_JSON=$(mktemp)
+                        jq --arg image "$image_url" \
+                           --arg status "failed" \
+                           --arg duration "$SCAN_DURATION" \
+                           --arg reason "$FAILURE_REASON" \
+                           --arg category "$ERROR_CATEGORY" \
+                           '.scan_results += [{
+                             "image": $image,
+                             "status": $status,
+                             "duration_seconds": ($duration | tonumber),
+                             "error": $reason,
+                             "error_category": $category,
+                             "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+                           }] | .failed_scans += 1' "$RESULTS_SUMMARY" > "$TEMP_JSON" && mv "$TEMP_JSON" "$RESULTS_SUMMARY"
+                      fi
+                      
+                      # Resource cleanup and optimization between scans
+                      if [ $((SCAN_COUNT % 5)) -eq 0 ]; then
+                        echo "  → Performing resource cleanup (every 5 scans)..."
+                        # Clean up Docker system to free space
+                        docker system prune -f >/dev/null 2>&1 || true
+                        # Display current resource usage
+                        echo "    → Memory usage: $(free -h | awk 'NR==2{print $3"/"$2}')"
+                        echo "    → Disk usage: $(df -h . | awk 'NR==2{print $3"/"$2" ("$5")"}')"
+                      fi
+                      
+                      echo "" # Add spacing between scans
+                      echo "" >> "$SCAN_LOG"
+                    fi
+                  done < "$IMAGES_FILE"
+
+                  # Generate comprehensive final scan summary with error analysis
+                  echo ""
+                  echo "Batch Scan Summary"
+                  echo "=================="
+                  echo "Total images processed: $SCAN_COUNT"
+                  echo "Successful scans: $SUCCESS_COUNT"
+                  echo "Failed scans: $FAILURE_COUNT"
+
+                  if [ $SCAN_COUNT -gt 0 ]; then
+                    SUCCESS_RATE=$(( SUCCESS_COUNT * 100 / SCAN_COUNT ))
+                    echo "Success rate: ${SUCCESS_RATE}%"
+                  else
+                    echo "Success rate: N/A (no images processed)"
+                  fi
+
+                  # Analyze failure patterns if any failures occurred
+                  if [ $FAILURE_COUNT -gt 0 ] && [ -f "$RESULTS_SUMMARY" ]; then
+                    echo ""
+                    echo "Failure Analysis:"
+                    echo "=================="
+                    
+                    # Count failures by category
+                    IMAGE_ACCESS_FAILURES=$(jq -r '.scan_results[] | select(.status == "failed" and .error_category == "image_access") | .image' "$RESULTS_SUMMARY" | wc -l)
+                    DOCKER_FAILURES=$(jq -r '.scan_results[] | select(.status == "failed" and .error_category == "docker_daemon") | .image' "$RESULTS_SUMMARY" | wc -l)
+                    TRIVY_FAILURES=$(jq -r '.scan_results[] | select(.status == "failed" and (.error_category == "trivy_execution" or .error_category == "trivy_container")) | .image' "$RESULTS_SUMMARY" | wc -l)
+                    OTHER_FAILURES=$(jq -r '.scan_results[] | select(.status == "failed" and .error_category == "general") | .image' "$RESULTS_SUMMARY" | wc -l)
+                    
+                    echo "→ Image access failures: $IMAGE_ACCESS_FAILURES"
+                    echo "→ Docker daemon failures: $DOCKER_FAILURES"
+                    echo "→ Trivy execution failures: $TRIVY_FAILURES"
+                    echo "→ Other failures: $OTHER_FAILURES"
+                    
+                    # Provide specific recommendations based on failure patterns
+                    echo ""
+                    echo "Recommendations:"
+                    if [ $IMAGE_ACCESS_FAILURES -gt 0 ]; then
+                      echo "• Image Access Issues ($IMAGE_ACCESS_FAILURES failures):"
+                      echo "  - Verify images exist in ghcr.io registry"
+                      echo "  - Check image visibility (public vs private)"
+                      echo "  - Ensure GITHUB_TOKEN has packages:read permission"
+                    fi
+                    
+                    if [ $DOCKER_FAILURES -gt 0 ]; then
+                      echo "• Docker Infrastructure Issues ($DOCKER_FAILURES failures):"
+                      echo "  - Check GitHub Actions runner Docker daemon status"
+                      echo "  - Verify Docker service availability"
+                      echo "  - Consider using different runner type"
+                    fi
+                    
+                    if [ $TRIVY_FAILURES -gt 0 ]; then
+                      echo "• Trivy Execution Issues ($TRIVY_FAILURES failures):"
+                      echo "  - Check network connectivity to Docker Hub"
+                      echo "  - Verify Trivy container image availability"
+                      echo "  - Consider image size and scan timeout limits"
+                    fi
+                    
+                    # List specific failed images for debugging
+                    echo ""
+                    echo "Failed Images:"
+                    jq -r '.scan_results[] | select(.status == "failed") | "  ✗ \(.image) - \(.error)"' "$RESULTS_SUMMARY"
+                  fi
+
+                  # Log comprehensive summary to file
+                  echo "" >> "$SCAN_LOG"
+                  echo "=== FINAL COMPREHENSIVE SUMMARY ===" >> "$SCAN_LOG"
+                  echo "Scan completed at: $(date)" >> "$SCAN_LOG"
+                  echo "Total images processed: $SCAN_COUNT" >> "$SCAN_LOG"
+                  echo "Successful scans: $SUCCESS_COUNT" >> "$SCAN_LOG"
+                  echo "Failed scans: $FAILURE_COUNT" >> "$SCAN_LOG"
+                  if [ $SCAN_COUNT -gt 0 ]; then
+                    echo "Success rate: $(( SUCCESS_COUNT * 100 / SCAN_COUNT ))%" >> "$SCAN_LOG"
+                  fi
+
+                  # Add failure details to log
+                  if [ $FAILURE_COUNT -gt 0 ] && [ -f "$RESULTS_SUMMARY" ]; then
+                    echo "" >> "$SCAN_LOG"
+                    echo "Failure Details:" >> "$SCAN_LOG"
+                    jq -r '.scan_results[] | select(.status == "failed") | "- \(.image): \(.error) (\(.error_category))"' "$RESULTS_SUMMARY" >> "$SCAN_LOG"
+                  fi
+
+                  # Set comprehensive outputs for next steps
+                  echo "total-scanned=$SCAN_COUNT" >> $GITHUB_OUTPUT
+                  echo "successful-scans=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
+                  echo "failed-scans=$FAILURE_COUNT" >> $GITHUB_OUTPUT
+
+                  if [ $SCAN_COUNT -gt 0 ]; then
+                    echo "success-rate=$(( SUCCESS_COUNT * 100 / SCAN_COUNT ))" >> $GITHUB_OUTPUT
+                  else
+                    echo "success-rate=0" >> $GITHUB_OUTPUT
+                  fi
+
+                  # Enhanced exit logic with detailed status reporting
+                  if [ $SUCCESS_COUNT -gt 0 ]; then
+                    echo ""
+                    echo "✓ Batch scan completed successfully with $SUCCESS_COUNT successful scans"
+                    if [ $FAILURE_COUNT -gt 0 ]; then
+                      echo "⚠ Note: $FAILURE_COUNT scans failed but results are available for successful scans"
+                    fi
+                    exit 0
+                  else
+                    echo ""
+                    echo "✗ All scans failed - this indicates a systematic issue"
+                    echo ""
+                    echo "Troubleshooting Steps:"
+                    echo "1. Check GitHub Actions runner status and Docker availability"
+                    echo "2. Verify GITHUB_TOKEN permissions (packages:read required)"
+                    echo "3. Ensure images exist and are accessible in ghcr.io"
+                    echo "4. Review scan logs above for specific error details"
+                    echo "5. Consider running workflow manually with debug logging"
+                    exit 1
+                  fi
+
+            # Example of how to use the official action for a single image (commented out)
+            # - name: Example - Scan single image with official Trivy Action
+            #   uses: aquasecurity/trivy-action@master
+            #   with:
+            #     image-ref: 'ghcr.io/example/image:latest'
+            #     format: 'sarif'
+            #     severity: 'CRITICAL,HIGH'
+            #     output: 'trivy-results/example.sarif'
+            #   env:
+            #     TRIVY_USERNAME: ${{ github.actor }}
+            #     TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Prepare SARIF files for upload
+              if: steps.batch-scan.outputs.successful-scans > 0
+              id: prepare-sarif
+              run: |
+                  echo "Preparing SARIF files for GitHub Security upload..."
+
+                  # Create consolidated SARIF directory with proper naming
+                  mkdir -p sarif-upload
+                  SARIF_COUNT=0
+                  TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
+
+                  # Process each SARIF file and add metadata
+                  for sarif_file in trivy-results/*.sarif; do
+                    if [ -f "$sarif_file" ]; then
+                      SARIF_COUNT=$((SARIF_COUNT + 1))
+                      
+                      # Extract image name from filename for better organization
+                      BASENAME=$(basename "$sarif_file" .sarif)
+                      IMAGE_NAME=$(echo "$BASENAME" | sed 's/^trivy-//' | sed 's/ghcr_io_[^_]*_products_bfx_//' | sed 's/_[^_]*$//')
+                      
+                      # Create descriptive filename with timestamp
+                      NEW_FILENAME="trivy-scan-${IMAGE_NAME}-${TIMESTAMP}.sarif"
+                      
+                      echo "Processing SARIF file: $sarif_file -> $NEW_FILENAME"
+                      
+                      # Add metadata to SARIF file for better tracking
+                      jq --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                         --arg workflow_run "${{ github.run_id }}" \
+                         --arg repository "${{ github.repository }}" \
+                         --arg ref "${{ github.ref }}" \
+                         --arg sha "${{ github.sha }}" \
+                         '.runs[0].properties = {
+                           "scan_timestamp": $timestamp,
+                           "workflow_run_id": $workflow_run,
+                           "repository": $repository,
+                           "git_ref": $ref,
+                           "git_sha": $sha,
+                           "scanner_version": "trivy-latest",
+                           "scan_type": "container-image"
+                         }' "$sarif_file" > "sarif-upload/$NEW_FILENAME"
+                      
+                      # Validate SARIF file structure
+                      if jq empty "sarif-upload/$NEW_FILENAME" 2>/dev/null; then
+                        VULN_COUNT=$(jq -r '.runs[0].results | length' "sarif-upload/$NEW_FILENAME")
+                        echo "  ✓ Valid SARIF file with $VULN_COUNT vulnerabilities"
+                      else
+                        echo "  ✗ Invalid SARIF file, removing: $NEW_FILENAME"
+                        rm -f "sarif-upload/$NEW_FILENAME"
+                        SARIF_COUNT=$((SARIF_COUNT - 1))
+                      fi
+                    fi
+                  done
+
+                  echo "SARIF preparation complete:"
+                  echo "  → Valid SARIF files: $SARIF_COUNT"
+                  echo "  → Upload directory: sarif-upload/"
+
+                  # List prepared files
+                  if [ $SARIF_COUNT -gt 0 ]; then
+                    echo "Files prepared for upload:"
+                    ls -la sarif-upload/
+                    echo "sarif-count=$SARIF_COUNT" >> $GITHUB_OUTPUT
+                  else
+                    echo "No valid SARIF files to upload"
+                    echo "sarif-count=0" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Upload SARIF results to GitHub Security
+              if: steps.prepare-sarif.outputs.sarif-count > 0
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: sarif-upload/
+                  category: trivy-container-security-scan
+                  checkout_path: ${{ github.workspace }}
+                  wait-for-processing: true
+              continue-on-error: false
+
+            - name: Verify SARIF upload success
+              if: steps.prepare-sarif.outputs.sarif-count > 0
+              run: |
+                  echo "SARIF upload completed successfully!"
+                  echo ""
+                  echo "📊 Security Results Summary:"
+                  echo "  → SARIF files uploaded: ${{ steps.prepare-sarif.outputs.sarif-count }}"
+                  echo "  → Category: trivy-container-security-scan"
+                  echo "  → Processing: GitHub Security tab integration enabled"
+                  echo ""
+                  echo "🔍 View Results:"
+                  echo "  → GitHub Security tab: ${{ github.server_url }}/${{ github.repository }}/security"
+                  echo "  → Security Advisories: ${{ github.server_url }}/${{ github.repository }}/security/advisories"
+                  echo "  → Code Scanning Alerts: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+                  echo ""
+                  echo "📋 Next Steps:"
+                  echo "  1. Navigate to the Security tab to review vulnerabilities"
+                  echo "  2. Filter by 'trivy-container-security-scan' category"
+                  echo "  3. Address CRITICAL and HIGH severity findings"
+                  echo "  4. Track remediation progress through GitHub Security features"
+
+            - name: Handle SARIF upload failures
+              if: failure() && steps.batch-scan.outputs.successful-scans > 0
+              run: |
+                  echo "⚠️ SARIF upload to GitHub Security failed"
+                  echo ""
+                  echo "📋 Troubleshooting Information:"
+                  echo "  → Scan results are still available as workflow artifacts"
+                  echo "  → Check repository permissions for security-events write access"
+                  echo "  → Verify SARIF file format compliance"
+                  echo "  → Review GitHub Security tab processing limits"
+                  echo ""
+
+                  # Analyze SARIF files for potential issues
+                  echo "🔍 SARIF File Analysis:"
+                  TOTAL_VULNS=0
+                  VALID_FILES=0
+
+                  if [ -d "sarif-upload" ]; then
+                    for sarif_file in sarif-upload/*.sarif; do
+                      if [ -f "$sarif_file" ]; then
+                        echo "  Analyzing: $(basename "$sarif_file")"
+                        
+                        # Check file size
+                        FILE_SIZE=$(stat -f%z "$sarif_file" 2>/dev/null || stat -c%s "$sarif_file" 2>/dev/null || echo "unknown")
+                        echo "    → File size: $FILE_SIZE bytes"
+                        
+                        # Validate JSON structure
+                        if jq empty "$sarif_file" 2>/dev/null; then
+                          VALID_FILES=$((VALID_FILES + 1))
+                          VULN_COUNT=$(jq -r '.runs[0].results | length' "$sarif_file" 2>/dev/null || echo "0")
+                          TOTAL_VULNS=$((TOTAL_VULNS + VULN_COUNT))
+                          echo "    → Status: Valid JSON with $VULN_COUNT vulnerabilities"
+                        else
+                          echo "    → Status: Invalid JSON format"
+                        fi
+                      fi
+                    done
+                  fi
+
+                  echo ""
+                  echo "📊 Summary:"
+                  echo "  → Valid SARIF files: $VALID_FILES"
+                  echo "  → Total vulnerabilities: $TOTAL_VULNS"
+                  echo "  → Artifact retention: 30 days"
+                  echo ""
+                  echo "💡 Alternative Access:"
+                  echo "  → Download 'trivy-scan-results' artifact for manual review"
+                  echo "  → Use SARIF viewers or security tools for analysis"
+                  echo "  → Consider re-running workflow after addressing permission issues"
+
+            - name: Generate comprehensive error report
+              if: always()
+              run: |
+                  echo "Generating comprehensive error and status report..."
+
+                  # Create comprehensive report directory
+                  mkdir -p trivy-results/reports
+
+                  REPORT_FILE="trivy-results/reports/scan-report.md"
+                  ERROR_REPORT="trivy-results/reports/error-analysis.json"
+
+                  # Generate markdown report
+                  cat > "$REPORT_FILE" << 'EOF'
+                  # Trivy Security Scan Report
+
+                  **Scan Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+                  **Workflow Run:** ${{ github.run_id }}
+                  **Repository:** ${{ github.repository }}
+                  **Triggered By:** ${{ github.actor }}
+
+                  ## Summary
+                  EOF
+
+                  # Add scan statistics to report
+                  if [ -f "trivy-results/scan-summary.json" ]; then
+                    TOTAL_SCANNED=$(jq -r '.total_images // 0' trivy-results/scan-summary.json)
+                    SUCCESSFUL_SCANS=$(jq -r '.successful_scans // 0' trivy-results/scan-summary.json)
+                    FAILED_SCANS=$(jq -r '.failed_scans // 0' trivy-results/scan-summary.json)
+                    
+                    cat >> "$REPORT_FILE" << EOF
+
+                  - **Total Images Processed:** $TOTAL_SCANNED
+                  - **Successful Scans:** $SUCCESSFUL_SCANS
+                  - **Failed Scans:** $FAILED_SCANS
+                  - **Success Rate:** $(( SUCCESSFUL_SCANS * 100 / TOTAL_SCANNED ))%
+
+                  ## Scan Results
+
+                  EOF
+                    
+                    # Add individual scan results
+                    if [ $SUCCESSFUL_SCANS -gt 0 ]; then
+                      echo "### Successful Scans" >> "$REPORT_FILE"
+                      echo "" >> "$REPORT_FILE"
+                      jq -r '.scan_results[] | select(.status == "success") | "- ✅ **\(.image)** - \(.vulnerabilities_found) vulnerabilities found (\(.duration_seconds)s)"' trivy-results/scan-summary.json >> "$REPORT_FILE"
+                      echo "" >> "$REPORT_FILE"
+                    fi
+                    
+                    if [ $FAILED_SCANS -gt 0 ]; then
+                      echo "### Failed Scans" >> "$REPORT_FILE"
+                      echo "" >> "$REPORT_FILE"
+                      jq -r '.scan_results[] | select(.status == "failed") | "- ❌ **\(.image)** - \(.error) (\(.error_category))"' trivy-results/scan-summary.json >> "$REPORT_FILE"
+                      echo "" >> "$REPORT_FILE"
+                      
+                      # Generate detailed error analysis
+                      echo "## Error Analysis" >> "$REPORT_FILE"
+                      echo "" >> "$REPORT_FILE"
+                      
+                      # Count errors by category
+                      IMAGE_ACCESS_ERRORS=$(jq -r '.scan_results[] | select(.status == "failed" and .error_category == "image_access")' trivy-results/scan-summary.json | jq -s length)
+                      DOCKER_ERRORS=$(jq -r '.scan_results[] | select(.status == "failed" and .error_category == "docker_daemon")' trivy-results/scan-summary.json | jq -s length)
+                      TRIVY_ERRORS=$(jq -r '.scan_results[] | select(.status == "failed" and (.error_category == "trivy_execution" or .error_category == "trivy_container"))' trivy-results/scan-summary.json | jq -s length)
+                      
+                      cat >> "$REPORT_FILE" << EOF
+                  ### Error Categories
+
+                  - **Image Access Errors:** $IMAGE_ACCESS_ERRORS
+                  - **Docker Infrastructure Errors:** $DOCKER_ERRORS  
+                  - **Trivy Execution Errors:** $TRIVY_ERRORS
+
+                  ### Recommendations
+
+                  EOF
+                      
+                      if [ $IMAGE_ACCESS_ERRORS -gt 0 ]; then
+                        cat >> "$REPORT_FILE" << 'EOF'
+                  #### Image Access Issues
+                  - Verify images exist in GitHub Container Registry
+                  - Check image visibility settings (public vs private)
+                  - Ensure GITHUB_TOKEN has `packages:read` permission
+                  - Confirm organization access rights
+
+                  EOF
+                      fi
+                      
+                      if [ $DOCKER_ERRORS -gt 0 ]; then
+                        cat >> "$REPORT_FILE" << 'EOF'
+                  #### Docker Infrastructure Issues
+                  - Check GitHub Actions runner Docker daemon status
+                  - Verify Docker service availability
+                  - Consider using different runner configuration
+
+                  EOF
+                      fi
+                      
+                      if [ $TRIVY_ERRORS -gt 0 ]; then
+                        cat >> "$REPORT_FILE" << 'EOF'
+                  #### Trivy Execution Issues
+                  - Check network connectivity to container registries
+                  - Verify Trivy container image availability
+                  - Consider increasing scan timeout for large images
+                  - Check system resources (memory, disk space)
+
+                  EOF
+                      fi
+                    fi
+                  else
+                    echo "- **Status:** No scan summary available" >> "$REPORT_FILE"
+                  fi
+
+                  # Add troubleshooting section
+                  cat >> "$REPORT_FILE" << 'EOF'
+
+                  ## Troubleshooting
+
+                  ### Common Issues and Solutions
+
+                  1. **No images found to scan**
+                     - Verify container images are published to ghcr.io
+                     - Check images follow naming pattern: `ghcr.io/{org}/products/bfx/{tool}:{tag}`
+                     - Ensure workflow has proper package access permissions
+
+                  2. **Authentication failures**
+                     - Check GITHUB_TOKEN has `packages:read` permission
+                     - Verify repository settings allow package access
+                     - Ensure organization visibility settings are correct
+
+                  3. **Scan timeouts or failures**
+                     - Large images may require longer timeout settings
+                     - Check system resources and runner capacity
+                     - Verify network connectivity to registries
+
+                  ### Support Resources
+
+                  - [Trivy Documentation](https://aquasecurity.github.io/trivy/)
+                  - [GitHub Packages Documentation](https://docs.github.com/en/packages)
+                  - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+
+                  EOF
+
+                  # Generate machine-readable error analysis
+                  if [ -f "trivy-results/scan-summary.json" ]; then
+                    jq '{
+                      "report_timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+                      "workflow_run_id": "'${{ github.run_id }}'",
+                      "repository": "'${{ github.repository }}'",
+                      "total_images": .total_images,
+                      "successful_scans": .successful_scans,
+                      "failed_scans": .failed_scans,
+                      "error_categories": {
+                        "image_access": [.scan_results[] | select(.status == "failed" and .error_category == "image_access")],
+                        "docker_daemon": [.scan_results[] | select(.status == "failed" and .error_category == "docker_daemon")],
+                        "trivy_execution": [.scan_results[] | select(.status == "failed" and (.error_category == "trivy_execution" or .error_category == "trivy_container"))],
+                        "general": [.scan_results[] | select(.status == "failed" and .error_category == "general")]
+                      },
+                      "recommendations": {
+                        "image_access_count": ([.scan_results[] | select(.status == "failed" and .error_category == "image_access")] | length),
+                        "docker_issues_count": ([.scan_results[] | select(.status == "failed" and .error_category == "docker_daemon")] | length),
+                        "trivy_issues_count": ([.scan_results[] | select(.status == "failed" and (.error_category == "trivy_execution" or .error_category == "trivy_container"))] | length)
+                      }
+                    }' trivy-results/scan-summary.json > "$ERROR_REPORT"
+                  else
+                    echo '{"error": "No scan summary available", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > "$ERROR_REPORT"
+                  fi
+
+                  echo "✓ Comprehensive report generated:"
+                  echo "  → Markdown report: $REPORT_FILE"
+                  echo "  → JSON error analysis: $ERROR_REPORT"
+
+            - name: Upload scan results as artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: trivy-scan-results
+                  path: |
+                      trivy-results/
+                      sarif-upload/
+                  retention-days: 30
+
+        # Add outputs to pass batch scanning results to summary job
+        outputs:
+            total-scanned: ${{ steps.batch-scan.outputs.total-scanned }}
+            successful-scans: ${{ steps.batch-scan.outputs.successful-scans }}
+            failed-scans: ${{ steps.batch-scan.outputs.failed-scans }}
+
+    # Summary job that runs after both discovery and scanning
+    summary:
+        name: Scan Summary
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        needs: [security-scan, trivy-scan]
+        if: always()
+
+        steps:
+            - name: Download scan results for summary
+              if: needs.trivy-scan.result != 'skipped'
+              uses: actions/download-artifact@v4
+              with:
+                  name: trivy-scan-results
+                  path: scan-results/
+              continue-on-error: true
+
+            - name: Display comprehensive scan summary
+              run: |
+                  echo "Trivy Security Scan Workflow Complete"
+                  echo "======================================"
+                  echo "Workflow execution time: $(date)"
+                  echo ""
+
+                  # Discovery phase summary
+                  echo "📋 Discovery Phase:"
+                  if [ "${{ needs.security-scan.outputs.image-count }}" -gt 0 ]; then
+                    echo "  ✓ Images discovered: ${{ needs.security-scan.outputs.image-count }}"
+                  else
+                    echo "  ⚠ No container images found to scan"
+                    echo "    → Verify images are published to ghcr.io with products/bfx/ prefix"
+                    echo "    → Check repository permissions for package access"
+                  fi
+                  echo ""
+
+                  # Scanning phase summary
+                  echo "🔍 Scanning Phase:"
+                  case "${{ needs.trivy-scan.result }}" in
+                    "success")
+                      echo "  ✓ Batch scanning completed successfully"
+                      
+                      # Try to read detailed results if available
+                      if [ -f "scan-results/scan-summary.json" ]; then
+                        echo "  📊 Detailed Results:"
+                        
+                        TOTAL_SCANNED=$(jq -r '.total_images // 0' scan-results/scan-summary.json)
+                        SUCCESSFUL=$(jq -r '.successful_scans // 0' scan-results/scan-summary.json)
+                        FAILED=$(jq -r '.failed_scans // 0' scan-results/scan-summary.json)
+                        
+                        echo "    → Total images processed: $TOTAL_SCANNED"
+                        echo "    → Successful scans: $SUCCESSFUL"
+                        echo "    → Failed scans: $FAILED"
+                        
+                        if [ "$TOTAL_SCANNED" -gt 0 ]; then
+                          SUCCESS_RATE=$(( SUCCESSFUL * 100 / TOTAL_SCANNED ))
+                          echo "    → Success rate: ${SUCCESS_RATE}%"
+                          
+                          # Calculate performance metrics if available
+                          if jq -e '.scan_results[0].duration_seconds' scan-results/scan-summary.json >/dev/null 2>&1; then
+                            AVG_DURATION=$(jq -r '[.scan_results[] | select(.duration_seconds) | .duration_seconds] | add / length | floor' scan-results/scan-summary.json)
+                            MAX_DURATION=$(jq -r '[.scan_results[] | select(.duration_seconds) | .duration_seconds] | max' scan-results/scan-summary.json)
+                            echo "    → Average scan time: ${AVG_DURATION}s"
+                            echo "    → Maximum scan time: ${MAX_DURATION}s"
+                          fi
+                        fi
+                        
+                        # Show vulnerability summary with SARIF integration details
+                        echo "  🚨 Vulnerability Summary:"
+                        TOTAL_VULNS=0
+                        SARIF_FILES=0
+                        if [ -d "scan-results" ]; then
+                          for sarif_file in scan-results/*.sarif; do
+                            if [ -f "$sarif_file" ]; then
+                              SARIF_FILES=$((SARIF_FILES + 1))
+                              VULN_COUNT=$(jq -r '.runs[0].results | length' "$sarif_file" 2>/dev/null || echo "0")
+                              TOTAL_VULNS=$((TOTAL_VULNS + VULN_COUNT))
+                            fi
+                          done
+                        fi
+                        echo "    → Total CRITICAL/HIGH vulnerabilities found: $TOTAL_VULNS"
+                        echo "    → SARIF files generated: $SARIF_FILES"
+                        
+                        # Check for SARIF upload directory
+                        if [ -d "scan-results/sarif-upload" ]; then
+                          UPLOADED_SARIF=$(find scan-results/sarif-upload -name "*.sarif" | wc -l)
+                          echo "    → SARIF files prepared for GitHub Security: $UPLOADED_SARIF"
+                        fi
+                      fi
+                      
+                      echo ""
+                      echo "  📁 Results Location:"
+                      echo "    → GitHub Security tab: ${{ github.server_url }}/${{ github.repository }}/security"
+                      echo "    → Code Scanning Alerts: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+                      echo "    → Filter by category: 'trivy-container-security-scan'"
+                      echo "    → Workflow artifacts: 'trivy-scan-results' (30-day retention)"
+                      echo ""
+                      echo "  🔍 SARIF Integration Status:"
+                      echo "    → Upload category: trivy-container-security-scan"
+                      echo "    → Metadata included: scan timestamp, workflow run ID, git info"
+                      echo "    → Processing: Results should appear in Security tab within minutes"
+                      ;;
+                    "failure")
+                      echo "  ✗ Batch scanning encountered issues"
+                      echo "    → Some or all scans may have failed"
+                      echo "    → Check individual scan logs in workflow details"
+                      echo "    → Partial results may still be available in artifacts"
+                      ;;
+                    "skipped")
+                      echo "  ⏭ Scanning was skipped (no images to process)"
+                      ;;
+                    *)
+                      echo "  ❓ Scanning status: ${{ needs.trivy-scan.result }}"
+                      ;;
+                  esac
+                  echo ""
+
+                  # Next steps and recommendations
+                  echo "📋 Next Steps:"
+                  if [ "${{ needs.trivy-scan.result }}" == "success" ]; then
+                    echo "  1. Navigate to GitHub Security tab to review uploaded SARIF results"
+                    echo "  2. Filter code scanning alerts by 'trivy-container-security-scan' category"
+                    echo "  3. Review CRITICAL and HIGH severity vulnerabilities by image"
+                    echo "  4. Track remediation progress using GitHub Security features"
+                    echo "  5. Download detailed SARIF reports from workflow artifacts if needed"
+                    echo "  6. Consider updating base images or dependencies for vulnerable containers"
+                  elif [ "${{ needs.security-scan.outputs.image-count }}" -eq 0 ]; then
+                    echo "  1. Verify container images are published to ghcr.io"
+                    echo "  2. Check that images follow the products/bfx/* naming pattern"
+                    echo "  3. Ensure workflow has proper permissions to access packages"
+                  else
+                    echo "  1. Review workflow logs for specific error details"
+                    echo "  2. Check network connectivity and registry access"
+                    echo "  3. Verify Trivy configuration and image accessibility"
+                  fi
+
+                  echo ""
+                  echo "🔄 This workflow runs automatically every Sunday at 2:00 AM UTC"
+                  echo "   Manual execution: Use 'Run workflow' button in Actions tab"
