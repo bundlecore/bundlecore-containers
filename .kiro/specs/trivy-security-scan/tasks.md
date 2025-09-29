@@ -61,3 +61,10 @@
   - Test the API call format to ensure it returns the expected package list
   - Verify the API response structure matches the expected format for package filtering
   - _Requirements: 1.1, 1.4_
+
+- [x] 10. Fix GitHub CLI authentication issue
+  - Add explicit GitHub CLI authentication using GITHUB_TOKEN
+  - Ensure GITHUB_TOKEN environment variable is available to GitHub CLI setup step
+  - Add authentication step before attempting API calls
+  - Verify authentication works correctly in the workflow
+  - _Requirements: 4.3_
