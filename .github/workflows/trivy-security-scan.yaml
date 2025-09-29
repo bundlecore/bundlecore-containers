@@ -30,9 +30,9 @@ jobs:
           echo "Verifying GitHub CLI installation..."
           gh --version
 
-          # Authenticate GitHub CLI with the provided token
-          echo "Authenticating GitHub CLI with GITHUB_TOKEN..."
-          echo "$GITHUB_TOKEN" | gh auth login --with-token
+            # Authenticate GitHub CLI with the provided token (non-interactive)
+            echo "Authenticating GitHub CLI with GITHUB_TOKEN..."
+            echo "$GITHUB_TOKEN" | gh auth login --with-token  --scopes read:packages
 
           # Test authentication
           echo "Testing GitHub CLI authentication..."
@@ -186,9 +186,9 @@ jobs:
           # Using repository-specific packages endpoint instead of organization endpoint
           # This matches the GitHub packages URL format: /repos/{owner}/{repo}/packages
           echo "📦 Fetching container packages using GitHub CLI..."
-          echo "  → Endpoint: /repos/${ORG_NAME}/packages?ecosystem=container&per_page=100"
+          echo "  → Endpoint: /orgs/${ORG_NAME}/packages?package_type=container&per_page=100"
 
-            PACKAGES_RESPONSE=$(make_gh_api_call "/orgs/${ORG_NAME}/packages?ecosystem=container&per_page=100")
+            PACKAGES_RESPONSE=$(make_gh_api_call "/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
             API_EXIT_CODE=$?
 
           echo ""
