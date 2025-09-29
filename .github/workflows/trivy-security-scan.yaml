@@ -26,13 +26,15 @@ jobs:
       - name: Setup GitHub CLI
         continue-on-error: false
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # GitHub CLI is pre-installed on GitHub Actions runners
-          # Verify installation and authenticate
           echo "Verifying GitHub CLI installation..."
           gh --version
 
+          # Authenticate GitHub CLI with the provided token
+          echo "Authenticating GitHub CLI with GITHUB_TOKEN..."
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
 
           # Test authentication
           echo "Testing GitHub CLI authentication..."
