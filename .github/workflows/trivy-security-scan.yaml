@@ -22,9 +22,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
       - name: Setup GitHub CLI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false  
         run: |
           # GitHub CLI is pre-installed on GitHub Actions runners
           # Verify installation and authenticate
@@ -54,9 +56,6 @@ jobs:
           else
             echo "⚠ Repository API access failed - may affect package discovery"
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: false
 
       - name: Discover container images
         id: discover-images
