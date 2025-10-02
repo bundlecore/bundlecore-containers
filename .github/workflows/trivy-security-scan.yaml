@@ -270,10 +270,13 @@ jobs:
             exit 1
           fi
 
-          # Validate JSON response format
+          # Validate JSON response format (avoid echoing large response)
           if ! echo "$PACKAGES_RESPONSE" | jq empty 2>/dev/null; then
             echo "✗ Invalid JSON response from GitHub API"
-            echo "  → Response: $PACKAGES_RESPONSE"
+            echo "  → Response appears to be malformed JSON"
+            echo "  → This might be due to response truncation or API error"
+            # Show just the first 200 characters safely
+            echo "  → Response preview: $(echo "$PACKAGES_RESPONSE" | head -c 200 2>/dev/null || echo "Unable to preview")..."
             exit 1
           fi
 
@@ -291,8 +294,27 @@ jobs:
           echo "  → Total packages found: $ALL_PACKAGES_COUNT"
 
           if [ "$ALL_PACKAGES_COUNT" -gt 0 ]; then
-            echo "  → All package names:"
-            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | sed 's/^/    - /'
+            echo "  → Sample package names (first 10):"
+            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | head -10 | sed 's/^/    - /'
+            if [ "$ALL_PACKAGES_COUNT" -gt 10 ]; then
+              echo "    ... and $((ALL_PACKAGES_COUNT - 10)) more packages"
+            fi
+            
+            # Specifically look for products/bfx packages
+            PRODUCTS_BFX_SAMPLE=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | head -5)
+            if [ -n "$PRODUCTS_BFX_SAMPLE" ]; then
+              echo "  → products/bfx/* packages found (sample):"
+              echo "$PRODUCTS_BFX_SAMPLE" | sed 's/^/    ✓ /'
+            else
+              echo "  → ❌ No products/bfx/* packages found in response"
+              echo "  → Looking for any packages containing 'products' or 'bfx':"
+              RELATED_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | grep -i -E "(products|bfx)" | head -3)
+              if [ -n "$RELATED_PACKAGES" ]; then
+                echo "$RELATED_PACKAGES" | sed 's/^/    ? /'
+              else
+                echo "    → None found"
+              fi
+            fi
           else
             echo "  → No packages found in account"
             echo ""
@@ -306,23 +328,49 @@ jobs:
           fi
           echo ""
 
-          # Filter packages matching products/bfx/* pattern (from biocontainer workflow)
+          # Focus ONLY on products/bfx/* packages (biocontainer workflow)
           PACKAGE_COUNT=0
           PROCESSED_PACKAGES=0
           FAILED_PACKAGES=0
 
-          # Count total packages first for progress tracking
-          TOTAL_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | wc -l)
-          echo "Found $TOTAL_PACKAGES packages matching products/bfx/* pattern"
+          echo "🔍 Filtering for products/bfx/* packages only..."
+          
+          # Debug: Show all package names first
+          echo "📋 All available packages:"
+          echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | head -10 | sed 's/^/  - /'
+          if [ $(echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | wc -l) -gt 10 ]; then
+            echo "  ... and more"
+          fi
+          echo ""
 
-          if [ "$TOTAL_PACKAGES" -eq 0 ]; then
-            echo "⚠ No packages found matching products/bfx/* pattern"
-            echo "  → Verify biocontainer images are published via biocontainer-to-bcore-signed workflow"
-            echo "  → Check that packages exist in organization: $ORG_NAME"
-            echo "  → Ensure workflow has access to organization packages"
+          # Filter for products/bfx/* packages only
+          BFX_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name')
+          BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . || echo "0")
+          
+          echo "🎯 products/bfx/* packages found: $BFX_COUNT"
+          if [ "$BFX_COUNT" -gt 0 ]; then
+            echo "$BFX_PACKAGES" | sed 's/^/  ✓ /'
+          else
+            echo "  ❌ No products/bfx/* packages found"
+            echo ""
+            echo "🔍 Debugging package names:"
+            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | grep -E "(products|bfx)" | head -5 | sed 's/^/  → /' || echo "  → No packages containing 'products' or 'bfx'"
+            echo ""
+            echo "💡 This suggests either:"
+            echo "  1. The biocontainer workflow hasn't run yet"
+            echo "  2. The packages have different names than expected"
+            echo "  3. The packages are private and not accessible"
+            echo ""
+            echo "🔗 Check packages at: https://github.com/bundlecore?tab=packages"
+            exit 1
           fi
 
-          echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | while read -r package_name; do
+          TOTAL_PACKAGES=$BFX_COUNT
+          echo ""
+          echo "🚀 Proceeding to scan $TOTAL_PACKAGES products/bfx/* packages..."
+          echo ""
+
+          echo "$BFX_PACKAGES" | while read -r package_name; do
             if [ -n "$package_name" ]; then
               PACKAGE_COUNT=$((PACKAGE_COUNT + 1))
               echo "[$PACKAGE_COUNT/$TOTAL_PACKAGES] Processing package: $package_name"
@@ -453,9 +501,10 @@ jobs:
             echo "Troubleshooting Steps:"
             echo "  1. Verify container images are published to ghcr.io"
             echo "  2. Check images follow naming pattern: ghcr.io/{org}/products/bfx/{tool}:{tag}"
-            echo "  3. Ensure workflow has 'packages:read' permission"
-            echo "  4. Verify organization name: $ORG_NAME"
-            echo "  5. Check if packages are public or workflow has access to private packages"
+            echo "  3. Ensure biocontainer workflow has run to create products/bfx/* packages"
+            echo "  4. Ensure workflow has 'packages:read' permission"
+            echo "  5. Verify organization name: $ORG_NAME"
+            echo "  6. Check if packages are public or workflow has access to private packages"
             
             echo "images-file=" >> $GITHUB_OUTPUT
             echo "image-count=0" >> $GITHUB_OUTPUT
