@@ -63,7 +63,7 @@ jobs:
             echo "🔑 Using GITHUB_TOKEN (default)"
             AUTH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           fi
-          
+
           # Test basic API access first
           echo "🔧 Testing GitHub API Access:"
           echo "=============================="
@@ -278,30 +278,16 @@ jobs:
           # Validate JSON response format using temporary file to avoid broken pipe
           TEMP_JSON=$(mktemp)
           printf "%s" "$PACKAGES_RESPONSE" > "$TEMP_JSON"
-          
-          # Debug: Check temp file
-          echo "🔍 JSON Validation Debug:"
-          echo "  → Temp file: $TEMP_JSON"
-          echo "  → File size: $(wc -c < "$TEMP_JSON" 2>/dev/null || echo "unknown") bytes"
-          echo "  → First 100 chars: $(head -c 100 "$TEMP_JSON" 2>/dev/null || echo "Unable to read")..."
-          
+
+          # Validate JSON response format
           if ! jq empty "$TEMP_JSON" 2>/dev/null; then
             echo "✗ Invalid JSON response from GitHub API"
             echo "  → Response appears to be malformed JSON"
-            echo "  → This might be due to response truncation or API error"
-            # Show just the first 200 characters safely
             PREVIEW=$(head -c 200 "$TEMP_JSON" 2>/dev/null || echo "Unable to preview")
             echo "  → Response preview: ${PREVIEW}..."
-            
-            # Additional debugging
-            echo "  → jq error output:"
-            jq empty "$TEMP_JSON" 2>&1 | head -3 | sed 's/^/    /'
-            
             rm -f "$TEMP_JSON"
             exit 1
           fi
-          
-          echo "✓ JSON validation successful"
 
           # Check if response is an array
           if ! jq -e 'type == "array"' "$TEMP_JSON" >/dev/null 2>&1; then
@@ -312,69 +298,24 @@ jobs:
             exit 1
           fi
 
-          # Debug: Show API response structure and extract package names
+          # Extract and filter packages for products/bfx/* only
           ALL_PACKAGES_COUNT=$(jq '. | length' "$TEMP_JSON")
           echo "📦 Package Discovery Results:"
           echo "============================="
           echo "  → Total packages found: $ALL_PACKAGES_COUNT"
-
-          if [ "$ALL_PACKAGES_COUNT" -gt 0 ]; then
-            # Debug: Show the structure of the first package to understand the API response
-            echo "  → First package structure (for debugging):"
-            jq -r '.[0] | keys[]' "$TEMP_JSON" | sed 's/^/    Field: /'
-            echo "    Sample name: $(jq -r '.[0].name' "$TEMP_JSON")"
-            echo "    Sample package_type: $(jq -r '.[0].package_type' "$TEMP_JSON")"
-            echo ""
-            
-            # Extract all package names
-            echo "  → All package names:"
-            ALL_PACKAGE_NAMES=$(jq -r '.[].name' "$TEMP_JSON")
-            echo "$ALL_PACKAGE_NAMES" | head -10 | sed 's/^/    - /'
-            if [ "$ALL_PACKAGES_COUNT" -gt 10 ]; then
-              echo "    ... and $((ALL_PACKAGES_COUNT - 10)) more packages"
-            fi
-            echo ""
-            
-            # Look specifically for products/bfx packages
-            echo "  → Filtering for products/bfx/* packages:"
-            PRODUCTS_BFX_PACKAGES=$(echo "$ALL_PACKAGE_NAMES" | grep "^products/bfx/" || true)
-            if [ -n "$PRODUCTS_BFX_PACKAGES" ]; then
-              echo "$PRODUCTS_BFX_PACKAGES" | sed 's/^/    ✓ /'
-            else
-              echo "    ❌ No products/bfx/* packages found"
-              echo "    → Packages containing 'products' or 'bfx':"
-              echo "$ALL_PACKAGE_NAMES" | grep -i -E "(products|bfx)" | head -3 | sed 's/^/      ? /' || echo "      → None found"
-            fi
-          else
-            echo "  → No packages found in account"
-            echo ""
-            echo "This could mean:"
-            echo "  1. No container packages have been published"
-            echo "  2. All packages are private and token lacks access"
-            echo "  3. Packages exist but not as 'container' type"
-            echo ""
-            echo "Check: https://github.com/$ORG_NAME?tab=packages"
-            exit 1
-          fi
-          echo ""
 
           # Focus ONLY on products/bfx/* packages (biocontainer workflow)
           PACKAGE_COUNT=0
           PROCESSED_PACKAGES=0
           FAILED_PACKAGES=0
 
-          echo "🔍 Filtering for products/bfx/* packages only..."
-          
-          # Extract all package names and filter for products/bfx/* only
-          echo "🎯 Extracting package names and filtering for products/bfx/*..."
-          
           # Get all package names from the API response
           ALL_PACKAGE_NAMES=$(jq -r '.[].name' "$TEMP_JSON")
-          
+
           # Filter for products/bfx/* packages only
           BFX_PACKAGES=$(echo "$ALL_PACKAGE_NAMES" | grep "^products/bfx/" || true)
           BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . 2>/dev/null || echo "0")
-          
+
           echo "  → products/bfx/* packages found: $BFX_COUNT"
           if [ "$BFX_COUNT" -gt 0 ]; then
             echo "$BFX_PACKAGES" | sed 's/^/    ✓ /'
@@ -400,7 +341,7 @@ jobs:
 
           # Clean up temp file before proceeding
           rm -f "$TEMP_JSON"
-          
+
           TOTAL_PACKAGES=$BFX_COUNT
           echo ""
           echo "🚀 Proceeding to scan $TOTAL_PACKAGES products/bfx/* packages..."
@@ -409,9 +350,9 @@ jobs:
           echo "$BFX_PACKAGES" | while read -r package_name; do
             if [ -n "$package_name" ]; then
               PACKAGE_COUNT=$((PACKAGE_COUNT + 1))
-              echo "[$PACKAGE_COUNT/$TOTAL_PACKAGES] Processing package: $package_name"
+              echo "[$PACKAGE_COUNT/$TOTAL_PACKAGES] Processing: $package_name"
               
-              # Rate limiting: small delay between API calls to avoid hitting limits
+              # Rate limiting: small delay between API calls
               if [ $PACKAGE_COUNT -gt 1 ]; then
                 sleep 1
               fi
@@ -458,8 +399,14 @@ jobs:
                 TAGS_FOUND=0
                 echo "$VERSIONS_RESPONSE" | jq -r '.[].metadata.container.tags[]?' | while read -r tag; do
                   if [ -n "$tag" ]; then
-                    # Validate tag format (basic validation)
-                    if [[ "$tag" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+                    # Skip signature files and other non-image tags
+                    if [[ "$tag" == *.sig ]] || [[ "$tag" == sha256-* ]]; then
+                      echo "    → Skipping signature/hash: $tag"
+                      continue
+                    fi
+                    
+                    # Validate tag format (allow more characters for version tags)
+                    if [[ "$tag" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
                       # Generate image URL matching the biocontainer workflow format: ghcr.io/{org}/{package}:{tag}
                       image_url="ghcr.io/${ORG_NAME}/${package_name}:${tag}"
                       echo "$image_url" >> "$IMAGES_FILE"
