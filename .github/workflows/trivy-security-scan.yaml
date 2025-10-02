@@ -222,9 +222,9 @@ jobs:
           echo "→ Attempting organization endpoint..."
           ORG_URL="https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100"
 
-          # Capture both stdout and stderr, and the exit code
+          # Capture only stdout (clean JSON), let stderr go to logs
           set +e  # Don't exit on error temporarily
-          PACKAGES_RESPONSE=$(make_api_call "$ORG_URL" 2>&1)
+          PACKAGES_RESPONSE=$(make_api_call "$ORG_URL")
           ORG_EXIT_CODE=$?
           set -e  # Re-enable exit on error
 
@@ -240,7 +240,7 @@ jobs:
             USER_URL="https://api.github.com/users/${ORG_NAME}/packages?package_type=container&per_page=100"
             
             set +e  # Don't exit on error temporarily
-            PACKAGES_RESPONSE=$(make_api_call "$USER_URL" 2>&1)
+            PACKAGES_RESPONSE=$(make_api_call "$USER_URL")
             USER_EXIT_CODE=$?
             set -e  # Re-enable exit on error
             
