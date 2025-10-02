@@ -275,47 +275,52 @@ jobs:
             exit 1
           fi
 
-          # Validate JSON response format (avoid echoing large response)
-          if ! echo "$PACKAGES_RESPONSE" | jq empty 2>/dev/null; then
+          # Validate JSON response format using temporary file to avoid broken pipe
+          TEMP_JSON=$(mktemp)
+          printf "%s" "$PACKAGES_RESPONSE" > "$TEMP_JSON"
+          
+          if ! jq empty "$TEMP_JSON" 2>/dev/null; then
             echo "✗ Invalid JSON response from GitHub API"
             echo "  → Response appears to be malformed JSON"
             echo "  → This might be due to response truncation or API error"
             # Show just the first 200 characters safely
-            # Safely show response preview
-            PREVIEW=$(printf "%.200s" "$PACKAGES_RESPONSE" 2>/dev/null || echo "Unable to preview")
+            PREVIEW=$(head -c 200 "$TEMP_JSON" 2>/dev/null || echo "Unable to preview")
             echo "  → Response preview: ${PREVIEW}..."
+            rm -f "$TEMP_JSON"
             exit 1
           fi
 
           # Check if response is an array
-          if ! echo "$PACKAGES_RESPONSE" | jq -e 'type == "array"' >/dev/null 2>&1; then
+          if ! jq -e 'type == "array"' "$TEMP_JSON" >/dev/null 2>&1; then
             echo "✗ Unexpected API response format (expected array)"
-            echo "  → Response type: $(echo "$PACKAGES_RESPONSE" | jq -r 'type')"
+            RESPONSE_TYPE=$(jq -r 'type' "$TEMP_JSON" 2>/dev/null || echo "unknown")
+            echo "  → Response type: $RESPONSE_TYPE"
+            rm -f "$TEMP_JSON"
             exit 1
           fi
 
-          # Debug: Show all available packages before filtering
-          ALL_PACKAGES_COUNT=$(echo "$PACKAGES_RESPONSE" | jq '. | length')
+          # Debug: Show all available packages before filtering using temp file
+          ALL_PACKAGES_COUNT=$(jq '. | length' "$TEMP_JSON")
           echo "📦 Package Discovery Results:"
           echo "============================="
           echo "  → Total packages found: $ALL_PACKAGES_COUNT"
 
           if [ "$ALL_PACKAGES_COUNT" -gt 0 ]; then
             echo "  → Sample package names (first 10):"
-            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | head -10 | sed 's/^/    - /'
+            jq -r '.[].name' "$TEMP_JSON" | head -10 | sed 's/^/    - /'
             if [ "$ALL_PACKAGES_COUNT" -gt 10 ]; then
               echo "    ... and $((ALL_PACKAGES_COUNT - 10)) more packages"
             fi
             
             # Specifically look for products/bfx packages
-            PRODUCTS_BFX_SAMPLE=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' | head -5)
+            PRODUCTS_BFX_SAMPLE=$(jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' "$TEMP_JSON" | head -5)
             if [ -n "$PRODUCTS_BFX_SAMPLE" ]; then
               echo "  → products/bfx/* packages found (sample):"
               echo "$PRODUCTS_BFX_SAMPLE" | sed 's/^/    ✓ /'
             else
               echo "  → ❌ No products/bfx/* packages found in response"
               echo "  → Looking for any packages containing 'products' or 'bfx':"
-              RELATED_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | grep -i -E "(products|bfx)" | head -3)
+              RELATED_PACKAGES=$(jq -r '.[].name' "$TEMP_JSON" | grep -i -E "(products|bfx)" | head -3)
               if [ -n "$RELATED_PACKAGES" ]; then
                 echo "$RELATED_PACKAGES" | sed 's/^/    ? /'
               else
@@ -342,16 +347,17 @@ jobs:
 
           echo "🔍 Filtering for products/bfx/* packages only..."
           
-          # Debug: Show all package names first
+          # Debug: Show all package names first using temp file
           echo "📋 All available packages:"
-          echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | head -10 | sed 's/^/  - /'
-          if [ $(echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | wc -l) -gt 10 ]; then
+          jq -r '.[].name' "$TEMP_JSON" | head -10 | sed 's/^/  - /'
+          TOTAL_PACKAGE_COUNT=$(jq -r '.[].name' "$TEMP_JSON" | wc -l)
+          if [ "$TOTAL_PACKAGE_COUNT" -gt 10 ]; then
             echo "  ... and more"
           fi
           echo ""
 
           # Filter for products/bfx/* packages only
-          BFX_PACKAGES=$(echo "$PACKAGES_RESPONSE" | jq -r '.[] | select(.name | startswith("products/bfx/")) | .name')
+          BFX_PACKAGES=$(jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' "$TEMP_JSON")
           BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . || echo "0")
           
           echo "🎯 products/bfx/* packages found: $BFX_COUNT"
@@ -361,7 +367,7 @@ jobs:
             echo "  ❌ No products/bfx/* packages found"
             echo ""
             echo "🔍 Debugging package names:"
-            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | grep -E "(products|bfx)" | head -5 | sed 's/^/  → /' || echo "  → No packages containing 'products' or 'bfx'"
+            jq -r '.[].name' "$TEMP_JSON" | grep -E "(products|bfx)" | head -5 | sed 's/^/  → /' || echo "  → No packages containing 'products' or 'bfx'"
             echo ""
             echo "💡 This suggests either:"
             echo "  1. The biocontainer workflow hasn't run yet"
@@ -369,9 +375,13 @@ jobs:
             echo "  3. The packages are private and not accessible"
             echo ""
             echo "🔗 Check packages at: https://github.com/bundlecore?tab=packages"
+            rm -f "$TEMP_JSON"
             exit 1
           fi
 
+          # Clean up temp file before proceeding
+          rm -f "$TEMP_JSON"
+          
           TOTAL_PACKAGES=$BFX_COUNT
           echo ""
           echo "🚀 Proceeding to scan $TOTAL_PACKAGES products/bfx/* packages..."
