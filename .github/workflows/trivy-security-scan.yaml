@@ -141,7 +141,7 @@ jobs:
             local rate_limit_delay=2
             
             while [ $attempt -le $max_retries ]; do
-              echo "  → API call attempt $attempt/$max_retries: $url"
+              echo "  → API call attempt $attempt/$max_retries: $url" >&2
               
               # Make the API call with timeout and proper error handling
               local response
@@ -159,50 +159,50 @@ jobs:
               
               case "$http_code" in
                 200)
-                  echo "  ✓ API call successful (HTTP $http_code)"
-                  # Return the response without echoing it
+                  echo "  ✓ API call successful (HTTP $http_code)" >&2
+                  # Return ONLY the JSON response to stdout
                   printf "%s" "$response"
                   return 0
                   ;;
                 401)
-                  echo "  ✗ Authentication failed (HTTP $http_code)"
-                  echo "    → Check GITHUB_TOKEN permissions"
-                  echo "    → Ensure token has 'packages:read' scope"
+                  echo "  ✗ Authentication failed (HTTP $http_code)" >&2
+                  echo "    → Check GITHUB_TOKEN permissions" >&2
+                  echo "    → Ensure token has 'packages:read' scope" >&2
                   return 1
                   ;;
                 403)
-                  echo "  ✗ Access forbidden (HTTP $http_code)"
-                  echo "    → Check repository permissions"
-                  echo "    → Verify organization access rights"
+                  echo "  ✗ Access forbidden (HTTP $http_code)" >&2
+                  echo "    → Check repository permissions" >&2
+                  echo "    → Verify organization access rights" >&2
                   return 1
                   ;;
                 404)
-                  echo "  ✗ Resource not found (HTTP $http_code)"
-                  echo "    → Organization or packages may not exist"
-                  echo "    → Verify organization name: $ORG_NAME"
+                  echo "  ✗ Resource not found (HTTP $http_code)" >&2
+                  echo "    → Organization or packages may not exist" >&2
+                  echo "    → Verify organization name: $ORG_NAME" >&2
                   return 1
                   ;;
                 429)
-                  echo "  ⚠ Rate limit exceeded (HTTP $http_code)"
+                  echo "  ⚠ Rate limit exceeded (HTTP $http_code)" >&2
                   if [ $attempt -lt $max_retries ]; then
                     # Exponential backoff with jitter for rate limits
                     local backoff_delay=$((retry_delay * attempt * 2 + RANDOM % 10))
-                    echo "    → Rate limit backoff: waiting ${backoff_delay}s before retry..."
+                    echo "    → Rate limit backoff: waiting ${backoff_delay}s before retry..." >&2
                     sleep $backoff_delay
                   fi
                   ;;
                 5*)
-                  echo "  ⚠ Server error (HTTP $http_code)"
+                  echo "  ⚠ Server error (HTTP $http_code)" >&2
                   if [ $attempt -lt $max_retries ]; then
-                    echo "    → Retrying in ${retry_delay}s..."
+                    echo "    → Retrying in ${retry_delay}s..." >&2
                     sleep $retry_delay
                   fi
                   ;;
                 *)
-                  echo "  ✗ Unexpected response (HTTP $http_code)"
-                  echo "    → Response: $response"
+                  echo "  ✗ Unexpected response (HTTP $http_code)" >&2
+                  echo "    → Response: $response" >&2
                   if [ $attempt -lt $max_retries ]; then
-                    echo "    → Retrying in ${retry_delay}s..."
+                    echo "    → Retrying in ${retry_delay}s..." >&2
                     sleep $retry_delay
                   fi
                   ;;
@@ -211,7 +211,7 @@ jobs:
               attempt=$((attempt + 1))
             done
             
-            echo "  ✗ API call failed after $max_retries attempts"
+            echo "  ✗ API call failed after $max_retries attempts" >&2
             return 1
           }
 
