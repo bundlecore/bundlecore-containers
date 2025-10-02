@@ -119,7 +119,7 @@ jobs:
           SIMPLE_TEST=$(curl -s -w "%{http_code}" \
                             -H "Authorization: Bearer $AUTH_TOKEN" \
                             -H "Accept: application/vnd.github.v3+json" \
-                            "https://api.github.com/orgs/${ORG_NAME}/packages?per_page=1")
+                            "https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=1")
           SIMPLE_HTTP_CODE="${SIMPLE_TEST: -3}"
           echo "  → HTTP Status: $SIMPLE_HTTP_CODE"
 
@@ -279,6 +279,12 @@ jobs:
           TEMP_JSON=$(mktemp)
           printf "%s" "$PACKAGES_RESPONSE" > "$TEMP_JSON"
           
+          # Debug: Check temp file
+          echo "🔍 JSON Validation Debug:"
+          echo "  → Temp file: $TEMP_JSON"
+          echo "  → File size: $(wc -c < "$TEMP_JSON" 2>/dev/null || echo "unknown") bytes"
+          echo "  → First 100 chars: $(head -c 100 "$TEMP_JSON" 2>/dev/null || echo "Unable to read")..."
+          
           if ! jq empty "$TEMP_JSON" 2>/dev/null; then
             echo "✗ Invalid JSON response from GitHub API"
             echo "  → Response appears to be malformed JSON"
@@ -286,9 +292,16 @@ jobs:
             # Show just the first 200 characters safely
             PREVIEW=$(head -c 200 "$TEMP_JSON" 2>/dev/null || echo "Unable to preview")
             echo "  → Response preview: ${PREVIEW}..."
+            
+            # Additional debugging
+            echo "  → jq error output:"
+            jq empty "$TEMP_JSON" 2>&1 | head -3 | sed 's/^/    /'
+            
             rm -f "$TEMP_JSON"
             exit 1
           fi
+          
+          echo "✓ JSON validation successful"
 
           # Check if response is an array
           if ! jq -e 'type == "array"' "$TEMP_JSON" >/dev/null 2>&1; then
@@ -299,33 +312,38 @@ jobs:
             exit 1
           fi
 
-          # Debug: Show all available packages before filtering using temp file
+          # Debug: Show API response structure and extract package names
           ALL_PACKAGES_COUNT=$(jq '. | length' "$TEMP_JSON")
           echo "📦 Package Discovery Results:"
           echo "============================="
           echo "  → Total packages found: $ALL_PACKAGES_COUNT"
 
           if [ "$ALL_PACKAGES_COUNT" -gt 0 ]; then
-            echo "  → Sample package names (first 10):"
-            jq -r '.[].name' "$TEMP_JSON" | head -10 | sed 's/^/    - /'
+            # Debug: Show the structure of the first package to understand the API response
+            echo "  → First package structure (for debugging):"
+            jq -r '.[0] | keys[]' "$TEMP_JSON" | sed 's/^/    Field: /'
+            echo "    Sample name: $(jq -r '.[0].name' "$TEMP_JSON")"
+            echo "    Sample package_type: $(jq -r '.[0].package_type' "$TEMP_JSON")"
+            echo ""
+            
+            # Extract all package names
+            echo "  → All package names:"
+            ALL_PACKAGE_NAMES=$(jq -r '.[].name' "$TEMP_JSON")
+            echo "$ALL_PACKAGE_NAMES" | head -10 | sed 's/^/    - /'
             if [ "$ALL_PACKAGES_COUNT" -gt 10 ]; then
               echo "    ... and $((ALL_PACKAGES_COUNT - 10)) more packages"
             fi
+            echo ""
             
-            # Specifically look for products/bfx packages
-            PRODUCTS_BFX_SAMPLE=$(jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' "$TEMP_JSON" | head -5)
-            if [ -n "$PRODUCTS_BFX_SAMPLE" ]; then
-              echo "  → products/bfx/* packages found (sample):"
-              echo "$PRODUCTS_BFX_SAMPLE" | sed 's/^/    ✓ /'
+            # Look specifically for products/bfx packages
+            echo "  → Filtering for products/bfx/* packages:"
+            PRODUCTS_BFX_PACKAGES=$(echo "$ALL_PACKAGE_NAMES" | grep "^products/bfx/" || true)
+            if [ -n "$PRODUCTS_BFX_PACKAGES" ]; then
+              echo "$PRODUCTS_BFX_PACKAGES" | sed 's/^/    ✓ /'
             else
-              echo "  → ❌ No products/bfx/* packages found in response"
-              echo "  → Looking for any packages containing 'products' or 'bfx':"
-              RELATED_PACKAGES=$(jq -r '.[].name' "$TEMP_JSON" | grep -i -E "(products|bfx)" | head -3)
-              if [ -n "$RELATED_PACKAGES" ]; then
-                echo "$RELATED_PACKAGES" | sed 's/^/    ? /'
-              else
-                echo "    → None found"
-              fi
+              echo "    ❌ No products/bfx/* packages found"
+              echo "    → Packages containing 'products' or 'bfx':"
+              echo "$ALL_PACKAGE_NAMES" | grep -i -E "(products|bfx)" | head -3 | sed 's/^/      ? /' || echo "      → None found"
             fi
           else
             echo "  → No packages found in account"
@@ -347,34 +365,35 @@ jobs:
 
           echo "🔍 Filtering for products/bfx/* packages only..."
           
-          # Debug: Show all package names first using temp file
-          echo "📋 All available packages:"
-          jq -r '.[].name' "$TEMP_JSON" | head -10 | sed 's/^/  - /'
-          TOTAL_PACKAGE_COUNT=$(jq -r '.[].name' "$TEMP_JSON" | wc -l)
-          if [ "$TOTAL_PACKAGE_COUNT" -gt 10 ]; then
-            echo "  ... and more"
-          fi
-          echo ""
-
-          # Filter for products/bfx/* packages only
-          BFX_PACKAGES=$(jq -r '.[] | select(.name | startswith("products/bfx/")) | .name' "$TEMP_JSON")
-          BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . || echo "0")
+          # Extract all package names and filter for products/bfx/* only
+          echo "🎯 Extracting package names and filtering for products/bfx/*..."
           
-          echo "🎯 products/bfx/* packages found: $BFX_COUNT"
+          # Get all package names from the API response
+          ALL_PACKAGE_NAMES=$(jq -r '.[].name' "$TEMP_JSON")
+          
+          # Filter for products/bfx/* packages only
+          BFX_PACKAGES=$(echo "$ALL_PACKAGE_NAMES" | grep "^products/bfx/" || true)
+          BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . 2>/dev/null || echo "0")
+          
+          echo "  → products/bfx/* packages found: $BFX_COUNT"
           if [ "$BFX_COUNT" -gt 0 ]; then
-            echo "$BFX_PACKAGES" | sed 's/^/  ✓ /'
+            echo "$BFX_PACKAGES" | sed 's/^/    ✓ /'
           else
-            echo "  ❌ No products/bfx/* packages found"
+            echo "    ❌ No products/bfx/* packages found"
             echo ""
-            echo "🔍 Debugging package names:"
-            jq -r '.[].name' "$TEMP_JSON" | grep -E "(products|bfx)" | head -5 | sed 's/^/  → /' || echo "  → No packages containing 'products' or 'bfx'"
+            echo "🔍 All package names for debugging:"
+            echo "$ALL_PACKAGE_NAMES" | head -10 | sed 's/^/    - /'
+            if [ $(echo "$ALL_PACKAGE_NAMES" | wc -l) -gt 10 ]; then
+              echo "    ... and more"
+            fi
             echo ""
-            echo "💡 This suggests either:"
-            echo "  1. The biocontainer workflow hasn't run yet"
-            echo "  2. The packages have different names than expected"
-            echo "  3. The packages are private and not accessible"
+            echo "💡 Possible reasons:"
+            echo "  1. Biocontainer workflow hasn't created products/bfx/* packages yet"
+            echo "  2. Packages have different naming pattern than expected"
+            echo "  3. Only CI workflow packages (bundlecore-containers/*) exist"
             echo ""
-            echo "🔗 Check packages at: https://github.com/bundlecore?tab=packages"
+            echo "🔗 Verify packages at: https://github.com/bundlecore?tab=packages"
+            echo "📋 Expected pattern: products/bfx/{tool-name}"
             rm -f "$TEMP_JSON"
             exit 1
           fi
