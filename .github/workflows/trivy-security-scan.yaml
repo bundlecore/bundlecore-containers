@@ -6,11 +6,18 @@ on:
     - cron: "0 2 * * 0"
   workflow_dispatch:
     # Allow manual triggering of the workflow
+    inputs:
+      debug_mode:
+        description: "Enable debug mode for troubleshooting"
+        required: false
+        default: "false"
+        type: boolean
 
 permissions:
   packages: read # Required to access GitHub Container Registry
   security-events: write # Required to upload SARIF results to Security tab
   contents: read # Required for checkout action
+  actions: read # Additional permission that might be needed
 
 jobs:
   security-scan:
@@ -35,8 +42,74 @@ jobs:
           ORG_NAME="${GITHUB_REPOSITORY_OWNER}"
           echo "Scanning packages for organization: $ORG_NAME"
 
-          # Check if this is a user or organization account
-          echo "Checking account type for: $ORG_NAME"
+          # Debug information
+          echo ""
+          echo "🔍 Environment Debug Information:"
+          echo "================================="
+          echo "  → Repository: ${GITHUB_REPOSITORY}"
+          echo "  → Owner: ${GITHUB_REPOSITORY_OWNER}"
+          echo "  → Actor: ${GITHUB_ACTOR}"
+          echo "  → Token available: $([ -n "${{ secrets.GITHUB_TOKEN }}" ] && echo "Yes" || echo "No")"
+          echo "  → Workflow permissions: packages:read, security-events:write, contents:read"
+          echo ""
+
+          # Test basic API access first
+          echo "🔧 Testing GitHub API Access:"
+          echo "=============================="
+          echo "→ Testing basic API connectivity..."
+
+          # Test with a simple API call that should always work
+          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/user" > /dev/null; then
+            echo "✓ Basic API access successful"
+          else
+            echo "✗ Basic API access failed"
+            echo "  → GITHUB_TOKEN may be invalid or missing"
+            echo "  → Check repository secrets configuration"
+            exit 1
+          fi
+
+          # Test repository access
+          echo "→ Testing repository access..."
+          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/repos/${GITHUB_REPOSITORY}" > /dev/null; then
+            echo "✓ Repository access successful"
+          else
+            echo "✗ Repository access failed"
+            echo "  → Token may lack repository access"
+            exit 1
+          fi
+
+          # Test if we can access organization info
+          echo "→ Testing organization access..."
+          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/orgs/${ORG_NAME}" > /dev/null; then
+            echo "✓ Organization access successful"
+          else
+            echo "⚠ Organization access failed - might be a user account"
+            echo "  → Will try user endpoint for packages"
+          fi
+
+          # Test a simple package API call to see what happens
+          echo "→ Testing package API access (simple call)..."
+          SIMPLE_TEST=$(curl -s -w "%{http_code}" \
+                            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                            -H "Accept: application/vnd.github.v3+json" \
+                            "https://api.github.com/orgs/${ORG_NAME}/packages?per_page=1")
+          SIMPLE_HTTP_CODE="${SIMPLE_TEST: -3}"
+          echo "  → HTTP Status: $SIMPLE_HTTP_CODE"
+
+          case "$SIMPLE_HTTP_CODE" in
+            200) echo "  ✓ Package API accessible" ;;
+            401) echo "  ✗ Authentication failed" ;;
+            403) echo "  ✗ Forbidden - likely permission issue" ;;
+            404) echo "  ✗ Not found - might need user endpoint" ;;
+            *) echo "  ? Unexpected status: $SIMPLE_HTTP_CODE" ;;
+          esac
+          echo ""
 
           # Function to make API calls with retry logic and rate limit optimization
           make_api_call() {
@@ -122,21 +195,57 @@ jobs:
 
           # Try organization endpoint first, then user endpoint if that fails
           echo "Fetching container packages from GitHub API..."
-          PACKAGES_RESPONSE=$(make_api_call "https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100")
 
-          # If organization endpoint fails, try user endpoint
-          if [ $? -ne 0 ] || [ -z "$PACKAGES_RESPONSE" ]; then
-            echo "Organization endpoint failed, trying user endpoint..."
-            PACKAGES_RESPONSE=$(make_api_call "https://api.github.com/users/${ORG_NAME}/packages?package_type=container&per_page=100")
+          # Try organization endpoint first with detailed error capture
+          echo "→ Attempting organization endpoint..."
+          ORG_URL="https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100"
+
+          # Capture both stdout and stderr, and the exit code
+          set +e  # Don't exit on error temporarily
+          PACKAGES_RESPONSE=$(make_api_call "$ORG_URL" 2>&1)
+          ORG_EXIT_CODE=$?
+          set -e  # Re-enable exit on error
+
+          if [ $ORG_EXIT_CODE -eq 0 ] && [ -n "$PACKAGES_RESPONSE" ]; then
+            echo "✓ Organization endpoint successful"
+          else
+            echo "✗ Organization endpoint failed (exit code: $ORG_EXIT_CODE)"
+            echo "  Response: $PACKAGES_RESPONSE"
+            
+            echo "→ Trying user endpoint..."
+            USER_URL="https://api.github.com/users/${ORG_NAME}/packages?package_type=container&per_page=100"
+            
+            set +e  # Don't exit on error temporarily
+            PACKAGES_RESPONSE=$(make_api_call "$USER_URL" 2>&1)
+            USER_EXIT_CODE=$?
+            set -e  # Re-enable exit on error
+            
+            if [ $USER_EXIT_CODE -eq 0 ] && [ -n "$PACKAGES_RESPONSE" ]; then
+              echo "✓ User endpoint successful"
+            else
+              echo "✗ Both endpoints failed"
+              echo "  User endpoint exit code: $USER_EXIT_CODE"
+              echo "  User endpoint response: $PACKAGES_RESPONSE"
+              echo ""
+              echo "🔍 Debug Information:"
+              echo "  → Org URL: $ORG_URL"
+              echo "  → User URL: $USER_URL"
+              echo "  → We know packages exist from the screenshot"
+              echo "  → This suggests a permissions or authentication issue"
+              echo ""
+              echo "💡 Possible Solutions:"
+              echo "  1. The GITHUB_TOKEN might not have organization-level package access"
+              echo "  2. Try using a personal access token instead"
+              echo "  3. Check if the organization has restricted package access"
+              echo "  4. Verify the token has 'read:packages' scope (not just 'packages: read')"
+              exit 1
+            fi
           fi
 
-
-          # Validate API response
-          if [ $? -ne 0 ] || [ -z "$PACKAGES_RESPONSE" ]; then
-            echo "✗ Failed to fetch packages from GitHub API"
-            echo "  → Check network connectivity"
-            echo "  → Verify GITHUB_TOKEN permissions"
-            echo "  → Ensure organization exists and is accessible"
+          # Validate API response is not empty
+          if [ -z "$PACKAGES_RESPONSE" ]; then
+            echo "✗ Empty response from GitHub API"
+            echo "  → This usually means no packages exist or no access to packages"
             exit 1
           fi
 
@@ -153,6 +262,28 @@ jobs:
             echo "  → Response type: $(echo "$PACKAGES_RESPONSE" | jq -r 'type')"
             exit 1
           fi
+
+          # Debug: Show all available packages before filtering
+          ALL_PACKAGES_COUNT=$(echo "$PACKAGES_RESPONSE" | jq '. | length')
+          echo "📦 Package Discovery Results:"
+          echo "============================="
+          echo "  → Total packages found: $ALL_PACKAGES_COUNT"
+
+          if [ "$ALL_PACKAGES_COUNT" -gt 0 ]; then
+            echo "  → All package names:"
+            echo "$PACKAGES_RESPONSE" | jq -r '.[].name' | sed 's/^/    - /'
+          else
+            echo "  → No packages found in account"
+            echo ""
+            echo "This could mean:"
+            echo "  1. No container packages have been published"
+            echo "  2. All packages are private and token lacks access"
+            echo "  3. Packages exist but not as 'container' type"
+            echo ""
+            echo "Check: https://github.com/$ORG_NAME?tab=packages"
+            exit 1
+          fi
+          echo ""
 
           # Filter packages matching products/bfx/* pattern (from biocontainer workflow)
           PACKAGE_COUNT=0
