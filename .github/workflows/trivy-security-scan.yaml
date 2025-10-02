@@ -153,14 +153,15 @@ jobs:
                              -H "Authorization: Bearer $AUTH_TOKEN" \
                              -H "Accept: application/vnd.github.v3+json" \
                              "$url")
-              echo "API response received, $response"  # Print first 100 chars for brevity
+              # Don't echo the full response to avoid broken pipe - just get status
               http_code="${response: -3}"
               response="${response%???}"
               
               case "$http_code" in
                 200)
                   echo "  ✓ API call successful (HTTP $http_code)"
-                  echo "$response"
+                  # Return the response without echoing it
+                  printf "%s" "$response"
                   return 0
                   ;;
                 401)
@@ -231,7 +232,9 @@ jobs:
             echo "✓ Organization endpoint successful"
           else
             echo "✗ Organization endpoint failed (exit code: $ORG_EXIT_CODE)"
-            echo "  Response: $PACKAGES_RESPONSE"
+            # Show safe preview of response
+            SAFE_PREVIEW=$(printf "%.200s" "$PACKAGES_RESPONSE" 2>/dev/null || echo "Unable to preview")
+            echo "  Response preview: ${SAFE_PREVIEW}..."
             
             echo "→ Trying user endpoint..."
             USER_URL="https://api.github.com/users/${ORG_NAME}/packages?package_type=container&per_page=100"
@@ -246,7 +249,9 @@ jobs:
             else
               echo "✗ Both endpoints failed"
               echo "  User endpoint exit code: $USER_EXIT_CODE"
-              echo "  User endpoint response: $PACKAGES_RESPONSE"
+              # Show safe preview of user response
+              USER_SAFE_PREVIEW=$(printf "%.200s" "$PACKAGES_RESPONSE" 2>/dev/null || echo "Unable to preview")
+              echo "  User endpoint response preview: ${USER_SAFE_PREVIEW}..."
               echo ""
               echo "🔍 Debug Information:"
               echo "  → Org URL: $ORG_URL"
@@ -276,7 +281,9 @@ jobs:
             echo "  → Response appears to be malformed JSON"
             echo "  → This might be due to response truncation or API error"
             # Show just the first 200 characters safely
-            echo "  → Response preview: $(echo "$PACKAGES_RESPONSE" | head -c 200 2>/dev/null || echo "Unable to preview")..."
+            # Safely show response preview
+            PREVIEW=$(printf "%.200s" "$PACKAGES_RESPONSE" 2>/dev/null || echo "Unable to preview")
+            echo "  → Response preview: ${PREVIEW}..."
             exit 1
           fi
 
