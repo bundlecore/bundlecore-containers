@@ -10,14 +10,16 @@ on:
       debug_mode:
         description: "Enable debug mode for troubleshooting"
         required: false
-        default: "false"
+        default: false
         type: boolean
 
 permissions:
+  contents: read # Required for checkout action
   packages: read # Required to access GitHub Container Registry
   security-events: write # Required to upload SARIF results to Security tab
-  contents: read # Required for checkout action
-  actions: read # Additional permission that might be needed
+  actions: read # Required for workflow access
+
+  pull-requests: read # Sometimes needed for full access
 
 jobs:
   security-scan:
@@ -53,26 +55,45 @@ jobs:
           echo "  → Workflow permissions: packages:read, security-events:write, contents:read"
           echo ""
 
+          # Determine which token to use
+          if [ -n "${{ secrets.PACKAGES_TOKEN }}" ]; then
+            echo "🔑 Using PACKAGES_TOKEN (Personal Access Token)"
+            AUTH_TOKEN="${{ secrets.PACKAGES_TOKEN }}"
+          else
+            echo "🔑 Using GITHUB_TOKEN (default)"
+            AUTH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          fi
+          
           # Test basic API access first
           echo "🔧 Testing GitHub API Access:"
           echo "=============================="
           echo "→ Testing basic API connectivity..."
 
           # Test with a simple API call that should always work
-          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          if curl -s -f -H "Authorization: Bearer $AUTH_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     "https://api.github.com/user" > /dev/null; then
             echo "✓ Basic API access successful"
           else
             echo "✗ Basic API access failed"
-            echo "  → GITHUB_TOKEN may be invalid or missing"
-            echo "  → Check repository secrets configuration"
+            echo "  → Token may be invalid or have insufficient permissions"
+            echo ""
+            echo "💡 Solutions to try:"
+            echo "  1. Check repository Settings → Actions → General → Workflow permissions"
+            echo "  2. Ensure 'Read and write permissions' is selected"
+            echo "  3. Or create a Personal Access Token with 'packages:read' scope"
+            echo "  4. Add it as PACKAGES_TOKEN secret in repository settings"
+            echo ""
+            echo "🔍 Current token info:"
+            echo "  → Using: $([ -n "${{ secrets.PACKAGES_TOKEN }}" ] && echo "PACKAGES_TOKEN (PAT)" || echo "GITHUB_TOKEN (default)")"
+            echo "  → Repository: ${GITHUB_REPOSITORY}"
+            echo "  → Actor: ${GITHUB_ACTOR}"
             exit 1
           fi
 
           # Test repository access
           echo "→ Testing repository access..."
-          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          if curl -s -f -H "Authorization: Bearer $AUTH_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     "https://api.github.com/repos/${GITHUB_REPOSITORY}" > /dev/null; then
             echo "✓ Repository access successful"
@@ -84,7 +105,7 @@ jobs:
 
           # Test if we can access organization info
           echo "→ Testing organization access..."
-          if curl -s -f -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          if curl -s -f -H "Authorization: Bearer $AUTH_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     "https://api.github.com/orgs/${ORG_NAME}" > /dev/null; then
             echo "✓ Organization access successful"
@@ -96,7 +117,7 @@ jobs:
           # Test a simple package API call to see what happens
           echo "→ Testing package API access (simple call)..."
           SIMPLE_TEST=$(curl -s -w "%{http_code}" \
-                            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                            -H "Authorization: Bearer $AUTH_TOKEN" \
                             -H "Accept: application/vnd.github.v3+json" \
                             "https://api.github.com/orgs/${ORG_NAME}/packages?per_page=1")
           SIMPLE_HTTP_CODE="${SIMPLE_TEST: -3}"
@@ -129,7 +150,7 @@ jobs:
               response=$(curl -s -w "%{http_code}" \
                              --max-time 30 \
                              --retry 0 \
-                             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                             -H "Authorization: Bearer $AUTH_TOKEN" \
                              -H "Accept: application/vnd.github.v3+json" \
                              "$url")
               echo "API response received, $response"  # Print first 100 chars for brevity
