@@ -593,7 +593,18 @@ jobs:
           # Create combined SARIF file
           COMBINED_SARIF="trivy-results/trivy-combined-scan.sarif"
 
-          # Initialize the combined SARIF structure
+          # Try simple approach first - just use the first valid SARIF file if only one exists
+          if [ "$SARIF_COUNT" -eq 1 ]; then
+            FIRST_SARIF=$(find trivy-results -name "*.sarif" -type f | head -1)
+            if [ -f "$FIRST_SARIF" ] && jq -e '.runs[0].tool' "$FIRST_SARIF" >/dev/null 2>&1; then
+              echo "Only one SARIF file found, using it directly"
+              cp "$FIRST_SARIF" "$COMBINED_SARIF"
+              echo "sarif-count=1" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          # Initialize the combined SARIF structure for multiple files
           echo '{
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             "version": "2.1.0",
@@ -604,61 +615,162 @@ jobs:
           echo "Combining SARIF runs into single file..."
           for sarif_file in trivy-results/*.sarif; do
             if [ -f "$sarif_file" ] && [ "$sarif_file" != "$COMBINED_SARIF" ]; then
-              echo "  → Adding runs from: $(basename "$sarif_file")"
+              echo "  → Processing: $(basename "$sarif_file")"
               
-              # Extract the run from this SARIF file and add metadata
+              # Validate the SARIF file first
+              if ! jq empty "$sarif_file" 2>/dev/null; then
+                echo "    ⚠ Skipping invalid JSON file: $(basename "$sarif_file")"
+                continue
+              fi
+              
+              # Check if the SARIF file has runs
+              RUN_COUNT=$(jq -r '.runs | length' "$sarif_file" 2>/dev/null || echo "0")
+              if [ "$RUN_COUNT" -eq 0 ]; then
+                echo "    ⚠ Skipping file with no runs: $(basename "$sarif_file")"
+                continue
+              fi
+              
+              echo "    → Adding $RUN_COUNT run(s) from: $(basename "$sarif_file")"
+              
+              # Extract all runs from this SARIF file and add them to the combined file
               jq --slurpfile combined "$COMBINED_SARIF" \
                  --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                  --arg workflow_run "${{ github.run_id }}" \
                  --arg repository "${{ github.repository }}" \
                  --arg source_file "$(basename "$sarif_file")" \
                  '
-                 # Add metadata to the run
-                 .runs[0].properties = {
-                   "workflow_run": $workflow_run,
-                   "repository": $repository,
-                   "scan_timestamp": $timestamp,
-                   "source_file": $source_file
-                 } |
+                 # Add metadata to each run and combine
+                 .runs[] |= (
+                   .properties = {
+                     "workflow_run": $workflow_run,
+                     "repository": $repository,
+                     "scan_timestamp": $timestamp,
+                     "source_file": $source_file
+                   }
+                 ) |
                  # Combine with existing runs
-                 $combined[0] | .runs += [.runs[0]]
+                 $combined[0] | .runs += .runs
                  ' "$sarif_file" > "${COMBINED_SARIF}.tmp"
               
-              mv "${COMBINED_SARIF}.tmp" "$COMBINED_SARIF"
+              if [ $? -eq 0 ] && [ -f "${COMBINED_SARIF}.tmp" ]; then
+                mv "${COMBINED_SARIF}.tmp" "$COMBINED_SARIF"
+                echo "    ✓ Successfully added runs"
+              else
+                echo "    ✗ Failed to process file"
+                rm -f "${COMBINED_SARIF}.tmp"
+              fi
             fi
           done
 
-          # Remove individual SARIF files to avoid confusion
-          for sarif_file in trivy-results/*.sarif; do
-            if [ -f "$sarif_file" ] && [ "$sarif_file" != "$COMBINED_SARIF" ]; then
-              rm "$sarif_file"
-            fi
-          done
+          # Keep individual SARIF files as backup in case combined upload fails
+          echo "Keeping individual SARIF files as backup for fallback upload"
 
           # Validate the combined SARIF file
-          if jq empty "$COMBINED_SARIF" 2>/dev/null; then
-            TOTAL_RUNS=$(jq -r '.runs | length' "$COMBINED_SARIF")
-            TOTAL_VULNS=$(jq -r '[.runs[].results | length] | add' "$COMBINED_SARIF")
-            echo "✓ Combined SARIF file created successfully"
-            echo "  → Total runs: $TOTAL_RUNS"
-            echo "  → Total vulnerabilities: $TOTAL_VULNS"
-            echo "  → File: $(basename "$COMBINED_SARIF")"
+          if [ -f "$COMBINED_SARIF" ] && jq empty "$COMBINED_SARIF" 2>/dev/null; then
+            TOTAL_RUNS=$(jq -r '.runs | length' "$COMBINED_SARIF" 2>/dev/null || echo "0")
             
-            echo "sarif-count=1" >> $GITHUB_OUTPUT
+            if [ "$TOTAL_RUNS" -gt 0 ]; then
+              # Calculate total vulnerabilities safely
+              TOTAL_VULNS=$(jq -r '[.runs[]? | .results[]? | length] | add // 0' "$COMBINED_SARIF" 2>/dev/null || echo "0")
+              
+              echo "✓ Combined SARIF file created successfully"
+              echo "  → Total runs: $TOTAL_RUNS"
+              echo "  → Total vulnerabilities: $TOTAL_VULNS"
+              echo "  → File: $(basename "$COMBINED_SARIF")"
+              echo "  → File size: $(du -h "$COMBINED_SARIF" | cut -f1)"
+              
+              # Validate SARIF structure
+              if jq -e '.runs[0].tool' "$COMBINED_SARIF" >/dev/null 2>&1; then
+                echo "  ✓ SARIF structure validation passed"
+                echo "sarif-count=1" >> $GITHUB_OUTPUT
+              else
+                echo "  ✗ SARIF structure validation failed - missing tool information"
+                echo "  → This may cause upload issues"
+                echo "sarif-count=0" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "✗ Combined SARIF file has no runs"
+              echo "sarif-count=0" >> $GITHUB_OUTPUT
+            fi
           else
             echo "✗ Failed to create valid combined SARIF file"
+            if [ -f "$COMBINED_SARIF" ]; then
+              echo "  → File exists but contains invalid JSON"
+              echo "  → File size: $(du -h "$COMBINED_SARIF" | cut -f1)"
+              # Show first few lines for debugging
+              echo "  → First 5 lines:"
+              head -5 "$COMBINED_SARIF" | sed 's/^/    /'
+            else
+              echo "  → File was not created"
+            fi
             echo "sarif-count=0" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload combined SARIF to GitHub Security
         if: steps.prepare-sarif.outputs.sarif-count > 0
+        id: upload-sarif
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results/trivy-combined-scan.sarif
           category: trivy-container-security-scan
           checkout_path: ${{ github.workspace }}
           wait-for-processing: true
-        continue-on-error: false
+        continue-on-error: true
+
+      - name: Fallback - Upload individual SARIF files
+        if: steps.prepare-sarif.outputs.sarif-count == 0 && ((steps.batch-scan.outputs.successful-scans > 0) || (steps.prepare-recent.outputs.sarif-count > 0))
+        run: |
+          echo "Combined SARIF upload failed, attempting individual file uploads..."
+
+          # Restore individual SARIF files if they were removed
+          if [ -d "recent-results" ] && [ "${{ steps.check-reuse.outputs.reuse-available }}" == "true" ]; then
+            echo "Restoring individual SARIF files from recent results..."
+            cp recent-results/*.sarif trivy-results/ 2>/dev/null || true
+          fi
+
+          UPLOAD_COUNT=0
+          for sarif_file in trivy-results/*.sarif; do
+            if [ -f "$sarif_file" ] && [[ "$(basename "$sarif_file")" != "trivy-combined-scan.sarif" ]]; then
+              echo "Attempting to upload: $(basename "$sarif_file")"
+              
+              # Create unique category for each file to avoid conflicts
+              SAFE_NAME=$(basename "$sarif_file" .sarif)
+              CATEGORY="trivy-scan-${SAFE_NAME}"
+              
+              # Validate individual SARIF file
+              if jq empty "$sarif_file" 2>/dev/null && jq -e '.runs[0].tool' "$sarif_file" >/dev/null 2>&1; then
+                echo "  → Uploading with category: $CATEGORY"
+                
+                # Use GitHub CLI to upload if available
+                if command -v gh >/dev/null 2>&1; then
+                  if gh api repos/${{ github.repository }}/code-scanning/sarifs \
+                    --method POST \
+                    --field "commit_sha=${{ github.sha }}" \
+                    --field "ref=${{ github.ref }}" \
+                    --field "sarif=@$sarif_file" \
+                    --field "category=$CATEGORY" 2>/dev/null; then
+                    echo "  ✓ Successfully uploaded via API"
+                    UPLOAD_COUNT=$((UPLOAD_COUNT + 1))
+                  else
+                    echo "  ✗ API upload failed"
+                  fi
+                else
+                  echo "  ⚠ GitHub CLI not available for fallback upload"
+                fi
+              else
+                echo "  ✗ Invalid SARIF file, skipping"
+              fi
+            fi
+          done
+
+          if [ $UPLOAD_COUNT -gt 0 ]; then
+            echo "✓ Successfully uploaded $UPLOAD_COUNT individual SARIF files"
+          else
+            echo "✗ Failed to upload any SARIF files"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload scan results as artifacts
         uses: actions/upload-artifact@v4
