@@ -1190,66 +1190,80 @@ jobs:
         if: steps.batch-scan.outputs.successful-scans > 0
         id: prepare-sarif
         run: |
-          echo "Preparing SARIF files for GitHub Security upload..."
+          echo "Combining SARIF files for GitHub Security upload..."
 
-          # Create consolidated SARIF directory with proper naming
+          # Create consolidated SARIF directory
           mkdir -p sarif-upload
           SARIF_COUNT=0
           TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
 
-          # Process each SARIF file and add metadata
+          # Count SARIF files
           for sarif_file in trivy-results/*.sarif; do
             if [ -f "$sarif_file" ]; then
               SARIF_COUNT=$((SARIF_COUNT + 1))
-              
-              # Extract image name from filename for better organization
-              BASENAME=$(basename "$sarif_file" .sarif)
-              IMAGE_NAME=$(echo "$BASENAME" | sed 's/^trivy-//' | sed 's/ghcr_io_[^_]*_products_bfx_//' | sed 's/_[^_]*$//')
-              
-              # Create descriptive filename with timestamp
-              NEW_FILENAME="trivy-scan-${IMAGE_NAME}-${TIMESTAMP}.sarif"
-              
-              echo "Processing SARIF file: $sarif_file -> $NEW_FILENAME"
-              
-              # Add metadata to SARIF file for better tracking
-              jq --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                 --arg workflow_run "${{ github.run_id }}" \
-                 --arg repository "${{ github.repository }}" \
-                 --arg ref "${{ github.ref }}" \
-                 --arg sha "${{ github.sha }}" \
-                 '.runs[0].properties = {
-                   "scan_timestamp": $timestamp,
-                   "workflow_run_id": $workflow_run,
-                   "repository": $repository,
-                   "git_ref": $ref,
-                   "git_sha": $sha,
-                   "scanner_version": "trivy-latest",
-                   "scan_type": "container-image"
-                 }' "$sarif_file" > "sarif-upload/$NEW_FILENAME"
-              
-              # Validate SARIF file structure
-              if jq empty "sarif-upload/$NEW_FILENAME" 2>/dev/null; then
-                VULN_COUNT=$(jq -r '.runs[0].results | length' "sarif-upload/$NEW_FILENAME")
-                echo "  ✓ Valid SARIF file with $VULN_COUNT vulnerabilities"
-              else
-                echo "  ✗ Invalid SARIF file, removing: $NEW_FILENAME"
-                rm -f "sarif-upload/$NEW_FILENAME"
-                SARIF_COUNT=$((SARIF_COUNT - 1))
-              fi
             fi
           done
 
-          echo "SARIF preparation complete:"
-          echo "  → Valid SARIF files: $SARIF_COUNT"
-          echo "  → Upload directory: sarif-upload/"
+          if [ "$SARIF_COUNT" -eq 0 ]; then
+            echo "No SARIF files found to upload"
+            echo "sarif-count=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-          # List prepared files
-          if [ $SARIF_COUNT -gt 0 ]; then
-            echo "Files prepared for upload:"
-            ls -la sarif-upload/
-            echo "sarif-count=$SARIF_COUNT" >> $GITHUB_OUTPUT
+          echo "Found $SARIF_COUNT SARIF files to combine"
+
+          # Create combined SARIF file
+          COMBINED_SARIF="sarif-upload/trivy-combined-scan-${TIMESTAMP}.sarif"
+          
+          # Start with SARIF template
+          cat > "$COMBINED_SARIF" << 'EOF'
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": []
+}
+EOF
+
+          # Combine all runs from individual SARIF files
+          echo "Combining SARIF runs into single file..."
+          for sarif_file in trivy-results/*.sarif; do
+            if [ -f "$sarif_file" ]; then
+              echo "  → Adding runs from: $(basename "$sarif_file")"
+              
+              # Extract runs from this SARIF file and add to combined file
+              jq --slurpfile combined "$COMBINED_SARIF" \
+                 --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                 --arg workflow_run "${{ github.run_id }}" \
+                 --arg repository "${{ github.repository }}" \
+                 --arg image_file "$(basename "$sarif_file")" \
+                 '
+                 # Add metadata to each run
+                 .runs[0].properties = {
+                   "workflow_run": $workflow_run,
+                   "repository": $repository,
+                   "scan_timestamp": $timestamp,
+                   "source_file": $image_file
+                 } |
+                 # Combine with existing runs
+                 $combined[0] | .runs += [.runs[0]]
+                 ' "$sarif_file" > "${COMBINED_SARIF}.tmp"
+              
+              mv "${COMBINED_SARIF}.tmp" "$COMBINED_SARIF"
+            fi
+          done
+
+          # Validate the combined SARIF file
+          if jq empty "$COMBINED_SARIF" 2>/dev/null; then
+            TOTAL_RUNS=$(jq -r '.runs | length' "$COMBINED_SARIF")
+            TOTAL_VULNS=$(jq -r '[.runs[].results | length] | add' "$COMBINED_SARIF")
+            echo "✓ Combined SARIF file created successfully"
+            echo "  → Total runs: $TOTAL_RUNS"
+            echo "  → Total vulnerabilities: $TOTAL_VULNS"
+            echo "  → File: $(basename "$COMBINED_SARIF")"
+            
+            echo "sarif-count=1" >> $GITHUB_OUTPUT
           else
-            echo "No valid SARIF files to upload"
+            echo "✗ Failed to create valid combined SARIF file"
             echo "sarif-count=0" >> $GITHUB_OUTPUT
           fi
 
@@ -1257,7 +1271,7 @@ jobs:
         if: steps.prepare-sarif.outputs.sarif-count > 0
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: sarif-upload/
+          sarif_file: trivy-results/
           category: trivy-container-security-scan
           checkout_path: ${{ github.workspace }}
           wait-for-processing: true
