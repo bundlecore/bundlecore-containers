@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      force_fresh_scan:
+        description: "Force fresh scan even if recent results are available"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read # Required for checkout action
@@ -21,6 +26,65 @@ permissions:
   pull-requests: read # Sometimes needed for full access
 
 jobs:
+  check-recent-scans:
+    name: Check Recent Scan Results
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for recent successful scans
+        id: check-recent
+        run: |
+          echo "Checking for recent successful scan results..."
+
+          # Get recent workflow runs for this workflow
+          WORKFLOW_NAME="Trivy Security Scan"
+          ONE_HOUR_AGO=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "Looking for successful runs since: $ONE_HOUR_AGO"
+
+          # Check if user forced a fresh scan
+          if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
+            echo "🔄 Force fresh scan requested - will skip recent results check"
+            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+            echo "recent-run-id=" >> $GITHUB_OUTPUT
+            return 0
+          fi
+
+          # Get recent workflow runs using GitHub API
+          RECENT_RUNS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&conclusion=success&created=>$ONE_HOUR_AGO&per_page=10")
+
+          # Check if we have any successful runs in the last hour
+          RECENT_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | wc -l)
+
+          if [ "$RECENT_SUCCESS_COUNT" -gt 0 ]; then
+            # Get the most recent successful run
+            LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | head -1)
+            LATEST_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.id == '"$LATEST_RUN_ID"') | .created_at')
+            
+            echo "✓ Found recent successful scan:"
+            echo "  → Run ID: $LATEST_RUN_ID"
+            echo "  → Date: $LATEST_RUN_DATE"
+            echo "  → URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/$LATEST_RUN_ID"
+            
+            echo "recent-scan-available=true" >> $GITHUB_OUTPUT
+            echo "recent-run-id=$LATEST_RUN_ID" >> $GITHUB_OUTPUT
+          else
+            echo "⚠ No recent successful scans found in the last hour"
+            echo "  → Will proceed with full scan"
+            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+            echo "recent-run-id=" >> $GITHUB_OUTPUT
+          fi
+
+    outputs:
+      recent-scan-available: ${{ steps.check-recent.outputs.recent-scan-available }}
+      recent-run-id: ${{ steps.check-recent.outputs.recent-run-id }}
+
   security-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
@@ -317,7 +381,7 @@ jobs:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    needs: security-scan
+    needs: [check-recent-scans, security-scan]
     if: needs.security-scan.outputs.image-count > 0
 
     steps:
@@ -338,6 +402,42 @@ jobs:
         with:
           name: discovered-images
 
+      - name: Check for recent scan results to reuse
+        id: check-reuse
+        if: needs.check-recent-scans.outputs.recent-scan-available == 'true' && github.event.inputs.force_fresh_scan != 'true'
+        run: |
+          echo "Attempting to download recent scan results..."
+
+          RECENT_RUN_ID="${{ needs.check-recent-scans.outputs.recent-run-id }}"
+          echo "Checking artifacts from run: $RECENT_RUN_ID"
+
+          # Try to download recent scan results using GitHub CLI if available, otherwise use API
+          if command -v gh >/dev/null 2>&1; then
+            echo "Using GitHub CLI to download artifacts..."
+            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results 2>/dev/null; then
+              echo "✓ Successfully downloaded recent scan results"
+              echo "reuse-available=true" >> $GITHUB_OUTPUT
+              
+              # Check if the results contain SARIF files
+              if [ -d "recent-results" ] && find recent-results -name "*.sarif" -type f | head -1 >/dev/null; then
+                SARIF_COUNT=$(find recent-results -name "*.sarif" -type f | wc -l)
+                echo "  → Found $SARIF_COUNT SARIF files in recent results"
+                echo "sarif-count=$SARIF_COUNT" >> $GITHUB_OUTPUT
+              else
+                echo "⚠ No SARIF files found in recent results"
+                echo "reuse-available=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "⚠ Failed to download recent scan results"
+              echo "reuse-available=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "⚠ GitHub CLI not available, cannot download recent artifacts"
+            echo "reuse-available=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pre-warm Trivy database cache
         run: |
           echo "Pre-warming Trivy database cache..."
@@ -353,6 +453,7 @@ jobs:
       - name: Batch scan images with Trivy
         id: batch-scan
         timeout-minutes: 90
+        if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
         run: |
           IMAGES_FILE="images_to_scan.txt"
           SCAN_COUNT=0
@@ -361,6 +462,16 @@ jobs:
           TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
 
           echo "Starting batch scan of $TOTAL_IMAGES images using Trivy..."
+
+          # Log why we're doing a fresh scan
+          if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
+            echo "🔄 Performing fresh scan (forced by user input)"
+          elif [ "${{ needs.check-recent-scans.outputs.recent-scan-available }}" == "true" ]; then
+            echo "🔄 Performing fresh scan (recent results not usable)"
+          else
+            echo "🔄 Performing fresh scan (no recent results available)"
+          fi
+          echo ""
 
           # Set up results directory
           mkdir -p trivy-results
@@ -427,11 +538,41 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare SARIF files for upload
-        if: steps.batch-scan.outputs.successful-scans > 0
+      - name: Prepare results from recent scans
+        if: steps.check-reuse.outputs.reuse-available == 'true'
+        id: prepare-recent
+        run: |
+          echo "Preparing recent scan results for upload..."
+
+          # Copy recent results to current results directory
+          mkdir -p trivy-results
+          if [ -d "recent-results" ]; then
+            cp -r recent-results/* trivy-results/ 2>/dev/null || true
+          fi
+
+          # Count available SARIF files
+          SARIF_COUNT=0
+          for sarif_file in trivy-results/*.sarif; do
+            if [ -f "$sarif_file" ]; then
+              SARIF_COUNT=$((SARIF_COUNT + 1))
+            fi
+          done
+
+          echo "✓ Prepared $SARIF_COUNT SARIF files from recent scan"
+          echo "⚡ Time saved by reusing recent results: ~60-90 minutes"
+          echo "💰 Resources saved: Significant CPU, memory, and network usage"
+          echo "sarif-count=$SARIF_COUNT" >> $GITHUB_OUTPUT
+
+          # Set outputs to match batch-scan outputs for consistency
+          echo "successful-scans=$SARIF_COUNT" >> $GITHUB_OUTPUT
+          echo "total-scanned=$SARIF_COUNT" >> $GITHUB_OUTPUT
+          echo "failed-scans=0" >> $GITHUB_OUTPUT
+
+      - name: Combine SARIF files for upload
+        if: (steps.batch-scan.outputs.successful-scans > 0) || (steps.prepare-recent.outputs.sarif-count > 0)
         id: prepare-sarif
         run: |
-          echo "Preparing SARIF files for GitHub Security upload..."
+          echo "Combining SARIF files for GitHub Security upload..."
 
           SARIF_COUNT=0
           # Count SARIF files
@@ -444,16 +585,76 @@ jobs:
           if [ "$SARIF_COUNT" -eq 0 ]; then
             echo "No SARIF files found to upload"
             echo "sarif-count=0" >> $GITHUB_OUTPUT
-          else
-            echo "Found $SARIF_COUNT SARIF files to upload"
-            echo "sarif-count=$SARIF_COUNT" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-      - name: Upload SARIF results to GitHub Security
+          echo "Found $SARIF_COUNT SARIF files to combine"
+
+          # Create combined SARIF file
+          COMBINED_SARIF="trivy-results/trivy-combined-scan.sarif"
+
+          # Initialize the combined SARIF structure
+          echo '{
+            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "version": "2.1.0",
+            "runs": []
+          }' > "$COMBINED_SARIF"
+
+          # Combine all runs from individual SARIF files
+          echo "Combining SARIF runs into single file..."
+          for sarif_file in trivy-results/*.sarif; do
+            if [ -f "$sarif_file" ] && [ "$sarif_file" != "$COMBINED_SARIF" ]; then
+              echo "  → Adding runs from: $(basename "$sarif_file")"
+              
+              # Extract the run from this SARIF file and add metadata
+              jq --slurpfile combined "$COMBINED_SARIF" \
+                 --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                 --arg workflow_run "${{ github.run_id }}" \
+                 --arg repository "${{ github.repository }}" \
+                 --arg source_file "$(basename "$sarif_file")" \
+                 '
+                 # Add metadata to the run
+                 .runs[0].properties = {
+                   "workflow_run": $workflow_run,
+                   "repository": $repository,
+                   "scan_timestamp": $timestamp,
+                   "source_file": $source_file
+                 } |
+                 # Combine with existing runs
+                 $combined[0] | .runs += [.runs[0]]
+                 ' "$sarif_file" > "${COMBINED_SARIF}.tmp"
+              
+              mv "${COMBINED_SARIF}.tmp" "$COMBINED_SARIF"
+            fi
+          done
+
+          # Remove individual SARIF files to avoid confusion
+          for sarif_file in trivy-results/*.sarif; do
+            if [ -f "$sarif_file" ] && [ "$sarif_file" != "$COMBINED_SARIF" ]; then
+              rm "$sarif_file"
+            fi
+          done
+
+          # Validate the combined SARIF file
+          if jq empty "$COMBINED_SARIF" 2>/dev/null; then
+            TOTAL_RUNS=$(jq -r '.runs | length' "$COMBINED_SARIF")
+            TOTAL_VULNS=$(jq -r '[.runs[].results | length] | add' "$COMBINED_SARIF")
+            echo "✓ Combined SARIF file created successfully"
+            echo "  → Total runs: $TOTAL_RUNS"
+            echo "  → Total vulnerabilities: $TOTAL_VULNS"
+            echo "  → File: $(basename "$COMBINED_SARIF")"
+            
+            echo "sarif-count=1" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Failed to create valid combined SARIF file"
+            echo "sarif-count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload combined SARIF to GitHub Security
         if: steps.prepare-sarif.outputs.sarif-count > 0
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: trivy-results/
+          sarif_file: trivy-results/trivy-combined-scan.sarif
           category: trivy-container-security-scan
           checkout_path: ${{ github.workspace }}
           wait-for-processing: true
@@ -467,15 +668,16 @@ jobs:
           retention-days: 30
 
     outputs:
-      total-scanned: ${{ steps.batch-scan.outputs.total-scanned }}
-      successful-scans: ${{ steps.batch-scan.outputs.successful-scans }}
-      failed-scans: ${{ steps.batch-scan.outputs.failed-scans }}
+      total-scanned: ${{ steps.batch-scan.outputs.total-scanned || steps.prepare-recent.outputs.total-scanned }}
+      successful-scans: ${{ steps.batch-scan.outputs.successful-scans || steps.prepare-recent.outputs.successful-scans }}
+      failed-scans: ${{ steps.batch-scan.outputs.failed-scans || steps.prepare-recent.outputs.failed-scans }}
+      used-recent-results: ${{ steps.check-reuse.outputs.reuse-available }}
 
   summary:
     name: Scan Summary
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [security-scan, trivy-scan]
+    needs: [check-recent-scans, security-scan, trivy-scan]
     if: always()
 
     steps:
@@ -507,9 +709,22 @@ jobs:
 
           # Scanning phase summary
           echo "🔍 Scanning Phase:"
+
+          # Check if recent results were used
+          if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
+            echo "  🔄 Used recent scan results (within last hour)"
+            echo "    → Recent run ID: ${{ needs.check-recent-scans.outputs.recent-run-id }}"
+            echo "    → Skipped re-scanning to save time and resources"
+            echo "    → Results uploaded from previous successful scan"
+          fi
+
           case "${{ needs.trivy-scan.result }}" in
             "success")
-              echo "  ✓ Batch scanning completed successfully"
+              if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
+                echo "  ✓ Recent scan results processed and uploaded successfully"
+              else
+                echo "  ✓ Batch scanning completed successfully"
+              fi
               echo "  📁 Results Location:"
               echo "    → GitHub Security tab: ${{ github.server_url }}/${{ github.repository }}/security"
               echo "    → Code Scanning Alerts: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
