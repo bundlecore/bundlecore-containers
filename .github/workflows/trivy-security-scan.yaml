@@ -29,22 +29,22 @@ jobs:
     name: Check Recent Scan Results
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Check for recent successful scans
         id: check-recent
         run: |
           echo "Checking for recent successful scan results..."
-          
+
           # Get recent workflow runs for this workflow
           WORKFLOW_NAME="Trivy Security Scan"
           ONE_MONTH_AGO=$(date -u -d '1 month ago' +%Y-%m-%dT%H:%M:%SZ)
-          
+
           echo "Looking for successful runs since: $ONE_MONTH_AGO"
-          
+
           # Check if user forced a fresh scan
           if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
             echo "🔄 Force fresh scan requested - will skip recent results check"
@@ -52,15 +52,15 @@ jobs:
             echo "recent-run-id=" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           # Get recent workflow runs using GitHub API
           RECENT_RUNS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&conclusion=success&created=>$ONE_MONTH_AGO&per_page=10")
-          
+
           # Check if we have any successful runs in the last month
           RECENT_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | wc -l)
-          
+
           if [ "$RECENT_SUCCESS_COUNT" -gt 0 ]; then
             # Get the most recent successful run
             LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | head -1)
@@ -79,7 +79,7 @@ jobs:
             echo "recent-scan-available=false" >> $GITHUB_OUTPUT
             echo "recent-run-id=" >> $GITHUB_OUTPUT
           fi
-          
+
     outputs:
       recent-scan-available: ${{ steps.check-recent.outputs.recent-scan-available }}
       recent-run-id: ${{ steps.check-recent.outputs.recent-run-id }}
@@ -238,7 +238,7 @@ jobs:
           BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . 2>/dev/null || echo "0")
 
           echo "  → products/bfx/* packages found: $BFX_COUNT"
-          
+
           if [ "$BFX_COUNT" -eq 0 ]; then
             echo "    ❌ No products/bfx/* packages found"
             rm -f "$TEMP_JSON"
@@ -364,10 +364,10 @@ jobs:
         if: needs.check-recent-scans.outputs.recent-scan-available == 'true' && github.event.inputs.force_fresh_scan != 'true'
         run: |
           echo "Attempting to download recent scan results..."
-          
+
           RECENT_RUN_ID="${{ needs.check-recent-scans.outputs.recent-run-id }}"
           echo "Checking artifacts from run: $RECENT_RUN_ID"
-          
+
           if command -v gh >/dev/null 2>&1; then
             echo "Using GitHub CLI to download artifacts..."
             if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results 2>/dev/null; then
@@ -418,7 +418,7 @@ jobs:
           TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
 
           echo "Starting batch scan of $TOTAL_IMAGES images using Trivy..."
-          
+
           # Log why we're doing a fresh scan
           if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
             echo "🔄 Performing fresh scan (forced by user input)"
@@ -543,7 +543,7 @@ jobs:
           TOOL_COUNT=0
 
           echo "Processing tools and organizing scan results..."
-          
+
           for tool in $TOOLS; do
             TOOL_COUNT=$((TOOL_COUNT + 1))
             echo "[$TOOL_COUNT] Processing tool: $tool"
@@ -552,18 +552,7 @@ jobs:
             TOOL_RESULT_FILE="$ORGANIZED_DIR/${tool}-trivy-scan-results.json"
             
             # Initialize tool result structure
-            cat > "$TOOL_RESULT_FILE" << EOF
-{
-  "tool": "$tool",
-  "scan_timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "workflow_run_id": "${{ github.run_id }}",
-  "versions": {},
-  "summary": {
-    "total_versions_scanned": 0,
-    "total_vulnerabilities": 0
-  }
-}
-EOF
+            echo "{\"tool\": \"$tool\", \"scan_timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"workflow_run_id\": \"${{ github.run_id }}\", \"versions\": {}, \"summary\": {\"total_versions_scanned\": 0, \"total_vulnerabilities\": 0}}" > "$TOOL_RESULT_FILE"
 
             # Get images for this tool
             TOOL_IMAGES=$(jq -r --arg tool "$tool" '.[$tool][]' "$TOOL_MAPPING_FILE")
@@ -629,14 +618,14 @@ EOF
           ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
           TOOL_COUNT="${{ steps.organize-results.outputs.tool-count }}"
           BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
-          
+
           # Configure git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
+
           # Create and switch to new branch
           git checkout -b "$BRANCH_NAME"
-          
+
           # Copy organized results to their respective tool directories
           COPIED_FILES=0
           for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
@@ -661,12 +650,12 @@ EOF
               fi
             fi
           done
-          
+
           if [ $COPIED_FILES -eq 0 ]; then
             echo "✗ No files were copied to target directories"
             exit 1
           fi
-          
+
           # Commit changes
           git commit -m "Update Trivy security scan results - $(date +%Y-%m-%d)
 
@@ -674,10 +663,10 @@ EOF
           - Scanned container images for CRITICAL and HIGH vulnerabilities
           - Results include vulnerability details and counts per version
           - Automated scan performed by Trivy Security Scan workflow"
-          
+
           # Push branch
           git push origin "$BRANCH_NAME"
-          
+
           # Create PR description
           PR_BODY="## 🔒 Trivy Security Scan Results - $(date +%Y-%m-%d)
 
@@ -773,7 +762,7 @@ EOF
 
           # Scanning phase summary
           echo "🔍 Scanning Phase:"
-          
+
           # Check if recent results were used
           if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
             echo "  🔄 Used recent scan results (within last month)"
@@ -781,7 +770,7 @@ EOF
             echo "    → Skipped re-scanning to save time and resources"
             echo "    → Results processed from previous successful scan"
           fi
-          
+
           case "${{ needs.trivy-scan.result }}" in
             "success")
               if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
