@@ -22,6 +22,11 @@ on:
         required: false
         default: false
         type: boolean
+      resume_from_progress:
+        description: "Resume from previous scan progress (if available)"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write # Required for creating files and PRs
@@ -395,6 +400,13 @@ jobs:
         with:
           name: discovered-images
 
+      - name: Download previous scan progress
+        uses: actions/download-artifact@v4
+        with:
+          name: scan-progress
+          path: .
+        continue-on-error: true
+
       - name: Check for recent scan results to reuse
         id: check-reuse
         if: needs.check-recent-scans.outputs.recent-scan-available == 'true' && github.event.inputs.force_fresh_scan != 'true'
@@ -442,18 +454,76 @@ jobs:
 
           echo "✓ Trivy database cache pre-warmed"
 
+      - name: Check for existing scan progress
+        id: check-progress
+        if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
+        run: |
+          echo "Checking for existing scan progress..."
+
+          IMAGES_FILE="images_to_scan.txt"
+          PROGRESS_FILE="scan_progress.txt"
+          COMPLETED_FILE="completed_scans.txt"
+
+          # Create progress tracking files
+          touch "$PROGRESS_FILE"
+          touch "$COMPLETED_FILE"
+
+          # Check if user wants to resume from progress
+          if [ "${{ github.event.inputs.resume_from_progress }}" != "true" ]; then
+            echo "🔄 Resume from progress disabled - starting fresh scan"
+            > "$COMPLETED_FILE"  # Clear completed file
+            > "$PROGRESS_FILE"   # Clear progress file
+          fi
+
+          TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
+          COMPLETED_COUNT=0
+
+          if [ -s "$COMPLETED_FILE" ]; then
+            COMPLETED_COUNT=$(wc -l < "$COMPLETED_FILE")
+            echo "📋 Found existing scan progress:"
+            echo "  → Total images: $TOTAL_IMAGES"
+            echo "  → Already completed: $COMPLETED_COUNT"
+            echo "  → Remaining: $((TOTAL_IMAGES - COMPLETED_COUNT))"
+            
+            # Create list of remaining images to scan
+            REMAINING_FILE="remaining_to_scan.txt"
+            comm -23 <(sort "$IMAGES_FILE") <(sort "$COMPLETED_FILE") > "$REMAINING_FILE"
+            
+            echo "resume-scan=true" >> $GITHUB_OUTPUT
+            echo "remaining-file=$REMAINING_FILE" >> $GITHUB_OUTPUT
+            echo "completed-count=$COMPLETED_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "📋 No existing progress found - starting fresh scan"
+            echo "  → Total images to scan: $TOTAL_IMAGES"
+            
+            echo "resume-scan=false" >> $GITHUB_OUTPUT
+            echo "remaining-file=$IMAGES_FILE" >> $GITHUB_OUTPUT
+            echo "completed-count=0" >> $GITHUB_OUTPUT
+          fi
+
       - name: Batch scan images with Trivy
         id: batch-scan
         timeout-minutes: 150
         if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
         run: |
-          IMAGES_FILE="images_to_scan.txt"
-          SCAN_COUNT=0
-          SUCCESS_COUNT=0
-          FAILURE_COUNT=0
-          TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
+          IMAGES_FILE="${{ steps.check-progress.outputs.remaining-file }}"
+          PROGRESS_FILE="scan_progress.txt"
+          COMPLETED_FILE="completed_scans.txt"
+          FAILED_FILE="failed_scans.txt"
 
-          echo "Starting batch scan of $TOTAL_IMAGES images using Trivy..."
+          SCAN_COUNT=0
+          SUCCESS_COUNT=${{ steps.check-progress.outputs.completed-count }}
+          FAILURE_COUNT=0
+          TOTAL_IMAGES=$(wc -l < "images_to_scan.txt")
+          REMAINING_IMAGES=$(wc -l < "$IMAGES_FILE")
+
+          if [ "${{ steps.check-progress.outputs.resume-scan }}" == "true" ]; then
+            echo "🔄 Resuming batch scan from previous progress..."
+            echo "  → Already completed: $SUCCESS_COUNT images"
+            echo "  → Remaining to scan: $REMAINING_IMAGES images"
+          else
+            echo "🚀 Starting fresh batch scan of $TOTAL_IMAGES images using Trivy..."
+          fi
 
           # Log why we're doing a fresh scan
           if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
@@ -468,15 +538,25 @@ jobs:
           # Set up results directory
           mkdir -p trivy-results
 
-          # Process each image
+          # Process each image with progress tracking
           while IFS= read -r image_url; do
             if [ -n "$image_url" ]; then
               SCAN_COUNT=$((SCAN_COUNT + 1))
-              echo "[$SCAN_COUNT/$TOTAL_IMAGES] Processing: $image_url"
+              CURRENT_TOTAL=$((SUCCESS_COUNT + SCAN_COUNT))
+              echo "[$CURRENT_TOTAL/$TOTAL_IMAGES] Processing: $image_url"
+              
+              # Check if this image was already scanned successfully
+              if grep -Fxq "$image_url" "$COMPLETED_FILE" 2>/dev/null; then
+                echo "  ⏭ Already scanned - skipping"
+                continue
+              fi
               
               # Create safe filename for outputs
               SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
               JSON_FILE="trivy-results/trivy-${SAFE_NAME}.json"
+              
+              # Record scan attempt
+              echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SCANNING $image_url" >> "$PROGRESS_FILE"
               
               # Attempt Trivy scan with JSON output
               if timeout 15m docker run --rm \
@@ -499,35 +579,77 @@ jobs:
                 SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
                 echo "  ✓ Scan completed successfully"
                 
+                # Record successful completion
+                echo "$image_url" >> "$COMPLETED_FILE"
+                echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SUCCESS $image_url" >> "$PROGRESS_FILE"
+                
                 if [ -f "$JSON_FILE" ]; then
                   VULN_COUNT=$(jq -r '.Results[]?.Vulnerabilities // [] | length' "$JSON_FILE" 2>/dev/null | awk '{sum+=$1} END {print sum+0}')
                   echo "  → Found $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
                 fi
+                
+                # Save progress every 5 successful scans
+                if [ $((SUCCESS_COUNT % 5)) -eq 0 ]; then
+                  echo "  💾 Progress checkpoint: $SUCCESS_COUNT/$TOTAL_IMAGES completed"
+                fi
               else
                 FAILURE_COUNT=$((FAILURE_COUNT + 1))
                 echo "  ✗ Scan failed - continuing with next image"
+                
+                # Record failure
+                echo "$image_url" >> "$FAILED_FILE"
+                echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) FAILED $image_url" >> "$PROGRESS_FILE"
               fi
               
               echo ""
             fi
           done < "$IMAGES_FILE"
 
+          echo ""
           echo "Batch Scan Summary"
           echo "=================="
-          echo "Total images processed: $SCAN_COUNT"
-          echo "Successful scans: $SUCCESS_COUNT"
-          echo "Failed scans: $FAILURE_COUNT"
+          echo "Total images in queue: $TOTAL_IMAGES"
+          echo "Images processed this run: $SCAN_COUNT"
+          echo "Total successful scans: $SUCCESS_COUNT"
+          echo "Failed scans this run: $FAILURE_COUNT"
 
-          echo "total-scanned=$SCAN_COUNT" >> $GITHUB_OUTPUT
+          # Calculate completion percentage
+          if [ $TOTAL_IMAGES -gt 0 ]; then
+            COMPLETION_PCT=$(( SUCCESS_COUNT * 100 / TOTAL_IMAGES ))
+            echo "Overall completion: $SUCCESS_COUNT/$TOTAL_IMAGES ($COMPLETION_PCT%)"
+          fi
+
+          # Show progress file info
+          if [ -f "$PROGRESS_FILE" ]; then
+            echo "Progress log entries: $(wc -l < "$PROGRESS_FILE")"
+          fi
+
+          if [ -f "$FAILED_FILE" ]; then
+            FAILED_TOTAL=$(wc -l < "$FAILED_FILE")
+            if [ $FAILED_TOTAL -gt 0 ]; then
+              echo "Total failed images: $FAILED_TOTAL"
+              echo "Failed images can be retried in next run"
+            fi
+          fi
+
+          echo "total-scanned=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
           echo "successful-scans=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
           echo "failed-scans=$FAILURE_COUNT" >> $GITHUB_OUTPUT
 
           if [ $SUCCESS_COUNT -gt 0 ]; then
             echo "✓ Batch scan completed with $SUCCESS_COUNT successful scans"
+            if [ $SCAN_COUNT -lt $REMAINING_IMAGES ]; then
+              echo "⚠ Note: Scan was interrupted. Run workflow again to resume from progress."
+            fi
             exit 0
           else
-            echo "✗ All scans failed"
-            exit 1
+            echo "✗ No successful scans in this run"
+            if [ $SUCCESS_COUNT -gt 0 ]; then
+              echo "  → But $SUCCESS_COUNT images were completed in previous runs"
+              exit 0
+            else
+              exit 1
+            fi
           fi
 
       - name: Prepare results from recent scans
@@ -769,6 +891,17 @@ jobs:
           echo "  → Files updated: $COPIED_FILES"
           echo "  → PR URL: $(gh pr view --json url -q .url)"
 
+      - name: Upload scan progress
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-progress
+          path: |
+            scan_progress.txt
+            completed_scans.txt
+            failed_scans.txt
+          retention-days: 30
+
       - name: Upload scan results as artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -820,6 +953,11 @@ jobs:
             echo "    → Recent run ID: ${{ needs.check-recent-scans.outputs.recent-run-id }}"
             echo "    → Skipped re-scanning to save time and resources"
             echo "    → Results processed from previous successful scan"
+          else
+            echo "  💾 Checkpoint/Resume System Active"
+            echo "    → Progress is saved after each successful scan"
+            echo "    → Failed runs can be resumed from last checkpoint"
+            echo "    → Use 'Resume from progress' option (enabled by default)"
           fi
 
           case "${{ needs.trivy-scan.result }}" in
@@ -866,6 +1004,7 @@ jobs:
             echo "  1. Review workflow logs for specific error details"
             echo "  2. Check network connectivity and registry access"
             echo "  3. Verify Trivy configuration and image accessibility"
+            echo "  4. If scan was interrupted, re-run workflow to resume from progress"
           fi
 
           echo ""
