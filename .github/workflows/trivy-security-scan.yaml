@@ -1146,9 +1146,9 @@ jobs:
           echo "Checking git status before creating branch..."
           git status --porcelain
 
-          # Backup organized directory before git operations
+          # Backup organized directory before git operations to a safe location
           echo "💾 Backing up organized directory before git operations..."
-          BACKUP_DIR="organized-results-backup"
+          BACKUP_DIR="/tmp/organized-results-backup-$$"
           if [ -d "$ORGANIZED_DIR" ]; then
             cp -r "$ORGANIZED_DIR" "$BACKUP_DIR"
             echo "  ✓ Backed up organized directory to $BACKUP_DIR"
@@ -1194,16 +1194,25 @@ jobs:
 
           # Restore organized directory from backup
           echo "🔄 Restoring organized directory from backup..."
+          echo "  → Looking for backup at: $BACKUP_DIR"
+
           if [ -d "$BACKUP_DIR" ]; then
+            echo "  ✓ Backup directory found"
+            BACKUP_FILE_COUNT=$(find "$BACKUP_DIR" -name "*.json" -type f | wc -l)
+            echo "  → Backup contains $BACKUP_FILE_COUNT JSON files"
+            
             rm -rf "$ORGANIZED_DIR" 2>/dev/null || true
-            mv "$BACKUP_DIR" "$ORGANIZED_DIR"
+            cp -r "$BACKUP_DIR" "$ORGANIZED_DIR"
+            rm -rf "$BACKUP_DIR"  # Clean up backup
             echo "  ✓ Restored organized directory from backup"
             
             # Verify restoration
             FILE_COUNT=$(find "$ORGANIZED_DIR" -name "*.json" -type f | wc -l)
-            echo "  → Contains $FILE_COUNT JSON files"
+            echo "  → Restored directory contains $FILE_COUNT JSON files"
           else
             echo "  ✗ Backup directory not found: $BACKUP_DIR"
+            echo "  → Available files in /tmp:"
+            ls -la /tmp/ | grep organized || echo "    No organized backup files found"
             exit 1
           fi
 
