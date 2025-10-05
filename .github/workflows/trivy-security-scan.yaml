@@ -796,7 +796,17 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-          # Create and switch to new branch
+          # Check git status and clean working directory
+          echo "Checking git status before creating branch..."
+          git status --porcelain
+          
+          # Ensure clean working directory - stash any unintended changes
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Working directory not clean - stashing changes..."
+            git stash push -m "Auto-stash before PR creation" --include-untracked
+          fi
+          
+          # Create and switch to new branch from clean main
           git checkout -b "$BRANCH_NAME"
 
           # Copy organized results to their respective tool directories
@@ -811,6 +821,8 @@ jobs:
               if [ -d "$TARGET_DIR" ]; then
                 echo "Copying scan results for: $TOOL_NAME"
                 cp "$result_file" "$TARGET_FILE"
+                
+                # Only add the specific scan result file (not workflow files)
                 git add "$TARGET_FILE"
                 COPIED_FILES=$((COPIED_FILES + 1))
                 
@@ -823,11 +835,47 @@ jobs:
               fi
             fi
           done
+          
+          # Verify what we're about to commit
+          echo ""
+          echo "Files staged for commit:"
+          git diff --cached --name-only
+          
+          # Ensure no workflow files are staged
+          if git diff --cached --name-only | grep -q "\.github/workflows/"; then
+            echo "⚠ Workflow files detected in staging area - removing them"
+            git reset HEAD .github/workflows/ 2>/dev/null || true
+          fi
 
           if [ $COPIED_FILES -eq 0 ]; then
             echo "✗ No files were copied to target directories"
             exit 1
           fi
+          
+          # Final validation - ensure only scan result files are staged
+          STAGED_FILES=$(git diff --cached --name-only)
+          if [ -z "$STAGED_FILES" ]; then
+            echo "✗ No files staged for commit"
+            exit 1
+          fi
+          
+          echo ""
+          echo "Final validation - Files staged for commit:"
+          echo "$STAGED_FILES"
+          
+          # Check if any non-scan-result files are staged
+          NON_SCAN_FILES=$(echo "$STAGED_FILES" | grep -v "bfx/.*/trivy-scan-results\.json$" || true)
+          if [ -n "$NON_SCAN_FILES" ]; then
+            echo "⚠ WARNING: Non-scan-result files detected:"
+            echo "$NON_SCAN_FILES"
+            echo "Removing them from staging area..."
+            echo "$NON_SCAN_FILES" | xargs git reset HEAD -- 2>/dev/null || true
+          fi
+          
+          # Verify final staged files
+          FINAL_STAGED=$(git diff --cached --name-only)
+          echo "Final files to commit:"
+          echo "$FINAL_STAGED"
 
           # Commit changes
           git commit -m "Update Trivy security scan results - $(date +%Y-%m-%d)
@@ -837,8 +885,16 @@ jobs:
           - Results include vulnerability details and counts per version
           - Automated scan performed by Trivy Security Scan workflow"
 
-          # Push branch
-          git push origin "$BRANCH_NAME"
+          # Push branch with explicit handling
+          echo "Pushing branch: $BRANCH_NAME"
+          if ! git push origin "$BRANCH_NAME"; then
+            echo "✗ Failed to push branch"
+            echo "This might be due to workflow file permissions"
+            echo "Checking what files are in the commit..."
+            git show --name-only HEAD
+            exit 1
+          fi
+          echo "✓ Branch pushed successfully"
 
           # Create PR description
           PR_BODY="## 🔒 Trivy Security Scan Results - $(date +%Y-%m-%d)
