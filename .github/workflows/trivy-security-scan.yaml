@@ -1146,16 +1146,21 @@ jobs:
           echo "Checking git status before creating branch..."
           git status --porcelain
 
-          # Ensure clean working directory - but preserve organized-results
+          # Backup organized directory before git operations
+          echo "💾 Backing up organized directory before git operations..."
+          BACKUP_DIR="organized-results-backup"
+          if [ -d "$ORGANIZED_DIR" ]; then
+            cp -r "$ORGANIZED_DIR" "$BACKUP_DIR"
+            echo "  ✓ Backed up organized directory to $BACKUP_DIR"
+          else
+            echo "  ✗ No organized directory to backup"
+            exit 1
+          fi
+
+          # Ensure clean working directory
           if [ -n "$(git status --porcelain)" ]; then
             echo "Working directory not clean - stashing changes..."
-            echo "⚠ Note: Preserving organized-results directory from stash"
-            
-            # Add organized-results to git temporarily to prevent it from being stashed
-            git add "$ORGANIZED_DIR" 2>/dev/null || true
-            
-            # Stash other untracked files but keep organized-results staged
-            git stash push -m "Auto-stash before PR creation" --keep-index 2>/dev/null || true
+            git stash push -m "Auto-stash before PR creation" --include-untracked 2>/dev/null || true
           fi
 
           # Create and switch to new branch from clean main
@@ -1187,25 +1192,19 @@ jobs:
             fi
           fi
 
-          # Verify organized directory still exists after git operations
-          echo "🔍 Final verification of organized directory after git operations..."
-          if [ -d "$ORGANIZED_DIR" ]; then
-            echo "✅ Organized directory confirmed after git operations"
+          # Restore organized directory from backup
+          echo "🔄 Restoring organized directory from backup..."
+          if [ -d "$BACKUP_DIR" ]; then
+            rm -rf "$ORGANIZED_DIR" 2>/dev/null || true
+            mv "$BACKUP_DIR" "$ORGANIZED_DIR"
+            echo "  ✓ Restored organized directory from backup"
+            
+            # Verify restoration
             FILE_COUNT=$(find "$ORGANIZED_DIR" -name "*.json" -type f | wc -l)
             echo "  → Contains $FILE_COUNT JSON files"
           else
-            echo "✗ Organized directory lost during git operations: $ORGANIZED_DIR"
-            echo "🔧 Attempting recovery..."
-            
-            # Try to restore from git if it was added
-            git checkout HEAD -- "$ORGANIZED_DIR" 2>/dev/null || true
-            
-            if [ -d "$ORGANIZED_DIR" ]; then
-              echo "✅ Recovered organized directory from git"
-            else
-              echo "✗ Could not recover organized directory"
-              exit 1
-            fi
+            echo "  ✗ Backup directory not found: $BACKUP_DIR"
+            exit 1
           fi
 
           # Copy organized results to their respective tool directories
