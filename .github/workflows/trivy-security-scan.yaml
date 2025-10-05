@@ -442,25 +442,10 @@ jobs:
         with:
           name: discovered-images
 
-      - name: Download previous scan progress
-        uses: actions/download-artifact@v4
-        with:
-          name: scan-progress
-          path: .
-        continue-on-error: true
-
-      - name: Debug progress files
+      - name: Debug initial progress files
         run: |
-          echo "Checking for progress files after download..."
-          ls -la scan_progress.txt completed_scans.txt failed_scans.txt 2>/dev/null || echo "Progress files not found"
-
-          if [ -f "completed_scans.txt" ]; then
-            echo "Found completed_scans.txt with $(wc -l < completed_scans.txt) entries"
-            echo "First few completed scans:"
-            head -5 completed_scans.txt
-          else
-            echo "No completed_scans.txt found"
-          fi
+          echo "Checking for any existing progress files..."
+          ls -la scan_progress.txt completed_scans.txt failed_scans.txt 2>/dev/null || echo "No progress files found initially"
 
       - name: Check for recent scan results to reuse
         id: check-reuse
@@ -471,43 +456,67 @@ jobs:
           RECENT_RUN_ID="${{ needs.check-recent-scans.outputs.recent-run-id }}"
           echo "Checking artifacts from run: $RECENT_RUN_ID"
 
+          # Debug: List available artifacts for this run
+          if command -v gh >/dev/null 2>&1; then
+            echo "🔍 Available artifacts for run $RECENT_RUN_ID:"
+            gh api repos/${{ github.repository }}/actions/runs/$RECENT_RUN_ID/artifacts --jq '.artifacts[] | "  - \(.name) (expires: \(.expires_at))"' 2>/dev/null || echo "  → Could not list artifacts"
+          fi
+
+          mkdir -p recent-results
+
           if command -v gh >/dev/null 2>&1; then
             echo "Using GitHub CLI to download artifacts..."
             
-            # Try to download trivy-scan-results first
-            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results 2>/dev/null; then
+            DOWNLOADED_ARTIFACTS=0
+            
+            # Try to download trivy-scan-results first (from successful runs)
+            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results/trivy-scan-results 2>/dev/null; then
               echo "✓ Successfully downloaded trivy-scan-results artifact"
+              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
+            else
+              echo "⚠ Failed to download trivy-scan-results"
+            fi
+            
+            # Try to download partial results from failed runs
+            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results-partial" --dir recent-results/trivy-scan-results-partial 2>/dev/null; then
+              echo "✓ Successfully downloaded trivy-scan-results-partial artifact"
+              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
+            else
+              echo "⚠ Failed to download trivy-scan-results-partial"
+            fi
+            
+            # Try to download organized-results as additional source
+            if gh run download "$RECENT_RUN_ID" --name "organized-results" --dir recent-results/organized-results 2>/dev/null; then
+              echo "✓ Successfully downloaded organized-results artifact"
+              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
+            else
+              echo "⚠ Failed to download organized-results"
+            fi
+            
+            # Try to download final scan results as ultimate fallback
+            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results-final" --dir recent-results/trivy-scan-results-final 2>/dev/null; then
+              echo "✓ Successfully downloaded trivy-scan-results-final artifact"
+              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
+            else
+              echo "⚠ Failed to download trivy-scan-results-final"
+            fi
+            
+            if [ $DOWNLOADED_ARTIFACTS -gt 0 ]; then
               echo "reuse-available=true" >> $GITHUB_OUTPUT
               
-              if [ -d "recent-results" ] && find recent-results -name "*.json" -type f | head -1 >/dev/null; then
+              # Count total JSON files from all downloaded artifacts
+              JSON_COUNT=0
+              if [ -d "recent-results" ]; then
                 JSON_COUNT=$(find recent-results -name "*.json" -type f | wc -l)
-                echo "  → Found $JSON_COUNT JSON files in recent results"
-                echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
-              else
-                echo "⚠ No JSON files found in trivy-scan-results"
-                echo "reuse-available=false" >> $GITHUB_OUTPUT
               fi
-            else
-              echo "⚠ Failed to download trivy-scan-results, trying organized-results..."
               
-              # Try to download organized-results as fallback
-              if gh run download "$RECENT_RUN_ID" --name "organized-results" --dir recent-results 2>/dev/null; then
-                echo "✓ Successfully downloaded organized-results artifact"
-                echo "reuse-available=true" >> $GITHUB_OUTPUT
-                
-                if [ -d "recent-results" ] && find recent-results -name "*.json" -type f | head -1 >/dev/null; then
-                  JSON_COUNT=$(find recent-results -name "*.json" -type f | wc -l)
-                  echo "  → Found $JSON_COUNT JSON files in organized results"
-                  echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
-                else
-                  echo "⚠ No JSON files found in organized-results either"
-                  echo "reuse-available=false" >> $GITHUB_OUTPUT
-                fi
-              else
-                echo "⚠ Failed to download any scan results from run $RECENT_RUN_ID"
-                echo "  → This might be expected if the run failed before creating artifacts"
-                echo "reuse-available=false" >> $GITHUB_OUTPUT
-              fi
+              echo "  → Downloaded $DOWNLOADED_ARTIFACTS artifact(s)"
+              echo "  → Found $JSON_COUNT JSON files total"
+              echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
+            else
+              echo "⚠ Failed to download any scan results from run $RECENT_RUN_ID"
+              echo "  → This might be expected if the run failed before creating artifacts"
+              echo "reuse-available=false" >> $GITHUB_OUTPUT
             fi
           else
             echo "⚠ GitHub CLI not available, cannot download recent artifacts"
@@ -658,6 +667,16 @@ jobs:
                 continue
               fi
               
+              # Also check if scan result already exists from recent download
+              SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
+              JSON_FILE="trivy-results/trivy-${SAFE_NAME}.json"
+              if [ -f "$JSON_FILE" ]; then
+                echo "  ⏭ Scan result already exists from recent download - skipping"
+                echo "$image_url" >> "$COMPLETED_FILE"
+                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                continue
+              fi
+              
               # Create safe filename for outputs
               SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
               JSON_FILE="trivy-results/trivy-${SAFE_NAME}.json"
@@ -759,6 +778,34 @@ jobs:
             fi
           fi
 
+      - name: Upload individual scan results as artifacts
+        if: steps.batch-scan.outputs.successful-scans > 0
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-results
+          path: |
+            trivy-results/
+            scan_progress.txt
+            completed_scans.txt
+            failed_scans.txt
+          retention-days: 30
+          compression-level: 6
+        continue-on-error: true
+
+      - name: Upload partial scan results (even if batch failed)
+        if: always() && (steps.batch-scan.conclusion == 'failure' || steps.batch-scan.conclusion == 'cancelled')
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-results-partial
+          path: |
+            trivy-results/
+            scan_progress.txt
+            completed_scans.txt
+            failed_scans.txt
+          retention-days: 30
+          compression-level: 6
+        continue-on-error: true
+
       - name: Upload scan progress immediately
         if: always()
         uses: actions/upload-artifact@v4
@@ -771,7 +818,7 @@ jobs:
           retention-days: 30
 
       - name: Prepare results from recent scans or skip to organize
-        if: steps.check-reuse.outputs.reuse-available == 'true' || github.event.inputs.skip_to_organize == 'true'
+        if: (steps.check-reuse.outputs.reuse-available == 'true' && steps.check-reuse.outputs.json-count > 0) || github.event.inputs.skip_to_organize == 'true'
         id: prepare-recent
         run: |
           if [ "${{ github.event.inputs.skip_to_organize }}" == "true" ]; then
@@ -781,8 +828,55 @@ jobs:
             echo "Preparing recent scan results for processing..."
             # Copy recent results to current results directory
             mkdir -p trivy-results
+            
             if [ -d "recent-results" ]; then
-              cp -r recent-results/* trivy-results/ 2>/dev/null || true
+              echo "📥 Processing downloaded artifacts..."
+              
+              # Process each downloaded artifact directory
+              for artifact_dir in recent-results/*/; do
+                if [ -d "$artifact_dir" ]; then
+                  ARTIFACT_NAME=$(basename "$artifact_dir")
+                  echo "  → Processing artifact: $ARTIFACT_NAME"
+                  
+                  # Copy trivy-results directory if it exists
+                  if [ -d "$artifact_dir/trivy-results" ]; then
+                    echo "    → Copying trivy-results from $ARTIFACT_NAME..."
+                    cp -r "$artifact_dir/trivy-results"/* trivy-results/ 2>/dev/null || true
+                  fi
+                  
+                  # Copy individual JSON files if they exist at root level
+                  if find "$artifact_dir" -maxdepth 1 -name "*.json" -type f | head -1 >/dev/null; then
+                    echo "    → Copying JSON files from $ARTIFACT_NAME..."
+                    cp "$artifact_dir"/*.json trivy-results/ 2>/dev/null || true
+                  fi
+                  
+                  # Copy progress files if they exist
+                  for progress_file in scan_progress.txt completed_scans.txt failed_scans.txt; do
+                    if [ -f "$artifact_dir/$progress_file" ]; then
+                      echo "    → Copying progress file: $progress_file from $ARTIFACT_NAME"
+                      cp "$artifact_dir/$progress_file" . 2>/dev/null || true
+                    fi
+                  done
+                fi
+              done
+              
+              # Also check for files at the root level of recent-results
+              if find recent-results -maxdepth 1 -name "*.json" -type f | head -1 >/dev/null; then
+                echo "  → Copying root-level JSON files..."
+                cp recent-results/*.json trivy-results/ 2>/dev/null || true
+              fi
+              
+              # Copy root-level progress files
+              for progress_file in scan_progress.txt completed_scans.txt failed_scans.txt; do
+                if [ -f "recent-results/$progress_file" ]; then
+                  echo "  → Copying root-level progress file: $progress_file"
+                  cp "recent-results/$progress_file" . 2>/dev/null || true
+                fi
+              done
+              
+              echo "  ✓ Recent results prepared for reuse"
+            else
+              echo "  ⚠ No recent-results directory found"
             fi
           fi
 
@@ -795,6 +889,24 @@ jobs:
           done
 
           echo "✓ Prepared $JSON_COUNT JSON files from recent scan"
+
+          # Show what was reused for debugging
+          if [ $JSON_COUNT -gt 0 ]; then
+            echo "📊 Reused scan results summary:"
+            echo "  → Total JSON files: $JSON_COUNT"
+            echo "  → Sample files:"
+            ls trivy-results/*.json | head -5 | sed 's/^/    - /'
+            if [ $JSON_COUNT -gt 5 ]; then
+              echo "    - ... and $((JSON_COUNT - 5)) more files"
+            fi
+          fi
+
+          # Check for progress files
+          if [ -f "completed_scans.txt" ]; then
+            COMPLETED_COUNT=$(wc -l < completed_scans.txt)
+            echo "  → Completed scans list: $COMPLETED_COUNT entries"
+          fi
+
           echo "⚡ Time saved by reusing recent results: ~120-180 minutes"
           echo "💰 Resources saved: Significant CPU, memory, and network usage"
 
@@ -902,6 +1014,63 @@ jobs:
           echo "✓ Organization complete. Processed $TOOL_COUNT tools"
           echo "organized-dir=$ORGANIZED_DIR" >> $GITHUB_OUTPUT
           echo "tool-count=$TOOL_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Upload organized scan results as artifacts
+        if: steps.organize-results.outputs.tool-count > 0
+        uses: actions/upload-artifact@v4
+        with:
+          name: organized-results
+          path: |
+            ${{ steps.organize-results.outputs.organized-dir }}/
+          retention-days: 90
+          compression-level: 6
+        continue-on-error: true
+
+      - name: Upload final scan results (safety backup)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-scan-results-final
+          path: |
+            trivy-results/
+            organized-results/
+            scan_progress.txt
+            completed_scans.txt
+            failed_scans.txt
+            tool_images_mapping.json
+          retention-days: 90
+          compression-level: 6
+        continue-on-error: true
+
+      - name: Artifact Summary
+        if: always()
+        run: |
+          echo "📦 Artifacts Created Summary"
+          echo "=========================="
+
+          # Count scan results
+          if [ -d "trivy-results" ]; then
+            SCAN_COUNT=$(find trivy-results -name "*.json" -type f | wc -l)
+            echo "✅ Raw scan results: $SCAN_COUNT JSON files"
+          fi
+
+          # Count organized results
+          if [ -d "organized-results" ]; then
+            ORG_COUNT=$(find organized-results -name "*.json" -type f | wc -l)
+            echo "✅ Organized results: $ORG_COUNT tool files"
+          fi
+
+          # Show progress files
+          for file in scan_progress.txt completed_scans.txt failed_scans.txt; do
+            if [ -f "$file" ]; then
+              LINES=$(wc -l < "$file")
+              echo "✅ Progress file: $file ($LINES entries)"
+            fi
+          done
+
+          echo ""
+          echo "🎯 These artifacts will be available for reuse in future runs"
+          echo "💾 Retention: 30 days (scan results), 90 days (organized results)"
 
       - name: Create Pull Request with scan results
         if: steps.organize-results.outputs.tool-count > 0
