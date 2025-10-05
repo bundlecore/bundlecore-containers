@@ -17,6 +17,11 @@ on:
         required: false
         default: false
         type: boolean
+      disable_recent_check:
+        description: "Disable recent scan checking (always do fresh scan)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write # Required for creating files and PRs
@@ -28,7 +33,7 @@ jobs:
   check-recent-scans:
     name: Check Recent Scan Results
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -41,11 +46,18 @@ jobs:
 
           # Get recent workflow runs for this workflow
           WORKFLOW_NAME="Trivy Security Scan"
-          ONE_MONTH_AGO=$(date -u -d '1 month ago' +%Y-%m-%dT%H:%M:%SZ)
+          ONE_WEEK_AGO=$(date -u -d '1 week ago' +%Y-%m-%dT%H:%M:%SZ)
 
-          echo "Looking for successful runs since: $ONE_MONTH_AGO"
+          echo "Looking for successful runs since: $ONE_WEEK_AGO"
 
-          # Check if user forced a fresh scan
+          # Check if user disabled recent scan checking or forced a fresh scan
+          if [ "${{ github.event.inputs.disable_recent_check }}" == "true" ]; then
+            echo "🔄 Recent scan checking disabled - will skip recent results check"
+            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+            echo "recent-run-id=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
             echo "🔄 Force fresh scan requested - will skip recent results check"
             echo "recent-scan-available=false" >> $GITHUB_OUTPUT
@@ -53,29 +65,52 @@ jobs:
             exit 0
           fi
 
-          # Get recent workflow runs using GitHub API
+          # Get recent workflow runs using GitHub API (without date filter first)
+          echo "Fetching recent workflow runs..."
           RECENT_RUNS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&conclusion=success&created=>$ONE_MONTH_AGO&per_page=10")
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&per_page=20")
 
-          # Check if we have any successful runs in the last month
-          RECENT_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | wc -l)
+          # Debug: Show what we got
+          echo "API Response status: $(echo "$RECENT_RUNS" | jq -r '.total_count // "unknown"') total runs"
+
+          # Check if we have any successful runs with our workflow name
+          RECENT_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "success") | .id' | wc -l)
+
+          echo "Found $RECENT_SUCCESS_COUNT successful runs with workflow name: $WORKFLOW_NAME"
 
           if [ "$RECENT_SUCCESS_COUNT" -gt 0 ]; then
             # Get the most recent successful run
-            LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.name == "'"$WORKFLOW_NAME"'" and .conclusion == "success") | .id' | head -1)
-            LATEST_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r '.workflow_runs[] | select(.id == '"$LATEST_RUN_ID"') | .created_at')
+            LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "success") | .id' | head -1)
+            LATEST_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r --arg run_id "$LATEST_RUN_ID" '.workflow_runs[]? | select(.id == ($run_id | tonumber)) | .created_at')
             
-            echo "✓ Found recent successful scan:"
-            echo "  → Run ID: $LATEST_RUN_ID"
-            echo "  → Date: $LATEST_RUN_DATE"
-            echo "  → URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/$LATEST_RUN_ID"
+            # Check if the run is recent enough (within 1 week)
+            RUN_TIMESTAMP=$(date -d "$LATEST_RUN_DATE" +%s 2>/dev/null || echo "0")
+            WEEK_AGO_TIMESTAMP=$(date -d '1 week ago' +%s)
             
-            echo "recent-scan-available=true" >> $GITHUB_OUTPUT
-            echo "recent-run-id=$LATEST_RUN_ID" >> $GITHUB_OUTPUT
+            if [ "$RUN_TIMESTAMP" -gt "$WEEK_AGO_TIMESTAMP" ]; then
+              echo "✓ Found recent successful scan:"
+              echo "  → Run ID: $LATEST_RUN_ID"
+              echo "  → Date: $LATEST_RUN_DATE"
+              echo "  → URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/$LATEST_RUN_ID"
+              
+              echo "recent-scan-available=true" >> $GITHUB_OUTPUT
+              echo "recent-run-id=$LATEST_RUN_ID" >> $GITHUB_OUTPUT
+            else
+              echo "⚠ Most recent successful scan is too old (older than 1 week)"
+              echo "  → Run date: $LATEST_RUN_DATE"
+              echo "  → Will proceed with fresh scan"
+              echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+              echo "recent-run-id=" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "⚠ No recent successful scans found in the last month"
-            echo "  → Will proceed with full scan"
+            echo "⚠ No recent successful scans found"
+            echo "  → Will proceed with fresh scan"
+            
+            # Debug: Show available workflows
+            echo "Available recent workflows:"
+            echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
+            
             echo "recent-scan-available=false" >> $GITHUB_OUTPUT
             echo "recent-run-id=" >> $GITHUB_OUTPUT
           fi
@@ -89,6 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: check-recent-scans
+    if: always() # Run even if check-recent-scans is skipped
 
     steps:
       - name: Checkout repository
@@ -538,11 +574,22 @@ jobs:
             exit 1
           fi
 
-          # Get list of tools
-          TOOLS=$(jq -r 'keys[]' "$TOOL_MAPPING_FILE")
-          TOOL_COUNT=0
+          # Validate tool mapping file
+          if ! jq empty "$TOOL_MAPPING_FILE" 2>/dev/null; then
+            echo "✗ Tool mapping file contains invalid JSON"
+            exit 1
+          fi
 
+          # Get list of tools
+          TOOLS=$(jq -r 'keys[]' "$TOOL_MAPPING_FILE" 2>/dev/null)
+          if [ -z "$TOOLS" ]; then
+            echo "✗ No tools found in mapping file"
+            exit 1
+          fi
+
+          TOOL_COUNT=0
           echo "Processing tools and organizing scan results..."
+          echo "Tools to process: $(echo "$TOOLS" | tr '\n' ' ')"
 
           for tool in $TOOLS; do
             TOOL_COUNT=$((TOOL_COUNT + 1))
@@ -554,12 +601,8 @@ jobs:
             # Initialize tool result structure
             echo "{\"tool\": \"$tool\", \"scan_timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"workflow_run_id\": \"${{ github.run_id }}\", \"versions\": {}, \"summary\": {\"total_versions_scanned\": 0, \"total_vulnerabilities\": 0}}" > "$TOOL_RESULT_FILE"
 
-            # Get images for this tool
-            TOOL_IMAGES=$(jq -r --arg tool "$tool" '.[$tool][]' "$TOOL_MAPPING_FILE")
-            VERSION_COUNT=0
-            TOTAL_VULNS=0
-
-            echo "$TOOL_IMAGES" | jq -r '.image' | while read -r image_url; do
+            # Process each image for this tool
+            jq -r --arg tool "$tool" '.[$tool][]? | .image' "$TOOL_MAPPING_FILE" | while read -r image_url; do
               if [ -n "$image_url" ]; then
                 # Find corresponding scan result file
                 SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
@@ -570,30 +613,38 @@ jobs:
                   TAG=$(echo "$image_url" | sed 's|.*:||')
                   echo "  → Adding results for version: $TAG"
                   
-                  # Extract vulnerabilities and count
-                  VULNERABILITIES=$(jq -r '.Results[]?.Vulnerabilities // []' "$SCAN_FILE" 2>/dev/null || echo "[]")
-                  VULN_COUNT=$(echo "$VULNERABILITIES" | jq 'length' 2>/dev/null || echo "0")
+                  # Count vulnerabilities directly from file (avoid loading large data into memory)
+                  VULN_COUNT=$(jq -r '[.Results[]?.Vulnerabilities[]?] | length' "$SCAN_FILE" 2>/dev/null || echo "0")
                   
-                  # Add version data to tool result file
+                  # Create a temporary file with just the vulnerability data
+                  TEMP_VULNS=$(mktemp)
+                  jq -r '.Results[]?.Vulnerabilities // []' "$SCAN_FILE" > "$TEMP_VULNS" 2>/dev/null || echo "[]" > "$TEMP_VULNS"
+                  
+                  # Add version data to tool result file using file input instead of command line args
                   jq --arg tag "$TAG" \
                      --arg image "$image_url" \
-                     --argjson vulns "$VULNERABILITIES" \
                      --argjson count "$VULN_COUNT" \
+                     --slurpfile vulns "$TEMP_VULNS" \
                      '.versions[$tag] = {
                        "image": $image,
-                       "vulnerabilities": $vulns,
+                       "vulnerabilities": $vulns[0],
                        "vulnerability_count": $count
                      }' "$TOOL_RESULT_FILE" > "${TOOL_RESULT_FILE}.tmp" && mv "${TOOL_RESULT_FILE}.tmp" "$TOOL_RESULT_FILE"
                   
-                  VERSION_COUNT=$((VERSION_COUNT + 1))
-                  TOTAL_VULNS=$((TOTAL_VULNS + VULN_COUNT))
+                  # Clean up temp file
+                  rm -f "$TEMP_VULNS"
+                  
+                  echo "    ✓ Added $VULN_COUNT vulnerabilities"
                 else
                   echo "  ⚠ Scan result not found for: $image_url"
                 fi
               fi
             done
 
-            # Update summary
+            # Update summary by counting from the actual data in the file
+            VERSION_COUNT=$(jq -r '.versions | keys | length' "$TOOL_RESULT_FILE")
+            TOTAL_VULNS=$(jq -r '[.versions[].vulnerability_count] | add // 0' "$TOOL_RESULT_FILE")
+            
             jq --argjson version_count "$VERSION_COUNT" \
                --argjson total_vulns "$TOTAL_VULNS" \
                '.summary.total_versions_scanned = $version_count |
