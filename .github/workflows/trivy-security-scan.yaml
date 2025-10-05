@@ -655,11 +655,11 @@ jobs:
           mkdir -p trivy-results
 
           # Process each image with progress tracking
+          QUEUE_POSITION=0
           while IFS= read -r image_url; do
             if [ -n "$image_url" ]; then
-              SCAN_COUNT=$((SCAN_COUNT + 1))
-              CURRENT_TOTAL=$((SUCCESS_COUNT + SCAN_COUNT))
-              echo "[$CURRENT_TOTAL/$TOTAL_IMAGES] Processing: $image_url"
+              QUEUE_POSITION=$((QUEUE_POSITION + 1))
+              echo "[$QUEUE_POSITION/$REMAINING_IMAGES] Processing: $image_url"
               
               # Check if this image was already scanned successfully
               if grep -Fxq "$image_url" "$COMPLETED_FILE" 2>/dev/null; then
@@ -673,6 +673,7 @@ jobs:
               if [ -f "$JSON_FILE" ]; then
                 echo "  ⏭ Scan result already exists from recent download - skipping"
                 echo "$image_url" >> "$COMPLETED_FILE"
+                SCAN_COUNT=$((SCAN_COUNT + 1))
                 SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
                 continue
               fi
@@ -702,6 +703,7 @@ jobs:
                 --output "/output/trivy-${SAFE_NAME}.json" \
                 "$image_url" 2>/dev/null; then
                 
+                SCAN_COUNT=$((SCAN_COUNT + 1))
                 SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
                 echo "  ✓ Scan completed successfully"
                 
@@ -715,10 +717,11 @@ jobs:
                 fi
                 
                 # Save progress every 5 successful scans
-                if [ $((SUCCESS_COUNT % 5)) -eq 0 ]; then
-                  echo "  💾 Progress checkpoint: $SUCCESS_COUNT/$TOTAL_IMAGES completed"
+                if [ $((SCAN_COUNT % 5)) -eq 0 ]; then
+                  echo "  💾 Progress checkpoint: $SCAN_COUNT scans completed in this run"
                 fi
               else
+                SCAN_COUNT=$((SCAN_COUNT + 1))
                 FAILURE_COUNT=$((FAILURE_COUNT + 1))
                 echo "  ✗ Scan failed - continuing with next image"
                 
@@ -734,10 +737,12 @@ jobs:
           echo ""
           echo "Batch Scan Summary"
           echo "=================="
-          echo "Total images in queue: $TOTAL_IMAGES"
+          echo "Total images discovered: $TOTAL_IMAGES"
+          echo "Images in current queue: $REMAINING_IMAGES"
           echo "Images processed this run: $SCAN_COUNT"
-          echo "Total successful scans: $SUCCESS_COUNT"
+          echo "Successful scans this run: $((SCAN_COUNT - FAILURE_COUNT))"
           echo "Failed scans this run: $FAILURE_COUNT"
+          echo "Total successful scans overall: $SUCCESS_COUNT"
 
           # Calculate completion percentage
           if [ $TOTAL_IMAGES -gt 0 ]; then
@@ -1083,6 +1088,39 @@ jobs:
           TOOL_COUNT="${{ steps.organize-results.outputs.tool-count }}"
           BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
 
+          # Debug: Show what we received from organize step
+          echo "🔍 Debug Information:"
+          echo "  → ORGANIZED_DIR from output: '$ORGANIZED_DIR'"
+          echo "  → TOOL_COUNT from output: '$TOOL_COUNT'"
+          echo "  → Current working directory: $(pwd)"
+          echo "  → Available directories:"
+          ls -la . | grep "^d" || echo "    No directories found"
+
+          # Fallback: If organized-dir output is empty, use default
+          if [ -z "$ORGANIZED_DIR" ]; then
+            echo "⚠ ORGANIZED_DIR is empty, using default: organized-results"
+            ORGANIZED_DIR="organized-results"
+          fi
+
+          # Ensure organized directory exists (recreate if needed)
+          if [ ! -d "$ORGANIZED_DIR" ]; then
+            echo "⚠ Organized directory does not exist: $ORGANIZED_DIR"
+            echo "🔧 Attempting to recreate from available files..."
+            
+            # Check if we have organized results in current directory
+            if find . -maxdepth 1 -name "*-trivy-scan-results.json" -type f | head -1 >/dev/null; then
+              echo "  → Found organized result files in current directory"
+              mkdir -p "$ORGANIZED_DIR"
+              mv *-trivy-scan-results.json "$ORGANIZED_DIR/" 2>/dev/null || true
+              echo "  → Moved files to $ORGANIZED_DIR"
+            else
+              echo "  → No organized result files found in current directory"
+              echo "  → Available files:"
+              ls -la . | head -10
+              exit 1
+            fi
+          fi
+
           # Configure git
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -1103,6 +1141,7 @@ jobs:
           # Debug: Check what files exist in organized directory
           echo "Checking organized directory: $ORGANIZED_DIR"
           if [ -d "$ORGANIZED_DIR" ]; then
+            echo "✅ Organized directory exists"
             echo "Files in organized directory:"
             ls -la "$ORGANIZED_DIR"
             echo ""
@@ -1112,7 +1151,7 @@ jobs:
             echo "All JSON files in directory:"
             find "$ORGANIZED_DIR" -name "*.json" -type f || echo "No JSON files found"
           else
-            echo "✗ Organized directory does not exist: $ORGANIZED_DIR"
+            echo "✗ Organized directory still does not exist: $ORGANIZED_DIR"
             exit 1
           fi
 
