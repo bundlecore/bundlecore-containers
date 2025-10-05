@@ -27,6 +27,11 @@ on:
         required: false
         default: true
         type: boolean
+      skip_to_organize:
+        description: "Skip scanning and go directly to organize results (if scan results exist)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write # Required for creating files and PRs
@@ -407,6 +412,19 @@ jobs:
           path: .
         continue-on-error: true
 
+      - name: Debug progress files
+        run: |
+          echo "Checking for progress files after download..."
+          ls -la scan_progress.txt completed_scans.txt failed_scans.txt 2>/dev/null || echo "Progress files not found"
+
+          if [ -f "completed_scans.txt" ]; then
+            echo "Found completed_scans.txt with $(wc -l < completed_scans.txt) entries"
+            echo "First few completed scans:"
+            head -5 completed_scans.txt
+          else
+            echo "No completed_scans.txt found"
+          fi
+
       - name: Check for recent scan results to reuse
         id: check-reuse
         if: needs.check-recent-scans.outputs.recent-scan-available == 'true' && github.event.inputs.force_fresh_scan != 'true'
@@ -475,6 +493,38 @@ jobs:
             > "$PROGRESS_FILE"   # Clear progress file
           fi
 
+          # Also check if there are existing scan results in the current workspace
+          if [ ! -s "$COMPLETED_FILE" ] && [ -d "trivy-results" ]; then
+            echo "🔍 Checking for existing scan results in current workspace..."
+            EXISTING_RESULTS=$(find trivy-results -name "trivy-*.json" -type f | wc -l)
+            if [ "$EXISTING_RESULTS" -gt 0 ]; then
+              echo "  → Found $EXISTING_RESULTS existing scan result files"
+              echo "  → Extracting image URLs from existing results..."
+              
+              # Extract image URLs from existing JSON files and add to completed list
+              for json_file in trivy-results/trivy-*.json; do
+                if [ -f "$json_file" ]; then
+                  # Try to extract image URL from metadata or filename
+                  IMAGE_URL=$(jq -r '.Metadata.ImageID // empty' "$json_file" 2>/dev/null || true)
+                  if [ -z "$IMAGE_URL" ]; then
+                    # Fallback: reconstruct from filename
+                    SAFE_NAME=$(basename "$json_file" .json | sed 's/^trivy-//')
+                    # This is a rough reconstruction - may not be perfect
+                    echo "  ⚠ Could not extract image URL from $json_file"
+                  else
+                    echo "$IMAGE_URL" >> "$COMPLETED_FILE"
+                    echo "  ✓ Added existing result: $IMAGE_URL"
+                  fi
+                fi
+              done
+              
+              if [ -s "$COMPLETED_FILE" ]; then
+                RECOVERED_COUNT=$(wc -l < "$COMPLETED_FILE")
+                echo "  → Recovered $RECOVERED_COUNT completed scans from existing results"
+              fi
+            fi
+          fi
+
           TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
           COMPLETED_COUNT=0
 
@@ -504,7 +554,7 @@ jobs:
       - name: Batch scan images with Trivy
         id: batch-scan
         timeout-minutes: 150
-        if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
+        if: (steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true') && github.event.inputs.skip_to_organize != 'true'
         run: |
           IMAGES_FILE="${{ steps.check-progress.outputs.remaining-file }}"
           PROGRESS_FILE="scan_progress.txt"
@@ -652,16 +702,31 @@ jobs:
             fi
           fi
 
-      - name: Prepare results from recent scans
-        if: steps.check-reuse.outputs.reuse-available == 'true'
+      - name: Upload scan progress immediately
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-progress
+          path: |
+            scan_progress.txt
+            completed_scans.txt
+            failed_scans.txt
+          retention-days: 30
+
+      - name: Prepare results from recent scans or skip to organize
+        if: steps.check-reuse.outputs.reuse-available == 'true' || github.event.inputs.skip_to_organize == 'true'
         id: prepare-recent
         run: |
-          echo "Preparing recent scan results for processing..."
-
-          # Copy recent results to current results directory
-          mkdir -p trivy-results
-          if [ -d "recent-results" ]; then
-            cp -r recent-results/* trivy-results/ 2>/dev/null || true
+          if [ "${{ github.event.inputs.skip_to_organize }}" == "true" ]; then
+            echo "⏭ Skipping to organize existing results..."
+            echo "Using existing trivy-results directory"
+          else
+            echo "Preparing recent scan results for processing..."
+            # Copy recent results to current results directory
+            mkdir -p trivy-results
+            if [ -d "recent-results" ]; then
+              cp -r recent-results/* trivy-results/ 2>/dev/null || true
+            fi
           fi
 
           # Count available JSON files
@@ -799,48 +864,82 @@ jobs:
           # Check git status and clean working directory
           echo "Checking git status before creating branch..."
           git status --porcelain
-          
+
           # Ensure clean working directory - stash any unintended changes
           if [ -n "$(git status --porcelain)" ]; then
             echo "Working directory not clean - stashing changes..."
             git stash push -m "Auto-stash before PR creation" --include-untracked
           fi
-          
+
           # Create and switch to new branch from clean main
           git checkout -b "$BRANCH_NAME"
 
+          # Debug: Check what files exist in organized directory
+          echo "Checking organized directory: $ORGANIZED_DIR"
+          if [ -d "$ORGANIZED_DIR" ]; then
+            echo "Files in organized directory:"
+            ls -la "$ORGANIZED_DIR"
+          else
+            echo "✗ Organized directory does not exist: $ORGANIZED_DIR"
+            exit 1
+          fi
+
           # Copy organized results to their respective tool directories
           COPIED_FILES=0
-          for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
-            if [ -f "$result_file" ]; then
-              # Extract tool name from filename
-              TOOL_NAME=$(basename "$result_file" | sed 's|-trivy-scan-results.json||')
-              TARGET_DIR="bfx/$TOOL_NAME"
-              TARGET_FILE="$TARGET_DIR/trivy-scan-results.json"
-              
-              if [ -d "$TARGET_DIR" ]; then
-                echo "Copying scan results for: $TOOL_NAME"
-                cp "$result_file" "$TARGET_FILE"
-                
-                # Only add the specific scan result file (not workflow files)
-                git add "$TARGET_FILE"
-                COPIED_FILES=$((COPIED_FILES + 1))
-                
-                # Show summary of what was added
-                VERSIONS=$(jq -r '.summary.total_versions_scanned' "$TARGET_FILE")
-                VULNS=$(jq -r '.summary.total_vulnerabilities' "$TARGET_FILE")
-                echo "  → $VERSIONS versions scanned, $VULNS vulnerabilities found"
-              else
-                echo "⚠ Target directory not found: $TARGET_DIR"
+          echo "Looking for files matching pattern: $ORGANIZED_DIR/*-trivy-scan-results.json"
+
+          # Use a more robust file finding approach
+          if [ -d "$ORGANIZED_DIR" ]; then
+            # First, let's use a simple approach that works with the COPIED_FILES counter
+            for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
+              # Check if the glob matched any files
+              if [ ! -e "$result_file" ]; then
+                echo "No files matching pattern found"
+                break
               fi
-            fi
-          done
-          
+              
+              if [ -f "$result_file" ]; then
+                echo "Processing file: $result_file"
+                
+                # Extract tool name from filename
+                TOOL_NAME=$(basename "$result_file" | sed 's|-trivy-scan-results.json||')
+                TARGET_DIR="bfx/$TOOL_NAME"
+                TARGET_FILE="$TARGET_DIR/trivy-scan-results.json"
+                
+                echo "  → Tool: $TOOL_NAME"
+                echo "  → Target directory: $TARGET_DIR"
+                echo "  → Target file: $TARGET_FILE"
+                
+                if [ -d "$TARGET_DIR" ]; then
+                  echo "  ✓ Target directory exists"
+                  echo "Copying scan results for: $TOOL_NAME"
+                  cp "$result_file" "$TARGET_FILE"
+                  
+                  # Only add the specific scan result file (not workflow files)
+                  git add "$TARGET_FILE"
+                  COPIED_FILES=$((COPIED_FILES + 1))
+                  
+                  # Show summary of what was added
+                  VERSIONS=$(jq -r '.summary.total_versions_scanned' "$TARGET_FILE")
+                  VULNS=$(jq -r '.summary.total_vulnerabilities' "$TARGET_FILE")
+                  echo "  → $VERSIONS versions scanned, $VULNS vulnerabilities found"
+                else
+                  echo "  ✗ Target directory not found: $TARGET_DIR"
+                  echo "  → Available directories in bfx/:"
+                  ls -la bfx/ | head -10
+                fi
+              fi
+            done
+          else
+            echo "✗ Organized directory not found: $ORGANIZED_DIR"
+            exit 1
+          fi
+
           # Verify what we're about to commit
           echo ""
           echo "Files staged for commit:"
           git diff --cached --name-only
-          
+
           # Ensure no workflow files are staged
           if git diff --cached --name-only | grep -q "\.github/workflows/"; then
             echo "⚠ Workflow files detected in staging area - removing them"
@@ -851,18 +950,18 @@ jobs:
             echo "✗ No files were copied to target directories"
             exit 1
           fi
-          
+
           # Final validation - ensure only scan result files are staged
           STAGED_FILES=$(git diff --cached --name-only)
           if [ -z "$STAGED_FILES" ]; then
             echo "✗ No files staged for commit"
             exit 1
           fi
-          
+
           echo ""
           echo "Final validation - Files staged for commit:"
           echo "$STAGED_FILES"
-          
+
           # Check if any non-scan-result files are staged
           NON_SCAN_FILES=$(echo "$STAGED_FILES" | grep -v "bfx/.*/trivy-scan-results\.json$" || true)
           if [ -n "$NON_SCAN_FILES" ]; then
@@ -871,7 +970,7 @@ jobs:
             echo "Removing them from staging area..."
             echo "$NON_SCAN_FILES" | xargs git reset HEAD -- 2>/dev/null || true
           fi
-          
+
           # Verify final staged files
           FINAL_STAGED=$(git diff --cached --name-only)
           echo "Final files to commit:"
@@ -946,17 +1045,6 @@ jobs:
           echo "  → Branch: $BRANCH_NAME"
           echo "  → Files updated: $COPIED_FILES"
           echo "  → PR URL: $(gh pr view --json url -q .url)"
-
-      - name: Upload scan progress
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: scan-progress
-          path: |
-            scan_progress.txt
-            completed_scans.txt
-            failed_scans.txt
-          retention-days: 30
 
       - name: Upload scan results as artifacts
         uses: actions/upload-artifact@v4
