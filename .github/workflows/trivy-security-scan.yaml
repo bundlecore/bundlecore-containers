@@ -89,6 +89,11 @@ jobs:
 
           echo "Found $RECENT_SUCCESS_COUNT successful runs with workflow name: $WORKFLOW_NAME"
 
+          # Also check for runs that might have completed scanning but failed at PR creation
+          RECENT_PARTIAL_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and (.conclusion == "failure" or .conclusion == "success")) | .id' | wc -l)
+
+          echo "Found $RECENT_PARTIAL_SUCCESS_COUNT runs (including partial successes) with workflow name: $WORKFLOW_NAME"
+
           if [ "$RECENT_SUCCESS_COUNT" -gt 0 ]; then
             # Get the most recent successful run
             LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "success") | .id' | head -1)
@@ -115,14 +120,46 @@ jobs:
             fi
           else
             echo "⚠ No recent successful scans found"
-            echo "  → Will proceed with fresh scan"
             
-            # Debug: Show available workflows
-            echo "Available recent workflows:"
-            echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
+            # Check for recent runs that might have scan results even if they failed overall
+            echo "🔍 Checking for recent runs with potential scan results..."
+            RECENT_FAILED_WITH_SCANS=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "failure") | .id' | head -1)
             
-            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-            echo "recent-run-id=" >> $GITHUB_OUTPUT
+            if [ -n "$RECENT_FAILED_WITH_SCANS" ]; then
+              FAILED_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r --arg run_id "$RECENT_FAILED_WITH_SCANS" '.workflow_runs[]? | select(.id == ($run_id | tonumber)) | .created_at')
+              FAILED_RUN_TIMESTAMP=$(date -d "$FAILED_RUN_DATE" +%s 2>/dev/null || echo "0")
+              WEEK_AGO_TIMESTAMP=$(date -d '1 week ago' +%s)
+              
+              if [ "$FAILED_RUN_TIMESTAMP" -gt "$WEEK_AGO_TIMESTAMP" ]; then
+                echo "  → Found recent failed run that might have scan results:"
+                echo "    → Run ID: $RECENT_FAILED_WITH_SCANS"
+                echo "    → Date: $FAILED_RUN_DATE"
+                echo "    → Will attempt to reuse scan results from this run"
+                
+                echo "recent-scan-available=true" >> $GITHUB_OUTPUT
+                echo "recent-run-id=$RECENT_FAILED_WITH_SCANS" >> $GITHUB_OUTPUT
+              else
+                echo "  → Recent failed run is too old"
+                echo "  → Will proceed with fresh scan"
+                
+                # Debug: Show available workflows
+                echo "Available recent workflows:"
+                echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
+                
+                echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+                echo "recent-run-id=" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "  → No recent runs found at all"
+              echo "  → Will proceed with fresh scan"
+              
+              # Debug: Show available workflows
+              echo "Available recent workflows:"
+              echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
+              
+              echo "recent-scan-available=false" >> $GITHUB_OUTPUT
+              echo "recent-run-id=" >> $GITHUB_OUTPUT
+            fi
           fi
 
     outputs:
@@ -436,8 +473,10 @@ jobs:
 
           if command -v gh >/dev/null 2>&1; then
             echo "Using GitHub CLI to download artifacts..."
+            
+            # Try to download trivy-scan-results first
             if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results 2>/dev/null; then
-              echo "✓ Successfully downloaded recent scan results"
+              echo "✓ Successfully downloaded trivy-scan-results artifact"
               echo "reuse-available=true" >> $GITHUB_OUTPUT
               
               if [ -d "recent-results" ] && find recent-results -name "*.json" -type f | head -1 >/dev/null; then
@@ -445,12 +484,30 @@ jobs:
                 echo "  → Found $JSON_COUNT JSON files in recent results"
                 echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
               else
-                echo "⚠ No JSON files found in recent results"
+                echo "⚠ No JSON files found in trivy-scan-results"
                 echo "reuse-available=false" >> $GITHUB_OUTPUT
               fi
             else
-              echo "⚠ Failed to download recent scan results"
-              echo "reuse-available=false" >> $GITHUB_OUTPUT
+              echo "⚠ Failed to download trivy-scan-results, trying organized-results..."
+              
+              # Try to download organized-results as fallback
+              if gh run download "$RECENT_RUN_ID" --name "organized-results" --dir recent-results 2>/dev/null; then
+                echo "✓ Successfully downloaded organized-results artifact"
+                echo "reuse-available=true" >> $GITHUB_OUTPUT
+                
+                if [ -d "recent-results" ] && find recent-results -name "*.json" -type f | head -1 >/dev/null; then
+                  JSON_COUNT=$(find recent-results -name "*.json" -type f | wc -l)
+                  echo "  → Found $JSON_COUNT JSON files in organized results"
+                  echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
+                else
+                  echo "⚠ No JSON files found in organized-results either"
+                  echo "reuse-available=false" >> $GITHUB_OUTPUT
+                fi
+              else
+                echo "⚠ Failed to download any scan results from run $RECENT_RUN_ID"
+                echo "  → This might be expected if the run failed before creating artifacts"
+                echo "reuse-available=false" >> $GITHUB_OUTPUT
+              fi
             fi
           else
             echo "⚠ GitHub CLI not available, cannot download recent artifacts"
@@ -879,6 +936,12 @@ jobs:
           if [ -d "$ORGANIZED_DIR" ]; then
             echo "Files in organized directory:"
             ls -la "$ORGANIZED_DIR"
+            echo ""
+            echo "Files matching pattern *-trivy-scan-results.json:"
+            find "$ORGANIZED_DIR" -name "*-trivy-scan-results.json" -type f || echo "No files match pattern"
+            echo ""
+            echo "All JSON files in directory:"
+            find "$ORGANIZED_DIR" -name "*.json" -type f || echo "No JSON files found"
           else
             echo "✗ Organized directory does not exist: $ORGANIZED_DIR"
             exit 1
@@ -894,16 +957,75 @@ jobs:
             for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
               # Check if the glob matched any files
               if [ ! -e "$result_file" ]; then
-                echo "No files matching pattern found"
-                break
+                echo "No files matching pattern *-trivy-scan-results.json found"
+                echo "Trying alternative patterns..."
+                
+                # Try alternative patterns
+                for alt_file in "$ORGANIZED_DIR"/*.json; do
+                  if [ -e "$alt_file" ]; then
+                    echo "Found alternative file: $alt_file"
+                    result_file="$alt_file"
+                    break
+                  fi
+                done
+                
+                if [ ! -e "$result_file" ]; then
+                  echo "No JSON files found at all"
+                  break
+                fi
               fi
               
               if [ -f "$result_file" ]; then
                 echo "Processing file: $result_file"
                 
-                # Extract tool name from filename
-                TOOL_NAME=$(basename "$result_file" | sed 's|-trivy-scan-results.json||')
-                TARGET_DIR="bfx/$TOOL_NAME"
+                # Extract tool name from filename (handle different patterns)
+                FILENAME=$(basename "$result_file")
+                if [[ "$FILENAME" == *"-trivy-scan-results.json" ]]; then
+                  TOOL_NAME=$(echo "$FILENAME" | sed 's|-trivy-scan-results.json||')
+                else
+                  # Fallback: try to extract tool name from JSON content
+                  TOOL_NAME=$(jq -r '.tool // empty' "$result_file" 2>/dev/null)
+                  if [ -z "$TOOL_NAME" ]; then
+                    # Last resort: use filename without extension
+                    TOOL_NAME=$(echo "$FILENAME" | sed 's|\.json||')
+                  fi
+                fi
+                
+                # Try to find matching directory in bfx/
+                TARGET_DIR=""
+                
+                # First try exact match
+                if [ -d "bfx/$TOOL_NAME" ]; then
+                  TARGET_DIR="bfx/$TOOL_NAME"
+                else
+                  # Try fuzzy matching - look for directories that contain the tool name
+                  POSSIBLE_DIRS=$(find bfx/ -maxdepth 1 -type d -name "*$TOOL_NAME*" 2>/dev/null || true)
+                  if [ -n "$POSSIBLE_DIRS" ]; then
+                    TARGET_DIR=$(echo "$POSSIBLE_DIRS" | head -1)
+                    echo "  → Found fuzzy match: $TARGET_DIR for tool $TOOL_NAME"
+                  else
+                    # Try reverse - look for tool names that are contained in directory names
+                    for bfx_dir in bfx/*/; do
+                      if [ -d "$bfx_dir" ]; then
+                        DIR_NAME=$(basename "$bfx_dir")
+                        if [[ "$TOOL_NAME" == *"$DIR_NAME"* ]] || [[ "$DIR_NAME" == *"$TOOL_NAME"* ]]; then
+                          TARGET_DIR="$bfx_dir"
+                          echo "  → Found reverse match: $TARGET_DIR for tool $TOOL_NAME"
+                          break
+                        fi
+                      fi
+                    done
+                  fi
+                fi
+                
+                if [ -z "$TARGET_DIR" ]; then
+                  echo "  ✗ No matching directory found for tool: $TOOL_NAME"
+                  echo "  → Available directories in bfx/:"
+                  ls -1 bfx/ | head -10 | sed 's/^/    - /'
+                  echo "  → Skipping this tool"
+                  continue
+                fi
+                
                 TARGET_FILE="$TARGET_DIR/trivy-scan-results.json"
                 
                 echo "  → Tool: $TOOL_NAME"
