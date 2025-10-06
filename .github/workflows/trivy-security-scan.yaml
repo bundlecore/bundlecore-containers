@@ -1077,8 +1077,208 @@ jobs:
           echo "🎯 These artifacts will be available for reuse in future runs"
           echo "💾 Retention: 30 days (scan results), 90 days (organized results)"
 
-      - name: Create Pull Request with scan results
+      - name: Analyze changes and determine PR necessity
+        id: analyze-changes
         if: steps.organize-results.outputs.tool-count > 0
+        run: |
+          echo "Analyzing scan results for meaningful changes..."
+
+          ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
+          CHANGES_DETECTED=false
+          TOTAL_TOOLS=0
+          TOOLS_WITH_CHANGES=0
+          CHANGE_SUMMARY=""
+
+          # Function to normalize JSON for comparison (strips metadata)
+          normalize_for_comparison() {
+            local input_file="$1"
+            jq 'del(.scan_timestamp, .workflow_run_id) | 
+                if .Metadata then .Metadata |= del(.ImageID) else . end |
+                if .Results then .Results |= sort_by(.Target) else . end |
+                if .Results then .Results[] |= if .Vulnerabilities then .Vulnerabilities |= sort_by(.VulnerabilityID) else . end else . end' "$input_file" 2>/dev/null || echo "{}"
+          }
+
+          # Function to count vulnerabilities by severity
+          count_vulnerabilities() {
+            local input_file="$1"
+            local severity="$2"
+            jq -r --arg severity "$severity" '
+              [.Results[]?.Vulnerabilities[]? | select(.Severity == $severity)] | length
+            ' "$input_file" 2>/dev/null || echo "0"
+          }
+
+          # Function to extract vulnerability IDs
+          extract_vuln_ids() {
+            local input_file="$1"
+            jq -r '.Results[]?.Vulnerabilities[]?.VulnerabilityID // empty' "$input_file" 2>/dev/null | sort | uniq
+          }
+
+          echo "🔍 Checking each tool for meaningful changes..."
+          echo ""
+
+          if [ -d "$ORGANIZED_DIR" ]; then
+            for tool_dir in "$ORGANIZED_DIR"/*; do
+              if [ -d "$tool_dir" ]; then
+                TOOL_NAME=$(basename "$tool_dir")
+                TOTAL_TOOLS=$((TOTAL_TOOLS + 1))
+                
+                echo "Analyzing tool: $TOOL_NAME"
+                
+                CURRENT_RESULT="$tool_dir/trivy-scan-results.json"
+                
+                if [ -f "$CURRENT_RESULT" ]; then
+                  # Try to get previous version from git
+                  PREVIOUS_RESULT=""
+                  TARGET_PATH="bfx/$TOOL_NAME/trivy-scan-results.json"
+                  
+                  # Check if file exists in git history
+                  if git ls-files --error-unmatch "$TARGET_PATH" >/dev/null 2>&1; then
+                    echo "  → Found previous results in git history"
+                    PREVIOUS_RESULT=$(mktemp)
+                    git show HEAD:"$TARGET_PATH" > "$PREVIOUS_RESULT" 2>/dev/null || rm -f "$PREVIOUS_RESULT"
+                  else
+                    echo "  → No previous results found (new tool)"
+                  fi
+                  
+                  if [ -f "$PREVIOUS_RESULT" ]; then
+                    # Normalize both files for comparison
+                    CURRENT_NORMALIZED=$(mktemp)
+                    PREVIOUS_NORMALIZED=$(mktemp)
+                    
+                    normalize_for_comparison "$CURRENT_RESULT" > "$CURRENT_NORMALIZED"
+                    normalize_for_comparison "$PREVIOUS_RESULT" > "$PREVIOUS_NORMALIZED"
+                    
+                    # Compare normalized content
+                    if ! diff -q "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" >/dev/null 2>&1; then
+                      echo "  ✓ Meaningful changes detected"
+                      CHANGES_DETECTED=true
+                      TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
+                      
+                      # Analyze specific changes
+                      CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
+                      CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
+                      PREVIOUS_CRITICAL=$(count_vulnerabilities "$PREVIOUS_RESULT" "CRITICAL")
+                      PREVIOUS_HIGH=$(count_vulnerabilities "$PREVIOUS_RESULT" "HIGH")
+                      
+                      echo "    → CRITICAL: $PREVIOUS_CRITICAL → $CURRENT_CRITICAL"
+                      echo "    → HIGH: $PREVIOUS_HIGH → $CURRENT_HIGH"
+                      
+                      # Build change summary
+                      TOOL_CHANGES=""
+                      if [ "$CURRENT_CRITICAL" -ne "$PREVIOUS_CRITICAL" ]; then
+                        CRITICAL_DIFF=$((CURRENT_CRITICAL - PREVIOUS_CRITICAL))
+                        if [ "$CRITICAL_DIFF" -gt 0 ]; then
+                          TOOL_CHANGES="$TOOL_CHANGES+$CRITICAL_DIFF CRITICAL"
+                        else
+                          TOOL_CHANGES="$TOOL_CHANGES$CRITICAL_DIFF CRITICAL"
+                        fi
+                      fi
+                      
+                      if [ "$CURRENT_HIGH" -ne "$PREVIOUS_HIGH" ]; then
+                        HIGH_DIFF=$((CURRENT_HIGH - PREVIOUS_HIGH))
+                        if [ -n "$TOOL_CHANGES" ]; then
+                          TOOL_CHANGES="$TOOL_CHANGES, "
+                        fi
+                        if [ "$HIGH_DIFF" -gt 0 ]; then
+                          TOOL_CHANGES="$TOOL_CHANGES+$HIGH_DIFF HIGH"
+                        else
+                          TOOL_CHANGES="$TOOL_CHANGES$HIGH_DIFF HIGH"
+                        fi
+                      fi
+                      
+                      if [ -n "$TOOL_CHANGES" ]; then
+                        if [ -n "$CHANGE_SUMMARY" ]; then
+                          CHANGE_SUMMARY="$CHANGE_SUMMARY; "
+                        fi
+                        CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $TOOL_CHANGES"
+                      else
+                        # Check for new/removed vulnerabilities
+                        CURRENT_VULNS=$(mktemp)
+                        PREVIOUS_VULNS=$(mktemp)
+                        extract_vuln_ids "$CURRENT_RESULT" > "$CURRENT_VULNS"
+                        extract_vuln_ids "$PREVIOUS_RESULT" > "$PREVIOUS_VULNS"
+                        
+                        NEW_VULNS=$(comm -13 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
+                        REMOVED_VULNS=$(comm -23 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
+                        
+                        if [ "$NEW_VULNS" -gt 0 ] || [ "$REMOVED_VULNS" -gt 0 ]; then
+                          if [ -n "$CHANGE_SUMMARY" ]; then
+                            CHANGE_SUMMARY="$CHANGE_SUMMARY; "
+                          fi
+                          CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $NEW_VULNS new, $REMOVED_VULNS resolved"
+                        fi
+                        
+                        rm -f "$CURRENT_VULNS" "$PREVIOUS_VULNS"
+                      fi
+                    else
+                      echo "  → No meaningful changes (only metadata updated)"
+                    fi
+                    
+                    # Cleanup temp files
+                    rm -f "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" "$PREVIOUS_RESULT"
+                  else
+                    echo "  ✓ New tool detected (will create PR)"
+                    CHANGES_DETECTED=true
+                    TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
+                    
+                    CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
+                    CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
+                    
+                    if [ -n "$CHANGE_SUMMARY" ]; then
+                      CHANGE_SUMMARY="$CHANGE_SUMMARY; "
+                    fi
+                    CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: NEW ($CURRENT_CRITICAL CRITICAL, $CURRENT_HIGH HIGH)"
+                  fi
+                else
+                  echo "  ⚠ No scan results found for $TOOL_NAME"
+                fi
+                echo ""
+              fi
+            done
+          fi
+
+          echo "📊 Change Analysis Summary:"
+          echo "=========================="
+          echo "  → Total tools analyzed: $TOTAL_TOOLS"
+          echo "  → Tools with changes: $TOOLS_WITH_CHANGES"
+          echo "  → Meaningful changes detected: $CHANGES_DETECTED"
+
+          if [ "$CHANGES_DETECTED" = "true" ]; then
+            echo "  → Change summary: $CHANGE_SUMMARY"
+            echo ""
+            echo "✅ Will create PR with meaningful changes"
+          else
+            echo ""
+            echo "⏭ Skipping PR creation - no meaningful changes detected"
+            echo "   (Only metadata like timestamps/run IDs changed)"
+          fi
+
+          # Set outputs
+          echo "changes-detected=$CHANGES_DETECTED" >> $GITHUB_OUTPUT
+          echo "tools-with-changes=$TOOLS_WITH_CHANGES" >> $GITHUB_OUTPUT
+          echo "change-summary=$CHANGE_SUMMARY" >> $GITHUB_OUTPUT
+
+      - name: Skip PR creation (no meaningful changes)
+        if: steps.organize-results.outputs.tool-count > 0 && steps.analyze-changes.outputs.changes-detected == 'false'
+        run: |
+          echo "🎯 Intelligent Change Detection Results:"
+          echo "========================================"
+          echo "✅ Scan completed successfully"
+          echo "✅ Results organized and uploaded as artifacts"
+          echo "⏭ PR creation skipped - no meaningful security changes detected"
+          echo ""
+          echo "📝 What this means:"
+          echo "  → All vulnerability data is identical to previous scan"
+          echo "  → Only metadata (timestamps, run IDs) changed"
+          echo "  → No new vulnerabilities introduced"
+          echo "  → No vulnerabilities resolved"
+          echo "  → No container version changes"
+          echo ""
+          echo "💾 Scan results are still available in artifacts for reference"
+          echo "🔄 Next scan will detect any actual security changes"
+
+      - name: Create Pull Request with scan results
+        if: steps.organize-results.outputs.tool-count > 0 && steps.analyze-changes.outputs.changes-detected == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -1396,9 +1596,29 @@ jobs:
             fi
           fi
 
-          # Create PR description
+          # Create PR description with change analysis
+          CHANGE_SUMMARY="${{ steps.analyze-changes.outputs.change-summary }}"
+          TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
+
           PR_BODY="## 🔒 Trivy Security Scan Results - $(date +%Y-%m-%d)
 
+          ### 📊 Change Summary
+          **$TOOLS_WITH_CHANGES** tools have meaningful security changes:
+
+          $CHANGE_SUMMARY
+
+          ### 🎯 What Changed
+          This PR contains updated security scan results with **actual vulnerability changes** (not just timestamp updates).
+
+          Only tools with meaningful changes are included:
+          - ✅ New vulnerabilities discovered
+          - ✅ Vulnerabilities resolved/fixed  
+          - ✅ Severity level changes
+          - ✅ New container versions added
+
+          Metadata-only changes (timestamps, run IDs) are ignored to reduce noise.
+
+          ### 📋 Scan Details
           This PR contains the latest security scan results from Trivy for our container images.
 
           ### 📊 Summary
@@ -1444,9 +1664,16 @@ jobs:
             echo "⚠ Pull request already exists for branch $BRANCH_NAME (PR #$EXISTING_PR)"
             echo "🔄 Updating existing pull request..."
             
-            # Update the existing PR
+            # Update the existing PR with intelligent title
+            TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
+            if [ "$TOOLS_WITH_CHANGES" -eq 1 ]; then
+              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tool - $(date +%Y-%m-%d)"
+            else
+              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tools - $(date +%Y-%m-%d)"
+            fi
+            
             if gh pr edit "$EXISTING_PR" \
-              --title "Update Trivy security scan results - $(date +%Y-%m-%d)" \
+              --title "$PR_TITLE" \
               --body "$PR_BODY"; then
               echo "✅ Pull request #$EXISTING_PR updated successfully"
               PR_IDENTIFIER="$EXISTING_PR"  # Use PR number for label operations
@@ -1456,8 +1683,15 @@ jobs:
             fi
           else
             echo "✅ Creating new pull request..."
+            TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
+            if [ "$TOOLS_WITH_CHANGES" -eq 1 ]; then
+              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tool - $(date +%Y-%m-%d)"
+            else
+              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tools - $(date +%Y-%m-%d)"
+            fi
+            
             if gh pr create \
-              --title "Update Trivy security scan results - $(date +%Y-%m-%d)" \
+              --title "$PR_TITLE" \
               --body "$PR_BODY" \
               --base main \
               --head "$BRANCH_NAME"; then
@@ -1601,6 +1835,24 @@ jobs:
             echo "  2. Check network connectivity and registry access"
             echo "  3. Verify Trivy configuration and image accessibility"
             echo "  4. If scan was interrupted, re-run workflow to resume from progress"
+          fi
+
+          echo ""
+          echo "🧠 Intelligent PR Creation Summary:"
+          echo "==================================="
+          if [ "${{ steps.organize-results.outputs.tool-count || '0' }}" -gt 0 ]; then
+            CHANGES_DETECTED="${{ steps.analyze-changes.outputs.changes-detected || 'false' }}"
+            if [ "$CHANGES_DETECTED" == "true" ]; then
+              echo "✅ PR created - meaningful security changes detected"
+              echo "   → ${{ steps.analyze-changes.outputs.tools-with-changes || '0' }} tools affected"
+              echo "   → Changes: ${{ steps.analyze-changes.outputs.change-summary || 'N/A' }}"
+            else
+              echo "⏭ PR skipped - no meaningful changes (metadata-only updates)"
+              echo "   → Scan results identical to previous run"
+              echo "   → Only timestamps and run IDs changed"
+            fi
+          else
+            echo "ℹ️ No scan results to analyze"
           fi
 
           echo ""
