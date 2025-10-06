@@ -1601,16 +1601,16 @@ jobs:
             --argjson tools_scanned "$COPIED_FILES" \
             --argjson changes_detected true \
             --argjson pr_created true \
-            --arg affected_tools "$AFFECTED_TOOLS" \
-            --arg change_types "$CHANGE_TYPES" \
+            --argjson affected_tools "$(printf '%s\n' "${AFFECTED_TOOLS[@]}" | jq -R . | jq -s .)" \
+            --argjson change_types "$(printf '%s\n' "${CHANGE_TYPES[@]}" | jq -R . | jq -s .)" \
             '{
               timestamp: $timestamp,
               run_id: $run_id,
               tools_scanned: $tools_scanned,
               changes_detected: $changes_detected,
               pr_created: $pr_created,
-              affected_tools: ($affected_tools | split(",")),
-              change_types: ($change_types | split(","))
+              affected_tools: $affected_tools,
+              change_types: $change_types
             }')
           
           # Update audit file
@@ -1624,12 +1624,10 @@ jobs:
              "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
           
           # Update tools last scanned
-          for tool in "${AFFECTED_TOOLS_ARRAY[@]}"; do
-            if [ -n "$tool" ]; then
-              jq --arg tool "$tool" --arg timestamp "$CURRENT_TIMESTAMP" \
-                 '.tools_last_scanned[$tool] = $timestamp' \
-                 "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
-            fi
+          for tool in "${AFFECTED_TOOLS[@]}"; do
+            jq --arg tool "$tool" --arg timestamp "$CURRENT_TIMESTAMP" \
+               '.tools_last_scanned[$tool] = $timestamp' \
+               "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
           done
           
           # Add audit file to commit
@@ -1638,35 +1636,33 @@ jobs:
           # Conditional PR creation logic
           echo ""
           echo "📝 Creating intelligent PR with change analysis..."
-            echo ""
-            echo "📝 Creating intelligent PR with change analysis..."
-            
-            # Generate smart PR title
-            if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
-              if [ $CRITICAL_COUNT -gt 0 ]; then
-                PR_TITLE="🚨 CRITICAL vulnerabilities detected in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
-              elif [ $HIGH_COUNT -gt 0 ]; then
-                PR_TITLE="⚠️ HIGH vulnerabilities detected in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
-              else
-                PR_TITLE="✅ Vulnerabilities resolved in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
-              fi
-            elif [[ " $CHANGE_TYPES " =~ " new-versions " ]]; then
-              PR_TITLE="📦 New container versions scanned - $(date +%Y-%m-%d)"
-            elif [[ " $CHANGE_TYPES " =~ " removed-versions " ]]; then
-              PR_TITLE="🗑️ Container versions removed - $(date +%Y-%m-%d)"
+          
+          # Generate smart PR title
+          if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
+            if [ $CRITICAL_COUNT -gt 0 ]; then
+              PR_TITLE="🚨 CRITICAL vulnerabilities detected in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
+            elif [ $HIGH_COUNT -gt 0 ]; then
+              PR_TITLE="⚠️ HIGH vulnerabilities detected in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
             else
-              PR_TITLE="🔄 Security scan results updated - $(date +%Y-%m-%d)"
+              PR_TITLE="✅ Vulnerabilities resolved in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
             fi
+          elif [[ " ${CHANGE_TYPES[*]} " =~ " new-versions " ]]; then
+            PR_TITLE="📦 New container versions scanned - $(date +%Y-%m-%d)"
+          elif [[ " ${CHANGE_TYPES[*]} " =~ " removed-versions " ]]; then
+            PR_TITLE="🗑️ Container versions removed - $(date +%Y-%m-%d)"
+          else
+            PR_TITLE="🔄 Security scan results updated - $(date +%Y-%m-%d)"
+          fi
             
-            # Generate detailed PR body
-            PR_BODY="## 🔒 Security Scan Results - $(date +%Y-%m-%d)"
-            PR_BODY="$PR_BODY"$'\n\n'"### 📊 Change Summary"
-            PR_BODY="$PR_BODY"$'\n'"- **Change Types**: $CHANGE_TYPES"
-            PR_BODY="$PR_BODY"$'\n'"- **Tools Affected**: ${#AFFECTED_TOOLS_ARRAY[@]} tools ($AFFECTED_TOOLS)"
-            PR_BODY="$PR_BODY"$'\n'"- **Details**: $CHANGE_DETAILS"
+          # Generate detailed PR body
+          PR_BODY="## 🔒 Security Scan Results - $(date +%Y-%m-%d)"
+          PR_BODY="$PR_BODY"$'\n\n'"### 📊 Change Summary"
+          PR_BODY="$PR_BODY"$'\n'"- **Change Types**: $(IFS=', '; echo "${CHANGE_TYPES[*]}")"
+          PR_BODY="$PR_BODY"$'\n'"- **Tools Affected**: ${#AFFECTED_TOOLS[@]} tools ($(IFS=', '; echo "${AFFECTED_TOOLS[*]}"))"
+          PR_BODY="$PR_BODY"$'\n'"- **Details**: $(IFS=', '; echo "${CHANGE_DETAILS[*]}")"
 
-            # Add vulnerability section if applicable
-            if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
+          # Add vulnerability section if applicable
+          if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
               PR_BODY="$PR_BODY"$'\n\n'"### 🚨 Vulnerability Changes"
               if [ $CRITICAL_COUNT -gt 0 ]; then
                 PR_BODY="$PR_BODY"$'\n'"- **CRITICAL**: +$CRITICAL_COUNT new vulnerabilities ⚠️ **Immediate action required**"
@@ -1681,24 +1677,20 @@ jobs:
               fi
             fi
             
-            # Add version changes section if applicable
-            if [ ${#NEW_VERSIONS_ARRAY[@]} -gt 0 ]; then
-              PR_BODY="$PR_BODY"$'\n\n'"### 📦 New Versions Scanned"
-              for version_info in "${NEW_VERSIONS_ARRAY[@]}"; do
-                if [ -n "$version_info" ]; then
-                  PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Added version \`${version_info#*:}\`"
-                fi
-              done
-            fi
-            
-            if [ ${#REMOVED_VERSIONS_ARRAY[@]} -gt 0 ]; then
-              PR_BODY="$PR_BODY"$'\n\n'"### 🗑️ Versions Removed"
-              for version_info in "${REMOVED_VERSIONS_ARRAY[@]}"; do
-                if [ -n "$version_info" ]; then
-                  PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Removed version \`${version_info#*:}\`"
-                fi
-              done
-            fi
+          # Add version changes section if applicable
+          if [ ${#NEW_VERSIONS[@]} -gt 0 ]; then
+            PR_BODY="$PR_BODY"$'\n\n'"### 📦 New Versions Scanned"
+            for version_info in "${NEW_VERSIONS[@]}"; do
+              PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Added version \`${version_info#*:}\`"
+            done
+          fi
+          
+          if [ ${#REMOVED_VERSIONS[@]} -gt 0 ]; then
+            PR_BODY="$PR_BODY"$'\n\n'"### 🗑️ Versions Removed"
+            for version_info in "${REMOVED_VERSIONS[@]}"; do
+              PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Removed version \`${version_info#*:}\`"
+            done
+          fi
             
             PR_BODY="$PR_BODY"$'\n\n'"### 📈 Scan Statistics"
             PR_BODY="$PR_BODY"$'\n'"- **Tools Scanned**: $COPIED_FILES"
@@ -1857,11 +1849,11 @@ jobs:
           fi
           
           # Add change-type labels
-          if [[ " $CHANGE_TYPES " =~ " new-versions " ]]; then
+          if [[ " ${CHANGE_TYPES[*]} " =~ " new-versions " ]]; then
             gh pr edit "$PR_IDENTIFIER" --add-label "new-versions" 2>/dev/null && echo "  ✓ Added 'new-versions' label" || echo "  ⚠ Could not add 'new-versions' label (label may not exist)"
           fi
           
-          if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
+          if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
             gh pr edit "$PR_IDENTIFIER" --add-label "vulnerabilities" 2>/dev/null && echo "  ✓ Added 'vulnerabilities' label" || echo "  ⚠ Could not add 'vulnerabilities' label (label may not exist)"
           fi
 
@@ -1876,8 +1868,8 @@ jobs:
           echo "✅ Audit trail updated for compliance"
           echo ""
           echo "📊 Change Analysis:"
-          echo "  → Change types: $CHANGE_TYPES"
-          echo "  → Tools affected: ${#AFFECTED_TOOLS_ARRAY[@]}"
+          echo "  → Change types: $(IFS=', '; echo "${CHANGE_TYPES[*]}")"
+          echo "  → Tools affected: ${#AFFECTED_TOOLS[@]}"
           echo "  → Vulnerability impact: $CRITICAL_COUNT CRITICAL, $HIGH_COUNT HIGH"
           echo ""
           echo "📋 Next steps:"
