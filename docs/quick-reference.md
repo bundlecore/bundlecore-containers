@@ -5,7 +5,7 @@
 ### Automatic Execution
 - **When**: First Sunday of every month at 2:00 AM UTC
 - **Duration**: ~30 seconds (with artifact reuse) or 2-3 hours (fresh scan)
-- **Output**: Pull request with security scan results
+- **Output**: Smart PR creation only for meaningful changes, comprehensive audit trail always
 
 ### Manual Execution
 ```bash
@@ -21,13 +21,37 @@ gh workflow run "Trivy Security Scan" -f debug_mode=true
 
 ## 📊 Understanding Results
 
-### PR Structure
+### Smart PR Examples
+
+#### CRITICAL Vulnerabilities Detected
 ```
-Update Trivy security scan results - 2025-01-05
-├── bfx/bcftools/trivy-scan-results.json
-├── bfx/bedtools/trivy-scan-results.json
-├── bfx/bowtie2/trivy-scan-results.json
-└── ... (21 tools total)
+🚨 CRITICAL vulnerabilities detected in 3 tools - 2025-01-05
+├── bfx/bcftools/trivy-scan-results.json (1 CRITICAL)
+├── bfx/bedtools/trivy-scan-results.json (2 CRITICAL)
+├── bfx/bowtie2/trivy-scan-results.json (1 HIGH)
+└── .github/security-scan-audit.json (updated)
+
+Labels: critical, urgent, vulnerabilities, security, automated
+Assigned: @gkr0110
+```
+
+#### New Versions Scanned
+```
+📦 New container versions scanned - 2025-01-05
+├── bfx/bowtie2/trivy-scan-results.json (added v2.5.1)
+├── bfx/gatk4/trivy-scan-results.json (added v4.5.0)
+└── .github/security-scan-audit.json (updated)
+
+Labels: new-versions, security, automated
+Assigned: @gkr0110
+```
+
+#### No PR Created (Metadata Only)
+```
+No PR created - only metadata changes detected
+└── .github/security-scan-audit.json (scan recorded)
+
+Audit trail updated, compliance maintained
 ```
 
 ### JSON Result Format
@@ -102,7 +126,9 @@ gh workflow run "Trivy Security Scan" -f force_fresh_scan=true
 | Scan timeouts | `✗ Scan failed - timeout` | Images too large, check network connectivity |
 | Directory mismatch | `✗ No matching directory found` | Verify bfx/ directory structure |
 | Branch conflicts | `✗ Failed to push branch` | Workflow handles automatically with force-push |
-| PR exists | `⚠ Pull request already exists` | Workflow updates existing PR |
+| PR exists | `⚠ Pull request already exists` | Workflow updates existing PR intelligently |
+| No PR created | `⏭ No PR creation needed` | Normal behavior - only metadata changed |
+| Change detection failed | `✗ Failed to analyze changes` | Check JSON format and git history |
 
 ### Debug Commands
 ```bash
@@ -119,16 +145,61 @@ gh run view <run-id> --log
 ## 📋 Maintenance Tasks
 
 ### Monthly Review
-- [ ] Check PR for new CRITICAL vulnerabilities
-- [ ] Review scan coverage (all tools included?)
-- [ ] Verify artifact cleanup (old artifacts removed?)
+- [ ] Check PRs for new CRITICAL vulnerabilities (if any created)
+- [ ] Review audit trail in `.github/security-scan-audit.json`
+- [ ] Verify scan coverage (all tools included?)
 - [ ] Update container images with security patches
+- [ ] Confirm @gkr0110 assignment is working
 
 ### Quarterly Review
-- [ ] Review workflow performance metrics
+- [ ] Review workflow performance metrics from audit trail
+- [ ] Analyze PR creation patterns (noise vs signal ratio)
 - [ ] Update Trivy version if needed
 - [ ] Check for new tools to include in scanning
 - [ ] Validate directory structure matches container naming
+- [ ] Review change detection accuracy
+
+### Audit Trail Monitoring
+- [ ] Verify scans are running monthly (check `last_scan_timestamp`)
+- [ ] Review `scan_history` for success rates
+- [ ] Monitor `tools_last_scanned` for coverage gaps
+- [ ] Check `changes_detected` vs `pr_created` ratios
+
+## 🧠 Intelligent Features
+
+### Change Detection Logic
+```bash
+# PR Created For:
+✅ New CRITICAL vulnerabilities
+✅ New HIGH vulnerabilities  
+✅ Vulnerabilities resolved
+✅ New container versions
+✅ Removed container versions
+
+# PR NOT Created For:
+❌ Only timestamp changes
+❌ Only workflow run ID changes
+❌ Identical vulnerability data
+❌ No version changes
+```
+
+### Smart PR Titles
+- `🚨 CRITICAL vulnerabilities detected in 3 tools`
+- `⚠️ HIGH vulnerabilities detected in 2 tools`
+- `📦 New container versions scanned: bowtie2 v2.5.1`
+- `✅ Vulnerabilities resolved in 4 tools`
+- `🗑️ Container versions removed`
+
+### Intelligent Labels
+- **Severity**: `critical`, `urgent`, `high-priority`
+- **Change Type**: `vulnerabilities`, `new-versions`
+- **Standard**: `security`, `automated`, `trivy-scan`
+
+### Audit Trail Benefits
+- **Compliance**: Proof of regular scanning
+- **History**: Complete scan activity record
+- **Metrics**: Success rates and performance data
+- **Coverage**: Tool-level scan verification
 
 ## 🔐 Security Best Practices
 

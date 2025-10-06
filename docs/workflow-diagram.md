@@ -84,23 +84,37 @@ flowchart TD
     SkipTool --> MoreTools
     
     MoreTools -->|Yes| CopyToTools
-    MoreTools -->|No| CommitChanges[Git Commit Changes]
+    MoreTools -->|No| ChangeDetection[🧠 Intelligent Change Detection<br/>Analyze Content vs Metadata]
+    
+    ChangeDetection --> CompareContent[Compare Normalized Content<br/>Exclude Timestamps & Run IDs]
+    CompareContent --> AnalyzeChanges[Analyze Vulnerability Changes<br/>Count CRITICAL/HIGH Changes]
+    AnalyzeChanges --> CheckVersions[Check Version Changes<br/>New/Removed Containers]
+    
+    CheckVersions --> MeaningfulChanges{Meaningful<br/>Changes?}
+    
+    MeaningfulChanges -->|Yes| CommitChanges[Git Commit Changes<br/>+ Update Audit Trail]
+    MeaningfulChanges -->|No| AuditOnly[Update Audit Trail Only<br/>No PR Creation]
+    
+    AuditOnly --> AuditCommit[Commit Audit Trail<br/>Push to Branch]
+    AuditCommit --> NoProSuccess[✅ Workflow Success<br/>No PR Created]
     
     CommitChanges --> PushBranch[Push Branch<br/>Handle Conflicts]
-    PushBranch --> PRExists{PR Exists?}
+    PushBranch --> GenerateSmartPR[Generate Smart PR<br/>Title & Description]
     
-    PRExists -->|Yes| UpdatePR[Update Existing PR<br/>with New Results]
-    PRExists -->|No| CreateNewPR[Create New PR<br/>with Scan Results]
+    GenerateSmartPR --> PRExists{PR Exists?}
     
-    UpdatePR --> AddLabels[Attempt to Add Labels<br/>security, automated, trivy-scan]
-    CreateNewPR --> AddLabels
+    PRExists -->|Yes| UpdatePR[Update Existing PR<br/>Smart Title & Content]
+    PRExists -->|No| CreateNewPR[Create New PR<br/>Assign to @gkr0110]
     
-    AddLabels --> LabelResult{Labels Added?}
-    LabelResult -->|Success| LabelsOK[✅ Labels Added]
-    LabelResult -->|Failed| LabelsSkip[⚠️ Labels Skipped<br/>Continue Anyway]
+    UpdatePR --> SmartLabels[Add Intelligent Labels<br/>Based on Change Types]
+    CreateNewPR --> SmartLabels
     
-    LabelsOK --> Success[🎉 Workflow Success]
-    LabelsSkip --> Success
+    SmartLabels --> SeverityLabels[Add Severity Labels<br/>critical, urgent, high-priority]
+    SeverityLabels --> ChangeLabels[Add Change Labels<br/>vulnerabilities, new-versions]
+    
+    ChangeLabels --> Success[🎉 Workflow Success<br/>Smart PR Created]
+    NoProSuccess --> End([Workflow Complete])
+    Success --> End
     
     Success --> Summary[Display Summary<br/>- Tools Scanned<br/>- PR Created<br/>- Artifacts Saved]
     
@@ -117,6 +131,65 @@ flowchart TD
     class NoImages errorClass
     class CheckRecent,SecurityScan,TrivyScan,OrganizeResults,CreatePR processClass
     class RecentFound,PartialFound,ImageCount,ReuseCheck,ScanResult,MoreImages,MoreTools,BranchExists,MatchFound,PRExists,LabelResult decisionClass
+```
+
+## Intelligent Change Detection Flow
+
+```mermaid
+flowchart TD
+    Start[Scan Results Ready] --> NormalizeContent[Normalize JSON Content<br/>Remove Metadata]
+    
+    NormalizeContent --> ExtractOld[Extract Old Content<br/>from main branch]
+    ExtractOld --> ExtractNew[Extract New Content<br/>from current scan]
+    
+    ExtractNew --> CompareContent{Content<br/>Identical?}
+    
+    CompareContent -->|Yes| NoChanges[No Meaningful Changes<br/>Metadata Only]
+    CompareContent -->|No| AnalyzeChanges[Analyze Change Types]
+    
+    AnalyzeChanges --> CheckVulns[Check Vulnerability Changes<br/>CRITICAL vs HIGH counts]
+    CheckVulns --> CheckVersions[Check Version Changes<br/>New/Removed containers]
+    CheckVersions --> CheckTools[Identify Affected Tools]
+    
+    CheckTools --> ClassifyChanges[Classify Change Severity]
+    
+    ClassifyChanges --> CriticalFound{CRITICAL<br/>Changes?}
+    CriticalFound -->|Yes| UrgentPR[🚨 Create URGENT PR<br/>critical + urgent labels]
+    CriticalFound -->|No| HighFound{HIGH<br/>Changes?}
+    
+    HighFound -->|Yes| HighPriorityPR[⚠️ Create HIGH Priority PR<br/>high-priority label]
+    HighFound -->|No| VersionChanges{Version<br/>Changes?}
+    
+    VersionChanges -->|Yes| VersionPR[📦 Create Version PR<br/>new-versions label]
+    VersionChanges -->|No| ResolvedVulns{Vulnerabilities<br/>Resolved?}
+    
+    ResolvedVulns -->|Yes| ResolvedPR[✅ Create Resolution PR<br/>vulnerabilities label]
+    ResolvedVulns -->|No| NoChanges
+    
+    NoChanges --> UpdateAudit[Update Audit Trail<br/>Record Scan Activity]
+    UpdateAudit --> NoProResult[⏭️ No PR Created<br/>Audit Trail Updated]
+    
+    UrgentPR --> AssignPR[Auto-assign to @gkr0110<br/>Add Smart Labels]
+    HighPriorityPR --> AssignPR
+    VersionPR --> AssignPR
+    ResolvedPR --> AssignPR
+    
+    AssignPR --> SmartTitle[Generate Smart Title<br/>Based on Changes]
+    SmartTitle --> DetailedBody[Generate Detailed Body<br/>Impact Analysis]
+    DetailedBody --> PRCreated[✅ Smart PR Created]
+    
+    %% Styling
+    classDef urgentClass fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef highClass fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef versionClass fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef noChangeClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef successClass fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    
+    class UrgentPR urgentClass
+    class HighPriorityPR highClass
+    class VersionPR,ResolvedPR versionClass
+    class NoChanges,NoProResult noChangeClass
+    class PRCreated,AssignPR,SmartTitle,DetailedBody successClass
 ```
 
 ## Artifact Flow Diagram
