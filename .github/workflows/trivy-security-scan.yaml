@@ -1077,10 +1077,9 @@ jobs:
           echo "🎯 These artifacts will be available for reuse in future runs"
           echo "💾 Retention: 30 days (scan results), 90 days (organized results)"
 
-      - name: Create Pull Request with scan results
+      - name: Analyze changes for intelligent PR creation
         if: steps.organize-results.outputs.tool-count > 0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: analyze-changes
         run: |
           echo "Creating Pull Request with organized scan results..."
 
@@ -1510,6 +1509,27 @@ jobs:
             CREATE_PR=false
           fi
 
+          # Set outputs for next steps
+          echo "create-pr=$CREATE_PR" >> $GITHUB_OUTPUT
+          echo "critical-count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+          echo "high-count=$HIGH_COUNT" >> $GITHUB_OUTPUT
+          echo "affected-tools=$(IFS=','; echo "${AFFECTED_TOOLS[*]}")" >> $GITHUB_OUTPUT
+          echo "change-types=$(IFS=','; echo "${CHANGE_TYPES[*]}")" >> $GITHUB_OUTPUT
+          echo "change-details=$(IFS=','; echo "${CHANGE_DETAILS[*]}")" >> $GITHUB_OUTPUT
+          echo "new-versions=$(IFS=','; echo "${NEW_VERSIONS[*]}")" >> $GITHUB_OUTPUT
+          echo "removed-versions=$(IFS=','; echo "${REMOVED_VERSIONS[*]}")" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.organize-results.outputs.tool-count > 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
+          TOOL_COUNT="${{ steps.organize-results.outputs.tool-count }}"
+          BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
+          COPIED_FILES="${{ steps.organize-results.outputs.tool-count }}"
+          CREATE_PR="${{ steps.analyze-changes.outputs.create-pr }}"
+
           # Commit changes (always commit for audit trail)
           echo ""
           echo "💾 Committing changes for audit trail..."
@@ -1537,6 +1557,33 @@ jobs:
             fi
           fi
 
+
+          
+      - name: Create intelligent pull request
+        if: steps.analyze-changes.outputs.create-pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
+          BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
+          COPIED_FILES="${{ steps.organize-results.outputs.tool-count }}"
+          
+          # Get change analysis results
+          CRITICAL_COUNT="${{ steps.analyze-changes.outputs.critical-count }}"
+          HIGH_COUNT="${{ steps.analyze-changes.outputs.high-count }}"
+          AFFECTED_TOOLS="${{ steps.analyze-changes.outputs.affected-tools }}"
+          CHANGE_TYPES="${{ steps.analyze-changes.outputs.change-types }}"
+          CHANGE_DETAILS="${{ steps.analyze-changes.outputs.change-details }}"
+          NEW_VERSIONS="${{ steps.analyze-changes.outputs.new-versions }}"
+          REMOVED_VERSIONS="${{ steps.analyze-changes.outputs.removed-versions }}"
+          
+          # Convert comma-separated strings back to arrays
+          IFS=',' read -ra AFFECTED_TOOLS_ARRAY <<< "$AFFECTED_TOOLS"
+          IFS=',' read -ra CHANGE_TYPES_ARRAY <<< "$CHANGE_TYPES"
+          IFS=',' read -ra CHANGE_DETAILS_ARRAY <<< "$CHANGE_DETAILS"
+          IFS=',' read -ra NEW_VERSIONS_ARRAY <<< "$NEW_VERSIONS"
+          IFS=',' read -ra REMOVED_VERSIONS_ARRAY <<< "$REMOVED_VERSIONS"
+
           # Update audit trail
           echo "📝 Updating security scan audit trail..."
           AUDIT_FILE=".github/security-scan-audit.json"
@@ -1552,18 +1599,18 @@ jobs:
             --arg timestamp "$CURRENT_TIMESTAMP" \
             --arg run_id "${{ github.run_id }}" \
             --argjson tools_scanned "$COPIED_FILES" \
-            --argjson changes_detected "$CREATE_PR" \
-            --argjson pr_created "$CREATE_PR" \
-            --argjson affected_tools "$(printf '%s\n' "${AFFECTED_TOOLS[@]}" | jq -R . | jq -s .)" \
-            --argjson change_types "$(printf '%s\n' "${CHANGE_TYPES[@]}" | jq -R . | jq -s .)" \
+            --argjson changes_detected true \
+            --argjson pr_created true \
+            --arg affected_tools "$AFFECTED_TOOLS" \
+            --arg change_types "$CHANGE_TYPES" \
             '{
               timestamp: $timestamp,
               run_id: $run_id,
               tools_scanned: $tools_scanned,
               changes_detected: $changes_detected,
               pr_created: $pr_created,
-              affected_tools: $affected_tools,
-              change_types: $change_types
+              affected_tools: ($affected_tools | split(",")),
+              change_types: ($change_types | split(","))
             }')
           
           # Update audit file
@@ -1577,32 +1624,35 @@ jobs:
              "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
           
           # Update tools last scanned
-          for tool in "${AFFECTED_TOOLS[@]}"; do
-            jq --arg tool "$tool" --arg timestamp "$CURRENT_TIMESTAMP" \
-               '.tools_last_scanned[$tool] = $timestamp' \
-               "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
+          for tool in "${AFFECTED_TOOLS_ARRAY[@]}"; do
+            if [ -n "$tool" ]; then
+              jq --arg tool "$tool" --arg timestamp "$CURRENT_TIMESTAMP" \
+                 '.tools_last_scanned[$tool] = $timestamp' \
+                 "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
+            fi
           done
           
           # Add audit file to commit
           git add "$AUDIT_FILE"
           
-          # Conditional PR creation
-          if [ "$CREATE_PR" = true ]; then
+          # Conditional PR creation logic
+          echo ""
+          echo "📝 Creating intelligent PR with change analysis..."
             echo ""
             echo "📝 Creating intelligent PR with change analysis..."
             
             # Generate smart PR title
-            if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
+            if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
               if [ $CRITICAL_COUNT -gt 0 ]; then
-                PR_TITLE="🚨 CRITICAL vulnerabilities detected in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
+                PR_TITLE="🚨 CRITICAL vulnerabilities detected in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
               elif [ $HIGH_COUNT -gt 0 ]; then
-                PR_TITLE="⚠️ HIGH vulnerabilities detected in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
+                PR_TITLE="⚠️ HIGH vulnerabilities detected in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
               else
-                PR_TITLE="✅ Vulnerabilities resolved in ${#AFFECTED_TOOLS[@]} tools - $(date +%Y-%m-%d)"
+                PR_TITLE="✅ Vulnerabilities resolved in ${#AFFECTED_TOOLS_ARRAY[@]} tools - $(date +%Y-%m-%d)"
               fi
-            elif [[ " ${CHANGE_TYPES[*]} " =~ " new-versions " ]]; then
+            elif [[ " $CHANGE_TYPES " =~ " new-versions " ]]; then
               PR_TITLE="📦 New container versions scanned - $(date +%Y-%m-%d)"
-            elif [[ " ${CHANGE_TYPES[*]} " =~ " removed-versions " ]]; then
+            elif [[ " $CHANGE_TYPES " =~ " removed-versions " ]]; then
               PR_TITLE="🗑️ Container versions removed - $(date +%Y-%m-%d)"
             else
               PR_TITLE="🔄 Security scan results updated - $(date +%Y-%m-%d)"
@@ -1611,12 +1661,12 @@ jobs:
             # Generate detailed PR body
             PR_BODY="## 🔒 Security Scan Results - $(date +%Y-%m-%d)"
             PR_BODY="$PR_BODY"$'\n\n'"### 📊 Change Summary"
-            PR_BODY="$PR_BODY"$'\n'"- **Change Types**: $(IFS=', '; echo "${CHANGE_TYPES[*]}")"
-            PR_BODY="$PR_BODY"$'\n'"- **Tools Affected**: ${#AFFECTED_TOOLS[@]} tools ($(IFS=', '; echo "${AFFECTED_TOOLS[*]}"))"
-            PR_BODY="$PR_BODY"$'\n'"- **Details**: $(IFS=', '; echo "${CHANGE_DETAILS[*]}")"
+            PR_BODY="$PR_BODY"$'\n'"- **Change Types**: $CHANGE_TYPES"
+            PR_BODY="$PR_BODY"$'\n'"- **Tools Affected**: ${#AFFECTED_TOOLS_ARRAY[@]} tools ($AFFECTED_TOOLS)"
+            PR_BODY="$PR_BODY"$'\n'"- **Details**: $CHANGE_DETAILS"
 
             # Add vulnerability section if applicable
-            if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
+            if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
               PR_BODY="$PR_BODY"$'\n\n'"### 🚨 Vulnerability Changes"
               if [ $CRITICAL_COUNT -gt 0 ]; then
                 PR_BODY="$PR_BODY"$'\n'"- **CRITICAL**: +$CRITICAL_COUNT new vulnerabilities ⚠️ **Immediate action required**"
@@ -1632,17 +1682,21 @@ jobs:
             fi
             
             # Add version changes section if applicable
-            if [ ${#NEW_VERSIONS[@]} -gt 0 ]; then
+            if [ ${#NEW_VERSIONS_ARRAY[@]} -gt 0 ]; then
               PR_BODY="$PR_BODY"$'\n\n'"### 📦 New Versions Scanned"
-              for version_info in "${NEW_VERSIONS[@]}"; do
-                PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Added version \`${version_info#*:}\`"
+              for version_info in "${NEW_VERSIONS_ARRAY[@]}"; do
+                if [ -n "$version_info" ]; then
+                  PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Added version \`${version_info#*:}\`"
+                fi
               done
             fi
             
-            if [ ${#REMOVED_VERSIONS[@]} -gt 0 ]; then
+            if [ ${#REMOVED_VERSIONS_ARRAY[@]} -gt 0 ]; then
               PR_BODY="$PR_BODY"$'\n\n'"### 🗑️ Versions Removed"
-              for version_info in "${REMOVED_VERSIONS[@]}"; do
-                PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Removed version \`${version_info#*:}\`"
+              for version_info in "${REMOVED_VERSIONS_ARRAY[@]}"; do
+                if [ -n "$version_info" ]; then
+                  PR_BODY="$PR_BODY"$'\n'"- **${version_info%:*}**: Removed version \`${version_info#*:}\`"
+                fi
               done
             fi
             
@@ -1684,27 +1738,70 @@ jobs:
             echo "  → Audit trail: Updated with scan timestamp"
             echo "  → Next scan: Will reuse these results if no changes"
             
-            # Still need to commit the audit trail
-            COMMIT_MSG="Update security scan audit trail - $(date +%Y-%m-%d)"$'\n\n'"- Scanned $COPIED_FILES tools successfully"$'\n'"- No vulnerability changes detected (metadata only)"$'\n'"- Updated audit trail with scan timestamp"$'\n'"- Automated scan performed by Trivy Security Scan workflow"
-            git commit --amend -m "$COMMIT_MSG"
-            
-            # Push the audit trail update
-            if git push origin "$BRANCH_NAME" 2>/dev/null; then
-              echo "✅ Audit trail pushed successfully"
-            else
-              git push --force-with-lease origin "$BRANCH_NAME"
-              echo "✅ Audit trail force-pushed successfully"
-            fi
-            
-            echo ""
-            echo "🎉 Workflow completed successfully without PR"
-            echo "✅ All scan results preserved in artifacts"
-            echo "📝 Audit trail maintained for compliance"
-            exit 0
+      - name: Handle no PR creation case
+        if: steps.analyze-changes.outputs.create-pr == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
+          COPIED_FILES="${{ steps.organize-results.outputs.tool-count }}"
+          
+          # Update audit trail for no-PR case
+          echo "📝 Updating security scan audit trail..."
+          AUDIT_FILE=".github/security-scan-audit.json"
+          CURRENT_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          # Create or update audit trail
+          if [ ! -f "$AUDIT_FILE" ]; then
+            echo '{"scan_history": [], "tools_last_scanned": {}}' > "$AUDIT_FILE"
           fi
-
-          # Create PR description (only reached if CREATE_PR=true)
-          echo "Using PR title: $PR_TITLE"
+          
+          # Add current scan to history
+          SCAN_ENTRY=$(jq -n \
+            --arg timestamp "$CURRENT_TIMESTAMP" \
+            --arg run_id "${{ github.run_id }}" \
+            --argjson tools_scanned "$COPIED_FILES" \
+            --argjson changes_detected false \
+            --argjson pr_created false \
+            '{
+              timestamp: $timestamp,
+              run_id: $run_id,
+              tools_scanned: $tools_scanned,
+              changes_detected: $changes_detected,
+              pr_created: $pr_created,
+              affected_tools: [],
+              change_types: []
+            }')
+          
+          # Update audit file
+          jq --argjson entry "$SCAN_ENTRY" \
+             --arg timestamp "$CURRENT_TIMESTAMP" \
+             --arg run_id "${{ github.run_id }}" \
+             '.last_scan_timestamp = $timestamp |
+              .last_scan_run_id = $run_id |
+              .scan_history += [$entry] |
+              .scan_history = (.scan_history | sort_by(.timestamp) | .[-50:])' \
+             "$AUDIT_FILE" > "${AUDIT_FILE}.tmp" && mv "${AUDIT_FILE}.tmp" "$AUDIT_FILE"
+          
+          # Add audit file to commit
+          git add "$AUDIT_FILE"
+          
+          # Still need to commit the audit trail
+          COMMIT_MSG="Update security scan audit trail - $(date +%Y-%m-%d)"$'\n\n'"- Scanned $COPIED_FILES tools successfully"$'\n'"- No vulnerability changes detected (metadata only)"$'\n'"- Updated audit trail with scan timestamp"$'\n'"- Automated scan performed by Trivy Security Scan workflow"
+          git commit --amend -m "$COMMIT_MSG"
+          
+          # Push the audit trail update
+          if git push origin "$BRANCH_NAME" 2>/dev/null; then
+            echo "✅ Audit trail pushed successfully"
+          else
+            git push --force-with-lease origin "$BRANCH_NAME"
+            echo "✅ Audit trail force-pushed successfully"
+          fi
+          
+          echo ""
+          echo "🎉 Workflow completed successfully without PR"
+          echo "✅ All scan results preserved in artifacts"
+          echo "📝 Audit trail maintained for compliance"
 
           # Create or update pull request
           echo "📝 Creating or updating pull request..."
@@ -1760,11 +1857,11 @@ jobs:
           fi
           
           # Add change-type labels
-          if [[ " ${CHANGE_TYPES[*]} " =~ " new-versions " ]]; then
+          if [[ " $CHANGE_TYPES " =~ " new-versions " ]]; then
             gh pr edit "$PR_IDENTIFIER" --add-label "new-versions" 2>/dev/null && echo "  ✓ Added 'new-versions' label" || echo "  ⚠ Could not add 'new-versions' label (label may not exist)"
           fi
           
-          if [[ " ${CHANGE_TYPES[*]} " =~ " vulnerabilities " ]]; then
+          if [[ " $CHANGE_TYPES " =~ " vulnerabilities " ]]; then
             gh pr edit "$PR_IDENTIFIER" --add-label "vulnerabilities" 2>/dev/null && echo "  ✓ Added 'vulnerabilities' label" || echo "  ⚠ Could not add 'vulnerabilities' label (label may not exist)"
           fi
 
@@ -1779,8 +1876,8 @@ jobs:
           echo "✅ Audit trail updated for compliance"
           echo ""
           echo "📊 Change Analysis:"
-          echo "  → Change types: $(IFS=', '; echo "${CHANGE_TYPES[*]}")"
-          echo "  → Tools affected: ${#AFFECTED_TOOLS[@]}"
+          echo "  → Change types: $CHANGE_TYPES"
+          echo "  → Tools affected: ${#AFFECTED_TOOLS_ARRAY[@]}"
           echo "  → Vulnerability impact: $CRITICAL_COUNT CRITICAL, $HIGH_COUNT HIGH"
           echo ""
           echo "📋 Next steps:"
