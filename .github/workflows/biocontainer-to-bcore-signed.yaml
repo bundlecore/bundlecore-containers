@@ -49,7 +49,9 @@ jobs:
             fi
             images=$(jq -r '.images[]' "$release_json")
             for img in $images; do
-              tag="${img##*:}"
+                tag="${img##*:}"
+                # remove everything after '--' (e.g. '1.21--h3a4d415_1' -> '1.21')
+                tag="${tag%%--*}"
               dest="ghcr.io/${GHCR_ORG}/products/${PROD_DOMAIN}/${slug}:${tag}"
               if docker manifest inspect "$dest" > /dev/null 2>&1; then
               echo "Image $dest already exists, skipping"
