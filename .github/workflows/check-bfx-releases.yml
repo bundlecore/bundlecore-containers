@@ -35,6 +35,9 @@ jobs:
                 git config --global user.name 'github-actions'
                 git config --global user.email 'github-actions@github.com'
 
+                # Store the current branch name
+                CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
                 check_quay_tags() {
                     local image_name=$1
                     curl -s "https://quay.io/api/v1/repository/${image_name}/tag/?limit=3&onlyActiveTags=true&orderBy=last_modified" || return 1
@@ -141,10 +144,12 @@ jobs:
                                 --title "Update container version for $tool_name" \
                                 --body "Updates the container version for $tool_name to match the latest release ($latest_git_tag)." \
                                 --base main \
-                                --head "$branch_name"
+                                --head "$branch_name" \
+                                --reviewer "gkr0110,vipin-bc" \
+                                --label "automated,new tool version"
 
-                            # Return to main branch
-                            git checkout main
+                            # Return to original branch
+                            git checkout "$CURRENT_BRANCH"
                             echo "Created PR for $tool_name"
                         else
                             echo "No matching Quay tag found for git tag $latest_git_tag"
