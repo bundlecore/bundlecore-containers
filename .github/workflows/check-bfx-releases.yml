@@ -11,7 +11,7 @@ jobs:
         permissions:
           contents: write
           pull-requests: write
-        
+          
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
@@ -145,8 +145,8 @@ jobs:
                                 --body "Updates the container version for $tool_name to match the latest Git release ($latest_git_tag)." \
                                 --base main \
                                 --head "$branch_name"
-                            gh pr edit "$branch_name" --add-reviewer gkr0110,vipin-bc
-                            gh pr edit "$branch_name" --add-label "automated,new tool version" 
+                            gh pr edit "$branch_name" --add-reviewer gkr0110,vipin-bc 2>/dev/null && echo "  ✓ Added reviewer gkr0110,vipin-bc" || echo "  ⚠ Could not add reviewer (missing permissions or reviewer may not exist)"
+                            gh pr edit "$branch_name" --add-label "automated,new tool version" 2>/dev/null && echo "  ✓ Added labels automated,new tool version" || echo "  ⚠ Could not add labels (missing permissions or labels)"
 
                             # Return to original branch
                             git checkout "$CURRENT_BRANCH"
