@@ -142,13 +142,11 @@ jobs:
                             # Create pull request using GitHub CLI
                             gh pr create \
                                 --title "Update container version for $tool_name" \
-                                --body "Updates the container version for $tool_name to match the latest release ($latest_git_tag)." \
+                                --body "Updates the container version for $tool_name to match the latest Git release ($latest_git_tag)." \
                                 --base main \
-                                --head "$branch_name" \
-                                --reviewer gkr0110 \
-                                # --reviewer vipin-bc \
-                                --label "automated" \
-                                --label "new tool version"
+                                --head "$branch_name"
+                            gh pr edit "$branch_name" --add-reviewer gkr0110,vipin-bc
+                            gh pr edit "$branch_name" --add-label "automated,new tool version" 
 
                             # Return to original branch
                             git checkout "$CURRENT_BRANCH"
