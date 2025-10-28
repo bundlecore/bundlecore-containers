@@ -22,6 +22,8 @@ jobs:
               run: sudo apt-get install -y jq curl
             - name: Check for new releases
               id: check-releases
+              env:
+                BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN }}
               run: |
                    #!/bin/bash
                     check_quay_tags() {
