@@ -79,7 +79,7 @@ jobs:
                     # Skip if release.json doesn't exist
                     if [[ ! -f "$release_file" ]]; then
                         return 0
-                    }
+                    fi
 
                     # Get repository name from release.json
                     local repo=$(jq -r '.images[0]' "$release_file" | cut -d':' -f1 | sed 's|quay.io/||')
@@ -89,7 +89,7 @@ jobs:
                     if [[ -z "$latest_git_tag" || "$latest_git_tag" == "null" ]]; then
                         echo "Could not fetch latest git tag for $tool_name"
                         return 0
-                    }
+                    fi
 
                     echo "Latest git tag for $tool_name: $latest_git_tag"
 
@@ -97,7 +97,7 @@ jobs:
                     if grep -q "$latest_git_tag" "$release_file"; then
                         echo "Latest git tag already exists in release.json for $tool_name"
                         return 0
-                    }
+                    fi
 
                     # Check Quay.io tags
                     local tags_data=$(check_quay_tags "$repo")
@@ -116,7 +116,7 @@ jobs:
                             if grep -q "$matching_tag" "$release_file"; then
                                 echo "Matching Quay tag already exists in release.json for $tool_name"
                                 return 0
-                            }
+                            fi
 
                             # Create a new branch for this tool
                             local branch_name="update-$tool_name-$(date +%Y%m%d-%H%M%S)"
