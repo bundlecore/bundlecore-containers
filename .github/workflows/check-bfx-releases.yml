@@ -6,122 +6,162 @@ on:
     workflow_dispatch:  # Allow manual trigger
 
 jobs:
-    check-releases:
+    check-and-update:
         runs-on: ubuntu-latest
         permissions:
           contents: write
           pull-requests: write
-
+          
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
               with:
                 token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install jq
-              run: sudo apt-get install -y jq curl
-            - name: Check for new releases
-              id: check-releases
+            - name: Install required tools
+              run: |
+                sudo apt-get install -y jq curl
+                gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
+            - name: Check and process updates
+              env:
+                BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                 #!/bin/bash
+                set -e # Exit on error
+
+                # Configure git
+                git config --global user.name 'github-actions'
+                git config --global user.email 'github-actions@github.com'
+
+                # Store the current branch name
+                CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
                 check_quay_tags() {
                     local image_name=$1
-                    # Add limit=3 and order by last_modified
                     curl -s "https://quay.io/api/v1/repository/${image_name}/tag/?limit=3&onlyActiveTags=true&orderBy=last_modified" || return 1
                 }
 
-                process_release_file() {
-                    local file_path=$1
-                    local current_images=($(jq -r '.images[]' "$file_path"))
-
-                    if [[ ${#current_images[@]} -eq 0 ]]; then
-                        return
+                check_git_source_tags() {
+                    local app_name=$1
+                    
+                    if [[ -z "$BCORE_AUTH_TOKEN" ]]; then
+                        echo "BCORE_AUTH_TOKEN is not set" >&2
+                        return 1
+                    fi
+                    
+                    local git_url=$(curl -sS -H "Authorization: Bearer $BCORE_AUTH_TOKEN" "https://bundlecore.com/api/tools/$app_name" | jq -r '.data.tool.codeRepo')
+                    if [[ ! "$git_url" =~ ^https://github.com/ ]] && [[ ! "$git_url" =~ ^https://gitlab.com/ ]]; then
+                        echo "Could not find Git URL for: $app_name" >&2
+                        return 1
                     fi
 
-                    # Extract the repository name from the first image
-                    local repo=$(echo "${current_images[0]}" | cut -d':' -f1 | sed 's|quay.io/||')
-                    echo "Checking $repo..."
+                    if [[ "$git_url" =~ ^https://github.com/ ]]; then
+                        local repo_path=${git_url#https://github.com/}
+                        repo_path=${repo_path%.git}
+                        curl -sS "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name'
+                    elif [[ "$git_url" =~ ^https://gitlab.com/ ]]; then
+                        local project_path=${git_url#https://gitlab.com/}
+                        project_path=${project_path%.git}
+                        local encoded_project_path=$(echo "$project_path" | sed 's/\//%2F/g')
+                        curl -sSL "https://gitlab.com/api/v4/projects/$encoded_project_path/releases/permalink/latest" | jq -r '.tag_name'
+                    else
+                        echo "Unsupported Git provider" >&2
+                        return 1
+                    fi
+                }
 
+                process_tool() {
+                    local tool_path=$1
+                    local tool_name=$(basename "$tool_path")
+                    local release_file="$tool_path/release.json"
+
+                    echo "Processing $tool_name..."
+
+                    # Skip if release.json doesn't exist
+                    if [[ ! -f "$release_file" ]]; then
+                        return 0
+                    fi
+
+                    # Get repository name from release.json
+                    local repo=$(jq -r '.images[0]' "$release_file" | cut -d':' -f1 | sed 's|quay.io/||')
+                    
+                    # Get latest git tag
+                    local latest_git_tag=$(check_git_source_tags "$tool_name")
+                    if [[ -z "$latest_git_tag" || "$latest_git_tag" == "null" ]]; then
+                        echo "Could not fetch latest git tag for $tool_name"
+                        return 0
+                    fi
+
+                    echo "Latest git tag for $tool_name: $latest_git_tag"
+
+                    # Check if git tag exists in release.json
+                    if grep -q "$latest_git_tag" "$release_file"; then
+                        echo "Latest git tag already exists in release.json for $tool_name"
+                        return 0
+                    fi
+
+                    # Check Quay.io tags
                     local tags_data=$(check_quay_tags "$repo")
-
                     if [[ $? -eq 0 ]]; then
-                        # Get the latest 3 tags sorted by last_modified
-                        local latest_tags=$(echo "$tags_data" | jq -r '.tags | sort_by(.last_modified) | .[0:3] | .[].name')
-                        local updates_needed=false
-
-                        # Get current image list
-                        local image_list=$(jq -r '.images' "$file_path")
+                        local quay_tags=$(echo "$tags_data" | jq -r '.tags | sort_by(.last_modified) | reverse | .[].name')
+                        local matching_tag=""
 
                         while read -r tag; do
-                            local full_image="quay.io/${repo}:${tag}"
-                            if ! printf '%s\n' "${current_images[@]}" | grep -q "^${full_image}$"; then
-                                # Add new version to the beginning of images array
-                                image_list=$(jq --arg img "$full_image" '. |= [$img] + .' <<< "$image_list")
-                                updates_needed=true
+                            if [[ "$tag" =~ .*"$latest_git_tag".* ]]; then
+                                matching_tag="$tag"
+                                break
                             fi
-                        done <<< "$latest_tags"
+                        done <<< "$quay_tags"
 
-                        if [[ "$updates_needed" == true ]]; then
-                            echo "Updating $file_path with new versions"
-                            # Update the release.json file
-                            jq --arg images "$image_list" '.images = ($images|fromjson)' "$file_path" > "$file_path.tmp"
-                            mv "$file_path.tmp" "$file_path"
-                            echo "updates=true" >> $GITHUB_OUTPUT
-                            # Also set updates=true in environment for the PR step
-                            echo "updates=true" >> $GITHUB_ENV
+                        if [[ -n "$matching_tag" ]]; then
+                            if grep -q "$matching_tag" "$release_file"; then
+                                echo "Matching Quay tag already exists in release.json for $tool_name"
+                                return 0
+                            fi
+
+                            # Create a new branch for this tool
+                            local branch_name="update-$tool_name-$(date +%Y%m%d-%H%M%S)"
+                            git checkout -b "$branch_name"
+
+                            # Update release.json
+                            local full_image="quay.io/${repo}:${matching_tag}"
+                            local image_list=$(jq -r '.images' "$release_file")
+                            image_list=$(jq --arg img "$full_image" '. |= [$img] + .' <<< "$image_list")
+                            
+                            echo "Updating $release_file with new version: $full_image"
+                            jq --arg images "$image_list" '.images = ($images|fromjson)' "$release_file" > "$release_file.tmp"
+                            mv "$release_file.tmp" "$release_file"
+
+                            # Commit and push changes
+                            git add "$release_file"
+                            git commit -m "Update container version for $tool_name to $latest_git_tag"
+                            git push origin "$branch_name"
+
+                            # Create pull request using GitHub CLI
+                            gh pr create \
+                                --title "Update container version for $tool_name" \
+                                --body "Updates the container version for $tool_name to match the latest Git release ($latest_git_tag)." \
+                                --base main \
+                                --head "$branch_name"
+                            gh pr edit "$branch_name" --add-reviewer gkr0110,vipin-bc 2>/dev/null && echo "  ✓ Added reviewer gkr0110,vipin-bc" || echo "  ⚠ Could not add reviewer (missing permissions or reviewer may not exist)"
+                            gh pr edit "$branch_name" --add-label "automated,new tool version" 2>/dev/null && echo "  ✓ Added labels automated,new tool version" || echo "  ⚠ Could not add labels (missing permissions or labels)"
+
+                            # Return to original branch
+                            git checkout "$CURRENT_BRANCH"
+                            echo "Created PR for $tool_name"
+                        else
+                            echo "No matching Quay tag found for git tag $latest_git_tag"
                         fi
                     else
                         echo "Error fetching tags for $repo"
                     fi
                 }
 
-           
-
-
-                # Process all release files
-                for prod_slug in bfx/*; do
-                    if [[ -d "$prod_slug" ]]; then
-                        release_file="$prod_slug/release.json"
-                        if [[ -f "$release_file" ]]; then
-                            echo "Checking new releases for $(basename $prod_slug)..."
-                            # process_release_file will set updates=true in output and env if updates found
-                            process_release_file "$release_file"
-                        fi
+                # Process each tool directory
+                for tool_dir in bfx/*; do
+                    if [[ -d "$tool_dir" ]]; then
+                        process_tool "$tool_dir"
                     fi
                 done
-
-                # If updates were found (checked by env.updates), commit and push changes
-            - name: Commit changes
-              if: env.updates == 'true'
-              run: |
-                # Create a new branch for updates
-                BRANCH_NAME="update-containers-$(date +%Y%m%d-%H%M%S)"
-                git checkout -b "$BRANCH_NAME"
-                # Always set the branch name in the environment
-                echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
-
-                git config --global user.name 'github-actions'
-                git config --global user.email 'github-actions@github.com'
-                git add bfx/*/release.json
-                git commit -m "Update container versions"
-                git push origin "$BRANCH_NAME"
-                echo "Updates found and pushed to branch $BRANCH_NAME, ready for PR"
-            
-
-            - name: Create Pull Request
-              if: env.updates == 'true'
-              uses: actions/github-script@v8
-              with:
-                github-token: ${{ secrets.GITHUB_TOKEN }}
-                script: |
-                    const branch = process.env.branch_name; // Access from environment variables
-                    const { repo, owner } = context.repo;
-                    await github.rest.pulls.create({
-                        owner,
-                        repo,
-                        title: 'Update container versions',
-                        head: branch,
-                        base: 'main',
-                        body: 'This PR updates container versions in release.json files with newly available versions.'
-                    });
