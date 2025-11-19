@@ -25,12 +25,20 @@ check_git_source_tags() {
 
     # Find the latest tag from the Git repo
     if [[ "$git_url" =~ ^https://github.com/ ]]; then
-        # Extract owner/repo from GitHub URL
-        local repo_path=${git_url#https://github.com/}
-        repo_path=${repo_path%.git}
-        # Get the latest release tag from GitHub API
-        latest_version=$(curl -sS  \
-            "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name')
+        # Extract owner/repo from GitHub URL and strip trailing slash if present
+            local repo_path=${git_url#https://github.com/}
+            repo_path=${repo_path%.git}
+            repo_path=${repo_path%/}  
+        #  # Get the latest release tag from GitHub API and remove leading 'v' if present
+            latest_version=$(curl -sS  \
+            "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name'|sed 's/^v//')
+            
+            # if no releases found, fallback to latest tag
+            if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
+                ## Sometimes GitHub projects may not have releases, in that case use the following line instead
+                # Fallback to fetching the latest tag if no releases are found
+                 latest_version=$(curl -sS "https://api.github.com/repos/$repo_path/tags" |jq -r '.[0].name' |sed 's/^v//')  
+            fi
         
     elif [[ "$git_url" =~ ^https://gitlab.com/ ]]; then
         # Extract project path from GitLab URL
@@ -40,7 +48,14 @@ check_git_source_tags() {
         local encoded_project_path=$(echo "$project_path" | sed 's/\//%2F/g')
         # Get the latest release tag from GitLab API
         latest_version=$(curl -sSL  \
-            "https://gitlab.com/api/v4/projects/$encoded_project_path/releases/permalink/latest" | jq -r '.tag_name')
+            "https://gitlab.com/api/v4/projects/$encoded_project_path/releases/permalink/latest" | jq -r '.tag_name'|sed 's/^v//') 
+
+        # if no releases found, fallback to latest tag
+        if  [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
+            ## Sometimes GitLab projects may not have releases, in that case use the following line instead
+            # Fallback to fetching the latest tag if no releases are found
+             latest_version=$(curl -sSL "https://gitlab.com/api/v4/projects/$encoded_project_path/repository/tags" |jq -r '.[0].name' |sed 's/^v//')  
+        fi
     else
         echo "Unsupported Git provider $git_url for $app_name" >&2
         return 1
@@ -144,5 +159,4 @@ for prod_slug in bfx/*; do
             process_release_file "$release_file"
         fi
     fi
-    break
 done

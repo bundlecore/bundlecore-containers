@@ -57,19 +57,47 @@ jobs:
                         return 1
                     fi
 
+
+                    # Find the latest tag from the Git repo
                     if [[ "$git_url" =~ ^https://github.com/ ]]; then
-                        local repo_path=${git_url#https://github.com/}
-                        repo_path=${repo_path%.git}
-                        curl -sS "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name'
+                        # Extract owner/repo from GitHub URL and strip trailing slash if present
+                            local repo_path=${git_url#https://github.com/}
+                            repo_path=${repo_path%.git}
+                            repo_path=${repo_path%/}  
+                        #  # Get the latest release tag from GitHub API and remove leading 'v' if present
+                            latest_version=$(curl -sS  \
+                            "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name'|sed 's/^v//')
+                            
+                            # if no releases found, fallback to latest tag
+                            if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
+                                ## Sometimes GitHub projects may not have releases, in that case use the following line instead
+                                # Fallback to fetching the latest tag if no releases are found
+                                latest_version=$(curl -sS "https://api.github.com/repos/$repo_path/tags" |jq -r '.[0].name' |sed 's/^v//')  
+                            fi
+                        
                     elif [[ "$git_url" =~ ^https://gitlab.com/ ]]; then
+                        # Extract project path from GitLab URL
                         local project_path=${git_url#https://gitlab.com/}
                         project_path=${project_path%.git}
+                        # URL encode the project path
                         local encoded_project_path=$(echo "$project_path" | sed 's/\//%2F/g')
-                        curl -sSL "https://gitlab.com/api/v4/projects/$encoded_project_path/releases/permalink/latest" | jq -r '.tag_name'
+                        # Get the latest release tag from GitLab API
+                        latest_version=$(curl -sSL  \
+                            "https://gitlab.com/api/v4/projects/$encoded_project_path/releases/permalink/latest" | jq -r '.tag_name'|sed 's/^v//') 
+
+                        # if no releases found, fallback to latest tag
+                        if  [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
+                            ## Sometimes GitLab projects may not have releases, in that case use the following line instead
+                            # Fallback to fetching the latest tag if no releases are found
+                            latest_version=$(curl -sSL "https://gitlab.com/api/v4/projects/$encoded_project_path/repository/tags" |jq -r '.[0].name' |sed 's/^v//')  
+                        fi
                     else
-                        echo "Unsupported Git provider" >&2
+                        echo "Unsupported Git provider $git_url for $app_name" >&2
                         return 1
                     fi
+                    echo "$latest_version"
+                    return 0                                                        
+
                 }
 
                 process_tool() {
