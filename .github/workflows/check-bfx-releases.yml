@@ -43,6 +43,67 @@ jobs:
                     curl -s "https://quay.io/api/v1/repository/${image_name}/tag/?limit=3&onlyActiveTags=true&orderBy=last_modified" || return 1
                 }
 
+                ## Function to push back the latest tag to bundlecore tool version
+                update_bundlecore_tool_version() {
+                    local app_name=$1
+                    local new_version=$2
+                    
+                    ## before pushing, check if this version is already exists in bundlecore for this tool
+                    ## If the PR is not accepted yet, it may cause duplicate version errors, so this check is necessary!
+                    local versions_data=$(curl -sS -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" "https://bundlecore.com/api/tools/${app_name}/versions")
+                    
+                    if [ -z "$versions_data" ]; then
+                        echo "Error: Failed to fetch versions for $app_name" >&2
+                        return 1
+                    fi
+                    
+                    # Extract existing versions and check if new version already exists
+                    local existing_versions=$(echo "$versions_data" | jq -r '.data.versions[].version')
+                    for ver in $existing_versions; do
+                        if [[ "$ver" == "$new_version" ]]; then
+                            echo "Version $new_version already exists for $app_name in BundleCore"
+                            return 0
+                        fi
+                    done
+                    
+                    echo "Adding new version $new_version for $app_name in BundleCore"
+                    
+                    ## Extract the first version object as template
+                    local template_body=$(echo "$versions_data" | jq '.data.versions[0]')
+                    
+                    if [ -z "$template_body" ] || [ "$template_body" == "null" ]; then
+                        echo "Error: No existing versions found for $app_name to use as template" >&2
+                        return 1
+                    fi
+                    
+                    echo "Using template from version: $(echo "$template_body" | jq -r '.version')"
+                    
+                    ## Update the version, bcRegistryUrl, and registryUrl fields in the template
+                    local updated_body=$(echo "$template_body" | jq \
+                        --arg new_ver "$new_version" \
+                        --arg bc_registry "ghcr.io/bundlecore/products/bfx/${app_name}:${new_version}" \
+                        '.version = $new_ver | 
+                        .bcRegistryUrl = $bc_registry |
+                        .registryUrl = "quay.io/biocontainers/'"${app_name}"':'"${new_version}"'"')
+                    
+                    echo "Updated body: $updated_body"
+                    
+                    ## PUT the updated version back to BundleCore
+                    response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X POST -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+                        -H "Content-Type: application/json" \
+                        -d "$updated_body" \
+                        "https://bundlecore.com/api/tools/${app_name}/versions")
+
+                    if [ "$response" -ne 200 ]; then
+                        echo "Failed to update tool version for $app_name. HTTP status code: $response" >&2
+                        echo "Response body: $(cat /tmp/curl_response)" >&2
+                        return 1
+                    fi
+
+                    echo "✓ New version for $app_name to $new_version added successfully"
+                    echo "✓ Set bcRegistryUrl to: ghcr.io/bundlecore/products/bfx/${app_name}:${new_version}"
+                    return 0
+                }
                 check_git_source_tags() {
                     local app_name=$1
                     
@@ -179,6 +240,10 @@ jobs:
                             # Return to original branch
                             git checkout "$CURRENT_BRANCH"
                             echo "Created PR for $tool_name"
+                            
+                            #call update_bundlecore_tool_version to add the new version to BundleCore
+                            update_bundlecore_tool_version "$tool_name" "$latest_git_tag"
+                            
                         else
                             echo "No matching Quay tag found for git tag $latest_git_tag"
                         fi
