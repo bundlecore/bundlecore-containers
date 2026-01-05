@@ -404,7 +404,7 @@ jobs:
 
       - name: Upload discovered images and mapping
         if: steps.discover-images.outputs.image-count > 0
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: discovered-images
           path: |
@@ -785,7 +785,7 @@ jobs:
 
       - name: Upload individual scan results as artifacts
         if: steps.batch-scan.outputs.successful-scans > 0
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-scan-results
           path: |
@@ -799,7 +799,7 @@ jobs:
 
       - name: Upload partial scan results (even if batch failed)
         if: always() && (steps.batch-scan.conclusion == 'failure' || steps.batch-scan.conclusion == 'cancelled')
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-scan-results-partial
           path: |
@@ -813,7 +813,7 @@ jobs:
 
       - name: Upload scan progress immediately
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: scan-progress
           path: |
@@ -1022,7 +1022,7 @@ jobs:
 
       - name: Upload organized scan results as artifacts
         if: steps.organize-results.outputs.tool-count > 0
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: organized-results
           path: |
@@ -1033,7 +1033,7 @@ jobs:
 
       - name: Upload final scan results (safety backup)
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-scan-results-final
           path: |
@@ -1733,7 +1733,7 @@ jobs:
           fi
 
       - name: Upload scan results as artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: trivy-scan-results
           path: |
