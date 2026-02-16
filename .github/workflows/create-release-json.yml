@@ -54,7 +54,7 @@ jobs:
           # Skip if release.json already has content (already onboarded)
           if [ -s "$release_file" ]; then
             echo "⏭️  Skipping $tool_slug - already onboarded (release.json has content)"
-            ((tools_skipped++))
+            tools_skipped=$((tools_skipped + 1))
             continue
           fi
 
@@ -74,13 +74,13 @@ jobs:
           if [ "$status_code" != "200" ]; then
               echo "❌ Error: API responded with status code $status_code for $tool_slug"
               echo "Response body: $body"
-              ((tools_failed++))
+              tools_failed=$((tools_failed + 1))
           else
               images=$(echo "$body" | jq -r '.data.versions[].registryUrl' | jq -R -s -c 'split("\n")[:-1]')
               echo "{\"images\": $images}" > "$release_file"
               echo "✅ Updated $release_file with images for $tool_slug"
               git add "$release_file"
-              ((tools_updated++))
+              tools_updated=$((tools_updated + 1))
               updated_tools="${updated_tools}- ${tool_slug}\n"
           fi
         done
