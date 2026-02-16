@@ -10,14 +10,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
       packages: write
       attestations: write
       pull-requests: write
       id-token: write
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
@@ -27,15 +27,38 @@ jobs:
       run: sudo apt-get install jq
 
 
-    - name: Loop through tools and create release.json and PR for each tool
+    - name: Process new tools and create single PR
       env:
           GHCR_ORG: ${{ github.repository_owner }}
           BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Configure git
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+
+        # Create a new branch for all new tools
+        branch_name="onboard-new-tools-$(date +%Y%m%d-%H%M%S)"
+        git checkout -b "$branch_name"
+
+        # Track if we made any changes
+        tools_updated=0
+        tools_skipped=0
+        tools_failed=0
+        updated_tools=""
+
         for dir in bfx/*/; do
           tool_slug=$(basename "$dir")
           release_file="$dir/release.json"
+
+          # Skip if release.json already has content (already onboarded)
+          if [ -s "$release_file" ]; then
+            echo "⏭️  Skipping $tool_slug - already onboarded (release.json has content)"
+            ((tools_skipped++))
+            continue
+          fi
+
+          echo "🔄 Processing new tool: $tool_slug"
           api_url="https://bundlecore.com/api/tools/${tool_slug}/versions"
 
           # Fetch API response and status code in one go
@@ -49,24 +72,45 @@ jobs:
           body=$(echo "$http_response" | sed '$d')
 
           if [ "$status_code" != "200" ]; then
-              echo "Error: API responded with status code $status_code for $tool_slug"
+              echo "❌ Error: API responded with status code $status_code for $tool_slug"
               echo "Response body: $body"
+              ((tools_failed++))
           else
               images=$(echo "$body" | jq -r '.data.versions[].registryUrl' | jq -R -s -c 'split("\n")[:-1]')
               echo "{\"images\": $images}" > "$release_file"
-              echo "Updated $release_file with images for $tool_slug"
+              echo "✅ Updated $release_file with images for $tool_slug"
+              git add "$release_file"
+              ((tools_updated++))
+              updated_tools="${updated_tools}- ${tool_slug}\n"
           fi
+        done
 
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          branch_name="update-release-json-${tool_slug}"
-          git checkout -b "$branch_name"
-          git add "$release_file"
-          git commit -m "Update release.json for ${tool_slug}"
+        # Summary
+        echo ""
+        echo "========================================="
+        echo "Summary:"
+        echo "  ✅ Tools updated: $tools_updated"
+        echo "  ⏭️  Tools skipped (already onboarded): $tools_skipped"
+        echo "  ❌ Tools failed: $tools_failed"
+        echo "========================================="
+
+        # Only create PR if we updated any tools
+        if [ $tools_updated -gt 0 ]; then
+          git commit -m "Onboard new tools to bundlecore-containers" \
+                     -m "This PR onboards $tools_updated new tool(s)." \
+                     -m "Tools: $(echo -e "$updated_tools" | tr '\n' ' ')" \
+                     -m "Skipped: $tools_skipped | Failed: $tools_failed"
+
           git push origin "$branch_name"
 
-          gh pr create --title "Update release.json for ${tool_slug}" \
-            --body "This PR updates the release.json file for ${tool_slug}." \
-            --base main \
-            --head "$branch_name"
-        done
+          tools_list=$(echo -e "$updated_tools" | tr '\n' ',' | sed 's/,$//' | sed 's/- //g')
+          pr_body=$(printf "This PR onboards **%s** new tool(s) by populating their release.json files.\n\n**Tools onboarded:** %s\n\n**Summary:** ✅ Updated: %s | ⏭️ Skipped: %s | ❌ Failed: %s" "$tools_updated" "$tools_list" "$tools_updated" "$tools_skipped" "$tools_failed")
+
+          gh pr create --title "Onboard $tools_updated new tool(s) to bundlecore-containers" --body "$pr_body" --base main --head "$branch_name"
+
+          echo "✅ Pull request created successfully!"
+        else
+          echo "ℹ️  No new tools to onboard. All tools are either already onboarded or failed to fetch."
+          git checkout main
+          git branch -D "$branch_name"
+        fi
