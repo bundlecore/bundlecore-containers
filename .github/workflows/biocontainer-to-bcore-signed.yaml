@@ -39,6 +39,75 @@ jobs:
           PROD_DOMAIN: bfx
         run: |
           set -e
+
+          # Function to update BundleCore with new tool version
+          update_bundlecore_tool_version() {
+              local app_name=$1
+              local new_version=$2
+              local original_image=$3
+              local bc_registry_url=$4
+
+              echo "Updating BundleCore API for $app_name version $new_version..."
+
+              # Check if this version already exists in BundleCore
+              local versions_data=$(curl -sS -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" "https://bundlecore.com/api/tools/${app_name}/versions")
+
+              if [ -z "$versions_data" ]; then
+                  echo "⚠️  Warning: Failed to fetch versions for $app_name from BundleCore API" >&2
+                  return 0
+              fi
+
+              # Check if new version already exists
+              local existing_versions=$(echo "$versions_data" | jq -r '.data.versions[].version')
+              for ver in $existing_versions; do
+                  if [[ "$ver" == "$new_version" ]]; then
+                      echo "ℹ️  Version $new_version already exists for $app_name in BundleCore"
+                      return 0
+                  fi
+              done
+
+              echo "Adding new version $new_version for $app_name to BundleCore..."
+
+              # Extract the first version object as template
+              local template_body=$(echo "$versions_data" | jq '.data.versions[0]')
+
+              if [ -z "$template_body" ] || [ "$template_body" == "null" ]; then
+                  echo "⚠️  Warning: No existing versions found for $app_name to use as template" >&2
+                  return 0
+              fi
+
+              echo "Using template from version: $(echo "$template_body" | jq -r '.version')"
+
+              # Update the version, bcRegistryUrl, and registryUrl fields in the template
+              local updated_body=$(echo "$template_body" | jq \
+                  --arg new_ver "$new_version" \
+                  --arg bc_registry "$bc_registry_url" \
+                  --arg registry "$original_image" \
+                  '.version = $new_ver |
+                  .bcRegistryUrl = $bc_registry |
+                  .registryUrl = $registry')
+
+              echo "Updated body: $updated_body"
+
+              # POST the updated version to BundleCore
+              response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X POST \
+                  -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+                  -H "Content-Type: application/json" \
+                  -d "$updated_body" \
+                  "https://bundlecore.com/api/tools/${app_name}/versions")
+
+              if [ "$response" -ne 200 ]; then
+                  echo "⚠️  Warning: Failed to update BundleCore for $app_name. HTTP status: $response" >&2
+                  echo "Response body: $(cat /tmp/curl_response)" >&2
+                  return 0
+              fi
+
+              echo "✅ Successfully added version $new_version for $app_name to BundleCore"
+              echo "   bcRegistryUrl: $bc_registry_url"
+              echo "   registryUrl: $original_image"
+              return 0
+          }
+
             for appdir in bfx/*/; do
             app=$(basename "$appdir")
             slug=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
@@ -65,21 +134,9 @@ jobs:
                 docker push "$dest"
                 cosign sign --yes "$dest"
 
-                ## TODO: Update the image via bcore API
-                # curl -X POST "https://bundlecore.com/api/tools/${slug}" \
-                #      -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
-                #      -H "Content-Type: application/json" \
-                #      -d "{\"image\": \"${dest}\", \"tag\": \"${tag}\"}"
+                # Update BundleCore API with new version
+                update_bundlecore_tool_version "$slug" "$tag" "$img" "$dest" || true
 
-                #  curl -X PUT \
-                # 'https://your-domain.com/api/tools/star/versions/2.7.11a--h0033a41_0' \
-                # -H 'Authorization: Bearer YOUR_API_KEY' \
-                # -H 'Content-Type: application/json' \
-                # -d '{
-                #   "registryUrl": "quay.io/biocontainers/star:2.7.11a--h0033a41_0",
-                #   "entryCmds": [],
-                #   "commands": ["STAR", "STARlong"]
-                # }'
             done
             # Check if there are any docker images before cleanup
             if docker images -q | grep -q .; then
