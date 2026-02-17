@@ -49,7 +49,7 @@ jobs:
 
               echo "Updating BundleCore API for $app_name version $new_version..."
 
-              # Check if this version already exists in BundleCore
+              # Fetch existing versions from BundleCore
               local versions_data=$(curl -sS -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" "https://bundlecore.com/api/tools/${app_name}/versions")
 
               if [ -z "$versions_data" ]; then
@@ -57,16 +57,49 @@ jobs:
                   return 0
               fi
 
-              # Check if new version already exists
-              local existing_versions=$(echo "$versions_data" | jq -r '.data.versions[].version')
-              for ver in $existing_versions; do
-                  if [[ "$ver" == "$new_version" ]]; then
-                      echo "ℹ️  Version $new_version already exists for $app_name in BundleCore"
+              # Check if this version already exists and get its bcRegistryUrl
+              local existing_version=$(echo "$versions_data" | jq -r --arg ver "$new_version" '.data.versions[] | select(.version == $ver)')
+              
+              if [ -n "$existing_version" ] && [ "$existing_version" != "null" ]; then
+                  local existing_bc_registry=$(echo "$existing_version" | jq -r '.bcRegistryUrl')
+                  
+                  if [ -n "$existing_bc_registry" ] && [ "$existing_bc_registry" != "" ] && [ "$existing_bc_registry" != "null" ]; then
+                      echo "ℹ️  Version $new_version already exists for $app_name with bcRegistryUrl: $existing_bc_registry"
                       return 0
                   fi
-              done
+                  
+                  echo "📝 Version $new_version exists but bcRegistryUrl is empty, updating..."
+                  
+                  # Update the existing version with bcRegistryUrl
+                  local updated_body=$(echo "$existing_version" | jq \
+                      --arg bc_registry "$bc_registry_url" \
+                      --arg registry "$original_image" \
+                      '.bcRegistryUrl = $bc_registry |
+                      .registryUrl = $registry')
 
-              echo "Adding new version $new_version for $app_name to BundleCore..."
+                  echo "Updated body: $updated_body"
+
+                  # PUT to update the existing version
+                  response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X PUT \
+                      -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+                      -H "Content-Type: application/json" \
+                      -d "$updated_body" \
+                      "https://bundlecore.com/api/tools/${app_name}/versions/${new_version}")
+
+                  if [ "$response" -ne 200 ]; then
+                      echo "⚠️  Warning: Failed to update BundleCore for $app_name. HTTP status: $response" >&2
+                      echo "Response body: $(cat /tmp/curl_response)" >&2
+                      return 0
+                  fi
+
+                  echo "✅ Successfully updated version $new_version for $app_name in BundleCore"
+                  echo "   bcRegistryUrl: $bc_registry_url"
+                  echo "   registryUrl: $original_image"
+                  return 0
+              fi
+
+              # Version doesn't exist, create a new one
+              echo "➕ Creating new version $new_version for $app_name in BundleCore..."
 
               # Extract the first version object as template
               local template_body=$(echo "$versions_data" | jq '.data.versions[0]')
@@ -78,8 +111,8 @@ jobs:
 
               echo "Using template from version: $(echo "$template_body" | jq -r '.version')"
 
-              # Update the version, bcRegistryUrl, and registryUrl fields in the template
-              local updated_body=$(echo "$template_body" | jq \
+              # Create new version body from template
+              local new_body=$(echo "$template_body" | jq \
                   --arg new_ver "$new_version" \
                   --arg bc_registry "$bc_registry_url" \
                   --arg registry "$original_image" \
@@ -87,22 +120,22 @@ jobs:
                   .bcRegistryUrl = $bc_registry |
                   .registryUrl = $registry')
 
-              echo "Updated body: $updated_body"
+              echo "New version body: $new_body"
 
-              # POST the updated version to BundleCore
+              # POST to create new version
               response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X POST \
                   -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
                   -H "Content-Type: application/json" \
-                  -d "$updated_body" \
+                  -d "$new_body" \
                   "https://bundlecore.com/api/tools/${app_name}/versions")
 
               if [ "$response" -ne 200 ]; then
-                  echo "⚠️  Warning: Failed to update BundleCore for $app_name. HTTP status: $response" >&2
+                  echo "⚠️  Warning: Failed to create version in BundleCore for $app_name. HTTP status: $response" >&2
                   echo "Response body: $(cat /tmp/curl_response)" >&2
                   return 0
               fi
 
-              echo "✅ Successfully added version $new_version for $app_name to BundleCore"
+              echo "✅ Successfully created version $new_version for $app_name in BundleCore"
               echo "   bcRegistryUrl: $bc_registry_url"
               echo "   registryUrl: $original_image"
               return 0
