@@ -1,13 +1,13 @@
 name: Trivy Security Scan
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "bfx/*/release.json" # Only trigger when a tool version is added/updated
+  workflow_run:
+    # Run AFTER the retag workflow completes so GHCR images exist before scanning
+    workflows: ["Retag and Sign BioContainer Images"]
+    types: [completed]
+    branches: [main]
   schedule:
-    # Run on the first Sunday of every month at 2:00 AM UTC
+    # Full scan on the first Sunday of every month at 2:00 AM UTC
     - cron: "0 2 1-7 * 0"
   workflow_dispatch:
     # Allow manual triggering of the workflow
@@ -205,7 +205,7 @@ jobs:
           # Scheduled runs always scan everything
           if [ "$EVENT" = "schedule" ]; then
             echo "📅 Scheduled run → scanning ALL tools"
-            echo "scan-all=true" >> $GITHUB_OUTPUT
+            echo "scan-all=true"  >> $GITHUB_OUTPUT
             echo "has-changes=true" >> $GITHUB_OUTPUT
             echo "changed-tools=[]" >> $GITHUB_OUTPUT
             exit 0
@@ -214,20 +214,39 @@ jobs:
           # Manual runs with scan_mode=all (or unset) scan everything
           if [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; then
             echo "🖐 Manual run (scan_mode=all) → scanning ALL tools"
-            echo "scan-all=true" >> $GITHUB_OUTPUT
+            echo "scan-all=true"  >> $GITHUB_OUTPUT
             echo "has-changes=true" >> $GITHUB_OUTPUT
             echo "changed-tools=[]" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Push trigger OR manual changed-only: diff bfx/ to find changed tools
-          echo "🔍 Diffing bfx/ against previous commit..."
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- bfx/ 2>/dev/null || true)
+          # workflow_run trigger: only proceed if retag workflow succeeded
+          if [ "$EVENT" = "workflow_run" ]; then
+            RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+            RETAG_SHA="${{ github.event.workflow_run.head_sha }}"
+            echo "🔗 Triggered by retag workflow (conclusion: $RETAG_CONCLUSION, sha: $RETAG_SHA)"
+
+            if [ "$RETAG_CONCLUSION" != "success" ]; then
+              echo "⏭ Retag workflow did not succeed ($RETAG_CONCLUSION) — skipping scan"
+              echo "scan-all=false"   >> $GITHUB_OUTPUT
+              echo "has-changes=false" >> $GITHUB_OUTPUT
+              echo "changed-tools=[]" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            # Diff the retag workflow's head commit against its parent
+            echo "🔍 Diffing $RETAG_SHA against its parent..."
+            CHANGED_FILES=$(git diff --name-only "${RETAG_SHA}^" "${RETAG_SHA}" -- bfx/ 2>/dev/null || true)
+          else
+            # Manual changed-only mode: diff HEAD against previous commit
+            echo "🔍 Diffing bfx/ against previous commit..."
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- bfx/ 2>/dev/null || true)
+          fi
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "  → No changes detected in bfx/"
             echo "  → Skipping scan (nothing to do)"
-            echo "scan-all=false" >> $GITHUB_OUTPUT
+            echo "scan-all=false"   >> $GITHUB_OUTPUT
             echo "has-changes=false" >> $GITHUB_OUTPUT
             echo "changed-tools=[]" >> $GITHUB_OUTPUT
             exit 0
@@ -245,7 +264,7 @@ jobs:
 
           if [ -z "$CHANGED_TOOLS" ]; then
             echo "  → No tool-level changes extracted"
-            echo "scan-all=false" >> $GITHUB_OUTPUT
+            echo "scan-all=false"   >> $GITHUB_OUTPUT
             echo "has-changes=false" >> $GITHUB_OUTPUT
             echo "changed-tools=[]" >> $GITHUB_OUTPUT
             exit 0
@@ -259,7 +278,7 @@ jobs:
           TOOLS_JSON=$(echo "$CHANGED_TOOLS" | jq -R . | jq -s -c .)
           echo "  → JSON: $TOOLS_JSON"
 
-          echo "scan-all=false" >> $GITHUB_OUTPUT
+          echo "scan-all=false"   >> $GITHUB_OUTPUT
           echo "has-changes=true" >> $GITHUB_OUTPUT
           echo "changed-tools=$TOOLS_JSON" >> $GITHUB_OUTPUT
 
@@ -279,239 +298,121 @@ jobs:
         run: |
           echo "Discovering container images to scan..."
 
-          # Create output file for discovered images
           IMAGES_FILE="images_to_scan.txt"
           > "$IMAGES_FILE"
-
-          # Get organization name from repository
-          ORG_NAME="${GITHUB_REPOSITORY_OWNER}"
-          echo "Scanning packages for organization: $ORG_NAME"
-
-          # Debug information
-          echo ""
-          echo "🔍 Environment Debug Information:"
-          echo "================================="
-          echo "  → Repository: ${GITHUB_REPOSITORY}"
-          echo "  → Owner: ${GITHUB_REPOSITORY_OWNER}"
-          echo "  → Actor: ${GITHUB_ACTOR}"
-          echo "  → Token available: $([ -n "${{ secrets.GITHUB_TOKEN }}" ] && echo "Yes" || echo "No")"
-          echo "  → Workflow permissions: packages:read, contents:write, pull-requests:write"
-          echo ""
-
-          # Determine which token to use
-          if [ -n "${{ secrets.PACKAGES_TOKEN }}" ]; then
-            echo "🔑 Using PACKAGES_TOKEN (Personal Access Token)"
-            AUTH_TOKEN="${{ secrets.PACKAGES_TOKEN }}"
-          else
-            echo "🔑 Using GITHUB_TOKEN (default)"
-            AUTH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          fi
-
-          # Function to make API calls with retry logic
-          make_api_call() {
-            local url="$1"
-            local max_retries=3
-            local retry_delay=5
-            local attempt=1
-            
-            while [ $attempt -le $max_retries ]; do
-              echo "  → API call attempt $attempt/$max_retries: $url" >&2
-              
-              local response
-              local http_code
-              
-              response=$(curl -s -w "%{http_code}" \
-                             --max-time 30 \
-                             --retry 0 \
-                             -H "Authorization: Bearer $AUTH_TOKEN" \
-                             -H "Accept: application/vnd.github.v3+json" \
-                             "$url")
-              http_code="${response: -3}"
-              response="${response%???}"
-              
-              case "$http_code" in
-                200)
-                  echo "  ✓ API call successful (HTTP $http_code)" >&2
-                  printf "%s" "$response"
-                  return 0
-                  ;;
-                401|403|404)
-                  echo "  ✗ API call failed (HTTP $http_code)" >&2
-                  return 1
-                  ;;
-                429)
-                  echo "  ⚠ Rate limit exceeded (HTTP $http_code)" >&2
-                  if [ $attempt -lt $max_retries ]; then
-                    local backoff_delay=$((retry_delay * attempt * 2))
-                    echo "    → Rate limit backoff: waiting ${backoff_delay}s..." >&2
-                    sleep $backoff_delay
-                  fi
-                  ;;
-                5*)
-                  echo "  ⚠ Server error (HTTP $http_code)" >&2
-                  if [ $attempt -lt $max_retries ]; then
-                    echo "    → Retrying in ${retry_delay}s..." >&2
-                    sleep $retry_delay
-                  fi
-                  ;;
-              esac
-              
-              attempt=$((attempt + 1))
-            done
-            
-            echo "  ✗ API call failed after $max_retries attempts" >&2
-            return 1
-          }
-
-          # Try organization endpoint first, then user endpoint if that fails
-          echo "Fetching container packages from GitHub API..."
-
-          ORG_URL="https://api.github.com/orgs/${ORG_NAME}/packages?package_type=container&per_page=100"
-          set +e
-          PACKAGES_RESPONSE=$(make_api_call "$ORG_URL")
-          ORG_EXIT_CODE=$?
-          set -e
-
-          if [ $ORG_EXIT_CODE -eq 0 ] && [ -n "$PACKAGES_RESPONSE" ]; then
-            echo "✓ Organization endpoint successful"
-          else
-            echo "✗ Organization endpoint failed, trying user endpoint..."
-            USER_URL="https://api.github.com/users/${ORG_NAME}/packages?package_type=container&per_page=100"
-            
-            set +e
-            PACKAGES_RESPONSE=$(make_api_call "$USER_URL")
-            USER_EXIT_CODE=$?
-            set -e
-            
-            if [ $USER_EXIT_CODE -eq 0 ] && [ -n "$PACKAGES_RESPONSE" ]; then
-              echo "✓ User endpoint successful"
-            else
-              echo "✗ Both endpoints failed"
-              exit 1
-            fi
-          fi
-
-          # Validate and process packages
-          if [ -z "$PACKAGES_RESPONSE" ]; then
-            echo "✗ Empty response from GitHub API"
-            exit 1
-          fi
-
-          TEMP_JSON=$(mktemp)
-          printf "%s" "$PACKAGES_RESPONSE" > "$TEMP_JSON"
-
-          if ! jq empty "$TEMP_JSON" 2>/dev/null; then
-            echo "✗ Invalid JSON response from GitHub API"
-            rm -f "$TEMP_JSON"
-            exit 1
-          fi
-
-          # ── Scope: filter to changed tools unless scanning all ────────────────
-          SCAN_ALL="${{ needs.detect-changes.outputs.scan-all }}"
-          CHANGED_TOOLS_JSON='${{ needs.detect-changes.outputs.changed-tools }}'
-
-          if [ "$SCAN_ALL" = "true" ] || [ "$CHANGED_TOOLS_JSON" = "[]" ] || [ -z "$CHANGED_TOOLS_JSON" ]; then
-            echo "� Scan scope: ALL tools (scan-all=$SCAN_ALL)"
-            BFX_PACKAGES_FILTERED="$BFX_PACKAGES"
-          else
-            echo "📋 Scan scope: CHANGED tools only → $CHANGED_TOOLS_JSON"
-            # Filter BFX_PACKAGES to only include packages for changed tools
-            # Package names look like: products/bfx/<toolname>
-            BFX_PACKAGES_FILTERED=""
-            while IFS= read -r tool; do
-              tool=$(echo "$tool" | tr -d '"')  # strip JSON quotes
-              MATCH=$(echo "$BFX_PACKAGES" | grep "^products/bfx/${tool}$" || true)
-              if [ -n "$MATCH" ]; then
-                BFX_PACKAGES_FILTERED="${BFX_PACKAGES_FILTERED}${MATCH}$'\n'"
-                echo "  ✓ Queued changed tool: $tool"
-              else
-                echo "  ⚠ Changed tool '$tool' has no matching ghcr.io package (may not be published yet)"
-              fi
-            done < <(echo "$CHANGED_TOOLS_JSON" | jq -r '.[]')
-
-            if [ -z "${BFX_PACKAGES_FILTERED// /}" ]; then
-              echo "⚠ No published packages found for changed tools — nothing to scan"
-              echo "images-file=" >> $GITHUB_OUTPUT
-              echo "image-count=0" >> $GITHUB_OUTPUT
-              echo "tool-mapping-file=" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          fi
-
-          BFX_COUNT=$(echo "$BFX_PACKAGES_FILTERED" | grep -c . 2>/dev/null || echo "0")
-          echo "  → Packages to process: $BFX_COUNT"
-          echo "$BFX_PACKAGES_FILTERED" | sed 's/^/    ✓ /'
-          rm -f "$TEMP_JSON"
-
-          # Process each package to get versions/tags and group by tool
-          echo ""
-          echo "🚀 Processing $BFX_COUNT products/bfx/* packages..."
-          echo ""
-
-          # Create a mapping file for tool -> images
           TOOL_IMAGES_FILE="tool_images_mapping.json"
           echo "{}" > "$TOOL_IMAGES_FILE"
 
-          echo "$BFX_PACKAGES_FILTERED" | while read -r package_name; do
-            if [ -n "$package_name" ]; then
-              # Extract tool name from package (products/bfx/toolname -> toolname)
-              TOOL_NAME=$(echo "$package_name" | sed 's|products/bfx/||')
-              echo "Processing tool: $TOOL_NAME"
-              
-              # URL encode the package name
-              encoded_package_name=$(echo "$package_name" | sed 's|/|%2F|g')
-              
-              # Get versions for this package
-              VERSIONS_URL="https://api.github.com/orgs/${ORG_NAME}/packages/container/${encoded_package_name}/versions?per_page=100"
-              VERSIONS_RESPONSE=$(make_api_call "$VERSIONS_URL")
-              
-              if [ $? -ne 0 ] || [ -z "$VERSIONS_RESPONSE" ]; then
-                VERSIONS_URL="https://api.github.com/users/${ORG_NAME}/packages/container/${encoded_package_name}/versions?per_page=100"
-                VERSIONS_RESPONSE=$(make_api_call "$VERSIONS_URL")
-              fi
-              
-              if [ $? -eq 0 ] && [ -n "$VERSIONS_RESPONSE" ]; then
-                # Validate versions response and extract tags
-                if echo "$VERSIONS_RESPONSE" | jq empty 2>/dev/null && echo "$VERSIONS_RESPONSE" | jq -e 'type == "array"' >/dev/null 2>&1; then
-                  VERSION_COUNT=$(echo "$VERSIONS_RESPONSE" | jq '. | length')
-                  echo "  → Found $VERSION_COUNT versions for $TOOL_NAME"
-                  
-                  # Extract tags and create image URLs, add to tool mapping
-                  echo "$VERSIONS_RESPONSE" | jq -r '.[].metadata.container.tags[]?' | while read -r tag; do
-                    if [ -n "$tag" ] && [[ ! "$tag" == *.sig ]] && [[ ! "$tag" == sha256-* ]] && [[ "$tag" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
-                      image_url="ghcr.io/${ORG_NAME}/${package_name}:${tag}"
-                      echo "$image_url" >> "$IMAGES_FILE"
-                      
-                      # Add to tool mapping
-                      jq --arg tool "$TOOL_NAME" --arg image "$image_url" --arg tag "$tag" \
-                        '.[$tool] = (.[$tool] // []) + [{"image": $image, "tag": $tag}]' \
-                        "$TOOL_IMAGES_FILE" > "${TOOL_IMAGES_FILE}.tmp" && mv "${TOOL_IMAGES_FILE}.tmp" "$TOOL_IMAGES_FILE"
-                      
-                      echo "    ✓ Added: $image_url"
-                    fi
-                  done
-                fi
-              else
-                echo "  ✗ Failed to fetch versions for $TOOL_NAME"
-              fi
-            fi
-          done
+          SCAN_ALL="${{ needs.detect-changes.outputs.scan-all }}"
+          CHANGED_TOOLS_JSON='${{ needs.detect-changes.outputs.changed-tools }}'
 
-          # Display summary
-          if [ -f "$IMAGES_FILE" ] && [ -s "$IMAGES_FILE" ]; then
-            IMAGE_COUNT=$(wc -l < "$IMAGES_FILE")
-            echo ""
-            echo "✓ Discovery complete. Found $IMAGE_COUNT images to scan"
-            
-            echo "images-file=$IMAGES_FILE" >> $GITHUB_OUTPUT
-            echo "image-count=$IMAGE_COUNT" >> $GITHUB_OUTPUT
-            echo "tool-mapping-file=$TOOL_IMAGES_FILE" >> $GITHUB_OUTPUT
+          echo ""
+          echo "🔍 Scan scope:"
+          echo "  → scan-all:      $SCAN_ALL"
+          echo "  → changed-tools: $CHANGED_TOOLS_JSON"
+          echo ""
+
+          # Build the list of tool directories to process
+          if [ "$SCAN_ALL" = "true" ] || [ "$CHANGED_TOOLS_JSON" = "[]" ] || [ -z "$CHANGED_TOOLS_JSON" ]; then
+            echo "📋 Mode: ALL tools — reading every bfx/*/release.json"
+            TOOL_DIRS=$(find bfx -mindepth 1 -maxdepth 1 -type d | sort)
           else
-            echo ""
-            echo "⚠ No images found to scan"
-            echo "images-file=" >> $GITHUB_OUTPUT
-            echo "image-count=0" >> $GITHUB_OUTPUT
+            echo "📋 Mode: CHANGED tools only → $CHANGED_TOOLS_JSON"
+            TOOL_DIRS=""
+            while IFS= read -r tool; do
+              tool=$(echo "$tool" | tr -d '"')
+              if [ -d "bfx/$tool" ]; then
+                TOOL_DIRS="${TOOL_DIRS}bfx/${tool}"$'\n'
+              else
+                echo "  ⚠ bfx/$tool directory not found — skipping"
+              fi
+            done < <(echo "$CHANGED_TOOLS_JSON" | jq -r '.[]')
+          fi
+
+          if [ -z "$TOOL_DIRS" ]; then
+            echo "⚠ No tool directories to process"
+            echo "images-file="   >> $GITHUB_OUTPUT
+            echo "image-count=0"  >> $GITHUB_OUTPUT
             echo "tool-mapping-file=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          TOOL_COUNT=0
+          IMAGE_COUNT=0
+
+          echo ""
+          echo "🚀 Reading release.json files..."
+          echo ""
+
+          while IFS= read -r tool_dir; do
+            [ -z "$tool_dir" ] && continue
+            RELEASE_JSON="$tool_dir/release.json"
+            TOOL_NAME=$(basename "$tool_dir")
+
+            if [ ! -f "$RELEASE_JSON" ]; then
+              echo "  ⚠ $TOOL_NAME: no release.json found — skipping"
+              continue
+            fi
+
+            if ! jq empty "$RELEASE_JSON" 2>/dev/null; then
+              echo "  ⚠ $TOOL_NAME: release.json is invalid JSON — skipping"
+              continue
+            fi
+
+            IMAGES=$(jq -r '.images[]?' "$RELEASE_JSON" 2>/dev/null || true)
+            if [ -z "$IMAGES" ]; then
+              echo "  ⚠ $TOOL_NAME: release.json has no images — skipping"
+              continue
+            fi
+
+            TOOL_COUNT=$((TOOL_COUNT + 1))
+            SLUG=$(echo "$TOOL_NAME" | tr '[:upper:]' '[:lower:]')
+            ORG_NAME="${{ github.repository_owner }}"
+            echo "[$TOOL_COUNT] $TOOL_NAME"
+
+            while IFS= read -r source_image; do
+              [ -z "$source_image" ] && continue
+
+              # Derive GHCR URL using same logic as the retag workflow:
+              # tag = everything after last ':', then strip '--...' suffix
+              FULL_TAG="${source_image##*:}"
+              SHORT_TAG="${FULL_TAG%%--*}"
+              GHCR_URL="ghcr.io/${ORG_NAME}/products/bfx/${SLUG}:${SHORT_TAG}"
+
+              # Only scan images that exist in GHCR (already retagged)
+              if docker manifest inspect "$GHCR_URL" > /dev/null 2>&1; then
+                echo "    ✓ Queuing: $GHCR_URL"
+                echo "$GHCR_URL" >> "$IMAGES_FILE"
+
+                # Add to tool → image mapping
+                jq --arg tool "$TOOL_NAME" \
+                   --arg image "$GHCR_URL" \
+                   --arg tag "$SHORT_TAG" \
+                   '.[$tool] = (.[$tool] // []) + [{"image": $image, "tag": $tag}]' \
+                   "$TOOL_IMAGES_FILE" > "${TOOL_IMAGES_FILE}.tmp" \
+                  && mv "${TOOL_IMAGES_FILE}.tmp" "$TOOL_IMAGES_FILE"
+
+                IMAGE_COUNT=$((IMAGE_COUNT + 1))
+              else
+                echo "    ⚠ Skipping (not in GHCR yet): $GHCR_URL"
+              fi
+            done <<< "$IMAGES"
+          done <<< "$TOOL_DIRS"
+
+          echo ""
+          echo "✓ Discovery complete:"
+          echo "  → Tools processed : $TOOL_COUNT"
+          echo "  → Images to scan  : $IMAGE_COUNT"
+
+          if [ "$IMAGE_COUNT" -eq 0 ]; then
+            echo "⚠ No images found to scan"
+            echo "images-file="       >> $GITHUB_OUTPUT
+            echo "image-count=0"      >> $GITHUB_OUTPUT
+            echo "tool-mapping-file=" >> $GITHUB_OUTPUT
+          else
+            echo "images-file=$IMAGES_FILE"         >> $GITHUB_OUTPUT
+            echo "image-count=$IMAGE_COUNT"          >> $GITHUB_OUTPUT
+            echo "tool-mapping-file=$TOOL_IMAGES_FILE" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload discovered images and mapping
