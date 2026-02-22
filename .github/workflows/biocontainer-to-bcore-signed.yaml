@@ -1,10 +1,23 @@
 name: Retag and Sign BioContainer Images
-# This workflow is triggered by a push to the biocontainers directory or manually 
+# Triggered on release.json changes (new tool version) or manually.
+# On push: only processes the tools whose release.json changed.
+# On workflow_dispatch: processes all tools by default, or changed-only if selected.
 on:
   workflow_dispatch:
+    inputs:
+      scan_mode:
+        description: "Retag scope: all tools or only recently changed"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - changed-only
   push:
+    branches:
+      - main
     paths:
-      - 'bfx/**'
+      - "bfx/*/release.json" # Only trigger when a tool version is added/updated
 
 jobs:
   retag-sign:
@@ -17,7 +30,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Needed to diff against the previous commit
 
       - name: Set up jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -40,7 +55,44 @@ jobs:
         run: |
           set -e
 
-          # Function to update BundleCore with new tool version
+          EVENT="${{ github.event_name }}"
+          SCAN_MODE="${{ github.event.inputs.scan_mode }}"
+
+          # ── Determine which tool directories to process ──────────────────────
+          if [ "$EVENT" = "push" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" = "changed-only" ]; }; then
+            echo "🔍 Incremental mode — diffing bfx/ against previous commit..."
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- bfx/ 2>/dev/null || true)
+
+            if [ -z "$CHANGED_FILES" ]; then
+              echo "  → No changes detected in bfx/ — nothing to retag"
+              exit 0
+            fi
+
+            echo "Changed files:"
+            echo "$CHANGED_FILES" | sed 's/^/  - /'
+
+            # Extract unique tool dirs from changed paths: bfx/<tool>/release.json → bfx/<tool>/
+            TOOL_DIRS=$(echo "$CHANGED_FILES" \
+              | grep '^bfx/' \
+              | sed 's|^bfx/||' \
+              | cut -d'/' -f1 \
+              | sort -u \
+              | sed 's|^|bfx/|; s|$|/|')
+
+            if [ -z "$TOOL_DIRS" ]; then
+              echo "  → No tool-level changes found — nothing to retag"
+              exit 0
+            fi
+
+            echo ""
+            echo "🛠 Tools to retag:"
+            echo "$TOOL_DIRS" | sed 's/^/  ✓ /'
+          else
+            echo "📋 Full mode — retagging ALL tools in bfx/"
+            TOOL_DIRS=$(find bfx -mindepth 1 -maxdepth 1 -type d | sort | sed 's|$|/|')
+          fi
+
+          # ── Helper: update BundleCore API with new tool version ──────────────
           update_bundlecore_tool_version() {
               local app_name=$1
               local new_version=$2
@@ -49,7 +101,6 @@ jobs:
 
               echo "Updating BundleCore API for $app_name version $new_version..."
 
-              # Fetch existing versions from BundleCore
               local versions_data=$(curl -sS -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" "https://bundlecore.com/api/tools/${app_name}/versions")
 
               if [ -z "$versions_data" ]; then
@@ -57,20 +108,18 @@ jobs:
                   return 0
               fi
 
-              # Check if this version already exists and get its bcRegistryUrl
               local existing_version=$(echo "$versions_data" | jq -r --arg ver "$new_version" '.data.versions[] | select(.version == $ver)')
-              
+
               if [ -n "$existing_version" ] && [ "$existing_version" != "null" ]; then
                   local existing_bc_registry=$(echo "$existing_version" | jq -r '.bcRegistryUrl')
-                  
+
                   if [ -n "$existing_bc_registry" ] && [ "$existing_bc_registry" != "" ] && [ "$existing_bc_registry" != "null" ]; then
                       echo "ℹ️  Version $new_version already exists for $app_name with bcRegistryUrl: $existing_bc_registry"
                       return 0
                   fi
-                  
+
                   echo "📝 Version $new_version exists but bcRegistryUrl is empty, updating..."
-                  
-                  # Update the existing version with bcRegistryUrl
+
                   local updated_body=$(echo "$existing_version" | jq \
                       --arg bc_registry "$bc_registry_url" \
                       --arg registry "$original_image" \
@@ -79,7 +128,6 @@ jobs:
 
                   echo "Updated body: $updated_body"
 
-                  # PUT to update the existing version
                   response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X PUT \
                       -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
                       -H "Content-Type: application/json" \
@@ -98,10 +146,9 @@ jobs:
                   return 0
               fi
 
-              # Version doesn't exist, create a new one
+              # Version doesn't exist — create a new one
               echo "➕ Creating new version $new_version for $app_name in BundleCore..."
 
-              # Extract the first version object as template
               local template_body=$(echo "$versions_data" | jq '.data.versions[0]')
 
               if [ -z "$template_body" ] || [ "$template_body" == "null" ]; then
@@ -111,7 +158,6 @@ jobs:
 
               echo "Using template from version: $(echo "$template_body" | jq -r '.version')"
 
-              # Create new version body from template
               local new_body=$(echo "$template_body" | jq \
                   --arg new_ver "$new_version" \
                   --arg bc_registry "$bc_registry_url" \
@@ -122,7 +168,6 @@ jobs:
 
               echo "New version body: $new_body"
 
-              # POST to create new version
               response=$(curl -sS -w "%{http_code}" -o /tmp/curl_response -X POST \
                   -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
                   -H "Content-Type: application/json" \
@@ -141,16 +186,22 @@ jobs:
               return 0
           }
 
-            for appdir in bfx/*/; do
+          # ── Main retag loop ──────────────────────────────────────────────────
+          echo ""
+          echo "🚀 Starting retag loop..."
+          echo ""
+
+          while IFS= read -r appdir; do
+            [ -z "$appdir" ] && continue
             app=$(basename "$appdir")
-            slug=$(basename "$appdir" | tr '[:upper:]' '[:lower:]')
+            slug=$(echo "$app" | tr '[:upper:]' '[:lower:]')
             release_json="${appdir}release.json"
 
             if [ ! -f "$release_json" ]; then
               echo "No release.json for $app, skipping"
               continue
             fi
-            
+
             images=$(jq -r '.images[]' "$release_json")
             for img in $images; do
                 tag="${img##*:}"
@@ -169,16 +220,14 @@ jobs:
 
                 # Update BundleCore API with new version
                 update_bundlecore_tool_version "$slug" "$tag" "$img" "$dest" || true
-
             done
-            # Check if there are any docker images before cleanup
+
+            # Clean up local images after each tool to avoid disk bloat
             if docker images -q | grep -q .; then
               echo "Cleaning up docker images and cache..."
-              # clean up local images
               docker images -q | xargs -r -n1 docker rmi -f || true
-              # remove build cache, dangling images and unused data
               docker builder prune -af || true
               docker image prune -af || true
               docker system prune -af --volumes || true
             fi
-          done
+          done <<< "$TOOL_DIRS"
