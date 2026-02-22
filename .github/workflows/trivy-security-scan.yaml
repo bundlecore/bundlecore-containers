@@ -271,7 +271,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Discover container images
         id: discover-images
@@ -1845,6 +1854,7 @@ jobs:
           echo ""
 
           # Next steps
+          IMAGE_COUNT_OUT="${{ needs.security-scan.outputs.image-count || '0' }}"
           echo "📋 Next Steps:"
           if [ "${{ needs.trivy-scan.result }}" == "success" ]; then
             echo "  1. Review the created Pull Request with scan results"
@@ -1852,7 +1862,7 @@ jobs:
             echo "  3. Address any CRITICAL vulnerabilities found"
             echo "  4. Plan container image updates for affected versions"
             echo "  5. Merge the PR to update the security baseline"
-          elif [ "${{ needs.security-scan.outputs.image-count }}" -eq 0 ]; then
+          elif [ "$(( ${IMAGE_COUNT_OUT:-0} ))" -eq 0 ]; then
             echo "  1. Verify container images are published to ghcr.io"
             echo "  2. Check that images follow the products/bfx/* naming pattern"
             echo "  3. Ensure workflow has proper permissions to access packages"
@@ -1866,7 +1876,8 @@ jobs:
           echo ""
           echo "🧠 Intelligent PR Creation Summary:"
           echo "==================================="
-          if [ "${{ steps.organize-results.outputs.tool-count || '0' }}" -gt 0 ]; then
+          IMAGE_COUNT_OUT="${{ needs.security-scan.outputs.image-count || '0' }}"
+          if [ "${IMAGE_COUNT_OUT:-0}" -gt 0 ] && [ "${{ steps.organize-results.outputs.tool-count || '0' }}" -gt 0 ]; then
             CHANGES_DETECTED="${{ steps.analyze-changes.outputs.changes-detected || 'false' }}"
             if [ "$CHANGES_DETECTED" == "true" ]; then
               echo "✅ PR created - meaningful security changes detected"
