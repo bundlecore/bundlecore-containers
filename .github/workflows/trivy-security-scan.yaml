@@ -1,6 +1,11 @@
 name: Trivy Security Scan
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bfx/*/release.json" # Only trigger when a tool version is added/updated
   schedule:
     # Run on the first Sunday of every month at 2:00 AM UTC
     - cron: "0 2 1-7 * 0"
@@ -32,6 +37,14 @@ on:
         required: false
         default: false
         type: boolean
+      scan_mode:
+        description: "Scan scope: 'all' scans every tool, 'changed-only' scans only tools with bfx/ changes since last commit"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - changed-only
 
 permissions:
   contents: write # Required for creating files and PRs
@@ -166,12 +179,96 @@ jobs:
       recent-scan-available: ${{ steps.check-recent.outputs.recent-scan-available }}
       recent-run-id: ${{ steps.check-recent.outputs.recent-run-id }}
 
+  # ─── Detect which bfx/ tools changed vs the previous commit ───────────────
+  detect-changes:
+    name: Detect Changed Tools
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed-tools: ${{ steps.diff.outputs.changed-tools }}
+      has-changes: ${{ steps.diff.outputs.has-changes }}
+      scan-all: ${{ steps.diff.outputs.scan-all }}
+
+    steps:
+      - name: Checkout repository (full history for diff)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2 # Need previous commit to diff against
+
+      - name: Determine changed tools
+        id: diff
+        run: |
+          echo "Determining scan scope..."
+          EVENT="${{ github.event_name }}"
+          SCAN_MODE="${{ github.event.inputs.scan_mode }}"
+
+          # Scheduled runs always scan everything
+          if [ "$EVENT" = "schedule" ]; then
+            echo "📅 Scheduled run → scanning ALL tools"
+            echo "scan-all=true" >> $GITHUB_OUTPUT
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "changed-tools=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Manual runs with scan_mode=all (or unset) scan everything
+          if [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; then
+            echo "🖐 Manual run (scan_mode=all) → scanning ALL tools"
+            echo "scan-all=true" >> $GITHUB_OUTPUT
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "changed-tools=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Push trigger OR manual changed-only: diff bfx/ to find changed tools
+          echo "🔍 Diffing bfx/ against previous commit..."
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- bfx/ 2>/dev/null || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "  → No changes detected in bfx/"
+            echo "  → Skipping scan (nothing to do)"
+            echo "scan-all=false" >> $GITHUB_OUTPUT
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "changed-tools=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Changed files in bfx/:"
+          echo "$CHANGED_FILES" | sed 's/^/  - /'
+
+          # Extract unique tool names: bfx/<tool>/anything → <tool>
+          CHANGED_TOOLS=$(echo "$CHANGED_FILES" \
+            | grep '^bfx/' \
+            | sed 's|^bfx/||' \
+            | cut -d'/' -f1 \
+            | sort -u)
+
+          if [ -z "$CHANGED_TOOLS" ]; then
+            echo "  → No tool-level changes extracted"
+            echo "scan-all=false" >> $GITHUB_OUTPUT
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "changed-tools=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo ""
+          echo "🛠 Changed tools detected:"
+          echo "$CHANGED_TOOLS" | sed 's/^/  ✓ /'
+
+          # Build a JSON array of changed tool names for downstream filtering
+          TOOLS_JSON=$(echo "$CHANGED_TOOLS" | jq -R . | jq -s -c .)
+          echo "  → JSON: $TOOLS_JSON"
+
+          echo "scan-all=false" >> $GITHUB_OUTPUT
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          echo "changed-tools=$TOOLS_JSON" >> $GITHUB_OUTPUT
+
   security-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: check-recent-scans
-    if: always() # Run even if check-recent-scans is skipped
+    needs: [check-recent-scans, detect-changes]
+    if: always() && needs.detect-changes.outputs.has-changes == 'true'
 
     steps:
       - name: Checkout repository
@@ -309,26 +406,41 @@ jobs:
             exit 1
           fi
 
-          # Extract and filter packages for products/bfx/* only
-          ALL_PACKAGES_COUNT=$(jq '. | length' "$TEMP_JSON")
-          echo "📦 Package Discovery Results:"
-          echo "============================="
-          echo "  → Total packages found: $ALL_PACKAGES_COUNT"
+          # ── Scope: filter to changed tools unless scanning all ────────────────
+          SCAN_ALL="${{ needs.detect-changes.outputs.scan-all }}"
+          CHANGED_TOOLS_JSON='${{ needs.detect-changes.outputs.changed-tools }}'
 
-          # Get all package names and filter for products/bfx/*
-          ALL_PACKAGE_NAMES=$(jq -r '.[].name' "$TEMP_JSON")
-          BFX_PACKAGES=$(echo "$ALL_PACKAGE_NAMES" | grep "^products/bfx/" || true)
-          BFX_COUNT=$(echo "$BFX_PACKAGES" | grep -c . 2>/dev/null || echo "0")
+          if [ "$SCAN_ALL" = "true" ] || [ "$CHANGED_TOOLS_JSON" = "[]" ] || [ -z "$CHANGED_TOOLS_JSON" ]; then
+            echo "� Scan scope: ALL tools (scan-all=$SCAN_ALL)"
+            BFX_PACKAGES_FILTERED="$BFX_PACKAGES"
+          else
+            echo "📋 Scan scope: CHANGED tools only → $CHANGED_TOOLS_JSON"
+            # Filter BFX_PACKAGES to only include packages for changed tools
+            # Package names look like: products/bfx/<toolname>
+            BFX_PACKAGES_FILTERED=""
+            while IFS= read -r tool; do
+              tool=$(echo "$tool" | tr -d '"')  # strip JSON quotes
+              MATCH=$(echo "$BFX_PACKAGES" | grep "^products/bfx/${tool}$" || true)
+              if [ -n "$MATCH" ]; then
+                BFX_PACKAGES_FILTERED="${BFX_PACKAGES_FILTERED}${MATCH}$'\n'"
+                echo "  ✓ Queued changed tool: $tool"
+              else
+                echo "  ⚠ Changed tool '$tool' has no matching ghcr.io package (may not be published yet)"
+              fi
+            done < <(echo "$CHANGED_TOOLS_JSON" | jq -r '.[]')
 
-          echo "  → products/bfx/* packages found: $BFX_COUNT"
-
-          if [ "$BFX_COUNT" -eq 0 ]; then
-            echo "    ❌ No products/bfx/* packages found"
-            rm -f "$TEMP_JSON"
-            exit 1
+            if [ -z "${BFX_PACKAGES_FILTERED// /}" ]; then
+              echo "⚠ No published packages found for changed tools — nothing to scan"
+              echo "images-file=" >> $GITHUB_OUTPUT
+              echo "image-count=0" >> $GITHUB_OUTPUT
+              echo "tool-mapping-file=" >> $GITHUB_OUTPUT
+              exit 0
+            fi
           fi
 
-          echo "$BFX_PACKAGES" | sed 's/^/    ✓ /'
+          BFX_COUNT=$(echo "$BFX_PACKAGES_FILTERED" | grep -c . 2>/dev/null || echo "0")
+          echo "  → Packages to process: $BFX_COUNT"
+          echo "$BFX_PACKAGES_FILTERED" | sed 's/^/    ✓ /'
           rm -f "$TEMP_JSON"
 
           # Process each package to get versions/tags and group by tool
@@ -340,7 +452,7 @@ jobs:
           TOOL_IMAGES_FILE="tool_images_mapping.json"
           echo "{}" > "$TOOL_IMAGES_FILE"
 
-          echo "$BFX_PACKAGES" | while read -r package_name; do
+          echo "$BFX_PACKAGES_FILTERED" | while read -r package_name; do
             if [ -n "$package_name" ]; then
               # Extract tool name from package (products/bfx/toolname -> toolname)
               TOOL_NAME=$(echo "$package_name" | sed 's|products/bfx/||')
@@ -787,7 +899,7 @@ jobs:
         if: steps.batch-scan.outputs.successful-scans > 0
         uses: actions/upload-artifact@v6
         with:
-          name: trivy-scan-results
+          name: trivy-scan-results-checkpoint
           path: |
             trivy-results/
             scan_progress.txt
