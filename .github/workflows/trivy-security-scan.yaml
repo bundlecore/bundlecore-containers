@@ -10,41 +10,20 @@ on:
     # Full scan on the first Sunday of every month at 2:00 AM UTC
     - cron: "0 2 1-7 * 0"
   workflow_dispatch:
-    # Allow manual triggering of the workflow
     inputs:
-      debug_mode:
-        description: "Enable debug mode for troubleshooting"
-        required: false
-        default: false
-        type: boolean
-      force_fresh_scan:
-        description: "Force fresh scan even if recent results are available"
-        required: false
-        default: false
-        type: boolean
-      disable_recent_check:
-        description: "Disable recent scan checking (always do fresh scan)"
-        required: false
-        default: false
-        type: boolean
-      resume_from_progress:
-        description: "Resume from previous scan progress (if available)"
-        required: false
-        default: true
-        type: boolean
-      skip_to_organize:
-        description: "Skip scanning and go directly to organize results (if scan results exist)"
-        required: false
-        default: false
-        type: boolean
       scan_mode:
-        description: "Scan scope: 'all' scans every tool, 'changed-only' scans only tools with bfx/ changes since last commit"
+        description: "Scan scope"
         required: false
         default: "all"
         type: choice
         options:
           - all
           - changed-only
+      force_fresh_scan:
+        description: "Force a fresh scan, ignoring any cached results from previous runs"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write # Required for creating files and PRs
@@ -74,7 +53,8 @@ jobs:
           echo "Looking for successful runs since: $ONE_WEEK_AGO"
 
           # Check if user disabled recent scan checking or forced a fresh scan
-          if [ "${{ github.event.inputs.disable_recent_check }}" == "true" ]; then
+          # disable_recent_check is hardcoded to false (reuse logic is automatic)
+          if [ "false" == "true" ]; then
             echo "🔄 Recent scan checking disabled - will skip recent results check"
             echo "recent-scan-available=false" >> $GITHUB_OUTPUT
             echo "recent-run-id=" >> $GITHUB_OUTPUT
@@ -591,7 +571,7 @@ jobs:
           touch "$COMPLETED_FILE"
 
           # Check if user wants to resume from progress
-          if [ "${{ github.event.inputs.resume_from_progress }}" != "true" ]; then
+          if [ "true" != "true" ]; then
             echo "🔄 Resume from progress disabled - starting fresh scan"
             > "$COMPLETED_FILE"  # Clear completed file
             > "$PROGRESS_FILE"   # Clear progress file
@@ -658,7 +638,7 @@ jobs:
       - name: Batch scan images with Trivy
         id: batch-scan
         timeout-minutes: 150
-        if: (steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true') && github.event.inputs.skip_to_organize != 'true'
+        if: (steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true')
         run: |
           IMAGES_FILE="${{ steps.check-progress.outputs.remaining-file }}"
           PROGRESS_FILE="scan_progress.txt"
@@ -869,10 +849,10 @@ jobs:
           retention-days: 30
 
       - name: Prepare results from recent scans or skip to organize
-        if: (steps.check-reuse.outputs.reuse-available == 'true' && steps.check-reuse.outputs.json-count > 0) || github.event.inputs.skip_to_organize == 'true'
+        if: steps.check-reuse.outputs.reuse-available == 'true' && steps.check-reuse.outputs.json-count > 0
         id: prepare-recent
         run: |
-          if [ "${{ github.event.inputs.skip_to_organize }}" == "true" ]; then
+          if [ "false" == "true" ]; then
             echo "⏭ Skipping to organize existing results..."
             echo "Using existing trivy-results directory"
           else
