@@ -515,17 +515,42 @@ jobs:
             fi
             
             if [ $DOWNLOADED_ARTIFACTS -gt 0 ]; then
-              echo "reuse-available=true" >> $GITHUB_OUTPUT
-              
               # Count total JSON files from all downloaded artifacts
               JSON_COUNT=0
               if [ -d "recent-results" ]; then
                 JSON_COUNT=$(find recent-results -name "*.json" -type f | wc -l)
               fi
-              
+
               echo "  → Downloaded $DOWNLOADED_ARTIFACTS artifact(s)"
               echo "  → Found $JSON_COUNT JSON files total"
               echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
+
+              # Only reuse if every image in the current scan list has a result
+              # in the downloaded artifacts. A partial match (e.g. pbmm2 results
+              # when we need bowtie2) must NOT prevent a fresh scan.
+              IMAGES_FILE="images_to_scan.txt"
+              ALL_COVERED=true
+              if [ -f "$IMAGES_FILE" ] && [ -s "$IMAGES_FILE" ]; then
+                while IFS= read -r img; do
+                  [ -z "$img" ] && continue
+                  SAFE=$(echo "$img" | sed 's|[^a-zA-Z0-9._-]|_|g')
+                  if ! find recent-results -name "trivy-${SAFE}.json" -type f | grep -q .; then
+                    echo "  ⚠ No cached result for $img — fresh scan needed"
+                    ALL_COVERED=false
+                    break
+                  fi
+                done < "$IMAGES_FILE"
+              else
+                ALL_COVERED=false
+              fi
+
+              if [ "$ALL_COVERED" = "true" ]; then
+                echo "✅ All images covered by cached results — reusing"
+                echo "reuse-available=true" >> $GITHUB_OUTPUT
+              else
+                echo "🔄 Cache incomplete for current scan — running fresh scan"
+                echo "reuse-available=false" >> $GITHUB_OUTPUT
+              fi
             else
               echo "⚠ Failed to download any scan results from run $RECENT_RUN_ID"
               echo "  → This might be expected if the run failed before creating artifacts"
@@ -699,6 +724,7 @@ jobs:
               echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SCANNING $image_url" >> "$PROGRESS_FILE"
               
               # Attempt Trivy scan with JSON output
+              # Note: stderr is NOT suppressed so pull/auth failures are visible
               if timeout 15m docker run --rm \
                 --memory=2g \
                 --cpus=2 \
@@ -714,24 +740,31 @@ jobs:
                 --exit-code 0 \
                 --skip-update \
                 --output "/output/trivy-${SAFE_NAME}.json" \
-                "$image_url" 2>/dev/null; then
-                
-                SCAN_COUNT=$((SCAN_COUNT + 1))
-                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-                echo "  ✓ Scan completed successfully"
-                
-                # Record successful completion
-                echo "$image_url" >> "$COMPLETED_FILE"
-                echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SUCCESS $image_url" >> "$PROGRESS_FILE"
-                
-                if [ -f "$JSON_FILE" ]; then
+                "$image_url"; then
+                # Verify the output JSON is valid and non-empty (guards against
+                # silent pull failures that exit 0 but write nothing)
+                if jq empty "$JSON_FILE" 2>/dev/null && [ $(wc -c < "$JSON_FILE" 2>/dev/null || echo 0) -gt 10 ]; then
+                  SCAN_COUNT=$((SCAN_COUNT + 1))
+                  SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                  echo "  ✓ Scan completed successfully"
+
+                  echo "$image_url" >> "$COMPLETED_FILE"
+                  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SUCCESS $image_url" >> "$PROGRESS_FILE"
+
                   VULN_COUNT=$(jq -r '.Results[]?.Vulnerabilities // [] | length' "$JSON_FILE" 2>/dev/null | awk '{sum+=$1} END {print sum+0}')
                   echo "  → Found $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
-                fi
-                
-                # Save progress every 5 successful scans
-                if [ $((SCAN_COUNT % 5)) -eq 0 ]; then
-                  echo "  💾 Progress checkpoint: $SCAN_COUNT scans completed in this run"
+
+                  # Save progress every 5 successful scans
+                  if [ $((SCAN_COUNT % 5)) -eq 0 ]; then
+                    echo "  💾 Progress checkpoint: $SCAN_COUNT scans completed in this run"
+                  fi
+                else
+                  echo "  ✗ Trivy produced invalid/empty JSON — treating as failure"
+                  rm -f "$JSON_FILE"
+                  SCAN_COUNT=$((SCAN_COUNT + 1))
+                  FAILURE_COUNT=$((FAILURE_COUNT + 1))
+                  echo "$image_url" >> "$FAILED_FILE"
+                  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) FAILED_EMPTY_JSON $image_url" >> "$PROGRESS_FILE"
                 fi
               else
                 SCAN_COUNT=$((SCAN_COUNT + 1))
