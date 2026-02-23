@@ -1,0 +1,101 @@
+{
+  "tool": "mummer",
+  "scan_timestamp": "2026-02-23T05:08:37Z",
+  "workflow_run_id": "22293694525",
+  "versions": {
+    "4.0.1": {
+      "image": "ghcr.io/bundlecore/products/bfx/mummer:4.0.1",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2025-24294",
+          "PkgName": "resolv",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/resolv-0.6.0.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/resolv@0.6.0",
+            "UID": "d799dfae5ccdb476"
+          },
+          "InstalledVersion": "0.6.0",
+          "FixedVersion": "~> 0.2.2, ~> 0.3.0, >= 0.6.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a97e19ef95dd58e5cf90d37eedfa3d211eb12b2d5934f35036dbeb3778700c45",
+            "DiffID": "sha256:991591d14e50625e4348888595be58ec410fdfb82ae730e081cb1fbd93392ef6"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-24294",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:9e897440f2984a413ef68bba8803fc412dc08e4fc01b73f09ceb555b585144f1",
+          "Title": "resolv: Denial of Service in resolv gem",
+          "Description": "The attack vector is a potential Denial of Service (DoS). The vulnerability is caused by an insufficient check on the length of a decompressed domain name within a DNS packet.\r\n\r\nAn attacker can craft a malicious DNS packet containing a highly compressed domain name. When the resolv library parses such a packet, the name decompression process consumes a large amount of CPU resources, as the library does not limit the resulting length of the name.\r\n\r\nThis resource consumption can cause the application thread to become unresponsive, resulting in a Denial of Service condition.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 2,
+            "azure": 2,
+            "cbl-mariner": 2,
+            "ghsa": 2,
+            "oracle-oval": 2,
+            "redhat": 2,
+            "rocky": 2,
+            "ruby-advisory-db": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 5.3,
+              "V40Score": 6.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:23063",
+            "https://access.redhat.com/security/cve/CVE-2025-24294",
+            "https://bugzilla.redhat.com/2379684",
+            "https://bugzilla.redhat.com/2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2379684",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2426336",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-24294",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58767",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61594",
+            "https://errata.almalinux.org/9/ALSA-2025-23063.html",
+            "https://errata.rockylinux.org/RLSA-2025:23063",
+            "https://github.com/advisories/GHSA-xh69-987w-hrp8",
+            "https://github.com/ruby/resolv",
+            "https://github.com/ruby/resolv/commit/4c2f71b5e80826506f78417d85b38481c058fb25",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/resolv/CVE-2025-24294.yml",
+            "https://linux.oracle.com/cve/CVE-2025-24294.html",
+            "https://linux.oracle.com/errata/ELSA-2025-23141.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-24294",
+            "https://rubygems.org/gems/resolv",
+            "https://ubuntu.com/security/notices/USN-7734-1",
+            "https://ubuntu.com/security/notices/USN-7735-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-24294",
+            "https://www.ruby-lang.org/en/news/2025/07/08/dos-resolv-cve-2025-24294",
+            "https://www.ruby-lang.org/en/news/2025/07/08/dos-resolv-cve-2025-24294/",
+            "https://www.vuxml.org/freebsd/eed1a411-699b-11f0-91fe-000c295725e4.html"
+          ],
+          "PublishedDate": "2025-07-12T04:15:46.683Z",
+          "LastModifiedDate": "2025-07-16T14:15:23.037Z"
+        }
+      ],
+      "vulnerability_count": 1
+    }
+  },
+  "summary": {
+    "total_versions_scanned": 1,
+    "total_vulnerabilities": 1
+  }
+}
