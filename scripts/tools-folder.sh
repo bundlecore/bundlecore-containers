@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to create folders for each tool in the bfx directory
-# This is used when onboarding new tools to ensure each has its own folder to store lua files and release.json
+# This is used when onboarding new tools to ensure each has its own folder to store release.json
 
 # Fetch tools list from API
 echo "Fetching tools list from bundlecore API..."
