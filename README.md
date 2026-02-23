@@ -1,144 +1,172 @@
 [![Dependabot Updates](https://github.com/bundlecore/bundlecore-containers/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/dependabot/dependabot-updates)
 [![Build and Push Docker Images](https://github.com/bundlecore/bundlecore-containers/actions/workflows/ci.yml/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/ci.yml)
+[![Retag and Sign BioContainer Images](https://github.com/bundlecore/bundlecore-containers/actions/workflows/biocontainer-to-bcore-signed.yaml/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/biocontainer-to-bcore-signed.yaml)
 [![Trivy Security Scan](https://github.com/bundlecore/bundlecore-containers/actions/workflows/trivy-security-scan.yaml/badge.svg)](https://github.com/bundlecore/bundlecore-containers/actions/workflows/trivy-security-scan.yaml)
 
 # Bundle Core Containers
 
-This repository is the parent for all bundle core containers, providing a comprehensive collection of bioinformatics tools packaged as Docker containers. It follows the git submodule pattern for managing multiple container projects. See [this blog post](https://github.blog/open-source/git/working-with-submodules/) for more information.
-
-Additional reading: https://gist.github.com/gitaarik/8735255
+This repository manages 120+ bioinformatics tools as container images. Each tool lives under `bfx/<tool>/` with a `release.json` that tracks its source images from Quay.io/BioContainers. Automated workflows retag, sign, scan, and publish all images to GitHub Container Registry (GHCR).
 
 ## Repository Structure
 
 ```
 bundlecore-containers/
-├── bfx/                    # Bioinformatics tools (21+ tools)
+├── bfx/                         # 120+ bioinformatics tools
 │   ├── bcftools/
-│   ├── bedtools/
-│   ├── bowtie2/
+│   │   ├── release.json         # Source images from Quay.io
+│   │   └── trivy-scan-results.json  # Vulnerability scan results
+│   ├── samtools/
 │   └── ...
-├── biocontainers/          # BioContainer integrations
-├── docs/                   # Documentation
-│   ├── trivy-security-scan-workflow.md
-│   ├── workflow-diagram.md
-│   └── quick-reference.md
-├── .github/workflows/      # CI/CD workflows
-│   ├── ci.yml
-│   ├── trivy-security-scan.yaml
-│   └── dependabot/
+├── scripts/
+│   └── tools-folder.sh          # Bulk tool onboarding script
+├── .github/workflows/           # CI/CD automation
+│   ├── biocontainer-to-bcore-signed.yaml  # Retag & sign
+│   ├── trivy-security-scan.yaml           # Vulnerability scanning
+│   ├── create-release-json.yml            # Populate release.json
+│   ├── check-bfx-releases.yml            # Weekly version check
+│   ├── generate-lua-files.yml             # Lua module generation
+│   ├── ci.yml                             # Build & push
+│   ├── auto-merge.yml                     # Dependabot auto-merge
+│   └── discord.yml                        # Discord notifications
+├── docs/                        # Documentation
 └── README.md
 ```
 
-## Continuous Integration
+## Workflow Chain
 
-The repository includes automated CI workflows that:
+When a new tool is onboarded or updated, the following automated chain runs:
 
-- **Build and Release**: Run daily at midnight to check for new releases
-- **Container Management**: Build and push Docker images to GitHub Container Registry
-- **Security**: Sign container images using build provenance attestation
-- **Automation**: Automatically update version information via pull requests
-- **BioContainer Integration**: Retag and sign BioContainer images from `biocontainers/<app>/release.json` to GitHub Container Registry (GHCR)
-- **Security Scanning**: Monthly automated vulnerability scanning with Trivy
+```
+Push release.json ──> create-release-json  ──> Retag & Sign  ──> Trivy Scan  ──> PR with results
+(empty file)         (populate from API)      (pull, retag,     (scan images,   (vulnerability
+                                               push to GHCR,    count vulns)     summary table)
+                                               cosign sign)
+```
 
-### Container Versioning
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **Generate release.json** | Push to `bfx/*/release.json` or manual | Populates empty release.json files from BundleCore API |
+| **Retag and Sign** | Push to `bfx/*/release.json` or manual | Pulls images from Quay.io, retags to GHCR, signs with Cosign |
+| **Trivy Security Scan** | After retag completes, monthly cron, or manual | Scans GHCR images for CRITICAL/HIGH vulnerabilities |
+| **Check BFX Releases** | Weekly (Sundays 8 AM UTC) or manual | Checks Quay.io/GitHub/GitLab for new tool versions |
+| **Generate Lua Files** | Manual | Generates Lua module files for each tool version |
+| **Discord Bridge** | Push, PR, issues, releases | Sends GitHub event notifications to Discord |
+| **Dependabot auto-approve** | Dependabot PRs | Auto-merges Dependabot dependency updates |
+| **Build and Push** | CI triggers | Builds and pushes Docker images |
 
-Each container's version information is tracked in a `release.json` file within its directory. The file contains:
-- `latest_version`: Current version of the container
-- `repo_url`: Source repository URL
-- Optional fields:
-  - `dockerfile_location`: Custom Dockerfile path (defaults to "Dockerfile")
-  - `repo_without_dockerfile`: Boolean indicating if Dockerfile should be copied from this repo
+## Onboarding Tools
 
-The CI workflow:
-1. Checks each container's current version against the latest upstream GitHub release/tag
-2. For outdated containers:
-   - Builds and pushes new container images to ghcr.io
-   - Creates a pull request to update the release.json file
-3. Signs the published container images using build provenance attestation
+### Single Tool
 
-**BioContainer Retagging Workflow:**
-- Iterates through each app in `biocontainers/<app>/`
-- Reads all images from `release.json`
-- Retags and pushes each image to `ghcr.io/<org>/<app>:<tag>`
-- Signs the retagged images using Cosign
+1. Create the tool directory and an empty `release.json`:
+   ```bash
+   mkdir -p bfx/my-new-tool
+   touch bfx/my-new-tool/release.json
+   ```
+2. Commit and push to `main`
+3. The **Generate release.json** workflow auto-triggers, populates the file from the BundleCore API, and opens a PR
+4. Merge the PR -> **Retag and Sign** pulls and retags images to GHCR -> **Trivy Scan** checks for vulnerabilities
 
-Container images are published to `ghcr.io/<repository-name>/<container-name>:<version>`.
+### Bulk Onboarding (50+ tools)
+
+For onboarding many tools at once (e.g., 50 tools in a batch):
+
+1. **Set the `BCORE_AUTH_TOKEN` environment variable:**
+   ```bash
+   export BCORE_AUTH_TOKEN="your-bundlecore-api-token"
+   ```
+
+2. **Run the onboarding script** to create folders for all tools registered in BundleCore:
+   ```bash
+   bash scripts/tools-folder.sh
+   ```
+   This fetches the full tool list from the BundleCore API and creates `bfx/<tool>/release.json` (empty) for each tool that doesn't already have a folder.
+
+3. **Commit and push:**
+   ```bash
+   git add bfx/
+   git commit -m "Onboard N new tools"
+   git push origin main
+   ```
+
+4. **Automated chain kicks in:**
+   - **Generate release.json** triggers on the push, detects the empty `release.json` files, calls the BundleCore API to populate them, and opens a PR
+   - Merge the PR
+   - **Retag and Sign** triggers, processes all new tools (pulls from Quay.io, retags to GHCR, signs with Cosign)
+   - **Trivy Security Scan** triggers after retag completes, scans only the newly added tools, and opens a PR with per-tool vulnerability counts
+
+> **Note:** The workflows are designed to handle batches efficiently. The retag workflow processes tools sequentially to manage disk usage (cleaning up Docker images after each tool). A batch of 50 tools typically takes ~30-45 minutes for retag and ~15-20 minutes for Trivy scanning.
+
+### release.json Format
+
+Each tool's `release.json` contains the source images from Quay.io/BioContainers:
+
+```json
+{
+  "images": [
+    "quay.io/biocontainers/bcftools:1.21--h8b25389_0",
+    "quay.io/biocontainers/bcftools:1.19--h8b25389_0"
+  ]
+}
+```
+
+The retag workflow derives the GHCR URL from each image: `ghcr.io/bundlecore/products/bfx/<tool>:<version>`.
 
 ## Security Scanning
 
-The repository implements automated security scanning using [Trivy](https://trivy.dev/) to identify vulnerabilities in container images.
+Automated vulnerability scanning with [Trivy](https://trivy.dev/) runs in three scenarios:
 
-### Trivy Security Scan Workflow
+| Trigger | Scope | Typical Duration |
+|---------|-------|-----------------|
+| After retag completes | Only the tools that changed | 5-15 min |
+| Monthly cron (1st Sunday, 2 AM UTC) | All tools | ~40 min |
+| Manual dispatch (`scan_mode=all` or `changed-only`) | Configurable | Varies |
 
-- **Schedule**: Runs automatically on the first Sunday of every month at 2:00 AM UTC
-- **Scope**: Scans all container images in the `products/bfx/` namespace
-- **Severity**: Focuses on CRITICAL and HIGH vulnerabilities
-- **Performance**: Intelligent artifact reuse reduces scan time from 2-3 hours to ~30 seconds
-- **Output**: Automated pull requests with comprehensive vulnerability reports
+### How It Works
 
-### Key Features
-
-- 🔄 **Intelligent Artifact Reuse**: Reuses previous scan results for faster execution
-- 🛡️ **Robust Recovery**: Checkpoint system allows resuming from interruptions
-- 📊 **Comprehensive Reporting**: Organizes results by tool with detailed vulnerability information
-- 🔧 **Smart Directory Matching**: Automatically maps container images to tool directories
-- 📝 **Automated PR Management**: Creates or updates pull requests with scan results
+1. **detect-scope** - Determines which tools to scan based on the trigger
+2. **scan** - For each target tool: discovers GHCR images, runs Trivy, writes organized results to `bfx/<tool>/trivy-scan-results.json`
+3. **create-pr** - Commits scan results and opens a PR with a per-tool vulnerability summary table (skipped if zero vulnerabilities)
 
 ### Quick Start
 
 ```bash
-# Manual trigger
-gh workflow run "Trivy Security Scan"
+# Scan all tools
+gh workflow run "Trivy Security Scan" -f scan_mode=all
 
-# Force fresh scan (ignore cached results)
-gh workflow run "Trivy Security Scan" -f force_fresh_scan=true
-
-# Debug mode
-gh workflow run "Trivy Security Scan" -f debug_mode=true
+# Scan only recently changed tools
+gh workflow run "Trivy Security Scan" -f scan_mode=changed-only
 ```
 
-### Documentation
+### Security Review Process
 
-- 📚 [Complete Workflow Documentation](docs/trivy-security-scan-workflow.md)
-- 🔄 [Detailed Flow Diagrams](docs/workflow-diagram.md)
-- 🚀 [Quick Reference Guide](docs/quick-reference.md)
+1. Review the PR created by Trivy scan - it includes a summary table with CRITICAL and HIGH counts per tool
+2. Check `bfx/<tool>/trivy-scan-results.json` for detailed vulnerability information
+3. Prioritise CRITICAL vulnerabilities for immediate remediation
+4. Merge the PR to update the vulnerability baseline
 
-## Getting Started
+## Version Tracking
 
-### Using Container Images
+The **Check BFX Container Releases** workflow runs weekly and:
+
+1. Checks each tool's latest version from GitHub/GitLab releases and Quay.io tags
+2. If a new version is found, updates the tool's `release.json` and opens a PR
+3. Updates the BundleCore API with the new version information
+4. Merging the PR triggers the retag -> sign -> scan chain
+
+## Using Container Images
 
 All container images are available from GitHub Container Registry:
 
 ```bash
 # Pull a specific tool
-docker pull ghcr.io/bundlecore/products/bfx/bcftools:1.19
+docker pull ghcr.io/bundlecore/products/bfx/bcftools:1.21
 
 # List available images
 gh api /orgs/bundlecore/packages?package_type=container
 ```
 
-### Adding New Tools
-
-1. Create a new directory under `bfx/` for your tool
-2. Add a `release.json` file with version information:
-   ```json
-   {
-     "latest_version": "1.0.0",
-     "repo_url": "https://github.com/example/tool"
-   }
-   ```
-3. The CI workflow will automatically detect and build the new container
-
-### Security Review Process
-
-1. **Monthly Scans**: Automated Trivy scans create PRs with vulnerability reports
-2. **Review Priority**: Focus on CRITICAL vulnerabilities first
-3. **Update Planning**: Plan container updates for affected versions
-4. **Merge Process**: Merge security PRs to update the baseline
-
 ## Contributing
-
-We welcome contributions! Please:
 
 1. Fork the repository
 2. Create a feature branch
@@ -146,20 +174,6 @@ We welcome contributions! Please:
 4. Ensure all CI checks pass
 5. Submit a pull request
 
-### Development Workflow
-
-- **Container Updates**: Automated via CI when upstream releases are detected
-- **Security Patches**: Monthly vulnerability scanning with automated reporting
-- **Quality Assurance**: All images are signed and include provenance attestation
-
-## Support
-
-- **Issues**: Report bugs or request features via GitHub Issues
-- **Security**: Security vulnerabilities are tracked via automated Trivy scans
-- **Documentation**: Comprehensive guides available in the `docs/` directory
-
 ## License
 
-This project is licensed under the terms specified in individual container directories.
-
-
+This project is licensed under the [MIT License](LICENSE).
