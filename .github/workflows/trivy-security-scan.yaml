@@ -1,14 +1,15 @@
 name: Trivy Security Scan
-
+# ─── Triggers ─────────────────────────────────────────────────────────────────
+# 1. After retag workflow → scan only the tool(s) whose release.json changed
+# 2. Monthly cron         → full scan of all tools
+# 3. Manual dispatch      → all or changed-only
 on:
   workflow_run:
-    # Run AFTER the retag workflow completes so GHCR images exist before scanning
     workflows: ["Retag and Sign BioContainer Images"]
     types: [completed]
     branches: [main]
   schedule:
-    # Full scan on the first Sunday of every month at 2:00 AM UTC
-    - cron: "0 2 1-7 * 0"
+    - cron: "0 2 1-7 * 0"       # First Sunday of every month, 2 AM UTC
   workflow_dispatch:
     inputs:
       scan_mode:
@@ -19,255 +20,25 @@ on:
         options:
           - all
           - changed-only
-      force_fresh_scan:
-        description: "Force a fresh scan, ignoring any cached results from previous runs"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
-  contents: write # Required for creating files and PRs
-  packages: read # Required to access GitHub Container Registry
-  pull-requests: write # Required to create pull requests
-  actions: read # Required for workflow access
+  contents: write
+  packages: read
+  pull-requests: write
+  actions: read
 
+# ─────────────────────────────────────────────────────────────────────────────
 jobs:
-  check-recent-scans:
-    name: Check Recent Scan Results
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Check for recent successful scans
-        id: check-recent
-        run: |
-          echo "Checking for recent successful scan results..."
-
-          # Get recent workflow runs for this workflow
-          WORKFLOW_NAME="Trivy Security Scan"
-          ONE_WEEK_AGO=$(date -u -d '1 week ago' +%Y-%m-%dT%H:%M:%SZ)
-
-          echo "Looking for successful runs since: $ONE_WEEK_AGO"
-
-          # Check if user disabled recent scan checking or forced a fresh scan
-          # disable_recent_check is hardcoded to false (reuse logic is automatic)
-          if [ "false" == "true" ]; then
-            echo "🔄 Recent scan checking disabled - will skip recent results check"
-            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-            echo "recent-run-id=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
-            echo "🔄 Force fresh scan requested - will skip recent results check"
-            echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-            echo "recent-run-id=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Get recent workflow runs using GitHub API (without date filter first)
-          echo "Fetching recent workflow runs..."
-          RECENT_RUNS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs?status=completed&per_page=20")
-
-          # Debug: Show what we got
-          echo "API Response status: $(echo "$RECENT_RUNS" | jq -r '.total_count // "unknown"') total runs"
-
-          # Check if we have any successful runs with our workflow name
-          RECENT_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "success") | .id' | wc -l)
-
-          echo "Found $RECENT_SUCCESS_COUNT successful runs with workflow name: $WORKFLOW_NAME"
-
-          # Also check for runs that might have completed scanning but failed at PR creation
-          RECENT_PARTIAL_SUCCESS_COUNT=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and (.conclusion == "failure" or .conclusion == "success")) | .id' | wc -l)
-
-          echo "Found $RECENT_PARTIAL_SUCCESS_COUNT runs (including partial successes) with workflow name: $WORKFLOW_NAME"
-
-          if [ "$RECENT_SUCCESS_COUNT" -gt 0 ]; then
-            # Get the most recent successful run
-            LATEST_RUN_ID=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "success") | .id' | head -1)
-            LATEST_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r --arg run_id "$LATEST_RUN_ID" '.workflow_runs[]? | select(.id == ($run_id | tonumber)) | .created_at')
-            
-            # Check if the run is recent enough (within 1 week)
-            RUN_TIMESTAMP=$(date -d "$LATEST_RUN_DATE" +%s 2>/dev/null || echo "0")
-            WEEK_AGO_TIMESTAMP=$(date -d '1 week ago' +%s)
-            
-            if [ "$RUN_TIMESTAMP" -gt "$WEEK_AGO_TIMESTAMP" ]; then
-              echo "✓ Found recent successful scan:"
-              echo "  → Run ID: $LATEST_RUN_ID"
-              echo "  → Date: $LATEST_RUN_DATE"
-              echo "  → URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/$LATEST_RUN_ID"
-              
-              echo "recent-scan-available=true" >> $GITHUB_OUTPUT
-              echo "recent-run-id=$LATEST_RUN_ID" >> $GITHUB_OUTPUT
-            else
-              echo "⚠ Most recent successful scan is too old (older than 1 week)"
-              echo "  → Run date: $LATEST_RUN_DATE"
-              echo "  → Will proceed with fresh scan"
-              echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-              echo "recent-run-id=" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "⚠ No recent successful scans found"
-            
-            # Check for recent runs that might have scan results even if they failed overall
-            echo "🔍 Checking for recent runs with potential scan results..."
-            RECENT_FAILED_WITH_SCANS=$(echo "$RECENT_RUNS" | jq -r --arg workflow_name "$WORKFLOW_NAME" '.workflow_runs[]? | select(.name == $workflow_name and .conclusion == "failure") | .id' | head -1)
-            
-            if [ -n "$RECENT_FAILED_WITH_SCANS" ]; then
-              FAILED_RUN_DATE=$(echo "$RECENT_RUNS" | jq -r --arg run_id "$RECENT_FAILED_WITH_SCANS" '.workflow_runs[]? | select(.id == ($run_id | tonumber)) | .created_at')
-              FAILED_RUN_TIMESTAMP=$(date -d "$FAILED_RUN_DATE" +%s 2>/dev/null || echo "0")
-              WEEK_AGO_TIMESTAMP=$(date -d '1 week ago' +%s)
-              
-              if [ "$FAILED_RUN_TIMESTAMP" -gt "$WEEK_AGO_TIMESTAMP" ]; then
-                echo "  → Found recent failed run that might have scan results:"
-                echo "    → Run ID: $RECENT_FAILED_WITH_SCANS"
-                echo "    → Date: $FAILED_RUN_DATE"
-                echo "    → Will attempt to reuse scan results from this run"
-                
-                echo "recent-scan-available=true" >> $GITHUB_OUTPUT
-                echo "recent-run-id=$RECENT_FAILED_WITH_SCANS" >> $GITHUB_OUTPUT
-              else
-                echo "  → Recent failed run is too old"
-                echo "  → Will proceed with fresh scan"
-                
-                # Debug: Show available workflows
-                echo "Available recent workflows:"
-                echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
-                
-                echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-                echo "recent-run-id=" >> $GITHUB_OUTPUT
-              fi
-            else
-              echo "  → No recent runs found at all"
-              echo "  → Will proceed with fresh scan"
-              
-              # Debug: Show available workflows
-              echo "Available recent workflows:"
-              echo "$RECENT_RUNS" | jq -r '.workflow_runs[]? | "  - \(.name) (\(.conclusion)) - \(.created_at)"' | head -5
-              
-              echo "recent-scan-available=false" >> $GITHUB_OUTPUT
-              echo "recent-run-id=" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-    outputs:
-      recent-scan-available: ${{ steps.check-recent.outputs.recent-scan-available }}
-      recent-run-id: ${{ steps.check-recent.outputs.recent-run-id }}
-
-  # ─── Detect which bfx/ tools changed vs the previous commit ───────────────
-  detect-changes:
-    name: Detect Changed Tools
+  # ── Job 1: Figure out which tools to scan ──────────────────────────────────
+  detect-scope:
+    name: Detect Scan Scope
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      changed-tools: ${{ steps.diff.outputs.changed-tools }}
-      has-changes: ${{ steps.diff.outputs.has-changes }}
-      scan-all: ${{ steps.diff.outputs.scan-all }}
-
-    steps:
-      - name: Checkout repository (full history for diff)
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 2 # Need previous commit to diff against
-
-      - name: Determine changed tools
-        id: diff
-        run: |
-          echo "Determining scan scope..."
-          EVENT="${{ github.event_name }}"
-          SCAN_MODE="${{ github.event.inputs.scan_mode }}"
-
-          # Scheduled runs always scan everything
-          if [ "$EVENT" = "schedule" ]; then
-            echo "📅 Scheduled run → scanning ALL tools"
-            echo "scan-all=true"  >> $GITHUB_OUTPUT
-            echo "has-changes=true" >> $GITHUB_OUTPUT
-            echo "changed-tools=[]" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Manual runs with scan_mode=all (or unset) scan everything
-          if [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; then
-            echo "🖐 Manual run (scan_mode=all) → scanning ALL tools"
-            echo "scan-all=true"  >> $GITHUB_OUTPUT
-            echo "has-changes=true" >> $GITHUB_OUTPUT
-            echo "changed-tools=[]" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # workflow_run trigger: only proceed if retag workflow succeeded
-          if [ "$EVENT" = "workflow_run" ]; then
-            RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
-            RETAG_SHA="${{ github.event.workflow_run.head_sha }}"
-            echo "🔗 Triggered by retag workflow (conclusion: $RETAG_CONCLUSION, sha: $RETAG_SHA)"
-
-            if [ "$RETAG_CONCLUSION" != "success" ]; then
-              echo "⏭ Retag workflow did not succeed ($RETAG_CONCLUSION) — skipping scan"
-              echo "scan-all=false"   >> $GITHUB_OUTPUT
-              echo "has-changes=false" >> $GITHUB_OUTPUT
-              echo "changed-tools=[]" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-
-            # Diff the retag workflow's head commit against its parent
-            echo "🔍 Diffing $RETAG_SHA against its parent..."
-            CHANGED_FILES=$(git diff --name-only "${RETAG_SHA}^" "${RETAG_SHA}" -- bfx/ 2>/dev/null || true)
-          else
-            # Manual changed-only mode: diff HEAD against previous commit
-            echo "🔍 Diffing bfx/ against previous commit..."
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- bfx/ 2>/dev/null || true)
-          fi
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "  → No changes detected in bfx/"
-            echo "  → Skipping scan (nothing to do)"
-            echo "scan-all=false"   >> $GITHUB_OUTPUT
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-            echo "changed-tools=[]" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Changed files in bfx/:"
-          echo "$CHANGED_FILES" | sed 's/^/  - /'
-
-          # Extract unique tool names: bfx/<tool>/anything → <tool>
-          CHANGED_TOOLS=$(echo "$CHANGED_FILES" \
-            | grep '^bfx/' \
-            | sed 's|^bfx/||' \
-            | cut -d'/' -f1 \
-            | sort -u)
-
-          if [ -z "$CHANGED_TOOLS" ]; then
-            echo "  → No tool-level changes extracted"
-            echo "scan-all=false"   >> $GITHUB_OUTPUT
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-            echo "changed-tools=[]" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo ""
-          echo "🛠 Changed tools detected:"
-          echo "$CHANGED_TOOLS" | sed 's/^/  ✓ /'
-
-          # Build a JSON array of changed tool names for downstream filtering
-          TOOLS_JSON=$(echo "$CHANGED_TOOLS" | jq -R . | jq -s -c .)
-          echo "  → JSON: $TOOLS_JSON"
-
-          echo "scan-all=false"   >> $GITHUB_OUTPUT
-          echo "has-changes=true" >> $GITHUB_OUTPUT
-          echo "changed-tools=$TOOLS_JSON" >> $GITHUB_OUTPUT
-
-  security-scan:
-    name: Container Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [check-recent-scans, detect-changes]
-    if: always() && needs.detect-changes.outputs.has-changes == 'true'
+      tools-json: ${{ steps.scope.outputs.tools-json }}
+      tool-count: ${{ steps.scope.outputs.tool-count }}
+      scan-all:   ${{ steps.scope.outputs.scan-all }}
 
     steps:
       - name: Checkout repository
@@ -275,449 +46,167 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Log in to GitHub Container Registry
+      - name: Determine tools to scan
+        id: scope
+        run: |
+          EVENT="${{ github.event_name }}"
+          SCAN_MODE="${{ github.event.inputs.scan_mode }}"
+
+          echo "🔍 Trigger: $EVENT  |  scan_mode: ${SCAN_MODE:-N/A}"
+
+          # ── Full scan: schedule or manual "all" ──
+          if [ "$EVENT" = "schedule" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; }; then
+            echo "📋 Full scan — collecting all bfx/ tools"
+            TOOLS_JSON=$(find bfx -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | jq -R . | jq -sc .)
+            COUNT=$(echo "$TOOLS_JSON" | jq length)
+            echo "  → $COUNT tools"
+            echo "scan-all=true"          >> $GITHUB_OUTPUT
+            echo "tool-count=$COUNT"      >> $GITHUB_OUTPUT
+            echo "tools-json=$TOOLS_JSON" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # ── workflow_run (after retag) ──
+          if [ "$EVENT" = "workflow_run" ]; then
+            RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+            RETAG_SHA="${{ github.event.workflow_run.head_sha }}"
+            echo "🔗 Retag workflow finished (conclusion=$RETAG_CONCLUSION, sha=$RETAG_SHA)"
+
+            if [ "$RETAG_CONCLUSION" != "success" ]; then
+              echo "⏭ Retag did not succeed — skipping scan"
+              echo "scan-all=false"   >> $GITHUB_OUTPUT
+              echo "tool-count=0"     >> $GITHUB_OUTPUT
+              echo "tools-json=[]"    >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            CHANGED_FILES=$(git diff --name-only "${RETAG_SHA}^" "$RETAG_SHA" -- 'bfx/*/release.json' 2>/dev/null || true)
+          else
+            # Manual changed-only
+            echo "🔍 Manual changed-only mode"
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- 'bfx/*/release.json' 2>/dev/null || true)
+          fi
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "  → No release.json changes detected — nothing to scan"
+            echo "scan-all=false"   >> $GITHUB_OUTPUT
+            echo "tool-count=0"     >> $GITHUB_OUTPUT
+            echo "tools-json=[]"    >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract unique tool names: bfx/<tool>/release.json → <tool>
+          TOOLS=$(echo "$CHANGED_FILES" | sed 's|^bfx/||; s|/release.json$||' | sort -u)
+          TOOLS_JSON=$(echo "$TOOLS" | jq -R . | jq -sc .)
+          COUNT=$(echo "$TOOLS_JSON" | jq length)
+
+          echo "🛠 Tools to scan ($COUNT):"
+          echo "$TOOLS" | sed 's/^/  ✓ /'
+
+          echo "scan-all=false"          >> $GITHUB_OUTPUT
+          echo "tool-count=$COUNT"       >> $GITHUB_OUTPUT
+          echo "tools-json=$TOOLS_JSON"  >> $GITHUB_OUTPUT
+
+  # ── Job 2: Scan each tool's images with Trivy ─────────────────────────────
+  scan:
+    name: Trivy Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    needs: detect-scope
+    if: needs.detect-scope.outputs.tool-count > 0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Discover container images
-        id: discover-images
+      - name: Pre-warm Trivy vulnerability database
         run: |
-          echo "Discovering container images to scan..."
-
-          IMAGES_FILE="images_to_scan.txt"
-          > "$IMAGES_FILE"
-          TOOL_IMAGES_FILE="tool_images_mapping.json"
-          echo "{}" > "$TOOL_IMAGES_FILE"
-
-          SCAN_ALL="${{ needs.detect-changes.outputs.scan-all }}"
-          CHANGED_TOOLS_JSON='${{ needs.detect-changes.outputs.changed-tools }}'
-
-          echo ""
-          echo "🔍 Scan scope:"
-          echo "  → scan-all:      $SCAN_ALL"
-          echo "  → changed-tools: $CHANGED_TOOLS_JSON"
-          echo ""
-
-          # Build the list of tool directories to process
-          if [ "$SCAN_ALL" = "true" ] || [ "$CHANGED_TOOLS_JSON" = "[]" ] || [ -z "$CHANGED_TOOLS_JSON" ]; then
-            echo "📋 Mode: ALL tools — reading every bfx/*/release.json"
-            TOOL_DIRS=$(find bfx -mindepth 1 -maxdepth 1 -type d | sort)
-          else
-            echo "📋 Mode: CHANGED tools only → $CHANGED_TOOLS_JSON"
-            TOOL_DIRS=""
-            while IFS= read -r tool; do
-              tool=$(echo "$tool" | tr -d '"')
-              if [ -d "bfx/$tool" ]; then
-                TOOL_DIRS="${TOOL_DIRS}bfx/${tool}"$'\n'
-              else
-                echo "  ⚠ bfx/$tool directory not found — skipping"
-              fi
-            done < <(echo "$CHANGED_TOOLS_JSON" | jq -r '.[]')
-          fi
-
-          if [ -z "$TOOL_DIRS" ]; then
-            echo "⚠ No tool directories to process"
-            echo "images-file="   >> $GITHUB_OUTPUT
-            echo "image-count=0"  >> $GITHUB_OUTPUT
-            echo "tool-mapping-file=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          TOOL_COUNT=0
-          IMAGE_COUNT=0
-
-          echo ""
-          echo "🚀 Reading release.json files..."
-          echo ""
-
-          while IFS= read -r tool_dir; do
-            [ -z "$tool_dir" ] && continue
-            RELEASE_JSON="$tool_dir/release.json"
-            TOOL_NAME=$(basename "$tool_dir")
-
-            if [ ! -f "$RELEASE_JSON" ]; then
-              echo "  ⚠ $TOOL_NAME: no release.json found — skipping"
-              continue
-            fi
-
-            if ! jq empty "$RELEASE_JSON" 2>/dev/null; then
-              echo "  ⚠ $TOOL_NAME: release.json is invalid JSON — skipping"
-              continue
-            fi
-
-            IMAGES=$(jq -r '.images[]?' "$RELEASE_JSON" 2>/dev/null || true)
-            if [ -z "$IMAGES" ]; then
-              echo "  ⚠ $TOOL_NAME: release.json has no images — skipping"
-              continue
-            fi
-
-            TOOL_COUNT=$((TOOL_COUNT + 1))
-            SLUG=$(echo "$TOOL_NAME" | tr '[:upper:]' '[:lower:]')
-            ORG_NAME="${{ github.repository_owner }}"
-            echo "[$TOOL_COUNT] $TOOL_NAME"
-
-            while IFS= read -r source_image; do
-              [ -z "$source_image" ] && continue
-
-              # Derive GHCR URL using same logic as the retag workflow:
-              # tag = everything after last ':', then strip '--...' suffix
-              FULL_TAG="${source_image##*:}"
-              SHORT_TAG="${FULL_TAG%%--*}"
-              GHCR_URL="ghcr.io/${ORG_NAME}/products/bfx/${SLUG}:${SHORT_TAG}"
-
-              # Only scan images that exist in GHCR (already retagged)
-              if docker manifest inspect "$GHCR_URL" > /dev/null 2>&1; then
-                echo "    ✓ Queuing: $GHCR_URL"
-                echo "$GHCR_URL" >> "$IMAGES_FILE"
-
-                # Add to tool → image mapping
-                jq --arg tool "$TOOL_NAME" \
-                   --arg image "$GHCR_URL" \
-                   --arg tag "$SHORT_TAG" \
-                   '.[$tool] = (.[$tool] // []) + [{"image": $image, "tag": $tag}]' \
-                   "$TOOL_IMAGES_FILE" > "${TOOL_IMAGES_FILE}.tmp" \
-                  && mv "${TOOL_IMAGES_FILE}.tmp" "$TOOL_IMAGES_FILE"
-
-                IMAGE_COUNT=$((IMAGE_COUNT + 1))
-              else
-                echo "    ⚠ Skipping (not in GHCR yet): $GHCR_URL"
-              fi
-            done <<< "$IMAGES"
-          done <<< "$TOOL_DIRS"
-
-          echo ""
-          echo "✓ Discovery complete:"
-          echo "  → Tools processed : $TOOL_COUNT"
-          echo "  → Images to scan  : $IMAGE_COUNT"
-
-          if [ "$IMAGE_COUNT" -eq 0 ]; then
-            echo "⚠ No images found to scan"
-            echo "images-file="       >> $GITHUB_OUTPUT
-            echo "image-count=0"      >> $GITHUB_OUTPUT
-            echo "tool-mapping-file=" >> $GITHUB_OUTPUT
-          else
-            echo "images-file=$IMAGES_FILE"         >> $GITHUB_OUTPUT
-            echo "image-count=$IMAGE_COUNT"          >> $GITHUB_OUTPUT
-            echo "tool-mapping-file=$TOOL_IMAGES_FILE" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Upload discovered images and mapping
-        if: steps.discover-images.outputs.image-count > 0
-        uses: actions/upload-artifact@v6
-        with:
-          name: discovered-images
-          path: |
-            ${{ steps.discover-images.outputs.images-file }}
-            ${{ steps.discover-images.outputs.tool-mapping-file }}
-          retention-days: 7
-
-    outputs:
-      image-count: ${{ steps.discover-images.outputs.image-count }}
-      images-file: ${{ steps.discover-images.outputs.images-file }}
-      tool-mapping-file: ${{ steps.discover-images.outputs.tool-mapping-file }}
-
-  trivy-scan:
-    name: Trivy Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    needs: [check-recent-scans, security-scan]
-    if: needs.security-scan.outputs.image-count > 0
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Setup Trivy database cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/trivy
-          key: trivy-db-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            trivy-db-${{ runner.os }}-
-            trivy-db-
-
-      - name: Download discovered images and mapping
-        uses: actions/download-artifact@v7
-        with:
-          name: discovered-images
-
-      - name: Debug initial progress files
-        run: |
-          echo "Checking for any existing progress files..."
-          ls -la scan_progress.txt completed_scans.txt failed_scans.txt 2>/dev/null || echo "No progress files found initially"
-
-      - name: Check for recent scan results to reuse
-        id: check-reuse
-        if: needs.check-recent-scans.outputs.recent-scan-available == 'true' && github.event.inputs.force_fresh_scan != 'true'
-        run: |
-          echo "Attempting to download recent scan results..."
-
-          RECENT_RUN_ID="${{ needs.check-recent-scans.outputs.recent-run-id }}"
-          echo "Checking artifacts from run: $RECENT_RUN_ID"
-
-          # Debug: List available artifacts for this run
-          if command -v gh >/dev/null 2>&1; then
-            echo "🔍 Available artifacts for run $RECENT_RUN_ID:"
-            gh api repos/${{ github.repository }}/actions/runs/$RECENT_RUN_ID/artifacts --jq '.artifacts[] | "  - \(.name) (expires: \(.expires_at))"' 2>/dev/null || echo "  → Could not list artifacts"
-          fi
-
-          mkdir -p recent-results
-
-          if command -v gh >/dev/null 2>&1; then
-            echo "Using GitHub CLI to download artifacts..."
-            
-            DOWNLOADED_ARTIFACTS=0
-            
-            # Try to download trivy-scan-results first (from successful runs)
-            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results" --dir recent-results/trivy-scan-results 2>/dev/null; then
-              echo "✓ Successfully downloaded trivy-scan-results artifact"
-              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
-            else
-              echo "⚠ Failed to download trivy-scan-results"
-            fi
-            
-            # Try to download partial results from failed runs
-            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results-partial" --dir recent-results/trivy-scan-results-partial 2>/dev/null; then
-              echo "✓ Successfully downloaded trivy-scan-results-partial artifact"
-              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
-            else
-              echo "⚠ Failed to download trivy-scan-results-partial"
-            fi
-            
-            # Try to download organized-results as additional source
-            if gh run download "$RECENT_RUN_ID" --name "organized-results" --dir recent-results/organized-results 2>/dev/null; then
-              echo "✓ Successfully downloaded organized-results artifact"
-              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
-            else
-              echo "⚠ Failed to download organized-results"
-            fi
-            
-            # Try to download final scan results as ultimate fallback
-            if gh run download "$RECENT_RUN_ID" --name "trivy-scan-results-final" --dir recent-results/trivy-scan-results-final 2>/dev/null; then
-              echo "✓ Successfully downloaded trivy-scan-results-final artifact"
-              DOWNLOADED_ARTIFACTS=$((DOWNLOADED_ARTIFACTS + 1))
-            else
-              echo "⚠ Failed to download trivy-scan-results-final"
-            fi
-            
-            if [ $DOWNLOADED_ARTIFACTS -gt 0 ]; then
-              # Count total JSON files from all downloaded artifacts
-              JSON_COUNT=0
-              if [ -d "recent-results" ]; then
-                JSON_COUNT=$(find recent-results -name "*.json" -type f | wc -l)
-              fi
-
-              echo "  → Downloaded $DOWNLOADED_ARTIFACTS artifact(s)"
-              echo "  → Found $JSON_COUNT JSON files total"
-              echo "json-count=$JSON_COUNT" >> $GITHUB_OUTPUT
-
-              # Only reuse if every image in the current scan list has a result
-              # in the downloaded artifacts. A partial match (e.g. pbmm2 results
-              # when we need bowtie2) must NOT prevent a fresh scan.
-              IMAGES_FILE="images_to_scan.txt"
-              ALL_COVERED=true
-              if [ -f "$IMAGES_FILE" ] && [ -s "$IMAGES_FILE" ]; then
-                while IFS= read -r img; do
-                  [ -z "$img" ] && continue
-                  SAFE=$(echo "$img" | sed 's|[^a-zA-Z0-9._-]|_|g')
-                  if ! find recent-results -name "trivy-${SAFE}.json" -type f | grep -q .; then
-                    echo "  ⚠ No cached result for $img — fresh scan needed"
-                    ALL_COVERED=false
-                    break
-                  fi
-                done < "$IMAGES_FILE"
-              else
-                ALL_COVERED=false
-              fi
-
-              if [ "$ALL_COVERED" = "true" ]; then
-                echo "✅ All images covered by cached results — reusing"
-                echo "reuse-available=true" >> $GITHUB_OUTPUT
-              else
-                echo "🔄 Cache incomplete for current scan — running fresh scan"
-                echo "reuse-available=false" >> $GITHUB_OUTPUT
-              fi
-            else
-              echo "⚠ Failed to download any scan results from run $RECENT_RUN_ID"
-              echo "  → This might be expected if the run failed before creating artifacts"
-              echo "reuse-available=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "⚠ GitHub CLI not available, cannot download recent artifacts"
-            echo "reuse-available=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pre-warm Trivy database cache
-        if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
-        run: |
-          echo "Pre-warming Trivy database cache..."
+          echo "⬇ Downloading Trivy vulnerability database..."
           mkdir -p ~/.cache/trivy
-
           docker run --rm \
             -v "$HOME/.cache/trivy:/root/.cache/trivy" \
             -e TRIVY_CACHE_DIR="/root/.cache/trivy" \
             aquasec/trivy:latest image --download-db-only
+          echo "✓ Database ready"
 
-          echo "✓ Trivy database cache pre-warmed"
-
-      - name: Check for existing scan progress
-        id: check-progress
-        if: steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true'
+      - name: Scan tool images
+        id: scan
+        env:
+          TOOLS_JSON: ${{ needs.detect-scope.outputs.tools-json }}
+          ORG_NAME:   ${{ github.repository_owner }}
         run: |
-          echo "Checking for existing scan progress..."
-
-          IMAGES_FILE="images_to_scan.txt"
-          PROGRESS_FILE="scan_progress.txt"
-          COMPLETED_FILE="completed_scans.txt"
-
-          # Create progress tracking files
-          touch "$PROGRESS_FILE"
-          touch "$COMPLETED_FILE"
-
-          # Check if user wants to resume from progress
-          if [ "true" != "true" ]; then
-            echo "🔄 Resume from progress disabled - starting fresh scan"
-            > "$COMPLETED_FILE"  # Clear completed file
-            > "$PROGRESS_FILE"   # Clear progress file
-          fi
-
-          # Also check if there are existing scan results in the current workspace
-          if [ ! -s "$COMPLETED_FILE" ] && [ -d "trivy-results" ]; then
-            echo "🔍 Checking for existing scan results in current workspace..."
-            EXISTING_RESULTS=$(find trivy-results -name "trivy-*.json" -type f | wc -l)
-            if [ "$EXISTING_RESULTS" -gt 0 ]; then
-              echo "  → Found $EXISTING_RESULTS existing scan result files"
-              echo "  → Extracting image URLs from existing results..."
-              
-              # Extract image URLs from existing JSON files and add to completed list
-              for json_file in trivy-results/trivy-*.json; do
-                if [ -f "$json_file" ]; then
-                  # Try to extract image URL from metadata or filename
-                  IMAGE_URL=$(jq -r '.Metadata.ImageID // empty' "$json_file" 2>/dev/null || true)
-                  if [ -z "$IMAGE_URL" ]; then
-                    # Fallback: reconstruct from filename
-                    SAFE_NAME=$(basename "$json_file" .json | sed 's/^trivy-//')
-                    # This is a rough reconstruction - may not be perfect
-                    echo "  ⚠ Could not extract image URL from $json_file"
-                  else
-                    echo "$IMAGE_URL" >> "$COMPLETED_FILE"
-                    echo "  ✓ Added existing result: $IMAGE_URL"
-                  fi
-                fi
-              done
-              
-              if [ -s "$COMPLETED_FILE" ]; then
-                RECOVERED_COUNT=$(wc -l < "$COMPLETED_FILE")
-                echo "  → Recovered $RECOVERED_COUNT completed scans from existing results"
-              fi
-            fi
-          fi
-
-          TOTAL_IMAGES=$(wc -l < "$IMAGES_FILE")
-          COMPLETED_COUNT=0
-
-          if [ -s "$COMPLETED_FILE" ]; then
-            COMPLETED_COUNT=$(wc -l < "$COMPLETED_FILE")
-            echo "📋 Found existing scan progress:"
-            echo "  → Total images: $TOTAL_IMAGES"
-            echo "  → Already completed: $COMPLETED_COUNT"
-            echo "  → Remaining: $((TOTAL_IMAGES - COMPLETED_COUNT))"
-            
-            # Create list of remaining images to scan
-            REMAINING_FILE="remaining_to_scan.txt"
-            comm -23 <(sort "$IMAGES_FILE") <(sort "$COMPLETED_FILE") > "$REMAINING_FILE"
-            
-            echo "resume-scan=true" >> $GITHUB_OUTPUT
-            echo "remaining-file=$REMAINING_FILE" >> $GITHUB_OUTPUT
-            echo "completed-count=$COMPLETED_COUNT" >> $GITHUB_OUTPUT
-          else
-            echo "📋 No existing progress found - starting fresh scan"
-            echo "  → Total images to scan: $TOTAL_IMAGES"
-            
-            echo "resume-scan=false" >> $GITHUB_OUTPUT
-            echo "remaining-file=$IMAGES_FILE" >> $GITHUB_OUTPUT
-            echo "completed-count=0" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Batch scan images with Trivy
-        id: batch-scan
-        timeout-minutes: 150
-        if: (steps.check-reuse.outputs.reuse-available != 'true' || github.event.inputs.force_fresh_scan == 'true')
-        run: |
-          IMAGES_FILE="${{ steps.check-progress.outputs.remaining-file }}"
-          PROGRESS_FILE="scan_progress.txt"
-          COMPLETED_FILE="completed_scans.txt"
-          FAILED_FILE="failed_scans.txt"
-
-          SCAN_COUNT=0
-          SUCCESS_COUNT=${{ steps.check-progress.outputs.completed-count }}
-          FAILURE_COUNT=0
-          TOTAL_IMAGES=$(wc -l < "images_to_scan.txt")
-          REMAINING_IMAGES=$(wc -l < "$IMAGES_FILE")
-
-          if [ "${{ steps.check-progress.outputs.resume-scan }}" == "true" ]; then
-            echo "🔄 Resuming batch scan from previous progress..."
-            echo "  → Already completed: $SUCCESS_COUNT images"
-            echo "  → Remaining to scan: $REMAINING_IMAGES images"
-          else
-            echo "🚀 Starting fresh batch scan of $TOTAL_IMAGES images using Trivy..."
-          fi
-
-          # Log why we're doing a fresh scan
-          if [ "${{ github.event.inputs.force_fresh_scan }}" == "true" ]; then
-            echo "🔄 Performing fresh scan (forced by user input)"
-          elif [ "${{ needs.check-recent-scans.outputs.recent-scan-available }}" == "true" ]; then
-            echo "🔄 Performing fresh scan (recent results not usable)"
-          else
-            echo "🔄 Performing fresh scan (no recent results available)"
-          fi
+          TOOL_COUNT=$(echo "$TOOLS_JSON" | jq -r 'length')
+          echo "🔬 Scanning $TOOL_COUNT tool(s)..."
           echo ""
 
-          # Set up results directory
-          mkdir -p trivy-results
+          TOTAL_VULNS=0
+          TOOLS_SCANNED=0
+          TOOLS_WITH_VULNS=0
+          SCAN_SUMMARY=""
 
-          # Process each image with progress tracking
-          QUEUE_POSITION=0
-          while IFS= read -r image_url; do
-            if [ -n "$image_url" ]; then
-              QUEUE_POSITION=$((QUEUE_POSITION + 1))
-              echo "[$QUEUE_POSITION/$REMAINING_IMAGES] Processing: $image_url"
-              
-              # Check if this image was already scanned successfully
-              if grep -Fxq "$image_url" "$COMPLETED_FILE" 2>/dev/null; then
-                echo "  ⏭ Already scanned - skipping"
+          for tool in $(echo "$TOOLS_JSON" | jq -r '.[]'); do
+            TOOLS_SCANNED=$((TOOLS_SCANNED + 1))
+            RELEASE="bfx/$tool/release.json"
+            RESULT_FILE="bfx/$tool/trivy-scan-results.json"
+
+            echo "[$TOOLS_SCANNED/$TOOL_COUNT] $tool"
+
+            # ── Validate release.json ──
+            if [ ! -f "$RELEASE" ]; then
+              echo "  ⚠ No release.json — skipping"
+              continue
+            fi
+            if ! jq empty "$RELEASE" 2>/dev/null; then
+              echo "  ⚠ Invalid JSON — skipping"
+              continue
+            fi
+
+            IMAGES=$(jq -r '.images[]?' "$RELEASE" 2>/dev/null)
+            if [ -z "$IMAGES" ]; then
+              echo "  ⚠ No images in release.json — skipping"
+              continue
+            fi
+
+            # ── Initialise result structure ──
+            SLUG=$(echo "$tool" | tr '[:upper:]' '[:lower:]')
+            echo "{
+              \"tool\": \"$tool\",
+              \"scan_timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+              \"workflow_run_id\": \"${{ github.run_id }}\",
+              \"versions\": {},
+              \"summary\": {\"total_versions_scanned\": 0, \"total_vulnerabilities\": 0}
+            }" | jq . > "$RESULT_FILE"
+
+            TOOL_VULN_COUNT=0
+            VERSION_COUNT=0
+
+            # ── Scan each image ──
+            while IFS= read -r source_image; do
+              [ -z "$source_image" ] && continue
+
+              FULL_TAG="${source_image##*:}"
+              SHORT_TAG="${FULL_TAG%%--*}"
+              GHCR_URL="ghcr.io/${ORG_NAME}/products/bfx/${SLUG}:${SHORT_TAG}"
+
+              if ! docker manifest inspect "$GHCR_URL" > /dev/null 2>&1; then
+                echo "  ⚠ Not in GHCR: $GHCR_URL — skipping"
                 continue
               fi
-              
-              # Also check if scan result already exists from recent download
-              SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
-              JSON_FILE="trivy-results/trivy-${SAFE_NAME}.json"
-              if [ -f "$JSON_FILE" ]; then
-                echo "  ⏭ Scan result already exists from recent download - skipping"
-                echo "$image_url" >> "$COMPLETED_FILE"
-                SCAN_COUNT=$((SCAN_COUNT + 1))
-                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-                continue
-              fi
-              
-              # Create safe filename for outputs
-              SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
-              JSON_FILE="trivy-results/trivy-${SAFE_NAME}.json"
-              
-              # Record scan attempt
-              echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SCANNING $image_url" >> "$PROGRESS_FILE"
-              
-              # Attempt Trivy scan with JSON output
-              # Note: stderr is NOT suppressed so pull/auth failures are visible
+
+              echo "  → Scanning $GHCR_URL ..."
+              SAFE_NAME=$(echo "$GHCR_URL" | sed 's|[^a-zA-Z0-9._-]|_|g')
+              SCAN_JSON="/tmp/trivy-${SAFE_NAME}.json"
+
               if timeout 15m docker run --rm \
-                --memory=2g \
-                --cpus=2 \
-                -v "$(pwd)/trivy-results:/output" \
+                --memory=2g --cpus=2 \
+                -v "/tmp:/output" \
                 -v "$HOME/.cache/trivy:/root/.cache/trivy" \
                 -e TRIVY_USERNAME="${{ github.actor }}" \
                 -e TRIVY_PASSWORD="${{ secrets.GITHUB_TOKEN }}" \
@@ -727,1178 +216,237 @@ jobs:
                 --severity CRITICAL,HIGH \
                 --timeout 12m \
                 --exit-code 0 \
-                --skip-update \
+                --skip-db-update \
+                --scanners vuln \
                 --output "/output/trivy-${SAFE_NAME}.json" \
-                "$image_url"; then
-                # Verify the output JSON is valid and non-empty (guards against
-                # silent pull failures that exit 0 but write nothing)
-                if jq empty "$JSON_FILE" 2>/dev/null && [ $(wc -c < "$JSON_FILE" 2>/dev/null || echo 0) -gt 10 ]; then
-                  SCAN_COUNT=$((SCAN_COUNT + 1))
-                  SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
-                  echo "  ✓ Scan completed successfully"
+                "$GHCR_URL"; then
 
-                  echo "$image_url" >> "$COMPLETED_FILE"
-                  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) SUCCESS $image_url" >> "$PROGRESS_FILE"
+                if jq empty "$SCAN_JSON" 2>/dev/null && [ "$(wc -c < "$SCAN_JSON" 2>/dev/null || echo 0)" -gt 10 ]; then
+                  VULN_COUNT=$(jq '[.Results[]?.Vulnerabilities[]?] | length' "$SCAN_JSON" 2>/dev/null || echo 0)
+                  echo "    ✓ $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
 
-                  VULN_COUNT=$(jq -r '.Results[]?.Vulnerabilities // [] | length' "$JSON_FILE" 2>/dev/null | awk '{sum+=$1} END {print sum+0}')
-                  echo "  → Found $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
-
-                  # Save progress every 5 successful scans
-                  if [ $((SCAN_COUNT % 5)) -eq 0 ]; then
-                    echo "  💾 Progress checkpoint: $SCAN_COUNT scans completed in this run"
-                  fi
-                else
-                  echo "  ✗ Trivy produced invalid/empty JSON — treating as failure"
-                  rm -f "$JSON_FILE"
-                  SCAN_COUNT=$((SCAN_COUNT + 1))
-                  FAILURE_COUNT=$((FAILURE_COUNT + 1))
-                  echo "$image_url" >> "$FAILED_FILE"
-                  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) FAILED_EMPTY_JSON $image_url" >> "$PROGRESS_FILE"
-                fi
-              else
-                SCAN_COUNT=$((SCAN_COUNT + 1))
-                FAILURE_COUNT=$((FAILURE_COUNT + 1))
-                echo "  ✗ Scan failed - continuing with next image"
-                
-                # Record failure
-                echo "$image_url" >> "$FAILED_FILE"
-                echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) FAILED $image_url" >> "$PROGRESS_FILE"
-              fi
-              
-              echo ""
-            fi
-          done < "$IMAGES_FILE"
-
-          echo ""
-          echo "Batch Scan Summary"
-          echo "=================="
-          echo "Total images discovered: $TOTAL_IMAGES"
-          echo "Images in current queue: $REMAINING_IMAGES"
-          echo "Images processed this run: $SCAN_COUNT"
-          echo "Successful scans this run: $((SCAN_COUNT - FAILURE_COUNT))"
-          echo "Failed scans this run: $FAILURE_COUNT"
-          echo "Total successful scans overall: $SUCCESS_COUNT"
-
-          # Calculate completion percentage
-          if [ $TOTAL_IMAGES -gt 0 ]; then
-            COMPLETION_PCT=$(( SUCCESS_COUNT * 100 / TOTAL_IMAGES ))
-            echo "Overall completion: $SUCCESS_COUNT/$TOTAL_IMAGES ($COMPLETION_PCT%)"
-          fi
-
-          # Show progress file info
-          if [ -f "$PROGRESS_FILE" ]; then
-            echo "Progress log entries: $(wc -l < "$PROGRESS_FILE")"
-          fi
-
-          if [ -f "$FAILED_FILE" ]; then
-            FAILED_TOTAL=$(wc -l < "$FAILED_FILE")
-            if [ $FAILED_TOTAL -gt 0 ]; then
-              echo "Total failed images: $FAILED_TOTAL"
-              echo "Failed images can be retried in next run"
-            fi
-          fi
-
-          echo "total-scanned=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
-          echo "successful-scans=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
-          echo "failed-scans=$FAILURE_COUNT" >> $GITHUB_OUTPUT
-
-          if [ $SUCCESS_COUNT -gt 0 ]; then
-            echo "✓ Batch scan completed with $SUCCESS_COUNT successful scans"
-            if [ $SCAN_COUNT -lt $REMAINING_IMAGES ]; then
-              echo "⚠ Note: Scan was interrupted. Run workflow again to resume from progress."
-            fi
-            exit 0
-          else
-            echo "✗ No successful scans in this run"
-            if [ $SUCCESS_COUNT -gt 0 ]; then
-              echo "  → But $SUCCESS_COUNT images were completed in previous runs"
-              exit 0
-            else
-              exit 1
-            fi
-          fi
-
-      - name: Upload individual scan results as artifacts
-        if: steps.batch-scan.outputs.successful-scans > 0
-        uses: actions/upload-artifact@v6
-        with:
-          name: trivy-scan-results-checkpoint
-          path: |
-            trivy-results/
-            scan_progress.txt
-            completed_scans.txt
-            failed_scans.txt
-          retention-days: 30
-          compression-level: 6
-        continue-on-error: true
-
-      - name: Upload partial scan results (even if batch failed)
-        if: always() && (steps.batch-scan.conclusion == 'failure' || steps.batch-scan.conclusion == 'cancelled')
-        uses: actions/upload-artifact@v6
-        with:
-          name: trivy-scan-results-partial
-          path: |
-            trivy-results/
-            scan_progress.txt
-            completed_scans.txt
-            failed_scans.txt
-          retention-days: 30
-          compression-level: 6
-        continue-on-error: true
-
-      - name: Upload scan progress immediately
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: scan-progress
-          path: |
-            scan_progress.txt
-            completed_scans.txt
-            failed_scans.txt
-          retention-days: 30
-
-      - name: Prepare results from recent scans or skip to organize
-        if: steps.check-reuse.outputs.reuse-available == 'true' && steps.check-reuse.outputs.json-count > 0
-        id: prepare-recent
-        run: |
-          if [ "false" == "true" ]; then
-            echo "⏭ Skipping to organize existing results..."
-            echo "Using existing trivy-results directory"
-          else
-            echo "Preparing recent scan results for processing..."
-            # Copy recent results to current results directory
-            mkdir -p trivy-results
-            
-            if [ -d "recent-results" ]; then
-              echo "📥 Processing downloaded artifacts..."
-              
-              # Process each downloaded artifact directory
-              for artifact_dir in recent-results/*/; do
-                if [ -d "$artifact_dir" ]; then
-                  ARTIFACT_NAME=$(basename "$artifact_dir")
-                  echo "  → Processing artifact: $ARTIFACT_NAME"
-                  
-                  # Copy trivy-results directory if it exists
-                  if [ -d "$artifact_dir/trivy-results" ]; then
-                    echo "    → Copying trivy-results from $ARTIFACT_NAME..."
-                    cp -r "$artifact_dir/trivy-results"/* trivy-results/ 2>/dev/null || true
-                  fi
-                  
-                  # Copy individual JSON files if they exist at root level
-                  if find "$artifact_dir" -maxdepth 1 -name "*.json" -type f | head -1 >/dev/null; then
-                    echo "    → Copying JSON files from $ARTIFACT_NAME..."
-                    cp "$artifact_dir"/*.json trivy-results/ 2>/dev/null || true
-                  fi
-                  
-                  # Copy progress files if they exist
-                  for progress_file in scan_progress.txt completed_scans.txt failed_scans.txt; do
-                    if [ -f "$artifact_dir/$progress_file" ]; then
-                      echo "    → Copying progress file: $progress_file from $ARTIFACT_NAME"
-                      cp "$artifact_dir/$progress_file" . 2>/dev/null || true
-                    fi
-                  done
-                fi
-              done
-              
-              # Also check for files at the root level of recent-results
-              if find recent-results -maxdepth 1 -name "*.json" -type f | head -1 >/dev/null; then
-                echo "  → Copying root-level JSON files..."
-                cp recent-results/*.json trivy-results/ 2>/dev/null || true
-              fi
-              
-              # Copy root-level progress files
-              for progress_file in scan_progress.txt completed_scans.txt failed_scans.txt; do
-                if [ -f "recent-results/$progress_file" ]; then
-                  echo "  → Copying root-level progress file: $progress_file"
-                  cp "recent-results/$progress_file" . 2>/dev/null || true
-                fi
-              done
-              
-              echo "  ✓ Recent results prepared for reuse"
-            else
-              echo "  ⚠ No recent-results directory found"
-            fi
-          fi
-
-          # Count available JSON files
-          JSON_COUNT=0
-          for json_file in trivy-results/*.json; do
-            if [ -f "$json_file" ]; then
-              JSON_COUNT=$((JSON_COUNT + 1))
-            fi
-          done
-
-          echo "✓ Prepared $JSON_COUNT JSON files from recent scan"
-
-          # Show what was reused for debugging
-          if [ $JSON_COUNT -gt 0 ]; then
-            echo "📊 Reused scan results summary:"
-            echo "  → Total JSON files: $JSON_COUNT"
-            echo "  → Sample files:"
-            ls trivy-results/*.json | head -5 | sed 's/^/    - /'
-            if [ $JSON_COUNT -gt 5 ]; then
-              echo "    - ... and $((JSON_COUNT - 5)) more files"
-            fi
-          fi
-
-          # Check for progress files
-          if [ -f "completed_scans.txt" ]; then
-            COMPLETED_COUNT=$(wc -l < completed_scans.txt)
-            echo "  → Completed scans list: $COMPLETED_COUNT entries"
-          fi
-
-          echo "⚡ Time saved by reusing recent results: ~120-180 minutes"
-          echo "💰 Resources saved: Significant CPU, memory, and network usage"
-
-          # Set outputs to match batch-scan outputs for consistency
-          echo "successful-scans=$JSON_COUNT" >> $GITHUB_OUTPUT
-          echo "total-scanned=$JSON_COUNT" >> $GITHUB_OUTPUT
-          echo "failed-scans=0" >> $GITHUB_OUTPUT
-
-      - name: Organize scan results by tool
-        if: (steps.batch-scan.outputs.successful-scans > 0) || (steps.prepare-recent.outputs.successful-scans > 0)
-        id: organize-results
-        run: |
-          echo "Organizing scan results by tool..."
-
-          TOOL_MAPPING_FILE="tool_images_mapping.json"
-          ORGANIZED_DIR="organized-results"
-          mkdir -p "$ORGANIZED_DIR"
-
-          if [ ! -f "$TOOL_MAPPING_FILE" ]; then
-            echo "✗ Tool mapping file not found"
-            exit 1
-          fi
-
-          # Validate tool mapping file
-          if ! jq empty "$TOOL_MAPPING_FILE" 2>/dev/null; then
-            echo "✗ Tool mapping file contains invalid JSON"
-            exit 1
-          fi
-
-          # Get list of tools
-          TOOLS=$(jq -r 'keys[]' "$TOOL_MAPPING_FILE" 2>/dev/null)
-          if [ -z "$TOOLS" ]; then
-            echo "✗ No tools found in mapping file"
-            exit 1
-          fi
-
-          TOOL_COUNT=0
-          echo "Processing tools and organizing scan results..."
-          echo "Tools to process: $(echo "$TOOLS" | tr '\n' ' ')"
-
-          for tool in $TOOLS; do
-            TOOL_COUNT=$((TOOL_COUNT + 1))
-            echo "[$TOOL_COUNT] Processing tool: $tool"
-            
-            # Create tool-specific result file
-            TOOL_RESULT_FILE="$ORGANIZED_DIR/${tool}-trivy-scan-results.json"
-            
-            # Initialize tool result structure
-            echo "{\"tool\": \"$tool\", \"scan_timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"workflow_run_id\": \"${{ github.run_id }}\", \"versions\": {}, \"summary\": {\"total_versions_scanned\": 0, \"total_vulnerabilities\": 0}}" > "$TOOL_RESULT_FILE"
-
-            # Process each image for this tool
-            jq -r --arg tool "$tool" '.[$tool][]? | .image' "$TOOL_MAPPING_FILE" | while read -r image_url; do
-              if [ -n "$image_url" ]; then
-                # Find corresponding scan result file
-                SAFE_NAME=$(echo "$image_url" | sed 's|[^a-zA-Z0-9._-]|_|g')
-                SCAN_FILE="trivy-results/trivy-${SAFE_NAME}.json"
-                
-                if [ -f "$SCAN_FILE" ]; then
-                  # Extract tag/version from image URL
-                  TAG=$(echo "$image_url" | sed 's|.*:||')
-                  echo "  → Adding results for version: $TAG"
-                  
-                  # Count vulnerabilities directly from file (avoid loading large data into memory)
-                  VULN_COUNT=$(jq -r '[.Results[]?.Vulnerabilities[]?] | length' "$SCAN_FILE" 2>/dev/null || echo "0")
-                  
-                  # Create a temporary file with just the vulnerability data
+                  # Extract vulnerabilities array from raw Trivy output
                   TEMP_VULNS=$(mktemp)
-                  jq -r '.Results[]?.Vulnerabilities // []' "$SCAN_FILE" > "$TEMP_VULNS" 2>/dev/null || echo "[]" > "$TEMP_VULNS"
-                  
-                  # Add version data to tool result file using file input instead of command line args
-                  jq --arg tag "$TAG" \
-                     --arg image "$image_url" \
+                  jq '[.Results[]?.Vulnerabilities[]?]' "$SCAN_JSON" > "$TEMP_VULNS" 2>/dev/null || echo "[]" > "$TEMP_VULNS"
+
+                  # Merge into the organised result file
+                  jq --arg tag "$SHORT_TAG" \
+                     --arg image "$GHCR_URL" \
                      --argjson count "$VULN_COUNT" \
                      --slurpfile vulns "$TEMP_VULNS" \
                      '.versions[$tag] = {
-                       "image": $image,
-                       "vulnerabilities": $vulns[0],
-                       "vulnerability_count": $count
-                     }' "$TOOL_RESULT_FILE" > "${TOOL_RESULT_FILE}.tmp" && mv "${TOOL_RESULT_FILE}.tmp" "$TOOL_RESULT_FILE"
-                  
-                  # Clean up temp file
+                        "image": $image,
+                        "vulnerabilities": $vulns[0],
+                        "vulnerability_count": $count
+                      }' "$RESULT_FILE" > "${RESULT_FILE}.tmp" && mv "${RESULT_FILE}.tmp" "$RESULT_FILE"
+
                   rm -f "$TEMP_VULNS"
-                  
-                  echo "    ✓ Added $VULN_COUNT vulnerabilities"
+                  VERSION_COUNT=$((VERSION_COUNT + 1))
+                  TOOL_VULN_COUNT=$((TOOL_VULN_COUNT + VULN_COUNT))
                 else
-                  echo "  ⚠ Scan result not found for: $image_url"
+                  echo "    ✗ Trivy produced empty/invalid output"
                 fi
+              else
+                echo "    ✗ Scan failed"
               fi
-            done
 
-            # Update summary by counting from the actual data in the file
-            VERSION_COUNT=$(jq -r '.versions | keys | length' "$TOOL_RESULT_FILE")
-            TOTAL_VULNS=$(jq -r '[.versions[].vulnerability_count] | add // 0' "$TOOL_RESULT_FILE")
-            
-            jq --argjson version_count "$VERSION_COUNT" \
-               --argjson total_vulns "$TOTAL_VULNS" \
-               '.summary.total_versions_scanned = $version_count |
-                .summary.total_vulnerabilities = $total_vulns' \
-               "$TOOL_RESULT_FILE" > "${TOOL_RESULT_FILE}.tmp" && mv "${TOOL_RESULT_FILE}.tmp" "$TOOL_RESULT_FILE"
+              # Clean up scan file to save disk
+              rm -f "$SCAN_JSON"
+            done <<< "$IMAGES"
 
-            echo "  ✓ Organized $VERSION_COUNT versions with $TOTAL_VULNS total vulnerabilities"
-          done
+            # ── Update summary in result file ──
+            jq --argjson vc "$VERSION_COUNT" --argjson tv "$TOOL_VULN_COUNT" \
+              '.summary.total_versions_scanned = $vc | .summary.total_vulnerabilities = $tv' \
+              "$RESULT_FILE" > "${RESULT_FILE}.tmp" && mv "${RESULT_FILE}.tmp" "$RESULT_FILE"
 
-          echo ""
-          echo "✓ Organization complete. Processed $TOOL_COUNT tools"
-          echo "organized-dir=$ORGANIZED_DIR" >> $GITHUB_OUTPUT
-          echo "tool-count=$TOOL_COUNT" >> $GITHUB_OUTPUT
+            TOTAL_VULNS=$((TOTAL_VULNS + TOOL_VULN_COUNT))
+            if [ "$TOOL_VULN_COUNT" -gt 0 ]; then
+              TOOLS_WITH_VULNS=$((TOOLS_WITH_VULNS + 1))
+            fi
 
-      - name: Upload organized scan results as artifacts
-        if: steps.organize-results.outputs.tool-count > 0
-        uses: actions/upload-artifact@v6
-        with:
-          name: organized-results
-          path: |
-            ${{ steps.organize-results.outputs.organized-dir }}/
-          retention-days: 90
-          compression-level: 6
-        continue-on-error: true
+            # Accumulate per-tool summary line
+            CRITICAL=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' "$RESULT_FILE" 2>/dev/null || echo 0)
+            HIGH=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "HIGH")] | length' "$RESULT_FILE" 2>/dev/null || echo 0)
+            SCAN_SUMMARY="${SCAN_SUMMARY}| ${tool} | ${VERSION_COUNT} | ${CRITICAL} | ${HIGH} |\n"
 
-      - name: Upload final scan results (safety backup)
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: trivy-scan-results-final
-          path: |
-            trivy-results/
-            organized-results/
-            scan_progress.txt
-            completed_scans.txt
-            failed_scans.txt
-            tool_images_mapping.json
-          retention-days: 90
-          compression-level: 6
-        continue-on-error: true
+            echo "  ✓ Done: $VERSION_COUNT version(s), $TOOL_VULN_COUNT vuln(s)"
+            echo ""
 
-      - name: Artifact Summary
-        if: always()
-        run: |
-          echo "📦 Artifacts Created Summary"
-          echo "=========================="
-
-          # Count scan results
-          if [ -d "trivy-results" ]; then
-            SCAN_COUNT=$(find trivy-results -name "*.json" -type f | wc -l)
-            echo "✅ Raw scan results: $SCAN_COUNT JSON files"
-          fi
-
-          # Count organized results
-          if [ -d "organized-results" ]; then
-            ORG_COUNT=$(find organized-results -name "*.json" -type f | wc -l)
-            echo "✅ Organized results: $ORG_COUNT tool files"
-          fi
-
-          # Show progress files
-          for file in scan_progress.txt completed_scans.txt failed_scans.txt; do
-            if [ -f "$file" ]; then
-              LINES=$(wc -l < "$file")
-              echo "✅ Progress file: $file ($LINES entries)"
+            # Periodic docker cleanup (every 10 tools)
+            if [ $((TOOLS_SCANNED % 10)) -eq 0 ]; then
+              docker system prune -f > /dev/null 2>&1 || true
             fi
           done
 
-          echo ""
-          echo "🎯 These artifacts will be available for reuse in future runs"
-          echo "💾 Retention: 30 days (scan results), 90 days (organized results)"
-
-      - name: Analyze changes and determine PR necessity
-        id: analyze-changes
-        if: steps.organize-results.outputs.tool-count > 0
-        run: |
-          echo "Analyzing scan results for meaningful changes..."
-
-          ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
-          CHANGES_DETECTED=false
-          TOTAL_TOOLS=0
-          TOOLS_WITH_CHANGES=0
-          CHANGE_SUMMARY=""
-
-          # Function to normalize JSON for comparison (strips volatile metadata)
-          # Operates on the ORGANIZED file format: {versions: {<tag>: {vulnerabilities:[...]}}}
-          normalize_for_comparison() {
-            local input_file="$1"
-            jq 'del(.scan_timestamp, .workflow_run_id) |
-                if .versions then .versions |= with_entries(
-                  .value |= del(.image) |
-                  .value.vulnerabilities |= if . then sort_by(.VulnerabilityID) else . end
-                ) else . end' "$input_file" 2>/dev/null || echo "{}"
-          }
-
-          # Function to count vulnerabilities by severity (organized file format)
-          count_vulnerabilities() {
-            local input_file="$1"
-            local severity="$2"
-            jq -r --arg severity "$severity"               '[.versions[].vulnerabilities[]? | select(.Severity == $severity)] | length'               "$input_file" 2>/dev/null || echo "0"
-          }
-
-          # Function to extract vulnerability IDs (organized file format)
-          extract_vuln_ids() {
-            local input_file="$1"
-            jq -r '.versions[].vulnerabilities[]?.VulnerabilityID // empty'               "$input_file" 2>/dev/null | sort | uniq
-          }
-
-          echo "🔍 Checking each tool for meaningful changes..."
-          echo ""
-
-          if [ -d "$ORGANIZED_DIR" ]; then
-            # organize-results writes flat files: organized-results/<tool>-trivy-scan-results.json
-            for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
-              [ -f "$result_file" ] || continue
-
-              # Extract tool name: strip dir prefix and '-trivy-scan-results.json' suffix
-              FILENAME=$(basename "$result_file")
-              TOOL_NAME="${FILENAME%-trivy-scan-results.json}"
-              TOTAL_TOOLS=$((TOTAL_TOOLS + 1))
-
-              echo "Analyzing tool: $TOOL_NAME"
-
-              CURRENT_RESULT="$result_file"
-
-              # Try to get previous version from git
-              PREVIOUS_RESULT=""
-              TARGET_PATH="bfx/$TOOL_NAME/trivy-scan-results.json"
-
-              # Check if file exists in git history
-              if git ls-files --error-unmatch "$TARGET_PATH" > /dev/null 2>&1; then
-                echo "  → Found previous results in git history"
-                PREVIOUS_RESULT=$(mktemp)
-                git show HEAD:"$TARGET_PATH" > "$PREVIOUS_RESULT" 2>/dev/null || rm -f "$PREVIOUS_RESULT"
-              else
-                echo "  → No previous results found (new tool or first scan)"
-              fi
-
-              if [ -f "$PREVIOUS_RESULT" ]; then
-                # Normalize both files for comparison
-                CURRENT_NORMALIZED=$(mktemp)
-                PREVIOUS_NORMALIZED=$(mktemp)
-
-                normalize_for_comparison "$CURRENT_RESULT" > "$CURRENT_NORMALIZED"
-                normalize_for_comparison "$PREVIOUS_RESULT" > "$PREVIOUS_NORMALIZED"
-
-                # Compare normalized content
-                if ! diff -q "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" > /dev/null 2>&1; then
-                  echo "  ✓ Meaningful changes detected"
-                  CHANGES_DETECTED=true
-                  TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
-
-                  # Analyze specific changes
-                  CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
-                  CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
-                  PREVIOUS_CRITICAL=$(count_vulnerabilities "$PREVIOUS_RESULT" "CRITICAL")
-                  PREVIOUS_HIGH=$(count_vulnerabilities "$PREVIOUS_RESULT" "HIGH")
-
-                  echo "    → CRITICAL: $PREVIOUS_CRITICAL → $CURRENT_CRITICAL"
-                  echo "    → HIGH: $PREVIOUS_HIGH → $CURRENT_HIGH"
-
-                  # Build change summary
-                  TOOL_CHANGES=""
-                  if [ "$CURRENT_CRITICAL" -ne "$PREVIOUS_CRITICAL" ]; then
-                    CRITICAL_DIFF=$((CURRENT_CRITICAL - PREVIOUS_CRITICAL))
-                    if [ "$CRITICAL_DIFF" -gt 0 ]; then
-                      TOOL_CHANGES="$TOOL_CHANGES+$CRITICAL_DIFF CRITICAL"
-                    else
-                      TOOL_CHANGES="$TOOL_CHANGES$CRITICAL_DIFF CRITICAL"
-                    fi
-                  fi
-
-                  if [ "$CURRENT_HIGH" -ne "$PREVIOUS_HIGH" ]; then
-                    HIGH_DIFF=$((CURRENT_HIGH - PREVIOUS_HIGH))
-                    if [ -n "$TOOL_CHANGES" ]; then
-                      TOOL_CHANGES="$TOOL_CHANGES, "
-                    fi
-                    if [ "$HIGH_DIFF" -gt 0 ]; then
-                      TOOL_CHANGES="$TOOL_CHANGES+$HIGH_DIFF HIGH"
-                    else
-                      TOOL_CHANGES="$TOOL_CHANGES$HIGH_DIFF HIGH"
-                    fi
-                  fi
-
-                  if [ -n "$TOOL_CHANGES" ]; then
-                    if [ -n "$CHANGE_SUMMARY" ]; then
-                      CHANGE_SUMMARY="$CHANGE_SUMMARY; "
-                    fi
-                    CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $TOOL_CHANGES"
-                  else
-                    # Check for new/removed vulnerabilities
-                    CURRENT_VULNS=$(mktemp)
-                    PREVIOUS_VULNS=$(mktemp)
-                    extract_vuln_ids "$CURRENT_RESULT" > "$CURRENT_VULNS"
-                    extract_vuln_ids "$PREVIOUS_RESULT" > "$PREVIOUS_VULNS"
-
-                    NEW_VULNS=$(comm -13 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
-                    REMOVED_VULNS=$(comm -23 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
-
-                    if [ "$NEW_VULNS" -gt 0 ] || [ "$REMOVED_VULNS" -gt 0 ]; then
-                      if [ -n "$CHANGE_SUMMARY" ]; then
-                        CHANGE_SUMMARY="$CHANGE_SUMMARY; "
-                      fi
-                      CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $NEW_VULNS new, $REMOVED_VULNS resolved"
-                    fi
-
-                    rm -f "$CURRENT_VULNS" "$PREVIOUS_VULNS"
-                  fi
-                else
-                  echo "  → No meaningful changes (only metadata updated)"
-                fi
-
-                # Cleanup temp files
-                rm -f "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" "$PREVIOUS_RESULT"
-              else
-                echo "  ✓ New tool / first scan — will include in PR"
-                CHANGES_DETECTED=true
-                TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
-
-                CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
-                CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
-
-                if [ -n "$CHANGE_SUMMARY" ]; then
-                  CHANGE_SUMMARY="$CHANGE_SUMMARY; "
-                fi
-                CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: NEW ($CURRENT_CRITICAL CRITICAL, $CURRENT_HIGH HIGH)"
-              fi
-              echo ""
-            done
-          fi
-
-          echo "📊 Change Analysis Summary:"
-          echo "=========================="
-          echo "  → Total tools analyzed: $TOTAL_TOOLS"
-          echo "  → Tools with changes: $TOOLS_WITH_CHANGES"
-          echo "  → Meaningful changes detected: $CHANGES_DETECTED"
-
-          if [ "$CHANGES_DETECTED" = "true" ]; then
-            echo "  → Change summary: $CHANGE_SUMMARY"
-            echo ""
-            echo "✅ Will create PR with meaningful changes"
-          else
-            echo ""
-            echo "⏭ Skipping PR creation - no meaningful changes detected"
-            echo "   (Only metadata like timestamps/run IDs changed)"
-          fi
-
-          # Set outputs
-          echo "changes-detected=$CHANGES_DETECTED" >> $GITHUB_OUTPUT
-          echo "tools-with-changes=$TOOLS_WITH_CHANGES" >> $GITHUB_OUTPUT
-          echo "change-summary=$CHANGE_SUMMARY" >> $GITHUB_OUTPUT
-
-      - name: Skip PR creation (no meaningful changes)
-        if: steps.organize-results.outputs.tool-count > 0 && steps.analyze-changes.outputs.changes-detected == 'false'
-        run: |
-          echo "🎯 Intelligent Change Detection Results:"
-          echo "========================================"
-          echo "✅ Scan completed successfully"
-          echo "✅ Results organized and uploaded as artifacts"
-          echo "⏭ PR creation skipped - no meaningful security changes detected"
-          echo ""
-          echo "📝 What this means:"
-          echo "  → All vulnerability data is identical to previous scan"
-          echo "  → Only metadata (timestamps, run IDs) changed"
-          echo "  → No new vulnerabilities introduced"
-          echo "  → No vulnerabilities resolved"
-          echo "  → No container version changes"
-          echo ""
-          echo "💾 Scan results are still available in artifacts for reference"
-          echo "🔄 Next scan will detect any actual security changes"
-
-      - name: Create Pull Request with scan results
-        if: steps.organize-results.outputs.tool-count > 0 && steps.analyze-changes.outputs.changes-detected == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Creating Pull Request with organized scan results..."
-
-          ORGANIZED_DIR="${{ steps.organize-results.outputs.organized-dir }}"
-          TOOL_COUNT="${{ steps.organize-results.outputs.tool-count }}"
-          BRANCH_NAME="trivy-security-scan-$(date +%Y-%m-%d)"
-
-          # Debug: Show what we received from organize step
-          echo "🔍 Debug Information:"
-          echo "  → ORGANIZED_DIR from output: '$ORGANIZED_DIR'"
-          echo "  → TOOL_COUNT from output: '$TOOL_COUNT'"
-          echo "  → Current working directory: $(pwd)"
-          echo "  → Available directories:"
-          ls -la . | grep "^d" || echo "    No directories found"
-
-          # Fallback: If organized-dir output is empty, use default
-          if [ -z "$ORGANIZED_DIR" ]; then
-            echo "⚠ ORGANIZED_DIR is empty, using default: organized-results"
-            ORGANIZED_DIR="organized-results"
-          fi
-
-          # Ensure organized directory exists (recreate if needed)
-          if [ ! -d "$ORGANIZED_DIR" ]; then
-            echo "⚠ Organized directory does not exist: $ORGANIZED_DIR"
-            echo "🔧 Attempting to recreate from available files..."
-            
-            # Check if we have organized results in current directory
-            if find . -maxdepth 1 -name "*-trivy-scan-results.json" -type f | head -1 >/dev/null; then
-              echo "  → Found organized result files in current directory"
-              mkdir -p "$ORGANIZED_DIR"
-              mv *-trivy-scan-results.json "$ORGANIZED_DIR/" 2>/dev/null || true
-              echo "  → Moved files to $ORGANIZED_DIR"
-            else
-              echo "  → No organized result files found in current directory"
-              echo "  → Available files:"
-              ls -la . | head -10
-              exit 1
-            fi
-          fi
-
-          # First, verify and secure the organized directory BEFORE any git operations
-          echo "🔒 Securing organized directory before git operations..."
-          if [ -d "$ORGANIZED_DIR" ]; then
-            echo "✅ Organized directory exists before git operations"
-            echo "Files in organized directory:"
-            ls -la "$ORGANIZED_DIR"
-            echo ""
-            echo "Files matching pattern *-trivy-scan-results.json:"
-            find "$ORGANIZED_DIR" -name "*-trivy-scan-results.json" -type f || echo "No files match pattern"
-            echo ""
-            echo "All JSON files in directory:"
-            find "$ORGANIZED_DIR" -name "*.json" -type f || echo "No JSON files found"
-          else
-            echo "✗ Organized directory does not exist before git operations: $ORGANIZED_DIR"
-            exit 1
-          fi
-
-          # Configure git
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-          # Check git status and clean working directory
-          echo "Checking git status before creating branch..."
-          git status --porcelain
-
-          # Backup organized directory before git operations to a safe location
-          echo "💾 Backing up organized directory before git operations..."
-          BACKUP_DIR="/tmp/organized-results-backup-$$"
-          if [ -d "$ORGANIZED_DIR" ]; then
-            cp -r "$ORGANIZED_DIR" "$BACKUP_DIR"
-            echo "  ✓ Backed up organized directory to $BACKUP_DIR"
-          else
-            echo "  ✗ No organized directory to backup"
-            exit 1
-          fi
-
-          # Ensure clean working directory
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "Working directory not clean - stashing changes..."
-            git stash push -m "Auto-stash before PR creation" --include-untracked 2>/dev/null || true
-          fi
-
-          # Create and switch to new branch from clean main
-          echo "🌿 Creating branch: $BRANCH_NAME"
-
-          # Check if branch already exists locally
-          if git show-ref --verify --quiet refs/heads/"$BRANCH_NAME"; then
-            echo "⚠ Branch $BRANCH_NAME already exists locally"
-            echo "🔄 Switching to existing branch and updating it..."
-            git checkout "$BRANCH_NAME"
-            
-            # Reset to main to ensure clean state
-            git reset --hard main
-            echo "  ✓ Reset branch to latest main"
-          else
-            # Check if branch exists on remote
-            if git ls-remote --exit-code --heads origin "$BRANCH_NAME" >/dev/null 2>&1; then
-              echo "⚠ Branch $BRANCH_NAME exists on remote"
-              echo "🔄 Fetching and checking out remote branch..."
-              git fetch origin "$BRANCH_NAME"
-              git checkout -b "$BRANCH_NAME" origin/"$BRANCH_NAME"
-              
-              # Reset to main to ensure clean state
-              git reset --hard main
-              echo "  ✓ Reset branch to latest main"
-            else
-              echo "✅ Creating new branch: $BRANCH_NAME"
-              git checkout -b "$BRANCH_NAME"
-            fi
-          fi
-
-          # Restore organized directory from backup
-          echo "🔄 Restoring organized directory from backup..."
-          echo "  → Looking for backup at: $BACKUP_DIR"
-
-          if [ -d "$BACKUP_DIR" ]; then
-            echo "  ✓ Backup directory found"
-            BACKUP_FILE_COUNT=$(find "$BACKUP_DIR" -name "*.json" -type f | wc -l)
-            echo "  → Backup contains $BACKUP_FILE_COUNT JSON files"
-            
-            rm -rf "$ORGANIZED_DIR" 2>/dev/null || true
-            cp -r "$BACKUP_DIR" "$ORGANIZED_DIR"
-            rm -rf "$BACKUP_DIR"  # Clean up backup
-            echo "  ✓ Restored organized directory from backup"
-            
-            # Verify restoration
-            FILE_COUNT=$(find "$ORGANIZED_DIR" -name "*.json" -type f | wc -l)
-            echo "  → Restored directory contains $FILE_COUNT JSON files"
-          else
-            echo "  ✗ Backup directory not found: $BACKUP_DIR"
-            echo "  → Available files in /tmp:"
-            ls -la /tmp/ | grep organized || echo "    No organized backup files found"
-            exit 1
-          fi
-
-          # Copy organized results to their respective tool directories
-          COPIED_FILES=0
-          echo "Looking for files matching pattern: $ORGANIZED_DIR/*-trivy-scan-results.json"
-
-          # Use a more robust file finding approach
-          if [ -d "$ORGANIZED_DIR" ]; then
-            # First, let's use a simple approach that works with the COPIED_FILES counter
-            for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
-              # Check if the glob matched any files
-              if [ ! -e "$result_file" ]; then
-                echo "No files matching pattern *-trivy-scan-results.json found"
-                echo "Trying alternative patterns..."
-                
-                # Try alternative patterns
-                for alt_file in "$ORGANIZED_DIR"/*.json; do
-                  if [ -e "$alt_file" ]; then
-                    echo "Found alternative file: $alt_file"
-                    result_file="$alt_file"
-                    break
-                  fi
-                done
-                
-                if [ ! -e "$result_file" ]; then
-                  echo "No JSON files found at all"
-                  break
-                fi
-              fi
-              
-              if [ -f "$result_file" ]; then
-                echo "Processing file: $result_file"
-                
-                # Extract tool name from filename (handle different patterns)
-                FILENAME=$(basename "$result_file")
-                if [[ "$FILENAME" == *"-trivy-scan-results.json" ]]; then
-                  TOOL_NAME=$(echo "$FILENAME" | sed 's|-trivy-scan-results.json||')
-                else
-                  # Fallback: try to extract tool name from JSON content
-                  TOOL_NAME=$(jq -r '.tool // empty' "$result_file" 2>/dev/null)
-                  if [ -z "$TOOL_NAME" ]; then
-                    # Last resort: use filename without extension
-                    TOOL_NAME=$(echo "$FILENAME" | sed 's|\.json||')
-                  fi
-                fi
-                
-                # Try to find matching directory in bfx/
-                TARGET_DIR=""
-                
-                # First try exact match
-                if [ -d "bfx/$TOOL_NAME" ]; then
-                  TARGET_DIR="bfx/$TOOL_NAME"
-                else
-                  # Try fuzzy matching - look for directories that contain the tool name
-                  POSSIBLE_DIRS=$(find bfx/ -maxdepth 1 -type d -name "*$TOOL_NAME*" 2>/dev/null || true)
-                  if [ -n "$POSSIBLE_DIRS" ]; then
-                    TARGET_DIR=$(echo "$POSSIBLE_DIRS" | head -1)
-                    echo "  → Found fuzzy match: $TARGET_DIR for tool $TOOL_NAME"
-                  else
-                    # Try reverse - look for tool names that are contained in directory names
-                    for bfx_dir in bfx/*/; do
-                      if [ -d "$bfx_dir" ]; then
-                        DIR_NAME=$(basename "$bfx_dir")
-                        if [[ "$TOOL_NAME" == *"$DIR_NAME"* ]] || [[ "$DIR_NAME" == *"$TOOL_NAME"* ]]; then
-                          TARGET_DIR="$bfx_dir"
-                          echo "  → Found reverse match: $TARGET_DIR for tool $TOOL_NAME"
-                          break
-                        fi
-                      fi
-                    done
-                  fi
-                fi
-                
-                if [ -z "$TARGET_DIR" ]; then
-                  echo "  ✗ No matching directory found for tool: $TOOL_NAME"
-                  echo "  → Available directories in bfx/:"
-                  ls -1 bfx/ | head -10 | sed 's/^/    - /'
-                  echo "  → Skipping this tool"
-                  continue
-                fi
-                
-                TARGET_FILE="$TARGET_DIR/trivy-scan-results.json"
-                
-                echo "  → Tool: $TOOL_NAME"
-                echo "  → Target directory: $TARGET_DIR"
-                echo "  → Target file: $TARGET_FILE"
-                
-                if [ -d "$TARGET_DIR" ]; then
-                  echo "  ✓ Target directory exists"
-                  echo "Copying scan results for: $TOOL_NAME"
-                  cp "$result_file" "$TARGET_FILE"
-                  
-                  # Only add the specific scan result file (not workflow files)
-                  git add "$TARGET_FILE"
-                  COPIED_FILES=$((COPIED_FILES + 1))
-                  
-                  # Show summary of what was added
-                  VERSIONS=$(jq -r '.summary.total_versions_scanned' "$TARGET_FILE")
-                  VULNS=$(jq -r '.summary.total_vulnerabilities' "$TARGET_FILE")
-                  echo "  → $VERSIONS versions scanned, $VULNS vulnerabilities found"
-                else
-                  echo "  ✗ Target directory not found: $TARGET_DIR"
-                  echo "  → Available directories in bfx/:"
-                  ls -la bfx/ | head -10
-                fi
-              fi
-            done
-          else
-            echo "✗ Organized directory not found: $ORGANIZED_DIR"
-            exit 1
-          fi
-
-          # Verify what we're about to commit
-          echo ""
-          echo "Files staged for commit:"
-          git diff --cached --name-only
-
-          # Ensure no workflow files are staged
-          if git diff --cached --name-only | grep -q "\.github/workflows/"; then
-            echo "⚠ Workflow files detected in staging area - removing them"
-            git reset HEAD .github/workflows/ 2>/dev/null || true
-          fi
-
-          if [ $COPIED_FILES -eq 0 ]; then
-            echo "✗ No files were copied to target directories"
-            exit 1
-          fi
-
-          # Final validation - ensure only scan result files are staged
-          STAGED_FILES=$(git diff --cached --name-only)
-          if [ -z "$STAGED_FILES" ]; then
-            echo "✗ No files staged for commit"
-            exit 1
-          fi
-
-          echo ""
-          echo "Final validation - Files staged for commit:"
-          echo "$STAGED_FILES"
-
-          # Check if any non-scan-result files are staged
-          NON_SCAN_FILES=$(echo "$STAGED_FILES" | grep -v "bfx/.*/trivy-scan-results\.json$" || true)
-          if [ -n "$NON_SCAN_FILES" ]; then
-            echo "⚠ WARNING: Non-scan-result files detected:"
-            echo "$NON_SCAN_FILES"
-            echo "Removing them from staging area..."
-            echo "$NON_SCAN_FILES" | xargs git reset HEAD -- 2>/dev/null || true
-          fi
-
-          # Verify final staged files
-          FINAL_STAGED=$(git diff --cached --name-only)
-          echo "Final files to commit:"
-          echo "$FINAL_STAGED"
-
-          # Commit changes
-          git commit -m "Update Trivy security scan results - $(date +%Y-%m-%d)
-
-          - Updated security scan results for $COPIED_FILES tools
-          - Scanned container images for CRITICAL and HIGH vulnerabilities
-          - Results include vulnerability details and counts per version
-          - Automated scan performed by Trivy Security Scan workflow"
-
-          # Push branch with explicit handling
-          echo "📤 Pushing branch: $BRANCH_NAME"
-
-          # Try normal push first
-          if git push origin "$BRANCH_NAME" 2>/dev/null; then
-            echo "✅ Branch pushed successfully"
-          else
-            echo "⚠ Normal push failed, trying force push (branch may exist on remote)"
-            echo "🔄 Force pushing to update existing branch..."
-            
-            if git push --force-with-lease origin "$BRANCH_NAME"; then
-              echo "✅ Branch force-pushed successfully"
-            else
-              echo "✗ Failed to push branch even with force"
-              echo "This might be due to workflow file permissions or branch protection"
-              echo "Checking what files are in the commit..."
-              git show --name-only HEAD
-              exit 1
-            fi
-          fi
-
-          # Create PR description with change analysis
-          CHANGE_SUMMARY="${{ steps.analyze-changes.outputs.change-summary }}"
-          TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
-
-          PR_BODY="## 🔒 Trivy Security Scan Results - $(date +%Y-%m-%d)
-
-          ### 📊 Change Summary
-          **$TOOLS_WITH_CHANGES** tools have meaningful security changes:
-
-          $CHANGE_SUMMARY
-
-          ### 🎯 What Changed
-          This PR contains updated security scan results with **actual vulnerability changes** (not just timestamp updates).
-
-          Only tools with meaningful changes are included:
-          - ✅ New vulnerabilities discovered
-          - ✅ Vulnerabilities resolved/fixed  
-          - ✅ Severity level changes
-          - ✅ New container versions added
-
-          Metadata-only changes (timestamps, run IDs) are ignored to reduce noise.
-
-          ### 📋 Scan Details
-          This PR contains the latest security scan results from Trivy for our container images.
-
-          ### 📊 Summary
-          - **Tools scanned**: $COPIED_FILES
-          - **Scan date**: $(date +%Y-%m-%d)
-          - **Workflow run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          - **Severity levels**: CRITICAL, HIGH
-
-          ### 📁 Files Updated
-          $(for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
-            if [ -f "$result_file" ]; then
-              TOOL_NAME=$(basename "$result_file" | sed 's|-trivy-scan-results.json||')
-              if [ -d "bfx/$TOOL_NAME" ]; then
-                VERSIONS=$(jq -r '.summary.total_versions_scanned' "$result_file")
-                VULNS=$(jq -r '.summary.total_vulnerabilities' "$result_file")
-                echo "- \`bfx/$TOOL_NAME/trivy-scan-results.json\` - $VERSIONS versions, $VULNS vulnerabilities"
-              fi
-            fi
-          done)
-
-          ### 🔍 What's Included
-          - JSON files containing vulnerability details for each tool
-          - Results organized by tool and version
-          - Only CRITICAL and HIGH severity vulnerabilities
-          - Vulnerability counts and metadata
-
-          ### 📋 Next Steps
-          1. Review the scan results for each tool
-          2. Address any CRITICAL vulnerabilities as priority
-          3. Plan updates for affected container versions
-          4. Merge this PR to update the security baseline
-
-          ---
-          *This PR was automatically generated by the Trivy Security Scan workflow.*"
-
-          # Create or update pull request
-          echo "📝 Creating or updating pull request..."
-
-          # Check if PR already exists for this branch
-          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number' 2>/dev/null || echo "")
-
-          if [ -n "$EXISTING_PR" ]; then
-            echo "⚠ Pull request already exists for branch $BRANCH_NAME (PR #$EXISTING_PR)"
-            echo "🔄 Updating existing pull request..."
-            
-            # Update the existing PR with intelligent title
-            TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
-            if [ "$TOOLS_WITH_CHANGES" -eq 1 ]; then
-              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tool - $(date +%Y-%m-%d)"
-            else
-              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tools - $(date +%Y-%m-%d)"
-            fi
-            
-            if gh pr edit "$EXISTING_PR" \
-              --title "$PR_TITLE" \
-              --body "$PR_BODY"; then
-              echo "✅ Pull request #$EXISTING_PR updated successfully"
-              PR_IDENTIFIER="$EXISTING_PR"  # Use PR number for label operations
-            else
-              echo "✗ Failed to update existing pull request"
-              exit 1
-            fi
-          else
-            echo "✅ Creating new pull request..."
-            TOOLS_WITH_CHANGES="${{ steps.analyze-changes.outputs.tools-with-changes }}"
-            if [ "$TOOLS_WITH_CHANGES" -eq 1 ]; then
-              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tool - $(date +%Y-%m-%d)"
-            else
-              PR_TITLE="🔒 Security changes detected in $TOOLS_WITH_CHANGES tools - $(date +%Y-%m-%d)"
-            fi
-            
-            if gh pr create \
-              --title "$PR_TITLE" \
-              --body "$PR_BODY" \
-              --base main \
-              --head "$BRANCH_NAME"; then
-              echo "✅ Pull request created successfully"
-              PR_IDENTIFIER="$BRANCH_NAME"  # Use branch name for label operations
-
-              # Add reviewers as best-effort (don't fail if a username isn't a collaborator yet)
-              gh pr edit "$PR_IDENTIFIER" --add-reviewer "gkr0110" 2>/dev/null \
-                && echo "  ✓ Added reviewer: gkr0110" \
-                || echo "  ⚠ Could not add reviewer gkr0110 (not a collaborator?)"
-              gh pr edit "$PR_IDENTIFIER" --add-reviewer "vipin-bc" 2>/dev/null \
-                && echo "  ✓ Added reviewer: vipin-bc" \
-                || echo "  ⚠ Could not add reviewer vipin-bc (not a collaborator?)"
-            else
-              echo "✗ Failed to create pull request"
-              exit 1
-            fi
-          fi
-
-          # Try to add labels (optional - don't fail if labels don't exist)
-          echo "Attempting to add labels to PR..."
-          gh pr edit "$PR_IDENTIFIER" --add-label "security" 2>/dev/null && echo "  ✓ Added 'security' label" || echo "  ⚠ Could not add 'security' label (label may not exist)"
-          gh pr edit "$PR_IDENTIFIER" --add-label "automated" 2>/dev/null && echo "  ✓ Added 'automated' label" || echo "  ⚠ Could not add 'automated' label (label may not exist)"
-          gh pr edit "$PR_IDENTIFIER" --add-label "trivy-scan" 2>/dev/null && echo "  ✓ Added 'trivy-scan' label" || echo "  ⚠ Could not add 'trivy-scan' label (label may not exist)"
-
-          echo ""
-          echo "🎉 Trivy Security Scan Workflow Completed Successfully!"
-          echo "=============================================="
-          echo "✅ Scanned $COPIED_FILES tools with security results"
-          echo "✅ Created branch: $BRANCH_NAME"
-          echo "✅ Pull request created/updated with scan results"
-          echo "✅ All artifacts preserved for future reuse"
-          echo ""
-          echo "📋 Next steps:"
-          echo "  1. Review the created pull request"
-          echo "  2. Check scan results for each tool"
-          echo "  3. Address any CRITICAL vulnerabilities"
-          echo "  4. Merge the PR to update security baseline"
-
-          echo ""
-          echo "✓ Pull Request operation completed successfully"
-          echo "  → Branch: $BRANCH_NAME"
-          echo "  → Files updated: $COPIED_FILES"
-          if command -v gh >/dev/null 2>&1; then
-            PR_URL=$(gh pr view "$PR_IDENTIFIER" --json url -q .url 2>/dev/null || echo "URL not available")
-            echo "  → PR URL: $PR_URL"
-          fi
-
-      - name: Upload scan results as artifacts
+          echo "════════════════════════════════════════"
+          echo "📊 Scan Summary"
+          echo "  → Tools scanned:          $TOOLS_SCANNED"
+          echo "  → Tools with vulns:       $TOOLS_WITH_VULNS"
+          echo "  → Total vulnerabilities:  $TOTAL_VULNS"
+          echo "════════════════════════════════════════"
+
+          echo "tools-scanned=$TOOLS_SCANNED"       >> $GITHUB_OUTPUT
+          echo "tools-with-vulns=$TOOLS_WITH_VULNS" >> $GITHUB_OUTPUT
+          echo "total-vulns=$TOTAL_VULNS"            >> $GITHUB_OUTPUT
+
+          # Write summary table to a file so the PR step can read it
+          printf "$SCAN_SUMMARY" > /tmp/scan-summary-table.txt
+          echo "scan-summary-file=/tmp/scan-summary-table.txt" >> $GITHUB_OUTPUT
+
+      - name: Upload scan results
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: trivy-scan-results
-          path: |
-            trivy-results/
-            organized-results/
+          path: bfx/*/trivy-scan-results.json
           retention-days: 90
+          compression-level: 6
+        continue-on-error: true
 
     outputs:
-      total-scanned: ${{ steps.batch-scan.outputs.total-scanned || steps.prepare-recent.outputs.total-scanned }}
-      successful-scans: ${{ steps.batch-scan.outputs.successful-scans || steps.prepare-recent.outputs.successful-scans }}
-      failed-scans: ${{ steps.batch-scan.outputs.failed-scans || steps.prepare-recent.outputs.failed-scans }}
-      used-recent-results: ${{ steps.check-reuse.outputs.reuse-available }}
-      tool-count: ${{ steps.organize-results.outputs.tool-count }}
+      tools-scanned:    ${{ steps.scan.outputs.tools-scanned }}
+      tools-with-vulns: ${{ steps.scan.outputs.tools-with-vulns }}
+      total-vulns:      ${{ steps.scan.outputs.total-vulns }}
+      scan-summary-file: ${{ steps.scan.outputs.scan-summary-file }}
 
-  summary:
-    name: Scan Summary
+  # ── Job 3: Create PR with scan results ─────────────────────────────────────
+  create-pr:
+    name: Create Pull Request
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [check-recent-scans, security-scan, trivy-scan]
-    if: always()
+    needs: [detect-scope, scan]
+    if: needs.scan.outputs.total-vulns > 0
 
     steps:
-      - name: Display comprehensive scan summary
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download scan results
+        uses: actions/download-artifact@v7
+        with:
+          name: trivy-scan-results
+          path: scan-results/
+
+      - name: Create PR with results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOOLS_JSON:   ${{ needs.detect-scope.outputs.tools-json }}
+          TOOL_COUNT:   ${{ needs.detect-scope.outputs.tool-count }}
+          TOTAL_VULNS:  ${{ needs.scan.outputs.total-vulns }}
+          TOOLS_WITH_VULNS: ${{ needs.scan.outputs.tools-with-vulns }}
         run: |
-          echo "Trivy Security Scan Workflow Complete"
-          echo "======================================"
-          echo "Workflow execution time: $(date)"
-          echo ""
+          echo "📝 Creating PR with scan results..."
 
-          # Discovery phase summary
-          echo "📋 Discovery Phase:"
-          if [ "${{ needs.security-scan.outputs.image-count }}" -gt 0 ]; then
-            echo "  ✓ Images discovered: ${{ needs.security-scan.outputs.image-count }}"
+          # ── Determine branch name ──
+          DATE=$(date +%Y-%m-%d)
+          if [ "$TOOL_COUNT" -eq 1 ]; then
+            SINGLE_TOOL=$(echo "$TOOLS_JSON" | jq -r '.[0]')
+            BRANCH_NAME="trivy-scan-${SINGLE_TOOL}-${DATE}"
           else
-            echo "  ⚠ No container images found to scan"
-            echo "    → Verify images are published to ghcr.io with products/bfx/ prefix"
-            echo "    → Check repository permissions for package access"
-          fi
-          echo ""
-
-          # Scanning phase summary
-          echo "🔍 Scanning Phase:"
-
-          # Check if recent results were used
-          if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
-            echo "  🔄 Used recent scan results (within last month)"
-            echo "    → Recent run ID: ${{ needs.check-recent-scans.outputs.recent-run-id }}"
-            echo "    → Skipped re-scanning to save time and resources"
-            echo "    → Results processed from previous successful scan"
-          else
-            echo "  💾 Checkpoint/Resume System Active"
-            echo "    → Progress is saved after each successful scan"
-            echo "    → Failed runs can be resumed from last checkpoint"
-            echo "    → Use 'Resume from progress' option (enabled by default)"
+            BRANCH_NAME="trivy-scan-${DATE}"
           fi
 
-          case "${{ needs.trivy-scan.result }}" in
-            "success")
-              if [ "${{ needs.trivy-scan.outputs.used-recent-results }}" == "true" ]; then
-                echo "  ✓ Recent scan results processed successfully"
-              else
-                echo "  ✓ Batch scanning completed successfully"
-              fi
-              echo "  📊 Results:"
-              echo "    → Tools processed: ${{ needs.trivy-scan.outputs.tool-count }}"
-              echo "    → Images scanned: ${{ needs.trivy-scan.outputs.successful-scans }}"
-              echo "    → Failed scans: ${{ needs.trivy-scan.outputs.failed-scans }}"
-              echo "  📁 Output:"
-              echo "    → JSON files created in bfx/<tool>/trivy-scan-results.json"
-              echo "    → Pull Request created with all results"
-              ;;
-            "failure")
-              echo "  ✗ Batch scanning encountered issues"
-              echo "    → Check individual scan logs in workflow details"
-              ;;
-            "skipped")
-              echo "  ⏭ Scanning was skipped (no images to process)"
-              ;;
-            *)
-              echo "  ❓ Scanning status: ${{ needs.trivy-scan.result }}"
-              ;;
-          esac
-          echo ""
+          # ── Copy results into bfx/<tool>/ ──
+          COPIED=0
+          for result_file in scan-results/*/trivy-scan-results.json; do
+            [ -f "$result_file" ] || continue
+            # Path is scan-results/<tool>/trivy-scan-results.json
+            TOOL_NAME=$(basename "$(dirname "$result_file")")
+            TARGET="bfx/$TOOL_NAME/trivy-scan-results.json"
 
-          # Next steps
-          IMAGE_COUNT_OUT="${{ needs.security-scan.outputs.image-count || '0' }}"
-          echo "📋 Next Steps:"
-          if [ "${{ needs.trivy-scan.result }}" == "success" ]; then
-            echo "  1. Review the created Pull Request with scan results"
-            echo "  2. Check individual tool directories: bfx/<tool>/trivy-scan-results.json"
-            echo "  3. Address any CRITICAL vulnerabilities found"
-            echo "  4. Plan container image updates for affected versions"
-            echo "  5. Merge the PR to update the security baseline"
-          elif [ "$(( ${IMAGE_COUNT_OUT:-0} ))" -eq 0 ]; then
-            echo "  1. Verify container images are published to ghcr.io"
-            echo "  2. Check that images follow the products/bfx/* naming pattern"
-            echo "  3. Ensure workflow has proper permissions to access packages"
-          else
-            echo "  1. Review workflow logs for specific error details"
-            echo "  2. Check network connectivity and registry access"
-            echo "  3. Verify Trivy configuration and image accessibility"
-            echo "  4. If scan was interrupted, re-run workflow to resume from progress"
-          fi
-
-          echo ""
-          echo "🧠 Intelligent PR Creation Summary:"
-          echo "==================================="
-          IMAGE_COUNT_OUT="${{ needs.security-scan.outputs.image-count || '0' }}"
-          if [ "${IMAGE_COUNT_OUT:-0}" -gt 0 ] && [ "${{ steps.organize-results.outputs.tool-count || '0' }}" -gt 0 ]; then
-            CHANGES_DETECTED="${{ steps.analyze-changes.outputs.changes-detected || 'false' }}"
-            if [ "$CHANGES_DETECTED" == "true" ]; then
-              echo "✅ PR created - meaningful security changes detected"
-              echo "   → ${{ steps.analyze-changes.outputs.tools-with-changes || '0' }} tools affected"
-              echo "   → Changes: ${{ steps.analyze-changes.outputs.change-summary || 'N/A' }}"
+            if [ -d "bfx/$TOOL_NAME" ]; then
+              cp "$result_file" "$TARGET"
+              COPIED=$((COPIED + 1))
+              echo "  ✓ $TOOL_NAME"
             else
-              echo "⏭ PR skipped - no meaningful changes (metadata-only updates)"
-              echo "   → Scan results identical to previous run"
-              echo "   → Only timestamps and run IDs changed"
+              echo "  ⚠ No bfx/$TOOL_NAME directory — skipping"
             fi
-          else
-            echo "ℹ️ No scan results to analyze"
+          done
+
+          if [ "$COPIED" -eq 0 ]; then
+            echo "⚠ No results to commit — exiting"
+            exit 0
           fi
 
-          echo ""
-          echo "🔄 This workflow runs automatically on the first Sunday of every month"
-          echo "   Manual execution: Use 'Run workflow' button in Actions tab"
+          echo "  → Copied $COPIED result files"
+
+          # ── Git: branch, commit, push ──
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Delete remote branch if it already exists (stale from previous run today)
+          git push origin --delete "$BRANCH_NAME" 2>/dev/null || true
+          git checkout -b "$BRANCH_NAME"
+
+          git add bfx/*/trivy-scan-results.json
+          if ! git diff --staged --quiet; then
+            git commit -m "🔒 Trivy security scan results — $DATE
+
+Scanned $TOOL_COUNT tool(s), found $TOTAL_VULNS vulnerabilities (CRITICAL/HIGH)."
+            git push origin "$BRANCH_NAME"
+          else
+            echo "⚠ No changes to commit — scan results identical to main"
+            exit 0
+          fi
+
+          # ── Build PR body ──
+          PR_BODY="## 🔒 Trivy Security Scan Results — $DATE
+
+### 📊 Summary
+- **Tools scanned**: $TOOL_COUNT
+- **Tools with vulnerabilities**: $TOOLS_WITH_VULNS
+- **Total CRITICAL + HIGH vulnerabilities**: $TOTAL_VULNS
+
+### 📋 Per-Tool Results
+| Tool | Versions | CRITICAL | HIGH |
+|------|----------|----------|------|
+"
+          # Read per-tool data from result files
+          for result_file in scan-results/*/trivy-scan-results.json; do
+            [ -f "$result_file" ] || continue
+            TOOL_NAME=$(basename "$(dirname "$result_file")")
+            VERSIONS=$(jq -r '.summary.total_versions_scanned' "$result_file" 2>/dev/null || echo 0)
+            CRITICAL=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' "$result_file" 2>/dev/null || echo 0)
+            HIGH=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "HIGH")] | length' "$result_file" 2>/dev/null || echo 0)
+            PR_BODY="${PR_BODY}| ${TOOL_NAME} | ${VERSIONS} | ${CRITICAL} | ${HIGH} |
+"
+          done
+
+          PR_BODY="${PR_BODY}
+### 🔧 What to do
+1. Review the \`trivy-scan-results.json\` files for each affected tool
+2. Prioritise **CRITICAL** vulnerabilities for immediate remediation
+3. Plan container image updates for affected versions
+
+_Automated by [Trivy Security Scan](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})_"
+
+          # ── PR title ──
+          if [ "$TOOL_COUNT" -eq 1 ]; then
+            PR_TITLE="🔒 Security scan: ${SINGLE_TOOL} — $DATE"
+          else
+            PR_TITLE="🔒 Security scan: $TOOLS_WITH_VULNS of $TOOL_COUNT tools have vulnerabilities — $DATE"
+          fi
+
+          # ── Create PR ──
+          if gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --base main \
+            --head "$BRANCH_NAME"; then
+            echo "✅ Pull request created"
+
+            # Best-effort reviewer assignment
+            gh pr edit "$BRANCH_NAME" --add-reviewer "gkr0110" 2>/dev/null \
+              && echo "  ✓ Reviewer: gkr0110" \
+              || echo "  ⚠ Could not add gkr0110"
+            gh pr edit "$BRANCH_NAME" --add-reviewer "vipin-bc" 2>/dev/null \
+              && echo "  ✓ Reviewer: vipin-bc" \
+              || echo "  ⚠ Could not add vipin-bc"
+
+            # Best-effort labels
+            gh pr edit "$BRANCH_NAME" --add-label "security" 2>/dev/null || true
+            gh pr edit "$BRANCH_NAME" --add-label "trivy-scan" 2>/dev/null || true
+          else
+            echo "✗ Failed to create PR"
+            exit 1
+          fi
