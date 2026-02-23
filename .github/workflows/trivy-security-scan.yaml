@@ -1124,28 +1124,28 @@ jobs:
           TOOLS_WITH_CHANGES=0
           CHANGE_SUMMARY=""
 
-          # Function to normalize JSON for comparison (strips metadata)
+          # Function to normalize JSON for comparison (strips volatile metadata)
+          # Operates on the ORGANIZED file format: {versions: {<tag>: {vulnerabilities:[...]}}}
           normalize_for_comparison() {
             local input_file="$1"
-            jq 'del(.scan_timestamp, .workflow_run_id) | 
-                if .Metadata then .Metadata |= del(.ImageID) else . end |
-                if .Results then .Results |= sort_by(.Target) else . end |
-                if .Results then .Results[] |= if .Vulnerabilities then .Vulnerabilities |= sort_by(.VulnerabilityID) else . end else . end' "$input_file" 2>/dev/null || echo "{}"
+            jq 'del(.scan_timestamp, .workflow_run_id) |
+                if .versions then .versions |= with_entries(
+                  .value |= del(.image) |
+                  .value.vulnerabilities |= if . then sort_by(.VulnerabilityID) else . end
+                ) else . end' "$input_file" 2>/dev/null || echo "{}"
           }
 
-          # Function to count vulnerabilities by severity
+          # Function to count vulnerabilities by severity (organized file format)
           count_vulnerabilities() {
             local input_file="$1"
             local severity="$2"
-            jq -r --arg severity "$severity" '
-              [.Results[]?.Vulnerabilities[]? | select(.Severity == $severity)] | length
-            ' "$input_file" 2>/dev/null || echo "0"
+            jq -r --arg severity "$severity"               '[.versions[].vulnerabilities[]? | select(.Severity == $severity)] | length'               "$input_file" 2>/dev/null || echo "0"
           }
 
-          # Function to extract vulnerability IDs
+          # Function to extract vulnerability IDs (organized file format)
           extract_vuln_ids() {
             local input_file="$1"
-            jq -r '.Results[]?.Vulnerabilities[]?.VulnerabilityID // empty' "$input_file" 2>/dev/null | sort | uniq
+            jq -r '.versions[].vulnerabilities[]?.VulnerabilityID // empty'               "$input_file" 2>/dev/null | sort | uniq
           }
 
           echo "🔍 Checking each tool for meaningful changes..."
