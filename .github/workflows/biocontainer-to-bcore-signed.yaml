@@ -191,7 +191,7 @@ jobs:
           echo "🚀 Starting retag loop..."
           echo ""
 
-          while IFS= read -r appdir; do
+          while IFS= read -r appdir <&3; do
             [ -z "$appdir" ] && continue
             app=$(basename "$appdir")
             slug=$(echo "$app" | tr '[:upper:]' '[:lower:]')
@@ -230,4 +230,4 @@ jobs:
               docker image prune -af || true
               docker system prune -af --volumes || true
             fi
-          done <<< "$TOOL_DIRS"
+          done 3<<< "$TOOL_DIRS"
