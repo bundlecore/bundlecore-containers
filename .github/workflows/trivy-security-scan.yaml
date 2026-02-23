@@ -1728,10 +1728,17 @@ jobs:
               --title "$PR_TITLE" \
               --body "$PR_BODY" \
               --base main \
-              --head "$BRANCH_NAME" \
-              --reviewer "gkr0110,vipin-bc"; then
+              --head "$BRANCH_NAME"; then
               echo "✅ Pull request created successfully"
               PR_IDENTIFIER="$BRANCH_NAME"  # Use branch name for label operations
+
+              # Add reviewers as best-effort (don't fail if a username isn't a collaborator yet)
+              gh pr edit "$PR_IDENTIFIER" --add-reviewer "gkr0110" 2>/dev/null \
+                && echo "  ✓ Added reviewer: gkr0110" \
+                || echo "  ⚠ Could not add reviewer gkr0110 (not a collaborator?)"
+              gh pr edit "$PR_IDENTIFIER" --add-reviewer "vipin-bc" 2>/dev/null \
+                && echo "  ✓ Added reviewer: vipin-bc" \
+                || echo "  ⚠ Could not add reviewer vipin-bc (not a collaborator?)"
             else
               echo "✗ Failed to create pull request"
               exit 1
