@@ -1,8 +1,8 @@
 name: Trivy Security Scan
-# ─── Triggers ─────────────────────────────────────────────────────────────────
-# 1. After retag workflow → scan only the tool(s) whose release.json changed
-# 2. Monthly cron         → full scan of all tools
-# 3. Manual dispatch      → all or changed-only
+# --- Triggers -----------------------------------------------------------------
+# 1. After retag workflow -> scan only the tool(s) whose release.json changed
+# 2. Monthly cron         -> full scan of all tools
+# 3. Manual dispatch      -> all or changed-only
 on:
   workflow_run:
     workflows: ["Retag and Sign BioContainer Images"]
@@ -27,10 +27,10 @@ permissions:
   pull-requests: write
   actions: read
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 jobs:
 
-  # ── Job 1: Figure out which tools to scan ──────────────────────────────────
+  # -- Job 1: Figure out which tools to scan ----------------------------------
   detect-scope:
     name: Detect Scan Scope
     runs-on: ubuntu-latest
@@ -52,28 +52,28 @@ jobs:
           EVENT="${{ github.event_name }}"
           SCAN_MODE="${{ github.event.inputs.scan_mode }}"
 
-          echo "🔍 Trigger: $EVENT  |  scan_mode: ${SCAN_MODE:-N/A}"
+          echo " Trigger: $EVENT  |  scan_mode: ${SCAN_MODE:-N/A}"
 
-          # ── Full scan: schedule or manual "all" ──
+          # -- Full scan: schedule or manual "all" --
           if [ "$EVENT" = "schedule" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; }; then
-            echo "📋 Full scan — collecting all bfx/ tools"
+            echo " Full scan — collecting all bfx/ tools"
             TOOLS_JSON=$(find bfx -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | jq -R . | jq -sc .)
             COUNT=$(echo "$TOOLS_JSON" | jq length)
-            echo "  → $COUNT tools"
+            echo "  -> $COUNT tools"
             echo "scan-all=true"          >> $GITHUB_OUTPUT
             echo "tool-count=$COUNT"      >> $GITHUB_OUTPUT
             echo "tools-json=$TOOLS_JSON" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # ── workflow_run (after retag) ──
+          # -- workflow_run (after retag) --
           if [ "$EVENT" = "workflow_run" ]; then
             RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
             RETAG_SHA="${{ github.event.workflow_run.head_sha }}"
-            echo "🔗 Retag workflow finished (conclusion=$RETAG_CONCLUSION, sha=$RETAG_SHA)"
+            echo " Retag workflow finished (conclusion=$RETAG_CONCLUSION, sha=$RETAG_SHA)"
 
             if [ "$RETAG_CONCLUSION" != "success" ]; then
-              echo "⏭ Retag did not succeed — skipping scan"
+              echo "[SKIP] Retag did not succeed — skipping scan"
               echo "scan-all=false"   >> $GITHUB_OUTPUT
               echo "tool-count=0"     >> $GITHUB_OUTPUT
               echo "tools-json=[]"    >> $GITHUB_OUTPUT
@@ -83,31 +83,31 @@ jobs:
             CHANGED_FILES=$(git diff --name-only "${RETAG_SHA}^" "$RETAG_SHA" -- 'bfx/*/release.json' 2>/dev/null || true)
           else
             # Manual changed-only
-            echo "🔍 Manual changed-only mode"
+            echo " Manual changed-only mode"
             CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- 'bfx/*/release.json' 2>/dev/null || true)
           fi
 
           if [ -z "$CHANGED_FILES" ]; then
-            echo "  → No release.json changes detected — nothing to scan"
+            echo "  -> No release.json changes detected — nothing to scan"
             echo "scan-all=false"   >> $GITHUB_OUTPUT
             echo "tool-count=0"     >> $GITHUB_OUTPUT
             echo "tools-json=[]"    >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Extract unique tool names: bfx/<tool>/release.json → <tool>
+          # Extract unique tool names: bfx/<tool>/release.json -> <tool>
           TOOLS=$(echo "$CHANGED_FILES" | sed 's|^bfx/||; s|/release.json$||' | sort -u)
           TOOLS_JSON=$(echo "$TOOLS" | jq -R . | jq -sc .)
           COUNT=$(echo "$TOOLS_JSON" | jq length)
 
-          echo "🛠 Tools to scan ($COUNT):"
-          echo "$TOOLS" | sed 's/^/  ✓ /'
+          echo " Tools to scan ($COUNT):"
+          echo "$TOOLS" | sed 's/^/  [ok] /'
 
           echo "scan-all=false"          >> $GITHUB_OUTPUT
           echo "tool-count=$COUNT"       >> $GITHUB_OUTPUT
           echo "tools-json=$TOOLS_JSON"  >> $GITHUB_OUTPUT
 
-  # ── Job 2: Scan each tool's images with Trivy ─────────────────────────────
+  # -- Job 2: Scan each tool's images with Trivy -----------------------------
   scan:
     name: Trivy Scan
     runs-on: ubuntu-latest
@@ -128,13 +128,13 @@ jobs:
 
       - name: Pre-warm Trivy vulnerability database
         run: |
-          echo "⬇ Downloading Trivy vulnerability database..."
+          echo " Downloading Trivy vulnerability database..."
           mkdir -p ~/.cache/trivy
           docker run --rm \
             -v "$HOME/.cache/trivy:/root/.cache/trivy" \
             -e TRIVY_CACHE_DIR="/root/.cache/trivy" \
             aquasec/trivy:latest image --download-db-only
-          echo "✓ Database ready"
+          echo "[ok] Database ready"
 
       - name: Scan tool images
         id: scan
@@ -143,7 +143,7 @@ jobs:
           ORG_NAME:   ${{ github.repository_owner }}
         run: |
           TOOL_COUNT=$(echo "$TOOLS_JSON" | jq -r 'length')
-          echo "🔬 Scanning $TOOL_COUNT tool(s)..."
+          echo " Scanning $TOOL_COUNT tool(s)..."
           echo ""
 
           TOTAL_VULNS=0
@@ -158,23 +158,23 @@ jobs:
 
             echo "[$TOOLS_SCANNED/$TOOL_COUNT] $tool"
 
-            # ── Validate release.json ──
+            # -- Validate release.json --
             if [ ! -f "$RELEASE" ]; then
-              echo "  ⚠ No release.json — skipping"
+              echo "  [WARN] No release.json — skipping"
               continue
             fi
             if ! jq empty "$RELEASE" 2>/dev/null; then
-              echo "  ⚠ Invalid JSON — skipping"
+              echo "  [WARN] Invalid JSON — skipping"
               continue
             fi
 
             IMAGES=$(jq -r '.images[]?' "$RELEASE" 2>/dev/null)
             if [ -z "$IMAGES" ]; then
-              echo "  ⚠ No images in release.json — skipping"
+              echo "  [WARN] No images in release.json — skipping"
               continue
             fi
 
-            # ── Initialise result structure ──
+            # -- Initialise result structure --
             SLUG=$(echo "$tool" | tr '[:upper:]' '[:lower:]')
             echo "{
               \"tool\": \"$tool\",
@@ -187,7 +187,7 @@ jobs:
             TOOL_VULN_COUNT=0
             VERSION_COUNT=0
 
-            # ── Scan each image ──
+            # -- Scan each image --
             while IFS= read -r source_image; do
               [ -z "$source_image" ] && continue
 
@@ -196,11 +196,11 @@ jobs:
               GHCR_URL="ghcr.io/${ORG_NAME}/products/bfx/${SLUG}:${SHORT_TAG}"
 
               if ! docker manifest inspect "$GHCR_URL" > /dev/null 2>&1; then
-                echo "  ⚠ Not in GHCR: $GHCR_URL — skipping"
+                echo "  [WARN] Not in GHCR: $GHCR_URL — skipping"
                 continue
               fi
 
-              echo "  → Scanning $GHCR_URL ..."
+              echo "  -> Scanning $GHCR_URL ..."
               SAFE_NAME=$(echo "$GHCR_URL" | sed 's|[^a-zA-Z0-9._-]|_|g')
               SCAN_JSON="/tmp/trivy-${SAFE_NAME}.json"
 
@@ -223,7 +223,7 @@ jobs:
 
                 if jq empty "$SCAN_JSON" 2>/dev/null && [ "$(wc -c < "$SCAN_JSON" 2>/dev/null || echo 0)" -gt 10 ]; then
                   VULN_COUNT=$(jq '[.Results[]?.Vulnerabilities[]?] | length' "$SCAN_JSON" 2>/dev/null || echo 0)
-                  echo "    ✓ $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
+                  echo "    [ok] $VULN_COUNT vulnerabilities (CRITICAL/HIGH)"
 
                   # Extract vulnerabilities array from raw Trivy output
                   TEMP_VULNS=$(mktemp)
@@ -244,17 +244,17 @@ jobs:
                   VERSION_COUNT=$((VERSION_COUNT + 1))
                   TOOL_VULN_COUNT=$((TOOL_VULN_COUNT + VULN_COUNT))
                 else
-                  echo "    ✗ Trivy produced empty/invalid output"
+                  echo "    [FAIL] Trivy produced empty/invalid output"
                 fi
               else
-                echo "    ✗ Scan failed"
+                echo "    [FAIL] Scan failed"
               fi
 
               # Clean up scan file to save disk
               rm -f "$SCAN_JSON"
             done <<< "$IMAGES"
 
-            # ── Update summary in result file ──
+            # -- Update summary in result file --
             jq --argjson vc "$VERSION_COUNT" --argjson tv "$TOOL_VULN_COUNT" \
               '.summary.total_versions_scanned = $vc | .summary.total_vulnerabilities = $tv' \
               "$RESULT_FILE" > "${RESULT_FILE}.tmp" && mv "${RESULT_FILE}.tmp" "$RESULT_FILE"
@@ -269,7 +269,7 @@ jobs:
             HIGH=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "HIGH")] | length' "$RESULT_FILE" 2>/dev/null || echo 0)
             SCAN_SUMMARY="${SCAN_SUMMARY}| ${tool} | ${VERSION_COUNT} | ${CRITICAL} | ${HIGH} |\n"
 
-            echo "  ✓ Done: $VERSION_COUNT version(s), $TOOL_VULN_COUNT vuln(s)"
+            echo "  [ok] Done: $VERSION_COUNT version(s), $TOOL_VULN_COUNT vuln(s)"
             echo ""
 
             # Periodic docker cleanup (every 10 tools)
@@ -278,12 +278,12 @@ jobs:
             fi
           done
 
-          echo "════════════════════════════════════════"
-          echo "📊 Scan Summary"
-          echo "  → Tools scanned:          $TOOLS_SCANNED"
-          echo "  → Tools with vulns:       $TOOLS_WITH_VULNS"
-          echo "  → Total vulnerabilities:  $TOTAL_VULNS"
-          echo "════════════════════════════════════════"
+          echo "========================================"
+          echo " Scan Summary"
+          echo "  -> Tools scanned:          $TOOLS_SCANNED"
+          echo "  -> Tools with vulns:       $TOOLS_WITH_VULNS"
+          echo "  -> Total vulnerabilities:  $TOTAL_VULNS"
+          echo "========================================"
 
           echo "tools-scanned=$TOOLS_SCANNED"       >> $GITHUB_OUTPUT
           echo "tools-with-vulns=$TOOLS_WITH_VULNS" >> $GITHUB_OUTPUT
@@ -309,7 +309,7 @@ jobs:
       total-vulns:      ${{ steps.scan.outputs.total-vulns }}
       scan-summary-file: ${{ steps.scan.outputs.scan-summary-file }}
 
-  # ── Job 3: Create PR with scan results ─────────────────────────────────────
+  # -- Job 3: Create PR with scan results -------------------------------------
   create-pr:
     name: Create Pull Request
     runs-on: ubuntu-latest
@@ -335,9 +335,9 @@ jobs:
           TOTAL_VULNS:  ${{ needs.scan.outputs.total-vulns }}
           TOOLS_WITH_VULNS: ${{ needs.scan.outputs.tools-with-vulns }}
         run: |
-          echo "📝 Creating PR with scan results..."
+          echo " Creating PR with scan results..."
 
-          # ── Determine branch name ──
+          # -- Determine branch name --
           DATE=$(date +%Y-%m-%d)
           if [ "$TOOL_COUNT" -eq 1 ]; then
             SINGLE_TOOL=$(echo "$TOOLS_JSON" | jq -r '.[0]')
@@ -346,7 +346,7 @@ jobs:
             BRANCH_NAME="trivy-scan-${DATE}"
           fi
 
-          # ── Copy results into bfx/<tool>/ ──
+          # -- Copy results into bfx/<tool>/ --
           COPIED=0
           for result_file in scan-results/*/trivy-scan-results.json; do
             [ -f "$result_file" ] || continue
@@ -357,20 +357,20 @@ jobs:
             if [ -d "bfx/$TOOL_NAME" ]; then
               cp "$result_file" "$TARGET"
               COPIED=$((COPIED + 1))
-              echo "  ✓ $TOOL_NAME"
+              echo "  [ok] $TOOL_NAME"
             else
-              echo "  ⚠ No bfx/$TOOL_NAME directory — skipping"
+              echo "  [WARN] No bfx/$TOOL_NAME directory — skipping"
             fi
           done
 
           if [ "$COPIED" -eq 0 ]; then
-            echo "⚠ No results to commit — exiting"
+            echo "[WARN] No results to commit — exiting"
             exit 0
           fi
 
-          echo "  → Copied $COPIED result files"
+          echo "  -> Copied $COPIED result files"
 
-          # ── Git: branch, commit, push ──
+          # -- Git: branch, commit, push --
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
@@ -380,54 +380,49 @@ jobs:
 
           git add bfx/*/trivy-scan-results.json
           if ! git diff --staged --quiet; then
-            git commit -m "🔒 Trivy security scan results — $DATE
-
-Scanned $TOOL_COUNT tool(s), found $TOTAL_VULNS vulnerabilities (CRITICAL/HIGH)."
+            COMMIT_MSG=$(printf "Trivy security scan results - %s\n\nScanned %s tool(s), found %s vulnerabilities (CRITICAL/HIGH)." "$DATE" "$TOOL_COUNT" "$TOTAL_VULNS")
+            git commit -m "$COMMIT_MSG"
             git push origin "$BRANCH_NAME"
           else
-            echo "⚠ No changes to commit — scan results identical to main"
+            echo "[WARN] No changes to commit - scan results identical to main"
             exit 0
           fi
 
-          # ── Build PR body ──
-          PR_BODY="## 🔒 Trivy Security Scan Results — $DATE
+          # -- Build PR body line by line (avoids YAML parser confusion with #) --
+          NL=$'\n'
+          PR_BODY="## Trivy Security Scan Results - ${DATE}${NL}${NL}"
+          PR_BODY+="### Summary${NL}"
+          PR_BODY+="- **Tools scanned**: ${TOOL_COUNT}${NL}"
+          PR_BODY+="- **Tools with vulnerabilities**: ${TOOLS_WITH_VULNS}${NL}"
+          PR_BODY+="- **Total CRITICAL + HIGH vulnerabilities**: ${TOTAL_VULNS}${NL}${NL}"
+          PR_BODY+="### Per-Tool Results${NL}"
+          PR_BODY+="| Tool | Versions | CRITICAL | HIGH |${NL}"
+          PR_BODY+="|------|----------|----------|------|${NL}"
 
-### 📊 Summary
-- **Tools scanned**: $TOOL_COUNT
-- **Tools with vulnerabilities**: $TOOLS_WITH_VULNS
-- **Total CRITICAL + HIGH vulnerabilities**: $TOTAL_VULNS
-
-### 📋 Per-Tool Results
-| Tool | Versions | CRITICAL | HIGH |
-|------|----------|----------|------|
-"
-          # Read per-tool data from result files
+          # Append per-tool data from result files
           for result_file in scan-results/*/trivy-scan-results.json; do
             [ -f "$result_file" ] || continue
             TOOL_NAME=$(basename "$(dirname "$result_file")")
             VERSIONS=$(jq -r '.summary.total_versions_scanned' "$result_file" 2>/dev/null || echo 0)
             CRITICAL=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' "$result_file" 2>/dev/null || echo 0)
             HIGH=$(jq '[.versions[].vulnerabilities[]? | select(.Severity == "HIGH")] | length' "$result_file" 2>/dev/null || echo 0)
-            PR_BODY="${PR_BODY}| ${TOOL_NAME} | ${VERSIONS} | ${CRITICAL} | ${HIGH} |
-"
+            PR_BODY+="| ${TOOL_NAME} | ${VERSIONS} | ${CRITICAL} | ${HIGH} |${NL}"
           done
 
-          PR_BODY="${PR_BODY}
-### 🔧 What to do
-1. Review the \`trivy-scan-results.json\` files for each affected tool
-2. Prioritise **CRITICAL** vulnerabilities for immediate remediation
-3. Plan container image updates for affected versions
+          PR_BODY+="${NL}### What to do${NL}"
+          PR_BODY+="1. Review the \`trivy-scan-results.json\` files for each affected tool${NL}"
+          PR_BODY+="2. Prioritise **CRITICAL** vulnerabilities for immediate remediation${NL}"
+          PR_BODY+="3. Plan container image updates for affected versions${NL}${NL}"
+          PR_BODY+="_Automated by [Trivy Security Scan](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})_"
 
-_Automated by [Trivy Security Scan](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})_"
-
-          # ── PR title ──
+          # -- PR title --
           if [ "$TOOL_COUNT" -eq 1 ]; then
-            PR_TITLE="🔒 Security scan: ${SINGLE_TOOL} — $DATE"
+            PR_TITLE="Security scan: ${SINGLE_TOOL} - $DATE"
           else
-            PR_TITLE="🔒 Security scan: $TOOLS_WITH_VULNS of $TOOL_COUNT tools have vulnerabilities — $DATE"
+            PR_TITLE="Security scan: $TOOLS_WITH_VULNS of $TOOL_COUNT tools have vulnerabilities - $DATE"
           fi
 
-          # ── Create PR ──
+          # -- Create PR --
           if gh pr create \
             --title "$PR_TITLE" \
             --body "$PR_BODY" \
@@ -437,16 +432,16 @@ _Automated by [Trivy Security Scan](https://github.com/${{ github.repository }}/
 
             # Best-effort reviewer assignment
             gh pr edit "$BRANCH_NAME" --add-reviewer "gkr0110" 2>/dev/null \
-              && echo "  ✓ Reviewer: gkr0110" \
-              || echo "  ⚠ Could not add gkr0110"
+              && echo "  [ok] Reviewer: gkr0110" \
+              || echo "  [WARN] Could not add gkr0110"
             gh pr edit "$BRANCH_NAME" --add-reviewer "vipin-bc" 2>/dev/null \
-              && echo "  ✓ Reviewer: vipin-bc" \
-              || echo "  ⚠ Could not add vipin-bc"
+              && echo "  [ok] Reviewer: vipin-bc" \
+              || echo "  [WARN] Could not add vipin-bc"
 
             # Best-effort labels
             gh pr edit "$BRANCH_NAME" --add-label "security" 2>/dev/null || true
             gh pr edit "$BRANCH_NAME" --add-label "trivy-scan" 2>/dev/null || true
           else
-            echo "✗ Failed to create PR"
+            echo "[FAIL] Failed to create PR"
             exit 1
           fi
