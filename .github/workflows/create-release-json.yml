@@ -6,6 +6,10 @@ name: Generate release.json for tools
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bfx/*/release.json"
 
 jobs:
   build:
@@ -22,12 +26,26 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
 
+    - name: Check for empty release.json files
+      id: check-empty
+      run: |
+        EMPTY_COUNT=$(find bfx -name 'release.json' -empty | wc -l | tr -d ' ')
+        echo "Empty release.json files: $EMPTY_COUNT"
+        if [ "$EMPTY_COUNT" -eq 0 ]; then
+          echo "No empty release.json files found - nothing to onboard"
+          echo "has-empty=false" >> $GITHUB_OUTPUT
+        else
+          find bfx -name 'release.json' -empty | sed 's|^|  |'
+          echo "has-empty=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Set up jq
+      if: steps.check-empty.outputs.has-empty == 'true'
       run: sudo apt-get install jq
 
 
     - name: Process new tools and create single PR
+      if: steps.check-empty.outputs.has-empty == 'true'
       env:
           GHCR_ORG: ${{ github.repository_owner }}
           BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
