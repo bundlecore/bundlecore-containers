@@ -1152,123 +1152,122 @@ jobs:
           echo ""
 
           if [ -d "$ORGANIZED_DIR" ]; then
-            for tool_dir in "$ORGANIZED_DIR"/*; do
-              if [ -d "$tool_dir" ]; then
-                TOOL_NAME=$(basename "$tool_dir")
-                TOTAL_TOOLS=$((TOTAL_TOOLS + 1))
-                
-                echo "Analyzing tool: $TOOL_NAME"
-                
-                CURRENT_RESULT="$tool_dir/trivy-scan-results.json"
-                
-                if [ -f "$CURRENT_RESULT" ]; then
-                  # Try to get previous version from git
-                  PREVIOUS_RESULT=""
-                  TARGET_PATH="bfx/$TOOL_NAME/trivy-scan-results.json"
-                  
-                  # Check if file exists in git history
-                  if git ls-files --error-unmatch "$TARGET_PATH" >/dev/null 2>&1; then
-                    echo "  → Found previous results in git history"
-                    PREVIOUS_RESULT=$(mktemp)
-                    git show HEAD:"$TARGET_PATH" > "$PREVIOUS_RESULT" 2>/dev/null || rm -f "$PREVIOUS_RESULT"
-                  else
-                    echo "  → No previous results found (new tool)"
-                  fi
-                  
-                  if [ -f "$PREVIOUS_RESULT" ]; then
-                    # Normalize both files for comparison
-                    CURRENT_NORMALIZED=$(mktemp)
-                    PREVIOUS_NORMALIZED=$(mktemp)
-                    
-                    normalize_for_comparison "$CURRENT_RESULT" > "$CURRENT_NORMALIZED"
-                    normalize_for_comparison "$PREVIOUS_RESULT" > "$PREVIOUS_NORMALIZED"
-                    
-                    # Compare normalized content
-                    if ! diff -q "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" >/dev/null 2>&1; then
-                      echo "  ✓ Meaningful changes detected"
-                      CHANGES_DETECTED=true
-                      TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
-                      
-                      # Analyze specific changes
-                      CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
-                      CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
-                      PREVIOUS_CRITICAL=$(count_vulnerabilities "$PREVIOUS_RESULT" "CRITICAL")
-                      PREVIOUS_HIGH=$(count_vulnerabilities "$PREVIOUS_RESULT" "HIGH")
-                      
-                      echo "    → CRITICAL: $PREVIOUS_CRITICAL → $CURRENT_CRITICAL"
-                      echo "    → HIGH: $PREVIOUS_HIGH → $CURRENT_HIGH"
-                      
-                      # Build change summary
-                      TOOL_CHANGES=""
-                      if [ "$CURRENT_CRITICAL" -ne "$PREVIOUS_CRITICAL" ]; then
-                        CRITICAL_DIFF=$((CURRENT_CRITICAL - PREVIOUS_CRITICAL))
-                        if [ "$CRITICAL_DIFF" -gt 0 ]; then
-                          TOOL_CHANGES="$TOOL_CHANGES+$CRITICAL_DIFF CRITICAL"
-                        else
-                          TOOL_CHANGES="$TOOL_CHANGES$CRITICAL_DIFF CRITICAL"
-                        fi
-                      fi
-                      
-                      if [ "$CURRENT_HIGH" -ne "$PREVIOUS_HIGH" ]; then
-                        HIGH_DIFF=$((CURRENT_HIGH - PREVIOUS_HIGH))
-                        if [ -n "$TOOL_CHANGES" ]; then
-                          TOOL_CHANGES="$TOOL_CHANGES, "
-                        fi
-                        if [ "$HIGH_DIFF" -gt 0 ]; then
-                          TOOL_CHANGES="$TOOL_CHANGES+$HIGH_DIFF HIGH"
-                        else
-                          TOOL_CHANGES="$TOOL_CHANGES$HIGH_DIFF HIGH"
-                        fi
-                      fi
-                      
-                      if [ -n "$TOOL_CHANGES" ]; then
-                        if [ -n "$CHANGE_SUMMARY" ]; then
-                          CHANGE_SUMMARY="$CHANGE_SUMMARY; "
-                        fi
-                        CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $TOOL_CHANGES"
-                      else
-                        # Check for new/removed vulnerabilities
-                        CURRENT_VULNS=$(mktemp)
-                        PREVIOUS_VULNS=$(mktemp)
-                        extract_vuln_ids "$CURRENT_RESULT" > "$CURRENT_VULNS"
-                        extract_vuln_ids "$PREVIOUS_RESULT" > "$PREVIOUS_VULNS"
-                        
-                        NEW_VULNS=$(comm -13 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
-                        REMOVED_VULNS=$(comm -23 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
-                        
-                        if [ "$NEW_VULNS" -gt 0 ] || [ "$REMOVED_VULNS" -gt 0 ]; then
-                          if [ -n "$CHANGE_SUMMARY" ]; then
-                            CHANGE_SUMMARY="$CHANGE_SUMMARY; "
-                          fi
-                          CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $NEW_VULNS new, $REMOVED_VULNS resolved"
-                        fi
-                        
-                        rm -f "$CURRENT_VULNS" "$PREVIOUS_VULNS"
-                      fi
+            # organize-results writes flat files: organized-results/<tool>-trivy-scan-results.json
+            for result_file in "$ORGANIZED_DIR"/*-trivy-scan-results.json; do
+              [ -f "$result_file" ] || continue
+
+              # Extract tool name: strip dir prefix and '-trivy-scan-results.json' suffix
+              FILENAME=$(basename "$result_file")
+              TOOL_NAME="${FILENAME%-trivy-scan-results.json}"
+              TOTAL_TOOLS=$((TOTAL_TOOLS + 1))
+
+              echo "Analyzing tool: $TOOL_NAME"
+
+              CURRENT_RESULT="$result_file"
+
+              # Try to get previous version from git
+              PREVIOUS_RESULT=""
+              TARGET_PATH="bfx/$TOOL_NAME/trivy-scan-results.json"
+
+              # Check if file exists in git history
+              if git ls-files --error-unmatch "$TARGET_PATH" > /dev/null 2>&1; then
+                echo "  → Found previous results in git history"
+                PREVIOUS_RESULT=$(mktemp)
+                git show HEAD:"$TARGET_PATH" > "$PREVIOUS_RESULT" 2>/dev/null || rm -f "$PREVIOUS_RESULT"
+              else
+                echo "  → No previous results found (new tool or first scan)"
+              fi
+
+              if [ -f "$PREVIOUS_RESULT" ]; then
+                # Normalize both files for comparison
+                CURRENT_NORMALIZED=$(mktemp)
+                PREVIOUS_NORMALIZED=$(mktemp)
+
+                normalize_for_comparison "$CURRENT_RESULT" > "$CURRENT_NORMALIZED"
+                normalize_for_comparison "$PREVIOUS_RESULT" > "$PREVIOUS_NORMALIZED"
+
+                # Compare normalized content
+                if ! diff -q "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" > /dev/null 2>&1; then
+                  echo "  ✓ Meaningful changes detected"
+                  CHANGES_DETECTED=true
+                  TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
+
+                  # Analyze specific changes
+                  CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
+                  CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
+                  PREVIOUS_CRITICAL=$(count_vulnerabilities "$PREVIOUS_RESULT" "CRITICAL")
+                  PREVIOUS_HIGH=$(count_vulnerabilities "$PREVIOUS_RESULT" "HIGH")
+
+                  echo "    → CRITICAL: $PREVIOUS_CRITICAL → $CURRENT_CRITICAL"
+                  echo "    → HIGH: $PREVIOUS_HIGH → $CURRENT_HIGH"
+
+                  # Build change summary
+                  TOOL_CHANGES=""
+                  if [ "$CURRENT_CRITICAL" -ne "$PREVIOUS_CRITICAL" ]; then
+                    CRITICAL_DIFF=$((CURRENT_CRITICAL - PREVIOUS_CRITICAL))
+                    if [ "$CRITICAL_DIFF" -gt 0 ]; then
+                      TOOL_CHANGES="$TOOL_CHANGES+$CRITICAL_DIFF CRITICAL"
                     else
-                      echo "  → No meaningful changes (only metadata updated)"
+                      TOOL_CHANGES="$TOOL_CHANGES$CRITICAL_DIFF CRITICAL"
                     fi
-                    
-                    # Cleanup temp files
-                    rm -f "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" "$PREVIOUS_RESULT"
-                  else
-                    echo "  ✓ New tool detected (will create PR)"
-                    CHANGES_DETECTED=true
-                    TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
-                    
-                    CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
-                    CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
-                    
+                  fi
+
+                  if [ "$CURRENT_HIGH" -ne "$PREVIOUS_HIGH" ]; then
+                    HIGH_DIFF=$((CURRENT_HIGH - PREVIOUS_HIGH))
+                    if [ -n "$TOOL_CHANGES" ]; then
+                      TOOL_CHANGES="$TOOL_CHANGES, "
+                    fi
+                    if [ "$HIGH_DIFF" -gt 0 ]; then
+                      TOOL_CHANGES="$TOOL_CHANGES+$HIGH_DIFF HIGH"
+                    else
+                      TOOL_CHANGES="$TOOL_CHANGES$HIGH_DIFF HIGH"
+                    fi
+                  fi
+
+                  if [ -n "$TOOL_CHANGES" ]; then
                     if [ -n "$CHANGE_SUMMARY" ]; then
                       CHANGE_SUMMARY="$CHANGE_SUMMARY; "
                     fi
-                    CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: NEW ($CURRENT_CRITICAL CRITICAL, $CURRENT_HIGH HIGH)"
+                    CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $TOOL_CHANGES"
+                  else
+                    # Check for new/removed vulnerabilities
+                    CURRENT_VULNS=$(mktemp)
+                    PREVIOUS_VULNS=$(mktemp)
+                    extract_vuln_ids "$CURRENT_RESULT" > "$CURRENT_VULNS"
+                    extract_vuln_ids "$PREVIOUS_RESULT" > "$PREVIOUS_VULNS"
+
+                    NEW_VULNS=$(comm -13 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
+                    REMOVED_VULNS=$(comm -23 "$PREVIOUS_VULNS" "$CURRENT_VULNS" | wc -l)
+
+                    if [ "$NEW_VULNS" -gt 0 ] || [ "$REMOVED_VULNS" -gt 0 ]; then
+                      if [ -n "$CHANGE_SUMMARY" ]; then
+                        CHANGE_SUMMARY="$CHANGE_SUMMARY; "
+                      fi
+                      CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: $NEW_VULNS new, $REMOVED_VULNS resolved"
+                    fi
+
+                    rm -f "$CURRENT_VULNS" "$PREVIOUS_VULNS"
                   fi
                 else
-                  echo "  ⚠ No scan results found for $TOOL_NAME"
+                  echo "  → No meaningful changes (only metadata updated)"
                 fi
-                echo ""
+
+                # Cleanup temp files
+                rm -f "$CURRENT_NORMALIZED" "$PREVIOUS_NORMALIZED" "$PREVIOUS_RESULT"
+              else
+                echo "  ✓ New tool / first scan — will include in PR"
+                CHANGES_DETECTED=true
+                TOOLS_WITH_CHANGES=$((TOOLS_WITH_CHANGES + 1))
+
+                CURRENT_CRITICAL=$(count_vulnerabilities "$CURRENT_RESULT" "CRITICAL")
+                CURRENT_HIGH=$(count_vulnerabilities "$CURRENT_RESULT" "HIGH")
+
+                if [ -n "$CHANGE_SUMMARY" ]; then
+                  CHANGE_SUMMARY="$CHANGE_SUMMARY; "
+                fi
+                CHANGE_SUMMARY="$CHANGE_SUMMARY$TOOL_NAME: NEW ($CURRENT_CRITICAL CRITICAL, $CURRENT_HIGH HIGH)"
               fi
+              echo ""
             done
           fi
 
