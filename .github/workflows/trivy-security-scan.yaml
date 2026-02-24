@@ -66,29 +66,55 @@ jobs:
             exit 0
           fi
 
-          # -- workflow_run (after retag) --
+          # -- workflow_run (after retag): scan tools missing scan results --
           if [ "$EVENT" = "workflow_run" ]; then
             RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
-            RETAG_SHA="${{ github.event.workflow_run.head_sha }}"
-            echo " Retag workflow finished (conclusion=$RETAG_CONCLUSION, sha=$RETAG_SHA)"
+            echo "Retag workflow finished (conclusion=$RETAG_CONCLUSION)"
 
             if [ "$RETAG_CONCLUSION" != "success" ]; then
-              echo "[SKIP] Retag did not succeed — skipping scan"
+              echo "[SKIP] Retag did not succeed - skipping scan"
               echo "scan-all=false"   >> $GITHUB_OUTPUT
               echo "tool-count=0"     >> $GITHUB_OUTPUT
               echo "tools-json=[]"    >> $GITHUB_OUTPUT
               exit 0
             fi
 
-            CHANGED_FILES=$(git diff --name-only "${RETAG_SHA}^" "$RETAG_SHA" -- 'bfx/*/release.json' 2>/dev/null || true)
-          else
-            # Manual changed-only
-            echo " Manual changed-only mode"
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- 'bfx/*/release.json' 2>/dev/null || true)
+            # Find tools that have a populated release.json but no scan results yet
+            echo "Checking for tools missing trivy-scan-results.json..."
+            MISSING_TOOLS=""
+            for dir in bfx/*/; do
+              tool=$(basename "$dir")
+              if [ ! -f "bfx/$tool/trivy-scan-results.json" ] && [ -s "bfx/$tool/release.json" ]; then
+                MISSING_TOOLS="${MISSING_TOOLS}${tool}"$'\n'
+              fi
+            done
+            MISSING_TOOLS=$(echo "$MISSING_TOOLS" | sed '/^$/d')
+
+            if [ -z "$MISSING_TOOLS" ]; then
+              echo "  -> All tools already have scan results - nothing to do"
+              echo "scan-all=false"   >> $GITHUB_OUTPUT
+              echo "tool-count=0"     >> $GITHUB_OUTPUT
+              echo "tools-json=[]"    >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            TOOLS_JSON=$(echo "$MISSING_TOOLS" | jq -R . | jq -sc .)
+            COUNT=$(echo "$TOOLS_JSON" | jq length)
+            echo "  -> $COUNT tool(s) missing scan results:"
+            echo "$MISSING_TOOLS" | sed 's/^/  [new] /'
+            echo "scan-all=false"          >> $GITHUB_OUTPUT
+            echo "tool-count=$COUNT"       >> $GITHUB_OUTPUT
+            echo "tools-json=$TOOLS_JSON"  >> $GITHUB_OUTPUT
+            exit 0
           fi
 
+          # -- Manual changed-only: diff last commit --
+          echo "Manual changed-only mode"
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- 'bfx/*/release.json' 2>/dev/null || true)
+
           if [ -z "$CHANGED_FILES" ]; then
-            echo "  -> No release.json changes detected — nothing to scan"
+            echo "  -> No release.json changes in last commit - nothing to scan"
+            echo "  -> Tip: use scan_mode=all to scan everything"
             echo "scan-all=false"   >> $GITHUB_OUTPUT
             echo "tool-count=0"     >> $GITHUB_OUTPUT
             echo "tools-json=[]"    >> $GITHUB_OUTPUT
@@ -100,7 +126,7 @@ jobs:
           TOOLS_JSON=$(echo "$TOOLS" | jq -R . | jq -sc .)
           COUNT=$(echo "$TOOLS_JSON" | jq length)
 
-          echo " Tools to scan ($COUNT):"
+          echo "Tools to scan ($COUNT):"
           echo "$TOOLS" | sed 's/^/  [ok] /'
 
           echo "scan-all=false"          >> $GITHUB_OUTPUT
