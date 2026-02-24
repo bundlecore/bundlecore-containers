@@ -15,9 +15,10 @@ on:
       scan_mode:
         description: "Scan scope"
         required: false
-        default: "all"
+        default: "missing-only"
         type: choice
         options:
+          - missing-only
           - all
           - changed-only
 
@@ -52,60 +53,62 @@ jobs:
           EVENT="${{ github.event_name }}"
           SCAN_MODE="${{ github.event.inputs.scan_mode }}"
 
-          echo " Trigger: $EVENT  |  scan_mode: ${SCAN_MODE:-N/A}"
+          echo "Trigger: $EVENT  |  scan_mode: ${SCAN_MODE:-N/A}"
 
-          # -- Full scan: schedule or manual "all" --
-          if [ "$EVENT" = "schedule" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; }; then
-            echo " Full scan — collecting all bfx/ tools"
-            TOOLS_JSON=$(find bfx -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | jq -R . | jq -sc .)
-            COUNT=$(echo "$TOOLS_JSON" | jq length)
-            echo "  -> $COUNT tools"
-            echo "scan-all=true"          >> $GITHUB_OUTPUT
-            echo "tool-count=$COUNT"      >> $GITHUB_OUTPUT
-            echo "tools-json=$TOOLS_JSON" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # -- workflow_run (after retag): scan tools missing scan results --
-          if [ "$EVENT" = "workflow_run" ]; then
-            RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
-            echo "Retag workflow finished (conclusion=$RETAG_CONCLUSION)"
-
-            if [ "$RETAG_CONCLUSION" != "success" ]; then
-              echo "[SKIP] Retag did not succeed - skipping scan"
-              echo "scan-all=false"   >> $GITHUB_OUTPUT
-              echo "tool-count=0"     >> $GITHUB_OUTPUT
-              echo "tools-json=[]"    >> $GITHUB_OUTPUT
-              exit 0
-            fi
-
-            # Find tools that have a populated release.json but no scan results yet
-            echo "Checking for tools missing trivy-scan-results.json..."
-            MISSING_TOOLS=""
+          # Helper: find tools with populated release.json but no scan results
+          find_missing_tools() {
+            local missing=""
             for dir in bfx/*/; do
               tool=$(basename "$dir")
               if [ ! -f "bfx/$tool/trivy-scan-results.json" ] && [ -s "bfx/$tool/release.json" ]; then
-                MISSING_TOOLS="${MISSING_TOOLS}${tool}"$'\n'
+                missing="${missing}${tool}"$'\n'
               fi
             done
-            MISSING_TOOLS=$(echo "$MISSING_TOOLS" | sed '/^$/d')
+            echo "$missing" | sed '/^$/d'
+          }
+
+          # Helper: output results and exit
+          output_and_exit() {
+            local tools_json=$1 count=$2 scan_all=${3:-false}
+            echo "scan-all=$scan_all"        >> $GITHUB_OUTPUT
+            echo "tool-count=$count"         >> $GITHUB_OUTPUT
+            echo "tools-json=$tools_json"    >> $GITHUB_OUTPUT
+            exit 0
+          }
+
+          # -- Full scan: schedule or manual "all" --
+          if [ "$EVENT" = "schedule" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" = "all" ]; }; then
+            echo "Full scan - collecting all bfx/ tools"
+            TOOLS_JSON=$(find bfx -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | jq -R . | jq -sc .)
+            COUNT=$(echo "$TOOLS_JSON" | jq length)
+            echo "  -> $COUNT tools"
+            output_and_exit "$TOOLS_JSON" "$COUNT" "true"
+          fi
+
+          # -- workflow_run (after retag) or manual "missing-only" (default) --
+          if [ "$EVENT" = "workflow_run" ] || { [ "$EVENT" = "workflow_dispatch" ] && [ "$SCAN_MODE" != "changed-only" ]; }; then
+            if [ "$EVENT" = "workflow_run" ]; then
+              RETAG_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+              echo "Retag workflow finished (conclusion=$RETAG_CONCLUSION)"
+              if [ "$RETAG_CONCLUSION" != "success" ]; then
+                echo "[SKIP] Retag did not succeed - skipping scan"
+                output_and_exit "[]" "0"
+              fi
+            fi
+
+            echo "Checking for tools missing trivy-scan-results.json..."
+            MISSING_TOOLS=$(find_missing_tools)
 
             if [ -z "$MISSING_TOOLS" ]; then
               echo "  -> All tools already have scan results - nothing to do"
-              echo "scan-all=false"   >> $GITHUB_OUTPUT
-              echo "tool-count=0"     >> $GITHUB_OUTPUT
-              echo "tools-json=[]"    >> $GITHUB_OUTPUT
-              exit 0
+              output_and_exit "[]" "0"
             fi
 
             TOOLS_JSON=$(echo "$MISSING_TOOLS" | jq -R . | jq -sc .)
             COUNT=$(echo "$TOOLS_JSON" | jq length)
             echo "  -> $COUNT tool(s) missing scan results:"
             echo "$MISSING_TOOLS" | sed 's/^/  [new] /'
-            echo "scan-all=false"          >> $GITHUB_OUTPUT
-            echo "tool-count=$COUNT"       >> $GITHUB_OUTPUT
-            echo "tools-json=$TOOLS_JSON"  >> $GITHUB_OUTPUT
-            exit 0
+            output_and_exit "$TOOLS_JSON" "$COUNT"
           fi
 
           # -- Manual changed-only: diff last commit --
@@ -114,24 +117,16 @@ jobs:
 
           if [ -z "$CHANGED_FILES" ]; then
             echo "  -> No release.json changes in last commit - nothing to scan"
-            echo "  -> Tip: use scan_mode=all to scan everything"
-            echo "scan-all=false"   >> $GITHUB_OUTPUT
-            echo "tool-count=0"     >> $GITHUB_OUTPUT
-            echo "tools-json=[]"    >> $GITHUB_OUTPUT
-            exit 0
+            echo "  -> Tip: use scan_mode=missing-only to scan new tools"
+            output_and_exit "[]" "0"
           fi
 
-          # Extract unique tool names: bfx/<tool>/release.json -> <tool>
           TOOLS=$(echo "$CHANGED_FILES" | sed 's|^bfx/||; s|/release.json$||' | sort -u)
           TOOLS_JSON=$(echo "$TOOLS" | jq -R . | jq -sc .)
           COUNT=$(echo "$TOOLS_JSON" | jq length)
-
           echo "Tools to scan ($COUNT):"
           echo "$TOOLS" | sed 's/^/  [ok] /'
-
-          echo "scan-all=false"          >> $GITHUB_OUTPUT
-          echo "tool-count=$COUNT"       >> $GITHUB_OUTPUT
-          echo "tools-json=$TOOLS_JSON"  >> $GITHUB_OUTPUT
+          output_and_exit "$TOOLS_JSON" "$COUNT"
 
   # -- Job 2: Scan each tool's images with Trivy -----------------------------
   scan:
