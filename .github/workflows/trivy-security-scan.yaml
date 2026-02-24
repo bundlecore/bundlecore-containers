@@ -209,7 +209,7 @@ jobs:
             VERSION_COUNT=0
 
             # -- Scan each image --
-            while IFS= read -r source_image; do
+            while IFS= read -r source_image <&4; do
               [ -z "$source_image" ] && continue
 
               FULL_TAG="${source_image##*:}"
@@ -261,7 +261,7 @@ jobs:
                         "vulnerability_count": $count
                       }' "$RESULT_FILE" > "${RESULT_FILE}.tmp" && mv "${RESULT_FILE}.tmp" "$RESULT_FILE"
 
-                  rm -f "$TEMP_VULNS"
+                  rm -f "$TEMP_VULNS" 2>/dev/null || true
                   VERSION_COUNT=$((VERSION_COUNT + 1))
                   TOOL_VULN_COUNT=$((TOOL_VULN_COUNT + VULN_COUNT))
                 else
@@ -272,8 +272,8 @@ jobs:
               fi
 
               # Clean up scan file to save disk
-              rm -f "$SCAN_JSON"
-            done <<< "$IMAGES"
+              rm -f "$SCAN_JSON" 2>/dev/null || true
+            done 4<<< "$IMAGES"
 
             # -- Update summary in result file --
             jq --argjson vc "$VERSION_COUNT" --argjson tv "$TOOL_VULN_COUNT" \
