@@ -1,0 +1,274 @@
+name: Onboard New Tools
+
+# --- Triggers -----------------------------------------------------------------
+# 1. Schedule     -> Poll bcore API every 4 hours for new tool slugs
+# 2. Manual       -> Let an operator trigger an immediate check on demand
+on:
+  schedule:
+    - cron: "0 */4 * * *"   # Every 4 hours
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (detect new tools but do not create a PR)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# -----------------------------------------------------------------------------
+jobs:
+
+  # -- Job: Detect new tools and create PR ------------------------------------
+  detect-and-onboard:
+    name: Detect and Onboard New Tools
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      # -----------------------------------------------------------------------
+      # Step 1 – Call bcore API and compare against the bfx/ directory tree
+      # -----------------------------------------------------------------------
+      - name: Detect new tools from bcore API
+        id: detect
+        env:
+          BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
+        run: |
+          echo "Fetching tools list from bundlecore API..."
+          response=$(curl -sS --fail \
+            -H "Authorization: Bearer ${BCORE_AUTH_TOKEN}" \
+            "https://bundlecore.com/api/tools/meta/slugs")
+
+          if [ $? -ne 0 ]; then
+            echo "[ERROR] curl failed - could not reach bcore API"
+            exit 1
+          fi
+
+          # Parse slug list (sorted for stable fingerprinting)
+          tools_from_api=$(echo "$response" | jq -r '.data.slugs[]' | sort)
+
+          if [ -z "$tools_from_api" ]; then
+            echo "[ERROR] Empty slug list from API. Raw response:"
+            echo "$response"
+            exit 1
+          fi
+
+          total_api=$(echo "$tools_from_api" | wc -l | tr -d ' ')
+          echo "API returned $total_api tool(s)"
+
+          # Compare against folders already present in bfx/
+          new_tools=""
+          while IFS= read -r slug; do
+            [ -z "$slug" ] && continue
+            if [ ! -d "bfx/$slug" ]; then
+              new_tools="${new_tools}${slug}"$'\n'
+            fi
+          done <<< "$tools_from_api"
+
+          # Remove trailing blank lines
+          new_tools=$(printf "%s" "$new_tools" | sed '/^[[:space:]]*$/d')
+
+          if [ -z "$new_tools" ]; then
+            echo "All $total_api tool(s) are already onboarded - nothing to do."
+            echo "new-tool-count=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          new_count=$(echo "$new_tools" | wc -l | tr -d ' ')
+          echo "Detected $new_count new tool(s) not yet in bfx/:"
+          echo "$new_tools" | sed 's/^/  [new] /'
+
+          # A short fingerprint of the sorted slug list – used to deduplicate PRs
+          FINGERPRINT=$(echo "$new_tools" | sort | sha256sum | awk '{print $1}' | cut -c1-16)
+          echo "  -> fingerprint: $FINGERPRINT"
+
+          TOOLS_JSON=$(echo "$new_tools" | jq -R . | jq -sc .)
+
+          echo "new-tool-count=$new_count"   >> "$GITHUB_OUTPUT"
+          echo "tools-json=$TOOLS_JSON"      >> "$GITHUB_OUTPUT"
+          echo "fingerprint=$FINGERPRINT"    >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # Step 2 – Check whether an open PR already covers this exact tool set
+      #
+      # Logic: any open PR whose branch starts with "tools-onboarding-" and
+      # whose body contains the same fingerprint token is considered a duplicate.
+      # This prevents 4-hourly cron from creating identical PRs when the previous
+      # one is still waiting for review.
+      # -----------------------------------------------------------------------
+      - name: Check for duplicate open PR
+        id: dedup
+        if: steps.detect.outputs.new-tool-count > 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FINGERPRINT: ${{ steps.detect.outputs.fingerprint }}
+        run: |
+          echo "Checking for open PRs that already cover fingerprint $FINGERPRINT ..."
+
+          # Fetch open PRs whose head branch matches our naming convention
+          existing=$(gh pr list \
+            --state open \
+            --json number,headRefName,body \
+            --jq \
+            ".[] | select(.headRefName | startswith(\"tools-onboarding-\"))
+                 | select(.body        | contains(\"tools-fingerprint:$FINGERPRINT\"))
+                 | .number" \
+            2>/dev/null | head -1)
+
+          if [ -n "$existing" ]; then
+            echo "Open PR #$existing already covers this tool set (fingerprint $FINGERPRINT)."
+            echo "Skipping - no new tools have appeared since that PR was raised."
+            echo "skip=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "No duplicate PR found - will proceed to create one."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # -----------------------------------------------------------------------
+      # Step 3 – Create bfx/<tool>/ folders, commit and push to a new branch
+      # -----------------------------------------------------------------------
+      - name: Create tool folders and push branch
+        id: push
+        if: |
+          steps.detect.outputs.new-tool-count > 0 &&
+          steps.dedup.outputs.skip == 'false' &&
+          github.event.inputs.dry_run != 'true'
+        env:
+          TOOLS_JSON:  ${{ steps.detect.outputs.tools-json }}
+          TOOL_COUNT:  ${{ steps.detect.outputs.new-tool-count }}
+          FINGERPRINT: ${{ steps.detect.outputs.fingerprint }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          BRANCH="tools-onboarding-${DATE}-${FINGERPRINT}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clean up any stale branch with the same name from a prior run today
+          git push origin --delete "$BRANCH" 2>/dev/null || true
+          git checkout -b "$BRANCH"
+
+          echo "Creating bfx/ directories for $TOOL_COUNT new tool(s)..."
+          for tool in $(echo "$TOOLS_JSON" | jq -r '.[]'); do
+            if [ -d "bfx/$tool" ]; then
+              echo "  [skip] bfx/$tool already exists (race condition?)"
+            else
+              mkdir -p "bfx/$tool"
+              touch    "bfx/$tool/release.json"
+              echo     "  [ok]   bfx/$tool/release.json created"
+            fi
+          done
+
+          git add bfx/
+
+          if git diff --staged --quiet; then
+            echo "[WARN] Nothing to commit - all folders already existed."
+            echo "branch=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          NEW_TOOL_LIST=$(echo "$TOOLS_JSON" | jq -r '.[] | "- " + .')
+          git commit -m "$(printf "chore: onboard %s new tool(s) from bcore API\n\nNew tools:\n%s" \
+            "$TOOL_COUNT" "$NEW_TOOL_LIST")"
+
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "date=$DATE"     >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # Step 4 – Open the PR and assign reviewers
+      # -----------------------------------------------------------------------
+      - name: Create Pull Request
+        if: steps.push.outputs.branch != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOOLS_JSON:   ${{ steps.detect.outputs.tools-json }}
+          TOOL_COUNT:   ${{ steps.detect.outputs.new-tool-count }}
+          BRANCH:       ${{ steps.push.outputs.branch }}
+          DATE:         ${{ steps.push.outputs.date }}
+          FINGERPRINT:  ${{ steps.detect.outputs.fingerprint }}
+        run: |
+          NL=$'\n'
+
+          # -- PR title -------------------------------------------------------
+          if [ "$TOOL_COUNT" -eq 1 ]; then
+            SINGLE=$(echo "$TOOLS_JSON" | jq -r '.[0]')
+            PR_TITLE="chore: onboard new tool \`${SINGLE}\` from bcore API"
+          else
+            PR_TITLE="chore: onboard ${TOOL_COUNT} new tools from bcore API - ${DATE}"
+          fi
+
+          # -- Build tool table -----------------------------------------------
+          TOOL_ROWS=""
+          while IFS= read -r slug; do
+            TOOL_ROWS+="| \`${slug}\` |${NL}"
+          done < <(echo "$TOOLS_JSON" | jq -r '.[]')
+
+          # -- PR body --------------------------------------------------------
+          PR_BODY="## New Tools Onboarded${NL}${NL}"
+          PR_BODY+="This PR was automatically generated by the **Onboard New Tools** workflow "
+          PR_BODY+="after detecting new tool slug(s) in the bcore API that do not yet have a "
+          PR_BODY+="folder in \`bfx/\`.${NL}${NL}"
+          PR_BODY+="### Summary${NL}"
+          PR_BODY+="- **New tools detected**: ${TOOL_COUNT}${NL}${NL}"
+          PR_BODY+="### New Tools${NL}"
+          PR_BODY+="| Tool Slug |${NL}"
+          PR_BODY+="|-----------|${NL}"
+          PR_BODY+="${TOOL_ROWS}${NL}"
+          PR_BODY+="### What happens next${NL}"
+          PR_BODY+="1. Review the new \`bfx/<tool>/release.json\` stub files${NL}"
+          PR_BODY+="2. Each tool's \`release.json\` will be populated by downstream workflows "
+          PR_BODY+="once the tool's images are built and retagged${NL}"
+          PR_BODY+="3. Merge this PR when the new directories look correct${NL}${NL}"
+          # Fingerprint tag – parsed by the deduplication step in future runs
+          PR_BODY+="<!-- tools-fingerprint:${FINGERPRINT} -->${NL}${NL}"
+          PR_BODY+="_Automated by [Onboard New Tools](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})_"
+
+          # -- Create the PR --------------------------------------------------
+          if gh pr create \
+              --title  "$PR_TITLE" \
+              --body   "$PR_BODY" \
+              --base   main \
+              --head   "$BRANCH" \
+              --label  "tool-onboarding"; then
+            echo "✅ Pull request created"
+          else
+            echo "[FAIL] gh pr create failed"
+            exit 1
+          fi
+
+          # -- Assign reviewers (best-effort) ----------------------------------
+          gh pr edit "$BRANCH" --add-reviewer "gkr0110" 2>/dev/null \
+            && echo "  [ok]   Reviewer added: gkr0110" \
+            || echo "  [WARN] Could not add reviewer gkr0110"
+
+          gh pr edit "$BRANCH" --add-reviewer "vipin-bc" 2>/dev/null \
+            && echo "  [ok]   Reviewer added: vipin-bc" \
+            || echo "  [WARN] Could not add reviewer vipin-bc"
+
+      # -----------------------------------------------------------------------
+      # Dry-run summary (no branch or PR created)
+      # -----------------------------------------------------------------------
+      - name: Dry run summary
+        if: github.event.inputs.dry_run == 'true' && steps.detect.outputs.new-tool-count > 0
+        env:
+          TOOLS_JSON:  ${{ steps.detect.outputs.tools-json }}
+          TOOL_COUNT:  ${{ steps.detect.outputs.new-tool-count }}
+          FINGERPRINT: ${{ steps.detect.outputs.fingerprint }}
+        run: |
+          echo "========================================"
+          echo " DRY RUN - no branch or PR was created"
+          echo "========================================"
+          echo "  New tools ($TOOL_COUNT):"
+          echo "$TOOLS_JSON" | jq -r '.[] | "  - " + .'
+          echo "  Fingerprint: $FINGERPRINT"
