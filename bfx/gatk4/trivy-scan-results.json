@@ -1,11 +1,55 @@
 {
   "tool": "gatk4",
-  "scan_timestamp": "2026-02-23T05:08:36Z",
-  "workflow_run_id": "22293694525",
+  "scan_timestamp": "2026-03-01T04:24:47Z",
+  "workflow_run_id": "22535671772",
   "versions": {
     "4.6.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.6.2.0",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-72hv-8253-57qq",
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.17.2",
+            "UID": "ab50e78e9ac7591d"
+          },
+          "InstalledVersion": "2.17.2",
+          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:73f5acf80ab66e1de26d7ecbd1e5032fb0e725bf4ac09e017b9c7c1a66febcc5",
+          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
+          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
+            "https://github.com/FasterXML/jackson-core/issues/1538",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
+          ],
+          "PublishedDate": "2026-02-28T02:01:05Z",
+          "LastModifiedDate": "2026-02-28T02:01:06Z"
+        },
         {
           "VulnerabilityID": "CVE-2021-22569",
           "VendorIDs": [
@@ -343,14 +387,15 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9114",
+            "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
+            "https://bugzilla.redhat.com/1767483",
             "https://bugzilla.redhat.com/2368956",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1767483",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2368956",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
-            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
+            "https://errata.almalinux.org/8/ALSA-2025-9318.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -379,7 +424,8 @@
             "UID": "82371d59dc8ee701"
           },
           "InstalledVersion": "2.0.2",
-          "Status": "affected",
+          "FixedVersion": "2.0.3",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
             "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
@@ -413,6 +459,7 @@
             "https://github.com/airlift/aircompressor/commit/f2b489b398779b40c1ee29ddb11d7edef54ddc15",
             "https://github.com/airlift/aircompressor/commit/ff12c4d5757c9d6d1de3d39a10402f1f84f9b765",
             "https://github.com/airlift/aircompressor/pull/309",
+            "https://github.com/airlift/aircompressor/releases/tag/2.0.3",
             "https://github.com/airlift/aircompressor/security/advisories/GHSA-vx9q-rhv9-3jvg",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
@@ -754,11 +801,55 @@
           "LastModifiedDate": "2025-07-31T16:31:12.697Z"
         }
       ],
-      "vulnerability_count": 11
+      "vulnerability_count": 12
     },
     "4.5.0.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.5.0.0",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-72hv-8253-57qq",
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.0",
+            "UID": "1fe3d4f399d8c23b"
+          },
+          "InstalledVersion": "2.16.0",
+          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:2e8ce3f30d7ad8acb8e32e826a77d0bef691f6f52f330e7569e8773e83f3b0c0",
+          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
+          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
+            "https://github.com/FasterXML/jackson-core/issues/1538",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
+          ],
+          "PublishedDate": "2026-02-28T02:01:05Z",
+          "LastModifiedDate": "2026-02-28T02:01:06Z"
+        },
         {
           "VulnerabilityID": "CVE-2021-22569",
           "VendorIDs": [
@@ -1162,14 +1253,15 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9114",
+            "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
+            "https://bugzilla.redhat.com/1767483",
             "https://bugzilla.redhat.com/2368956",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1767483",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2368956",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
-            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
+            "https://errata.almalinux.org/8/ALSA-2025-9318.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -1378,7 +1470,8 @@
             "UID": "ef0db32501608fe5"
           },
           "InstalledVersion": "0.25",
-          "Status": "affected",
+          "FixedVersion": "2.0.3",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
             "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
@@ -1412,6 +1505,7 @@
             "https://github.com/airlift/aircompressor/commit/f2b489b398779b40c1ee29ddb11d7edef54ddc15",
             "https://github.com/airlift/aircompressor/commit/ff12c4d5757c9d6d1de3d39a10402f1f84f9b765",
             "https://github.com/airlift/aircompressor/pull/309",
+            "https://github.com/airlift/aircompressor/releases/tag/2.0.3",
             "https://github.com/airlift/aircompressor/security/advisories/GHSA-vx9q-rhv9-3jvg",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
@@ -1625,7 +1719,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -2082,7 +2176,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -3045,9 +3139,260 @@
           ],
           "PublishedDate": "2025-05-08T18:15:41.64Z",
           "LastModifiedDate": "2025-07-31T16:31:12.697Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-6345",
+          "VendorIDs": [
+            "GHSA-cx63-2mw6-8hw5"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/setuptools-69.0.3-py3.12.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@69.0.3",
+            "UID": "db5dff65044721c9"
+          },
+          "InstalledVersion": "69.0.3",
+          "FixedVersion": "70.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-6345",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:93bf267bacf75f6ebf462a6baf1d0de60c37d9a3c88c694a45569f82734372a2",
+          "Title": "pypa/setuptools: Remote code execution via download functions in the package_index module in pypa/setuptools",
+          "Description": "A vulnerability in the package_index module of pypa/setuptools versions up to 69.1.1 allows for remote code execution via its download functions. These functions, which are used to download packages from URLs provided by users or retrieved from package index servers, are susceptible to code injection. If these functions are exposed to user-controlled inputs, such as package URLs, they can execute arbitrary commands on the system. The issue is fixed in version 70.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 8.8,
+              "V40Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2024:6311",
+            "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://bugzilla.redhat.com/2292788",
+            "https://bugzilla.redhat.com/2297771",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
+            "https://errata.almalinux.org/8/ALSA-2024-6311.html",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
+            "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
+            "https://github.com/pypa/setuptools/pull/4332",
+            "https://huntr.com/bounties/d6362117-ad57-4e83-951f-b8141c6e7ca5",
+            "https://linux.oracle.com/cve/CVE-2024-6345.html",
+            "https://linux.oracle.com/errata/ELSA-2024-6726.html",
+            "https://lists.debian.org/debian-lts-announce/2024/09/msg00018.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-6345",
+            "https://ubuntu.com/security/notices/USN-7002-1",
+            "https://www.cve.org/CVERecord?id=CVE-2024-6345"
+          ],
+          "PublishedDate": "2024-07-15T01:15:01.73Z",
+          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-47273",
+          "VendorIDs": [
+            "GHSA-5rjg-fvgr-3xxf"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/setuptools-69.0.3-py3.12.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@69.0.3",
+            "UID": "db5dff65044721c9"
+          },
+          "InstalledVersion": "69.0.3",
+          "FixedVersion": "78.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-47273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:368c8719fcca40fb9781846656ba720b5712b93af976331a5e4f7b0d27480440",
+          "Title": "setuptools: Path Traversal Vulnerability in setuptools PackageIndex",
+          "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. A path traversal vulnerability in `PackageIndex` is present in setuptools prior to version 78.1.1. An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to remote code execution depending on the context. Version 78.1.1 fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:14900",
+            "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://bugzilla.redhat.com/2366982",
+            "https://bugzilla.redhat.com/2384043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
+            "https://errata.almalinux.org/8/ALSA-2025-14900.html",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
+            "https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b",
+            "https://github.com/pypa/setuptools/issues/4946",
+            "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
+            "https://linux.oracle.com/cve/CVE-2025-47273.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9940.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
+            "https://ubuntu.com/security/notices/USN-7544-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-47273"
+          ],
+          "PublishedDate": "2025-05-17T16:15:19.11Z",
+          "LastModifiedDate": "2025-06-12T16:29:01.66Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-24049",
+          "VendorIDs": [
+            "GHSA-8rrh-rw8j-w5fx"
+          ],
+          "PkgName": "wheel",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/wheel-0.42.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/wheel@0.42.0",
+            "UID": "a1e9e4f64e6c3a65"
+          },
+          "InstalledVersion": "0.42.0",
+          "FixedVersion": "0.46.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24049",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b61e8363cee027a330975c685a0d416e13c16c406795fc0b91c3da234fc6946c",
+          "Title": "wheel: wheel: Privilege Escalation or Arbitrary Code Execution via malicious wheel file unpacking",
+          "Description": "wheel is a command line tool for manipulating Python wheel files, as defined in PEP 427. In versions 0.40.0 through 0.46.1, the unpack function is vulnerable to file permission modification through mishandling of file permissions after extraction. The logic blindly trusts the filename from the archive header for the chmod operation, even though the extraction process itself might have sanitized the path. Attackers can craft a malicious wheel file that, when unpacked, changes the permissions of critical system files (e.g., /etc/passwd, SSH keys, config files), allowing for Privilege Escalation or arbitrary code execution by modifying now-writable scripts. This issue has been fixed in version 0.46.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-732"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N",
+              "V3Score": 5.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:2090",
+            "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://bugzilla.redhat.com/2431959",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
+            "https://errata.almalinux.org/8/ALSA-2026-2090.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://github.com/pypa/wheel",
+            "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
+            "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
+            "https://github.com/pypa/wheel/releases/tag/0.46.2",
+            "https://github.com/pypa/wheel/security/advisories/GHSA-8rrh-rw8j-w5fx",
+            "https://linux.oracle.com/cve/CVE-2026-24049.html",
+            "https://linux.oracle.com/errata/ELSA-2026-2090.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24049"
+          ],
+          "PublishedDate": "2026-01-22T05:16:23.157Z",
+          "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 33
+      "vulnerability_count": 34
     },
     "4.2.6.1": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.2.6.1",
@@ -3103,12 +3448,12 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:12280",
+            "https://access.redhat.com/errata/RHSA-2025:14126",
             "https://access.redhat.com/security/cve/CVE-2025-52999",
             "https://bugzilla.redhat.com/2374804",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2374804",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-52999",
-            "https://errata.almalinux.org/9/ALSA-2025-12280.html",
+            "https://errata.almalinux.org/8/ALSA-2025-14126.html",
             "https://errata.rockylinux.org/RLSA-2025:12280",
             "https://github.com/FasterXML/jackson-core",
             "https://github.com/FasterXML/jackson-core/pull/943",
@@ -3120,6 +3465,50 @@
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
           "LastModifiedDate": "2025-06-26T18:57:43.67Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-72hv-8253-57qq",
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.13.1",
+            "UID": "ef5f5dcf236c395c"
+          },
+          "InstalledVersion": "2.13.1",
+          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:1e7a197bbbb0f0025d96c969fe7b720976bd383527669fa1446a10678ce56d00",
+          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
+          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
+            "https://github.com/FasterXML/jackson-core/issues/1538",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
+          ],
+          "PublishedDate": "2026-02-28T02:01:05Z",
+          "LastModifiedDate": "2026-02-28T02:01:06Z"
         },
         {
           "VulnerabilityID": "CVE-2020-36518",
@@ -3178,12 +3567,12 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2023:2312",
+            "https://access.redhat.com/errata/RHSA-2024:3061",
             "https://access.redhat.com/security/cve/CVE-2020-36518",
             "https://bugzilla.redhat.com/2064698",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2064698",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-36518",
-            "https://errata.almalinux.org/9/ALSA-2023-2312.html",
+            "https://errata.almalinux.org/8/ALSA-2024-3061.html",
             "https://errata.rockylinux.org/RLSA-2024:3061",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/0a8157c6ca478b1bc7be4ba7dccdb3863275f0de",
@@ -4200,14 +4589,15 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9114",
+            "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
+            "https://bugzilla.redhat.com/1767483",
             "https://bugzilla.redhat.com/2368956",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1767483",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2368956",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
-            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
+            "https://errata.almalinux.org/8/ALSA-2025-9318.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -4416,7 +4806,8 @@
             "UID": "31c0ec40577f4db3"
           },
           "InstalledVersion": "0.10",
-          "Status": "affected",
+          "FixedVersion": "2.0.3",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
             "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
@@ -4450,6 +4841,7 @@
             "https://github.com/airlift/aircompressor/commit/f2b489b398779b40c1ee29ddb11d7edef54ddc15",
             "https://github.com/airlift/aircompressor/commit/ff12c4d5757c9d6d1de3d39a10402f1f84f9b765",
             "https://github.com/airlift/aircompressor/pull/309",
+            "https://github.com/airlift/aircompressor/releases/tag/2.0.3",
             "https://github.com/airlift/aircompressor/security/advisories/GHSA-vx9q-rhv9-3jvg",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
@@ -4853,7 +5245,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -5310,7 +5702,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -8120,13 +8512,379 @@
           ],
           "PublishedDate": "2023-05-23T23:15:09.337Z",
           "LastModifiedDate": "2024-11-21T08:03:52.44Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2022-40897",
+          "VendorIDs": [
+            "GHSA-r9hx-vwmv-q579"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/setuptools-62.1.0-py3.10.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@62.1.0",
+            "UID": "a02c10a05dcca0b8"
+          },
+          "InstalledVersion": "62.1.0",
+          "FixedVersion": "65.5.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-40897",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:1fc77e5ed87503145022b092abb267da22170ddaf251580d3eec1349c5a0cde3",
+          "Title": "pypa-setuptools: Regular Expression Denial of Service (ReDoS) in package_index.py",
+          "Description": "Python Packaging Authority (PyPA) setuptools before 65.5.1 allows remote attackers to cause a denial of service via HTML in a crafted package or custom PackageIndex page. There is a Regular Expression Denial of Service (ReDoS) in package_index.py.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 2,
+            "bitnami": 2,
+            "cbl-mariner": 2,
+            "ghsa": 3,
+            "nvd": 2,
+            "oracle-oval": 2,
+            "photon": 2,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:L/SI:L/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2024:2987",
+            "https://access.redhat.com/security/cve/CVE-2022-40897",
+            "https://bugzilla.redhat.com/2158559",
+            "https://bugzilla.redhat.com/2240059",
+            "https://bugzilla.redhat.com/2242493",
+            "https://bugzilla.redhat.com/2249755",
+            "https://bugzilla.redhat.com/2257854",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2158559",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-40897",
+            "https://errata.almalinux.org/8/ALSA-2024-2987.html",
+            "https://errata.rockylinux.org/RLSA-2023:0952",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2022-43012.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/fe8a98e696241487ba6ac9f91faa38ade939ec5d/setuptools/package_index.py#L200",
+            "https://github.com/pypa/setuptools/commit/43a9c9bfa6aa626ec2a22540bea28d2ca77964be",
+            "https://github.com/pypa/setuptools/compare/v65.5.0...v65.5.1",
+            "https://github.com/pypa/setuptools/issues/3659",
+            "https://linux.oracle.com/cve/CVE-2022-40897.html",
+            "https://linux.oracle.com/errata/ELSA-2024-2987.html",
+            "https://lists.debian.org/debian-lts-announce/2024/09/msg00018.html",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/ADES3NLOE5QJKBLGNZNI2RGVOSQXA37R",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/ADES3NLOE5QJKBLGNZNI2RGVOSQXA37R/",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/YNA2BAH2ACBZ4TVJZKFLCR7L23BG5C3H",
+            "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/YNA2BAH2ACBZ4TVJZKFLCR7L23BG5C3H/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ADES3NLOE5QJKBLGNZNI2RGVOSQXA37R",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/YNA2BAH2ACBZ4TVJZKFLCR7L23BG5C3H",
+            "https://nvd.nist.gov/vuln/detail/CVE-2022-40897",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages/",
+            "https://pyup.io/vulnerabilities/CVE-2022-40897/52495",
+            "https://pyup.io/vulnerabilities/CVE-2022-40897/52495/",
+            "https://security.netapp.com/advisory/ntap-20230214-0001",
+            "https://security.netapp.com/advisory/ntap-20230214-0001/",
+            "https://security.netapp.com/advisory/ntap-20240621-0006",
+            "https://security.netapp.com/advisory/ntap-20240621-0006/",
+            "https://setuptools.pypa.io/en/latest",
+            "https://ubuntu.com/security/notices/USN-5817-1",
+            "https://www.cve.org/CVERecord?id=CVE-2022-40897"
+          ],
+          "PublishedDate": "2022-12-23T00:15:13.987Z",
+          "LastModifiedDate": "2025-11-04T16:15:52.26Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-6345",
+          "VendorIDs": [
+            "GHSA-cx63-2mw6-8hw5"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/setuptools-62.1.0-py3.10.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@62.1.0",
+            "UID": "a02c10a05dcca0b8"
+          },
+          "InstalledVersion": "62.1.0",
+          "FixedVersion": "70.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-6345",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:bd37eb1130db41263e4b4718d6b41cc9d7f7bb9aee28cb093597e2984d1ec8a3",
+          "Title": "pypa/setuptools: Remote code execution via download functions in the package_index module in pypa/setuptools",
+          "Description": "A vulnerability in the package_index module of pypa/setuptools versions up to 69.1.1 allows for remote code execution via its download functions. These functions, which are used to download packages from URLs provided by users or retrieved from package index servers, are susceptible to code injection. If these functions are exposed to user-controlled inputs, such as package URLs, they can execute arbitrary commands on the system. The issue is fixed in version 70.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 8.8,
+              "V40Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2024:6311",
+            "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://bugzilla.redhat.com/2292788",
+            "https://bugzilla.redhat.com/2297771",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
+            "https://errata.almalinux.org/8/ALSA-2024-6311.html",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
+            "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
+            "https://github.com/pypa/setuptools/pull/4332",
+            "https://huntr.com/bounties/d6362117-ad57-4e83-951f-b8141c6e7ca5",
+            "https://linux.oracle.com/cve/CVE-2024-6345.html",
+            "https://linux.oracle.com/errata/ELSA-2024-6726.html",
+            "https://lists.debian.org/debian-lts-announce/2024/09/msg00018.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-6345",
+            "https://ubuntu.com/security/notices/USN-7002-1",
+            "https://www.cve.org/CVERecord?id=CVE-2024-6345"
+          ],
+          "PublishedDate": "2024-07-15T01:15:01.73Z",
+          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-47273",
+          "VendorIDs": [
+            "GHSA-5rjg-fvgr-3xxf"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/setuptools-62.1.0-py3.10.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@62.1.0",
+            "UID": "a02c10a05dcca0b8"
+          },
+          "InstalledVersion": "62.1.0",
+          "FixedVersion": "78.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-47273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:58b3a90d175b231a054ad4c1a0903ff0263e9ed1ee7033a91ebe6eeb959b725e",
+          "Title": "setuptools: Path Traversal Vulnerability in setuptools PackageIndex",
+          "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. A path traversal vulnerability in `PackageIndex` is present in setuptools prior to version 78.1.1. An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to remote code execution depending on the context. Version 78.1.1 fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:14900",
+            "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://bugzilla.redhat.com/2366982",
+            "https://bugzilla.redhat.com/2384043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
+            "https://errata.almalinux.org/8/ALSA-2025-14900.html",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
+            "https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b",
+            "https://github.com/pypa/setuptools/issues/4946",
+            "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
+            "https://linux.oracle.com/cve/CVE-2025-47273.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9940.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
+            "https://ubuntu.com/security/notices/USN-7544-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-47273"
+          ],
+          "PublishedDate": "2025-05-17T16:15:19.11Z",
+          "LastModifiedDate": "2025-06-12T16:29:01.66Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2022-40898",
+          "VendorIDs": [
+            "GHSA-qwmp-2cf2-g9g6"
+          ],
+          "PkgName": "wheel",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/wheel-0.37.1-py3.8.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/wheel@0.37.1",
+            "UID": "6935865ac3b0567d"
+          },
+          "InstalledVersion": "0.37.1",
+          "FixedVersion": "0.38.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-40898",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b91e00ac74f90bae8b6dbf3ac61f09e95d182e206320c4c9239614e92186bb69",
+          "Title": "python-wheel: remote attackers can cause denial of service via attacker controlled input to wheel cli",
+          "Description": "An issue discovered in Python Packaging Authority (PyPA) Wheel 0.37.1 and earlier allows remote attackers to cause a denial of service via attacker controlled input to wheel cli.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-20"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 2,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2023:6712",
+            "https://access.redhat.com/security/cve/CVE-2022-40898",
+            "https://bugzilla.redhat.com/2165864",
+            "https://errata.almalinux.org/9/ALSA-2023-6712.html",
+            "https://github.com/advisories/GHSA-qwmp-2cf2-g9g6",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/wheel/PYSEC-2022-43017.yaml",
+            "https://github.com/pypa/wheel",
+            "https://github.com/pypa/wheel/blob/main/src/wheel/wheelfile.py#L18",
+            "https://github.com/pypa/wheel/commit/88f02bc335d5404991e532e7f3b0fc80437bf4e0",
+            "https://linux.oracle.com/cve/CVE-2022-40898.html",
+            "https://linux.oracle.com/errata/ELSA-2023-6712.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2022-40898",
+            "https://pypi.org/project/wheel",
+            "https://pypi.org/project/wheel/",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages",
+            "https://pyup.io/posts/pyup-discovers-redos-vulnerabilities-in-top-python-packages/",
+            "https://pyup.io/vulnerabilities/CVE-2022-40898/51499",
+            "https://ubuntu.com/security/notices/USN-5821-1",
+            "https://ubuntu.com/security/notices/USN-5821-2",
+            "https://ubuntu.com/security/notices/USN-5821-3",
+            "https://www.cve.org/CVERecord?id=CVE-2022-40898"
+          ],
+          "PublishedDate": "2022-12-23T00:15:14.043Z",
+          "LastModifiedDate": "2025-04-15T16:15:19.237Z"
         }
       ],
-      "vulnerability_count": 58
+      "vulnerability_count": 59
     }
   },
   "summary": {
     "total_versions_scanned": 3,
-    "total_vulnerabilities": 102
+    "total_vulnerabilities": 105
   }
 }
