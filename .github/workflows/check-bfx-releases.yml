@@ -161,6 +161,14 @@ jobs:
 
                 }
 
+                # Compare two semver strings: returns 0 if $1 >= $2, 1 otherwise
+                version_gte() {
+                    # Use sort -V (version sort) to determine order
+                    local highest
+                    highest=$(printf '%s\n' "$1" "$2" | sort -V | tail -n1)
+                    [[ "$highest" == "$1" ]]
+                }
+
                 process_tool() {
                     local tool_path=$1
                     local tool_name=$(basename "$tool_path")
@@ -175,7 +183,11 @@ jobs:
 
                     # Get repository name from release.json
                     local repo=$(jq -r '.images[0]' "$release_file" | cut -d':' -f1 | sed 's|quay.io/||')
-                    
+
+                    # Extract current version from release.json (strip Bioconda build suffix, e.g. --pyhdfd78af_0)
+                    local current_image_tag=$(jq -r '.images[0]' "$release_file" | cut -d':' -f2)
+                    local current_version=$(echo "$current_image_tag" | sed 's/--.*$//')
+
                     # Get latest git tag
                     local latest_git_tag=$(check_git_source_tags "$tool_name")
                     if [[ -z "$latest_git_tag" || "$latest_git_tag" == "null" ]]; then
@@ -184,8 +196,17 @@ jobs:
                     fi
 
                     echo "Latest git tag for $tool_name: $latest_git_tag"
+                    echo "Current version in release.json for $tool_name: $current_version"
 
-                    # Check if git tag exists in release.json
+                    # Skip if the version we already have is >= the latest git tag.
+                    # This prevents creating PRs when the git repo has an older release than
+                    # what we already track (e.g. our release.json has 1.4.5, git tag is 1.4.4).
+                    if version_gte "$current_version" "$latest_git_tag"; then
+                        echo "Skipping $tool_name: current version ($current_version) is already >= latest git tag ($latest_git_tag)"
+                        return 0
+                    fi
+
+                    # Check if git tag exists in release.json (exact match fallback)
                     if grep -q "$latest_git_tag" "$release_file"; then
                         echo "Latest git tag already exists in release.json for $tool_name"
                         return 0
