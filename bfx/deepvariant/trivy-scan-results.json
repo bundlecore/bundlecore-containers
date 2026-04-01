@@ -1,8 +1,984 @@
 {
   "tool": "deepvariant",
-  "scan_timestamp": "2026-03-02T04:10:17Z",
-  "workflow_run_id": "22560860766",
+  "scan_timestamp": "2026-04-01T05:02:47Z",
+  "workflow_run_id": "23832520682",
   "versions": {
+    "1.10.0": {
+      "image": "ghcr.io/bundlecore/products/bfx/deepvariant:1.10.0",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyjwt-2.11.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.11.0",
+            "UID": "b1a9b777e0a532d9"
+          },
+          "InstalledVersion": "2.11.0",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:1cba88a07ec177abc65f97906de6bf9f361b87c5744e753d913e4ad77efeae74",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-26007",
+          "VendorIDs": [
+            "GHSA-r6ph-v2qm-q3c2"
+          ],
+          "PkgName": "cryptography",
+          "PkgPath": "usr/local/share/google-cloud-sdk-559.0.0-0/platform/bundledpythonunix/lib/python3.13/site-packages/cryptography-43.0.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/cryptography@43.0.1",
+            "UID": "7e369369f693ddaa"
+          },
+          "InstalledVersion": "43.0.1",
+          "FixedVersion": "46.0.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-26007",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:910afcfa9093fd81bbc8a7e0a3a692fa2923d5e1f4b98d90ce594a195a61db43",
+          "Title": "cryptography: cryptography Subgroup Attack Due to Missing Subgroup Validation for SECT Curves",
+          "Description": "cryptography is a package designed to expose cryptographic primitives and recipes to Python developers. Prior to 46.0.5, the public_key_from_numbers (or EllipticCurvePublicNumbers.public_key()), EllipticCurvePublicNumbers.public_key(), load_der_public_key() and load_pem_public_key() functions do not verify that the point belongs to the expected prime-order subgroup of the curve. This missing validation allows an attacker to provide a public key point P from a small-order subgroup. This can lead to security issues in various situations, such as the most commonly used signature verification (ECDSA) and shared key negotiation (ECDH). When the victim computes the shared secret as S = [victim_private_key]P via ECDH, this leaks information about victim_private_key mod (small_subgroup_order). For curves with cofactor > 1, this reveals the least significant bits of the private key. When these weak public keys are used in ECDSA , it's easy to forge signatures on the small subgroup. Only SECT curves are impacted by this. This vulnerability is fixed in 46.0.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+              "V3Score": 6.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/02/10/4",
+            "https://access.redhat.com/security/cve/CVE-2026-26007",
+            "https://github.com/pyca/cryptography",
+            "https://github.com/pyca/cryptography/commit/0eebb9dbb6343d9bc1d91e5a2482ed4e054a6d8c",
+            "https://github.com/pyca/cryptography/releases/tag/46.0.5",
+            "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-26007"
+          ],
+          "PublishedDate": "2026-02-10T22:17:00.307Z",
+          "LastModifiedDate": "2026-02-23T15:40:33.787Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-1428",
+          "VendorIDs": [
+            "GHSA-6628-q6j9-w8vg"
+          ],
+          "PkgName": "grpcio",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/grpcio-1.51.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/grpcio@1.51.1",
+            "UID": "5d5b701c3f8b1a3a"
+          },
+          "InstalledVersion": "1.51.1",
+          "FixedVersion": "1.53.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-1428",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:be025176db807dd543a53986ff710f2f06fb04b4091c019abe4a8323b5266e3a",
+          "Title": "gRPC: Reachable Assertion",
+          "Description": "There exists an vulnerability causing an abort() to be called in gRPC. \nThe following headers cause gRPC's C++ implementation to abort() when called via http2:\n\nte: x (x != trailers)\n\n:scheme: x (x != http, https)\n\ngrpclb_client_stats: x (x == anything)\n\nOn top of sending one of those headers, a later header must be sent that gets the total header size past 8KB. We recommend upgrading past git commit 2485fa94bd8a723e5c977d55a3ce10b301b437f8 or v1.53 and above.\n\n",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-617"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2,
+            "ruby-advisory-db": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2023-1428",
+            "https://github.com/advisories/GHSA-6628-q6j9-w8vg",
+            "https://github.com/grpc/grpc/commit/2485fa94bd8a723e5c977d55a3ce10b301b437f8",
+            "https://github.com/grpc/grpc/issues/33463",
+            "https://github.com/grpc/grpc/pull/32507",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/grpc/CVE-2023-1428.yml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-1428",
+            "https://www.cve.org/CVERecord?id=CVE-2023-1428"
+          ],
+          "PublishedDate": "2023-06-09T11:15:09.2Z",
+          "LastModifiedDate": "2024-11-21T07:39:10.133Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-33953",
+          "VendorIDs": [
+            "GHSA-496j-2rq6-j6cc"
+          ],
+          "PkgName": "grpcio",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/grpcio-1.51.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/grpcio@1.51.1",
+            "UID": "5d5b701c3f8b1a3a"
+          },
+          "InstalledVersion": "1.51.1",
+          "FixedVersion": "1.53.2, 1.54.3, 1.55.2, 1.56.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-33953",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:35d953e1cb4940caf029eb1148df210ff82bd997bbeb4bd769caee0564fba23f",
+          "Title": "gRPC: hpack table accounting errors can lead to denial of service",
+          "Description": "gRPC contains a vulnerability that allows hpack table accounting errors could lead to unwanted disconnects between clients and servers in exceptional cases/ Three vectors were found that allow the following DOS attacks:\n\n- Unbounded memory buffering in the HPACK parser\n- Unbounded CPU consumption in the HPACK parser\n\nThe unbounded CPU consumption is down to a copy that occurred per-input-block in the parser, and because that could be unbounded due to the memory copy bug we end up with an O(n^2) parsing loop, with n selected by the client.\n\nThe unbounded memory buffering bugs:\n\n- The header size limit check was behind the string reading code, so we needed to first buffer up to a 4 gigabyte string before rejecting it as longer than 8 or 16kb.\n- HPACK varints have an encoding quirk whereby an infinite number of 0’s can be added at the start of an integer. gRPC’s hpack parser needed to read all of them before concluding a parse.\n- gRPC’s metadata overflow check was performed per frame, so that the following sequence of frames could cause infinite buffering: HEADERS: containing a: 1 CONTINUATION: containing a: 2 CONTINUATION: containing a: 3 etc…",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789",
+            "CWE-834",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "photon": 3,
+            "redhat": 3,
+            "ruby-advisory-db": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2023-33953",
+            "https://cloud.google.com/support/bulletins#gcp-2023-022",
+            "https://github.com/advisories/GHSA-496j-2rq6-j6cc",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/grpc/CVE-2023-33953.yml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-33953",
+            "https://security.snyk.io/vuln/SNYK-RUBY-GRPC-5834442",
+            "https://www.cve.org/CVERecord?id=CVE-2023-33953"
+          ],
+          "PublishedDate": "2023-08-09T13:15:09.37Z",
+          "LastModifiedDate": "2024-11-21T08:06:17.007Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-3660",
+          "VendorIDs": [
+            "GHSA-x4wf-678h-2pmq"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-2.11.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@2.11.0",
+            "UID": "38c29d98dbd303ae"
+          },
+          "InstalledVersion": "2.11.0",
+          "FixedVersion": "2.13.1rc0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-3660",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b842b27dce64735db71456d1774a582275c2a14c6b58c3ec7821ec020dc0ca09",
+          "Title": "A arbitrary code injection vulnerability in TensorFlow's Keras framewo ...",
+          "Description": "A arbitrary code injection vulnerability in TensorFlow's Keras framework (<2.13) allows attackers to execute arbitrary code with the same permissions as the application using a model that allow arbitrary code irrespective of the application.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 9.8,
+              "V40Score": 9.3
+            }
+          },
+          "References": [
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/compare/r2.12...r2.13",
+            "https://kb.cert.org/vuls/id/253266",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-3660",
+            "https://www.kb.cert.org/vuls/id/253266"
+          ],
+          "PublishedDate": "2024-04-16T21:15:08.603Z",
+          "LastModifiedDate": "2025-09-23T01:35:15.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-12060",
+          "VendorIDs": [
+            "GHSA-hjqc-jx6g-rwp9"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-2.11.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@2.11.0",
+            "UID": "38c29d98dbd303ae"
+          },
+          "InstalledVersion": "2.11.0",
+          "FixedVersion": "3.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-12060",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:00e3b76e8b08770a9b02f3174c56281f7f66e09ef212809e4be8364a963a5ae4",
+          "Title": "keras: Keras Path Traversal Vulnerability",
+          "Description": "The keras.utils.get_file API in Keras, when used with the extract=True option for tar archives, is vulnerable to a path traversal attack. The utility uses Python's tarfile.extractall function without the filter=\"data\" feature. A remote attacker can craft a malicious tar archive containing special symlinks, which, when extracted, allows them to write arbitrary files to any location on the filesystem outside of the intended destination folder. This vulnerability is linked to the underlying Python tarfile weakness, identified as CVE-2025-4517. Note that upgrading Python to one of the versions that fix CVE-2025-4517 (e.g. Python 3.13.4) is not enough. One additionally needs to upgrade Keras to a version with the fix (Keras 3.12).",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+              "V3Score": 9.8,
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:L",
+              "V3Score": 8.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-12060",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/47fcb397ee4caffd5a75efd1fa3067559594e951",
+            "https://github.com/keras-team/keras/pull/21760",
+            "https://github.com/keras-team/keras/security/advisories/GHSA-hjqc-jx6g-rwp9",
+            "https://huntr.com/bounties/f94f5beb-54d8-4e6a-8bac-86d9aee103f4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-12060",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-12638",
+            "https://www.cve.org/CVERecord?id=CVE-2025-12060"
+          ],
+          "PublishedDate": "2025-10-30T17:15:37.52Z",
+          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-9906",
+          "VendorIDs": [
+            "GHSA-36fq-jgmw-4r9c"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-2.11.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@2.11.0",
+            "UID": "38c29d98dbd303ae"
+          },
+          "InstalledVersion": "2.11.0",
+          "FixedVersion": "3.11.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-9906",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d742bf1a2b614437f0ef2cea89ad1ca6f30b5a41e807df45784410e7180997a3",
+          "Title": "keras: Arbitrary Code execution in Keras Safe Mode",
+          "Description": "The Keras Model.load_model method can be exploited to achieve arbitrary code execution, even with safe_mode=True.\n\nOne can create a specially crafted .keras model archive that, when loaded via Model.load_model, will trigger arbitrary code to be executed. This is achieved by crafting a special config.json (a file within the .keras archive) that will invoke keras.config.enable_unsafe_deserialization() to disable safe mode. Once safe mode is disable, one can use the Lambda layer feature of keras, which allows arbitrary Python code in the form of pickled code. Both can appear in the same archive. Simply the keras.config.enable_unsafe_deserialization() needs to appear first in the archive and the Lambda with arbitrary code needs to be second.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.3,
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:C/C:H/I:H/A:H",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-9906",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/713172ab56b864e59e2aa79b1a51b0e728bba858",
+            "https://github.com/keras-team/keras/pull/21429",
+            "https://github.com/keras-team/keras/releases/tag/v3.11.0",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-9906",
+            "https://osv.dev/vulnerability/CVE-2025-9906",
+            "https://www.cve.org/CVERecord?id=CVE-2025-9906"
+          ],
+          "PublishedDate": "2025-09-19T09:15:36.353Z",
+          "LastModifiedDate": "2025-09-23T16:53:28.17Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-4565",
+          "VendorIDs": [
+            "GHSA-8qvm-5x2c-j2w7"
+          ],
+          "PkgName": "protobuf",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/protobuf-4.21.12-py3.10.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/protobuf@4.21.12",
+            "UID": "f360515e2e2ae9ba"
+          },
+          "InstalledVersion": "4.21.12",
+          "FixedVersion": "4.25.8, 5.29.5, 6.31.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-4565",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e8efd5656aaedad0542fe2aea13fe891a303389fab7c1f261c01982b3d84cd89",
+          "Title": "python-protobuf: Unbounded recursion in Python Protobuf",
+          "Description": "Any project that uses Protobuf Pure-Python backend to parse untrusted Protocol Buffers data containing an arbitrary number of recursive groups, recursive messages or a series of SGROUP tags can be corrupted by exceeding the Python recursion limit. This can result in a Denial of service by crashing the application with a RecursionError. We recommend upgrading to version =>6.31.1 or beyond commit 17838beda2943d08b8a9d4df5b68f5f04f26d901",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-4565",
+            "https://github.com/protocolbuffers/protobuf",
+            "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/decoder_test.py#L87-L98",
+            "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/message_test.py#L1436-L1478",
+            "https://github.com/protocolbuffers/protobuf/commit/17838beda2943d08b8a9d4df5b68f5f04f26d901",
+            "https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-735f-pc8j-v9w8",
+            "https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-8qvm-5x2c-j2w7",
+            "https://github.com/protocolbuffers/protobuf/tree/main/python#implementation-backends",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-4565",
+            "https://ubuntu.com/security/notices/USN-7629-1",
+            "https://ubuntu.com/security/notices/USN-7629-2",
+            "https://www.cve.org/CVERecord?id=CVE-2025-4565"
+          ],
+          "PublishedDate": "2025-06-16T15:15:24.99Z",
+          "LastModifiedDate": "2025-08-14T17:05:37.77Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-0994",
+          "VendorIDs": [
+            "GHSA-7gcm-g887-7qv7"
+          ],
+          "PkgName": "protobuf",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/protobuf-4.21.12-py3.10.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/protobuf@4.21.12",
+            "UID": "f360515e2e2ae9ba"
+          },
+          "InstalledVersion": "4.21.12",
+          "FixedVersion": "6.33.5, 5.29.6",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-0994",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9636a8775899e34989ea2594dfbec325ebbe358d08428f6d7046c849195cab92",
+          "Title": "python: protobuf: Protobuf: Denial of Service due to recursion depth bypass",
+          "Description": "A denial-of-service (DoS) vulnerability exists in google.protobuf.json_format.ParseDict() in Python, where the max_recursion_depth limit can be bypassed when parsing nested google.protobuf.Any messages.\n\nDue to missing recursion depth accounting inside the internal Any-handling logic, an attacker can supply deeply nested Any structures that bypass the intended recursion limit, eventually exhausting Python’s recursion stack and causing a RecursionError.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:3095",
+            "https://access.redhat.com/security/cve/CVE-2026-0994",
+            "https://bugzilla.redhat.com/2432398",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
+            "https://errata.almalinux.org/9/ALSA-2026-3095.html",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
+            "https://github.com/protocolbuffers/protobuf",
+            "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
+            "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
+            "https://github.com/protocolbuffers/protobuf/issues/25070",
+            "https://github.com/protocolbuffers/protobuf/pull/25239",
+            "https://github.com/protocolbuffers/protobuf/pull/25586 (33.x)",
+            "https://github.com/protocolbuffers/protobuf/pull/25587 (29.x)",
+            "https://linux.oracle.com/cve/CVE-2026-0994.html",
+            "https://linux.oracle.com/errata/ELSA-2026-3095.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-0994",
+            "https://ubuntu.com/security/notices/USN-8063-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-0994"
+          ],
+          "PublishedDate": "2026-01-23T15:16:06.84Z",
+          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/share/google-cloud-sdk-559.0.0-0/platform/bundledpythonunix/lib/python3.13/site-packages/pyOpenSSL-24.2.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@24.2.1",
+            "UID": "e8118070f79264cb"
+          },
+          "InstalledVersion": "24.2.1",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7b45671c8f2cb3b6199b8f8aec8869e26bfb48e63cc6b347f4b7dc0c3a90e67a",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyopenssl-25.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@25.3.0",
+            "UID": "1122fd48ad72d86b"
+          },
+          "InstalledVersion": "25.3.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7b45671c8f2cb3b6199b8f8aec8869e26bfb48e63cc6b347f4b7dc0c3a90e67a",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyasn1-0.6.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.6.2",
+            "UID": "816465892c0b16c2"
+          },
+          "InstalledVersion": "0.6.2",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d3ef0d7fbb7f8b74ad9d951a7f4b39e8a41ecd0ca6adb28853b904287669c411",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-33976",
+          "VendorIDs": [
+            "GHSA-gjh7-xx4r-x345"
+          ],
+          "PkgName": "tensorflow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/tensorflow-2.11.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tensorflow@2.11.1",
+            "UID": "7c724b7bd7e30d15"
+          },
+          "InstalledVersion": "2.11.1",
+          "FixedVersion": "2.12.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-33976",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:5e3dff1c794fbbde23d08e3e3911dcc8220e47d21782ebaaf803d60c2104db07",
+          "Title": "CVE-2023-33976 affecting package tensorflow for versions less than 2.11.1-2",
+          "Description": "TensorFlow is an end-to-end open source platform for machine learning. `array_ops.upper_bound` causes a segfault when not given a rank 2 tensor. The fix will be included in TensorFlow 2.13 and will also cherrypick this commit on TensorFlow 2.12.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/tensorflow/tensorflow",
+            "https://github.com/tensorflow/tensorflow/commit/6fa05df43b00038b048f4f0e51ef522da6532fec",
+            "https://github.com/tensorflow/tensorflow/commit/915884fdf5df34aaedd00fc6ace33a2cfdefa586",
+            "https://github.com/tensorflow/tensorflow/security/advisories/GHSA-gjh7-xx4r-x345",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-33976"
+          ],
+          "PublishedDate": "2024-07-30T20:15:03.023Z",
+          "LastModifiedDate": "2024-11-21T08:06:19.983Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-25679",
+          "VendorIDs": [
+            "GO-2026-4601"
+          ],
+          "PkgID": "stdlib@v1.26.0",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.26.0",
+            "UID": "81a70b6f956f1f3a"
+          },
+          "InstalledVersion": "v1.26.0",
+          "FixedVersion": "1.25.8, 1.26.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25679",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:273115145a377432438d85e9e5addeff9cfcc2f8ef99aafd05f0f2f74f020ef0",
+          "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
+          "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 2,
+            "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:5942",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2434433",
+            "https://bugzilla.redhat.com/2445356",
+            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+          ],
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27137",
+          "VendorIDs": [
+            "GO-2026-4599"
+          ],
+          "PkgID": "stdlib@v1.26.0",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.26.0",
+            "UID": "81a70b6f956f1f3a"
+          },
+          "InstalledVersion": "v1.26.0",
+          "FixedVersion": "1.26.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:576d5c4367d50389a6932c6c85272bcff685747181972b9f8c6221d522cabf29",
+            "DiffID": "sha256:7108430c93275900bf8fabd24af7e809937a207293c9339c7b64fef35bd23f4f"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27137",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:8691071df1de8757bbe787a92488bf68ad835d88b036fcb4ae63a5769a73fc63",
+          "Title": "crypto/x509: Incorrect enforcement of email constraints in crypto/x509",
+          "Description": "When verifying a certificate chain which contains a certificate containing multiple email address constraints which share common local portions but different domain portions, these constraints will not be properly applied, and only the last constraint will be considered.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "azure": 2,
+            "bitnami": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27137",
+            "https://go.dev/cl/752182",
+            "https://go.dev/issue/77952",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27137",
+            "https://pkg.go.dev/vuln/GO-2026-4599",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27137"
+          ],
+          "PublishedDate": "2026-03-06T22:16:00.85Z",
+          "LastModifiedDate": "2026-03-10T18:18:44.163Z"
+        }
+      ],
+      "vulnerability_count": 15
+    },
     "1.9.0": {
       "image": "ghcr.io/bundlecore/products/bfx/deepvariant:1.9.0",
       "vulnerabilities": [
@@ -62,7 +1038,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -79,6 +1055,65 @@
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
           "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/PyJWT-2.10.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.10.1",
+            "UID": "8d59c5cc8b484c80"
+          },
+          "InstalledVersion": "2.10.1",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:798f1efb9542bf2b7c1a987952d6ff98c7f7d8893b9199fac6df969f1cd34a2b",
+            "DiffID": "sha256:3719787de3c33c0deb9a1e0478363c2c9bc1c5ccbfbc1be4b57d0352419a4960"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7c741a17f78556866c6da10106036306afb37ce09efcd3cdb8fcfd03c9bcf856",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69223",
@@ -176,7 +1211,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -200,6 +1236,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -241,7 +1278,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -265,6 +1303,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -463,7 +1502,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23949",
@@ -524,7 +1563,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2024-3660",
@@ -840,7 +1879,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3094",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -856,6 +1895,138 @@
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
           "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/share/google-cloud-sdk-523.0.0-0/platform/bundledpythonunix/lib/python3.12/site-packages/pyOpenSSL-24.2.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@24.2.1",
+            "UID": "be378a648eab69d"
+          },
+          "InstalledVersion": "24.2.1",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:798f1efb9542bf2b7c1a987952d6ff98c7f7d8893b9199fac6df969f1cd34a2b",
+            "DiffID": "sha256:3719787de3c33c0deb9a1e0478363c2c9bc1c5ccbfbc1be4b57d0352419a4960"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:113fe8046c50e91c9bb583699a5418bf407f8918fb842de8198ad2e8380e4b0b",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyopenssl-25.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@25.1.0",
+            "UID": "67837392758c66ba"
+          },
+          "InstalledVersion": "25.1.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:798f1efb9542bf2b7c1a987952d6ff98c7f7d8893b9199fac6df969f1cd34a2b",
+            "DiffID": "sha256:3719787de3c33c0deb9a1e0478363c2c9bc1c5ccbfbc1be4b57d0352419a4960"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:113fe8046c50e91c9bb583699a5418bf407f8918fb842de8198ad2e8380e4b0b",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23490",
@@ -915,7 +2086,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2430472",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23490",
             "https://errata.almalinux.org/9/ALSA-2026-3359.html",
-            "https://errata.rockylinux.org/RLSA-2026:1906",
+            "https://errata.rockylinux.org/RLSA-2026:3359",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/blob/0f07d7242a78ab4d129b26256d7474f7168cf536/pyasn1/codec/ber/decoder.py#L496",
             "https://github.com/pyasn1/pyasn1/commit/3908f144229eed4df24bd569d16e5991ace44970",
@@ -923,14 +2094,79 @@
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.2",
             "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-63vm-454h-vhhq",
             "https://linux.oracle.com/cve/CVE-2026-23490.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3359.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4148.html",
             "https://lists.debian.org/debian-lts-announce/2026/02/msg00002.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-23490",
             "https://ubuntu.com/security/notices/USN-7975-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23490"
           ],
           "PublishedDate": "2026-01-16T19:16:19.117Z",
-          "LastModifiedDate": "2026-02-01T17:15:50.82Z"
+          "LastModifiedDate": "2026-03-13T14:19:34.873Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyasn1-0.6.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.6.1",
+            "UID": "211d2b0951e6a702"
+          },
+          "InstalledVersion": "0.6.1",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:798f1efb9542bf2b7c1a987952d6ff98c7f7d8893b9199fac6df969f1cd34a2b",
+            "DiffID": "sha256:3719787de3c33c0deb9a1e0478363c2c9bc1c5ccbfbc1be4b57d0352419a4960"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d6f5893895998b67ceab92a0777512dd4f846a63dbe50dae7966662368380671",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
         },
         {
           "VulnerabilityID": "CVE-2023-33976",
@@ -1068,7 +2304,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -1155,7 +2391,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -1245,7 +2481,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -1324,7 +2560,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1401,7 +2637,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1478,7 +2714,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1555,7 +2791,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1603,8 +2839,10 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
+            "azure": 2,
             "bitnami": 4,
+            "cbl-mariner": 2,
             "nvd": 4,
             "oracle-oval": 3,
             "photon": 4,
@@ -1626,25 +2864,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-68121",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/737700",
             "https://go.dev/issue/77217",
             "https://groups.google.com/g/golang-announce/c/K09ubi9FQFk",
             "https://linux.oracle.com/cve/CVE-2025-68121.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-68121",
             "https://pkg.go.dev/vuln/GO-2026-4337",
             "https://www.cve.org/CVERecord?id=CVE-2025-68121"
@@ -1779,7 +3013,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2407258",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58183",
             "https://errata.almalinux.org/9/ALSA-2026-1381.html",
-            "https://errata.rockylinux.org/RLSA-2025:23948",
+            "https://errata.rockylinux.org/RLSA-2025:23326",
             "https://go.dev/cl/709861",
             "https://go.dev/issue/75677",
             "https://groups.google.com/g/golang-announce/c/4Emdl2iQ_bI",
@@ -1825,7 +3059,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 3,
             "cbl-mariner": 2,
@@ -1845,25 +3079,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-61726",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/736712",
             "https://go.dev/issue/77101",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61726.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61726",
             "https://pkg.go.dev/vuln/GO-2026-4341",
             "https://www.cve.org/CVERecord?id=CVE-2025-61726"
@@ -1904,7 +3134,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 2,
             "oracle-oval": 3,
@@ -1924,25 +3154,27 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/01/15/4",
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3753",
             "https://access.redhat.com/security/cve/CVE-2025-61728",
             "https://bugzilla.redhat.com/2418462",
             "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-3753.html",
+            "https://errata.rockylinux.org/RLSA-2026:3337",
             "https://go.dev/cl/736713",
             "https://go.dev/issue/77102",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61728.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3337.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4672.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61728",
             "https://pkg.go.dev/vuln/GO-2026-4342",
             "https://www.cve.org/CVERecord?id=CVE-2025-61728"
@@ -1984,6 +3216,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 3,
             "bitnami": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -2001,25 +3234,24 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3928",
             "https://access.redhat.com/security/cve/CVE-2025-61729",
             "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2268022",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2418900",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24785",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-65637",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3428",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
+            "https://errata.almalinux.org/9/ALSA-2026-3928.html",
+            "https://errata.rockylinux.org/RLSA-2026:3928",
             "https://go.dev/cl/725920",
             "https://go.dev/issue/76445",
             "https://groups.google.com/g/golang-announce/c/8FJoBkPddm4",
             "https://linux.oracle.com/cve/CVE-2025-61729.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3428.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61729",
             "https://pkg.go.dev/vuln/GO-2025-4155",
             "https://www.cve.org/CVERecord?id=CVE-2025-61729"
@@ -2028,9 +3260,9 @@
           "LastModifiedDate": "2025-12-19T18:25:28.283Z"
         },
         {
-          "VulnerabilityID": "CVE-2025-61730",
+          "VulnerabilityID": "CVE-2026-25679",
           "VendorIDs": [
-            "GO-2026-4340"
+            "GO-2026-4601"
           ],
           "PkgID": "stdlib@v1.23.4",
           "PkgName": "stdlib",
@@ -2039,45 +3271,60 @@
             "UID": "f745a52e82197b51"
           },
           "InstalledVersion": "v1.23.4",
-          "FixedVersion": "1.24.12, 1.25.6",
+          "FixedVersion": "1.25.8, 1.26.1",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:798f1efb9542bf2b7c1a987952d6ff98c7f7d8893b9199fac6df969f1cd34a2b",
             "DiffID": "sha256:3719787de3c33c0deb9a1e0478363c2c9bc1c5ccbfbc1be4b57d0352419a4960"
           },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-61730",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25679",
           "DataSource": {
             "ID": "govulndb",
             "Name": "The Go Vulnerability Database",
             "URL": "https://pkg.go.dev/vuln/"
           },
-          "Fingerprint": "sha256:3751943cec8b3098b90a5ec0a6dee3d86b47cd166be4c11e4d57f597e25db320",
-          "Title": "During the TLS 1.3 handshake if multiple messages are sent in records  ...",
-          "Description": "During the TLS 1.3 handshake if multiple messages are sent in records that span encryption level boundaries (for instance the Client Hello and Encrypted Extensions messages), the subsequent messages may be processed before the encryption level changes. This can cause some minor information disclosure if a network-local attacker can inject messages during the handshake.",
+          "Fingerprint": "sha256:2fbbe14c98708c8999890cc632828a02c093a8697c2a87bb6d82d615dfa9e44c",
+          "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
+          "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
           "VendorSeverity": {
-            "amazon": 3,
-            "bitnami": 2,
-            "photon": 2
+            "alma": 3,
+            "amazon": 2,
+            "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3
           },
           "CVSS": {
             "bitnami": {
-              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
-              "V3Score": 5.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
-            "https://go.dev/cl/724120",
-            "https://go.dev/issue/76443",
-            "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
-            "https://nvd.nist.gov/vuln/detail/CVE-2025-61730",
-            "https://pkg.go.dev/vuln/GO-2026-4340"
+            "https://access.redhat.com/errata/RHSA-2026:5942",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2434433",
+            "https://bugzilla.redhat.com/2445356",
+            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
           ],
-          "PublishedDate": "2026-01-28T20:16:09.94Z",
-          "LastModifiedDate": "2026-02-03T20:36:41.3Z"
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
         }
       ],
-      "vulnerability_count": 29
+      "vulnerability_count": 33
     },
     "1.8.0": {
       "image": "ghcr.io/bundlecore/products/bfx/deepvariant:1.8.0",
@@ -2138,7 +3385,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -2155,6 +3402,65 @@
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
           "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/PyJWT-2.10.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.10.1",
+            "UID": "8d59c5cc8b484c80"
+          },
+          "InstalledVersion": "2.10.1",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:531bc641675e805a940ecde24f09b592f0fd20702346da977b03511016f54e76",
+            "DiffID": "sha256:e883a8737c98b2fb556bb7f984a3ea22de9c3a71aeb2a96c718cb9ab4fab9d80"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:eae233ed3a9390770abc16464c002427337f29e4a59c5c9e61a79c286e68cec2",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69223",
@@ -2252,7 +3558,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -2276,6 +3583,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -2317,7 +3625,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -2341,6 +3650,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -2539,7 +3849,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23949",
@@ -2600,7 +3910,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2024-3660",
@@ -2916,7 +4226,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3094",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -2932,6 +4242,138 @@
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
           "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/share/google-cloud-sdk-518.0.0-0/platform/bundledpythonunix/lib/python3.12/site-packages/pyOpenSSL-24.2.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@24.2.1",
+            "UID": "f5fab28293f08033"
+          },
+          "InstalledVersion": "24.2.1",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:531bc641675e805a940ecde24f09b592f0fd20702346da977b03511016f54e76",
+            "DiffID": "sha256:e883a8737c98b2fb556bb7f984a3ea22de9c3a71aeb2a96c718cb9ab4fab9d80"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e94dea881828202c636e48cea975d0b14fba711d9bebbf272c3788943a411ffb",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyOpenSSL-25.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@25.0.0",
+            "UID": "9ef8601e2c95a5f3"
+          },
+          "InstalledVersion": "25.0.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:531bc641675e805a940ecde24f09b592f0fd20702346da977b03511016f54e76",
+            "DiffID": "sha256:e883a8737c98b2fb556bb7f984a3ea22de9c3a71aeb2a96c718cb9ab4fab9d80"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e94dea881828202c636e48cea975d0b14fba711d9bebbf272c3788943a411ffb",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23490",
@@ -2991,7 +4433,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2430472",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23490",
             "https://errata.almalinux.org/9/ALSA-2026-3359.html",
-            "https://errata.rockylinux.org/RLSA-2026:1906",
+            "https://errata.rockylinux.org/RLSA-2026:3359",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/blob/0f07d7242a78ab4d129b26256d7474f7168cf536/pyasn1/codec/ber/decoder.py#L496",
             "https://github.com/pyasn1/pyasn1/commit/3908f144229eed4df24bd569d16e5991ace44970",
@@ -2999,14 +4441,79 @@
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.2",
             "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-63vm-454h-vhhq",
             "https://linux.oracle.com/cve/CVE-2026-23490.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3359.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4148.html",
             "https://lists.debian.org/debian-lts-announce/2026/02/msg00002.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-23490",
             "https://ubuntu.com/security/notices/USN-7975-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23490"
           ],
           "PublishedDate": "2026-01-16T19:16:19.117Z",
-          "LastModifiedDate": "2026-02-01T17:15:50.82Z"
+          "LastModifiedDate": "2026-03-13T14:19:34.873Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pyasn1-0.6.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.6.1",
+            "UID": "211d2b0951e6a702"
+          },
+          "InstalledVersion": "0.6.1",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:531bc641675e805a940ecde24f09b592f0fd20702346da977b03511016f54e76",
+            "DiffID": "sha256:e883a8737c98b2fb556bb7f984a3ea22de9c3a71aeb2a96c718cb9ab4fab9d80"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a623f17fa2b70d8a5a13a6dc7792ebc18385c137777cf4251fca623834554c6b",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -3078,7 +4585,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -3166,7 +4673,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -3320,7 +4827,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -3407,7 +4914,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -3497,7 +5004,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -3576,7 +5083,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3653,7 +5160,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3730,7 +5237,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3807,7 +5314,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3855,8 +5362,10 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
+            "azure": 2,
             "bitnami": 4,
+            "cbl-mariner": 2,
             "nvd": 4,
             "oracle-oval": 3,
             "photon": 4,
@@ -3878,25 +5387,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-68121",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/737700",
             "https://go.dev/issue/77217",
             "https://groups.google.com/g/golang-announce/c/K09ubi9FQFk",
             "https://linux.oracle.com/cve/CVE-2025-68121.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-68121",
             "https://pkg.go.dev/vuln/GO-2026-4337",
             "https://www.cve.org/CVERecord?id=CVE-2025-68121"
@@ -4031,7 +5536,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2407258",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58183",
             "https://errata.almalinux.org/9/ALSA-2026-1381.html",
-            "https://errata.rockylinux.org/RLSA-2025:23948",
+            "https://errata.rockylinux.org/RLSA-2025:23326",
             "https://go.dev/cl/709861",
             "https://go.dev/issue/75677",
             "https://groups.google.com/g/golang-announce/c/4Emdl2iQ_bI",
@@ -4077,7 +5582,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 3,
             "cbl-mariner": 2,
@@ -4097,25 +5602,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-61726",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/736712",
             "https://go.dev/issue/77101",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61726.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61726",
             "https://pkg.go.dev/vuln/GO-2026-4341",
             "https://www.cve.org/CVERecord?id=CVE-2025-61726"
@@ -4156,7 +5657,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 2,
             "oracle-oval": 3,
@@ -4176,25 +5677,27 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/01/15/4",
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3753",
             "https://access.redhat.com/security/cve/CVE-2025-61728",
             "https://bugzilla.redhat.com/2418462",
             "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-3753.html",
+            "https://errata.rockylinux.org/RLSA-2026:3337",
             "https://go.dev/cl/736713",
             "https://go.dev/issue/77102",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61728.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3337.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4672.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61728",
             "https://pkg.go.dev/vuln/GO-2026-4342",
             "https://www.cve.org/CVERecord?id=CVE-2025-61728"
@@ -4236,6 +5739,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 3,
             "bitnami": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -4253,25 +5757,24 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3928",
             "https://access.redhat.com/security/cve/CVE-2025-61729",
             "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2268022",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2418900",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24785",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-65637",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3428",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
+            "https://errata.almalinux.org/9/ALSA-2026-3928.html",
+            "https://errata.rockylinux.org/RLSA-2026:3928",
             "https://go.dev/cl/725920",
             "https://go.dev/issue/76445",
             "https://groups.google.com/g/golang-announce/c/8FJoBkPddm4",
             "https://linux.oracle.com/cve/CVE-2025-61729.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3428.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61729",
             "https://pkg.go.dev/vuln/GO-2025-4155",
             "https://www.cve.org/CVERecord?id=CVE-2025-61729"
@@ -4280,9 +5783,9 @@
           "LastModifiedDate": "2025-12-19T18:25:28.283Z"
         },
         {
-          "VulnerabilityID": "CVE-2025-61730",
+          "VulnerabilityID": "CVE-2026-25679",
           "VendorIDs": [
-            "GO-2026-4340"
+            "GO-2026-4601"
           ],
           "PkgID": "stdlib@v1.23.4",
           "PkgName": "stdlib",
@@ -4291,49 +5794,123 @@
             "UID": "6f946bdb3b4934db"
           },
           "InstalledVersion": "v1.23.4",
-          "FixedVersion": "1.24.12, 1.25.6",
+          "FixedVersion": "1.25.8, 1.26.1",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:531bc641675e805a940ecde24f09b592f0fd20702346da977b03511016f54e76",
             "DiffID": "sha256:e883a8737c98b2fb556bb7f984a3ea22de9c3a71aeb2a96c718cb9ab4fab9d80"
           },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-61730",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25679",
           "DataSource": {
             "ID": "govulndb",
             "Name": "The Go Vulnerability Database",
             "URL": "https://pkg.go.dev/vuln/"
           },
-          "Fingerprint": "sha256:92a12218da1b679ec1eec968af7db4acc383c69599cf581bb619aface222a993",
-          "Title": "During the TLS 1.3 handshake if multiple messages are sent in records  ...",
-          "Description": "During the TLS 1.3 handshake if multiple messages are sent in records that span encryption level boundaries (for instance the Client Hello and Encrypted Extensions messages), the subsequent messages may be processed before the encryption level changes. This can cause some minor information disclosure if a network-local attacker can inject messages during the handshake.",
+          "Fingerprint": "sha256:ac9b1a7e97add1470049c88bb43bf2f3cd0ec069c8f682893f7df929ae166bd7",
+          "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
+          "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
           "VendorSeverity": {
-            "amazon": 3,
-            "bitnami": 2,
-            "photon": 2
+            "alma": 3,
+            "amazon": 2,
+            "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3
           },
           "CVSS": {
             "bitnami": {
-              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
-              "V3Score": 5.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
-            "https://go.dev/cl/724120",
-            "https://go.dev/issue/76443",
-            "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
-            "https://nvd.nist.gov/vuln/detail/CVE-2025-61730",
-            "https://pkg.go.dev/vuln/GO-2026-4340"
+            "https://access.redhat.com/errata/RHSA-2026:5942",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2434433",
+            "https://bugzilla.redhat.com/2445356",
+            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
           ],
-          "PublishedDate": "2026-01-28T20:16:09.94Z",
-          "LastModifiedDate": "2026-02-03T20:36:41.3Z"
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
         }
       ],
-      "vulnerability_count": 31
+      "vulnerability_count": 35
     },
     "1.5.0": {
       "image": "ghcr.io/bundlecore/products/bfx/deepvariant:1.5.0",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.6/site-packages/PyJWT-2.6.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.6.0",
+            "UID": "fdbc04510af49693"
+          },
+          "InstalledVersion": "2.6.0",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:72268853310483439a79a34e64b5d1495fccd8db4a57ef563c229e6aa5fba239",
+            "DiffID": "sha256:37dd89ba9ef30e710eb8b7e0b44a60e130312bb4cd3fb1214199419745f879b9"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:27d9718ed6b57adc18e2c9c17b02d5b49a735f0d840aec3e2e81b2c4fbf5213b",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
+        },
         {
           "VulnerabilityID": "CVE-2023-25577",
           "VendorIDs": [
@@ -4822,16 +6399,35 @@
             "https://access.redhat.com/security/cve/CVE-2023-0286",
             "https://access.redhat.com/security/cve/cve-2023-0286",
             "https://bugzilla.redhat.com/2164440",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144000",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144003",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144006",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144008",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144012",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144017",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2144019",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2145170",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2158412",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164440",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164487",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2164488",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164492",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164494",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2164497",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2164499",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2164500",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4203",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4304",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4450",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0215",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0216",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0217",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0286",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-0401",
             "https://errata.almalinux.org/9/ALSA-2025-7937.html",
-            "https://errata.rockylinux.org/RLSA-2023:1405",
+            "https://errata.rockylinux.org/RLSA-2023:0946",
             "https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.6.2-relnotes.txt",
             "https://ftp.openbsd.org/pub/OpenBSD/patches/7.2/common/018_x509.patch.sig",
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=2c6c9d439b484e1ba9830d8454a34fa4f80fdfe9",
@@ -4886,7 +6482,6 @@
           "Description": "A flaw was found in the python-cryptography package. This issue may allow a remote attacker to decrypt captured messages in TLS servers that use RSA key exchanges, which may lead to exposure of confidential or sensitive data.",
           "Severity": "HIGH",
           "CweIDs": [
-            "CWE-385",
             "CWE-203"
           ],
           "VendorSeverity": {
@@ -4930,7 +6525,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2023-50782"
           ],
           "PublishedDate": "2024-02-05T21:15:11.183Z",
-          "LastModifiedDate": "2026-02-25T19:29:16.923Z"
+          "LastModifiedDate": "2026-03-24T12:16:08.55Z"
         },
         {
           "VulnerabilityID": "CVE-2026-26007",
@@ -4968,7 +6563,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -4992,6 +6588,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -5358,7 +6955,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3094",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -5374,6 +6971,136 @@
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
           "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.6/site-packages/pyOpenSSL-22.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@22.0.0",
+            "UID": "f5e6afb29874a6ce"
+          },
+          "InstalledVersion": "22.0.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:72268853310483439a79a34e64b5d1495fccd8db4a57ef563c229e6aa5fba239",
+            "DiffID": "sha256:37dd89ba9ef30e710eb8b7e0b44a60e130312bb4cd3fb1214199419745f879b9"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a01be41cce817fbb2997df193ad40973f4c3917993a30193e3b55a203b85d827",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.6/site-packages/pyasn1-0.4.8.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.4.8",
+            "UID": "e28a915938458f6b"
+          },
+          "InstalledVersion": "0.4.8",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:72268853310483439a79a34e64b5d1495fccd8db4a57ef563c229e6aa5fba239",
+            "DiffID": "sha256:37dd89ba9ef30e710eb8b7e0b44a60e130312bb4cd3fb1214199419745f879b9"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:93755840d2a16dcf966f9eef610b02205dc9bacde201546f53e3789a5fdcda79",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40897",
@@ -5447,7 +7174,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2158559",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-40897",
             "https://errata.almalinux.org/9/ALSA-2023-0952.html",
-            "https://errata.rockylinux.org/RLSA-2023:0835",
+            "https://errata.rockylinux.org/RLSA-2023:0952",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2022-43012.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/fe8a98e696241487ba6ac9f91faa38ade939ec5d/setuptools/package_index.py#L200",
@@ -5547,7 +7274,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -5633,7 +7360,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -13074,7 +14801,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -13161,7 +14888,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -13251,7 +14978,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -14519,7 +16246,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2348367",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-22869",
             "https://errata.almalinux.org/9/ALSA-2025-3833.html",
-            "https://errata.rockylinux.org/RLSA-2025:3210",
+            "https://errata.rockylinux.org/RLSA-2025:7416",
             "https://github.com/golang/crypto",
             "https://github.com/golang/crypto/commit/7292932d45d55c7199324ab0027cc86e8198aa22",
             "https://go-review.googlesource.com/c/crypto/+/652135",
@@ -14574,7 +16301,8 @@
             "ghsa": 3,
             "nvd": 3,
             "photon": 3,
-            "redhat": 2
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -14729,6 +16457,7 @@
             "https://security.netapp.com/advisory/ntap-20220923-0004/",
             "https://ubuntu.com/security/notices/USN-6038-1",
             "https://ubuntu.com/security/notices/USN-6038-2",
+            "https://ubuntu.com/security/notices/USN-8089-1",
             "https://www.cve.org/CVERecord?id=CVE-2022-27664"
           ],
           "PublishedDate": "2022-09-06T18:15:12.747Z",
@@ -14874,6 +16603,7 @@
             "https://security.netapp.com/advisory/ntap-20230331-0010/",
             "https://ubuntu.com/security/notices/USN-7109-1",
             "https://ubuntu.com/security/notices/USN-7111-1",
+            "https://ubuntu.com/security/notices/USN-8089-1",
             "https://vuln.go.dev/ID/GO-2023-1571.json",
             "https://www.couchbase.com/alerts",
             "https://www.couchbase.com/alerts/",
@@ -14957,7 +16687,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-39325",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-44487",
             "https://errata.almalinux.org/9/ALSA-2023-6077.html",
-            "https://errata.rockylinux.org/RLSA-2023:5863",
+            "https://errata.rockylinux.org/RLSA-2023:6077",
             "https://github.com/golang/go/commit/24ae2d927285c697440fdde3ad7f26028354bcf3 [golang- 1.21]",
             "https://github.com/golang/go/commit/e175f27f58aa7b9cd4d79607ae65d2cd5baaee68 [golang-1.20]",
             "https://github.com/golang/go/issues/63417",
@@ -15266,6 +16996,62 @@
           "LastModifiedDate": "2025-05-15T21:15:47.82Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-33186",
+          "VendorIDs": [
+            "GHSA-p77j-4mvh-x3m3"
+          ],
+          "PkgID": "google.golang.org/grpc@v1.28.1",
+          "PkgName": "google.golang.org/grpc",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/google.golang.org/grpc@v1.28.1",
+            "UID": "100133434f774a5"
+          },
+          "InstalledVersion": "v1.28.1",
+          "FixedVersion": "1.79.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:72268853310483439a79a34e64b5d1495fccd8db4a57ef563c229e6aa5fba239",
+            "DiffID": "sha256:37dd89ba9ef30e710eb8b7e0b44a60e130312bb4cd3fb1214199419745f879b9"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33186",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Go",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Ago"
+          },
+          "Fingerprint": "sha256:2efa6a70e6791177715053f4e9d80b9b1d51ae2bc5f8ac466e2bac354bd4a804",
+          "Title": "google.golang.org/grpc/grpc-go: google.golang.org/grpc/authz: gRPC-Go: Authorization bypass due to improper HTTP/2 path validation",
+          "Description": "gRPC-Go is the Go language implementation of gRPC. Versions prior to 1.79.3 have an authorization bypass resulting from improper input validation of the HTTP/2 `:path` pseudo-header. The gRPC-Go server was too lenient in its routing logic, accepting requests where the `:path` omitted the mandatory leading slash (e.g., `Service/Method` instead of `/Service/Method`). While the server successfully routed these requests to the correct handler, authorization interceptors (including the official `grpc/authz` package) evaluated the raw, non-canonical path string. Consequently, \"deny\" rules defined using canonical paths (starting with `/`) failed to match the incoming request, allowing it to bypass the policy if a fallback \"allow\" rule was present. This affects gRPC-Go servers that use path-based authorization interceptors, such as the official RBAC implementation in `google.golang.org/grpc/authz` or custom interceptors relying on `info.FullMethod` or `grpc.Method(ctx)`; AND that have a security policy contains specific \"deny\" rules for canonical paths but allows other requests by default (a fallback \"allow\" rule). The vulnerability is exploitable by an attacker who can send raw HTTP/2 frames with malformed `:path` headers directly to the gRPC server. The fix in version 1.79.3 ensures that any request with a `:path` that does not start with a leading slash is immediately rejected with a `codes.Unimplemented` error, preventing it from reaching authorization interceptors or handlers with a non-canonical path string. While upgrading is the most secure and recommended path, users can mitigate the vulnerability using one of the following methods: Use a validating interceptor (recommended mitigation); infrastructure-level normalization; and/or policy hardening.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-285"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33186",
+            "https://github.com/grpc/grpc-go",
+            "https://github.com/grpc/grpc-go/security/advisories/GHSA-p77j-4mvh-x3m3",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33186",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33186"
+          ],
+          "PublishedDate": "2026-03-20T23:16:45.18Z",
+          "LastModifiedDate": "2026-03-23T14:32:02.8Z"
+        },
+        {
           "VulnerabilityID": "GHSA-m425-mq94-257g",
           "PkgID": "google.golang.org/grpc@v1.28.1",
           "PkgName": "google.golang.org/grpc",
@@ -15558,7 +17344,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 4,
             "bitnami": 4,
             "cbl-mariner": 4,
@@ -15936,10 +17722,20 @@
             "https://bugzilla.redhat.com/2292787",
             "https://bugzilla.redhat.com/2295310",
             "https://bugzilla.redhat.com/2315719",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2237777",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2237778",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2279814",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2292787",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2295310",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2315719",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-39321",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-39322",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24788",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24790",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24791",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-9355",
             "https://errata.almalinux.org/9/ALSA-2025-7256.html",
-            "https://errata.rockylinux.org/RLSA-2024:8876",
+            "https://errata.rockylinux.org/RLSA-2025:7256",
             "https://github.com/golang/go/commit/051bdf3fd12a40307606ff9381138039c5f452f0 (1.21)",
             "https://github.com/golang/go/commit/12d5810cdb1f73cf23d7a86462143e9463317fca (1.22)",
             "https://github.com/golang/go/issues/67680",
@@ -15993,8 +17789,10 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
+            "azure": 2,
             "bitnami": 4,
+            "cbl-mariner": 2,
             "nvd": 4,
             "oracle-oval": 3,
             "photon": 4,
@@ -16016,25 +17814,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-68121",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/737700",
             "https://go.dev/issue/77217",
             "https://groups.google.com/g/golang-announce/c/K09ubi9FQFk",
             "https://linux.oracle.com/cve/CVE-2025-68121.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-68121",
             "https://pkg.go.dev/vuln/GO-2026-4337",
             "https://www.cve.org/CVERecord?id=CVE-2025-68121"
@@ -16432,7 +18226,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "bitnami": 3,
             "cbl-mariner": 3,
             "nvd": 3,
@@ -16524,6 +18318,7 @@
             "oracle-oval": 2,
             "photon": 3,
             "redhat": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -16543,11 +18338,32 @@
             }
           },
           "References": [
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-24675.json",
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-28327.json",
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-29526.json",
             "https://access.redhat.com/security/cve/CVE-2022-24675",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107342",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107371",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107374",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107376",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107383",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107386",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107388",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107390",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107392",
             "https://cert-portal.siemens.com/productcert/pdf/ssa-744259.pdf",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1705",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1962",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24675",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24921",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28131",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28327",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29526",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30629",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30630",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30631",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30632",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30633",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
+            "https://errata.rockylinux.org/RLSA-2022:5799",
             "https://go.dev/cl/399820",
             "https://go.dev/issue/51853",
             "https://go.googlesource.com/go/+/45c3387d777caf28f4b992ad9a6216e3085bb8fe",
@@ -16611,7 +18427,7 @@
             "oracle-oval": 3,
             "photon": 3,
             "redhat": 2,
-            "rocky": 2
+            "rocky": 3
           },
           "CVSS": {
             "bitnami": {
@@ -16631,15 +18447,31 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2022-24921",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2077688",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2077689",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2084085",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107342",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107371",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107374",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107376",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107383",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107386",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107388",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107390",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107392",
             "https://cert-portal.siemens.com/productcert/pdf/ssa-744259.pdf",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1705",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1962",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24675",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24921",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28131",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28327",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29526",
-            "https://errata.rockylinux.org/RLSA-2022:5337",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30629",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30630",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30631",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30632",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30633",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
+            "https://errata.rockylinux.org/RLSA-2022:5799",
             "https://go.dev/cl/384616",
             "https://go.dev/issue/51112",
             "https://go.googlesource.com/go/+/452f24ae94f38afa3704d4361d91d51218405c0a",
@@ -16775,6 +18607,7 @@
             "https://security.netapp.com/advisory/ntap-20220923-0004/",
             "https://ubuntu.com/security/notices/USN-6038-1",
             "https://ubuntu.com/security/notices/USN-6038-2",
+            "https://ubuntu.com/security/notices/USN-8089-1",
             "https://www.cve.org/CVERecord?id=CVE-2022-27664"
           ],
           "PublishedDate": "2022-09-06T18:15:12.747Z",
@@ -16821,7 +18654,7 @@
             "oracle-oval": 2,
             "photon": 3,
             "redhat": 2,
-            "rocky": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -16856,28 +18689,40 @@
             "https://bugzilla.redhat.com/2107388",
             "https://bugzilla.redhat.com/2107390",
             "https://bugzilla.redhat.com/2107392",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2044628",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2045880",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2085361",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050648",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050742",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2055349",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2065290",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2104367",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107342",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107371",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107374",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107376",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107383",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107386",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107388",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107390",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107392",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-23648",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1705",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1708",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1962",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21673",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21698",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21702",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21703",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21713",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28131",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30630",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30631",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30632",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30633",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2022-8057.html",
-            "https://errata.rockylinux.org/RLSA-2022:7529",
+            "https://errata.rockylinux.org/RLSA-2022:8057",
             "https://github.com/golang/go/commit/90f040ec510dd678b7860d70ca77e5682f4c7e96",
             "https://go.dev/cl/417062",
             "https://go.dev/issue/53614",
@@ -16931,6 +18776,7 @@
             "oracle-oval": 2,
             "photon": 3,
             "redhat": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -16950,11 +18796,32 @@
             }
           },
           "References": [
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-24675.json",
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-28327.json",
-            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2022-29526.json",
             "https://access.redhat.com/security/cve/CVE-2022-28327",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107342",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107371",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107374",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107376",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107383",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107386",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107388",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107390",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107392",
             "https://cert-portal.siemens.com/productcert/pdf/ssa-744259.pdf",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1705",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1962",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24675",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-24921",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28131",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28327",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29526",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30629",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30630",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30631",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30632",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30633",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
+            "https://errata.rockylinux.org/RLSA-2022:5799",
             "https://go.dev/cl/397135",
             "https://go.dev/issue/52075",
             "https://go.googlesource.com/go/+/37065847d87df92b5eb246c88ba2085efcf0b331",
@@ -17048,13 +18915,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132867",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132868",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132872",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2139718",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2149313",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2149311",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2879",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2880",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-41715",
             "https://errata.almalinux.org/9/ALSA-2023-2204.html",
-            "https://errata.rockylinux.org/RLSA-2023:0446",
+            "https://errata.rockylinux.org/RLSA-2023:0328",
             "https://github.com/golang/go/commit/0a723816cd205576945fa57fbdde7e6532d59d08 (go1.18.7)",
             "https://github.com/golang/go/commit/4fa773cdefd20be093c84f731be7d4febf5536fa (go1.19.2)",
             "https://github.com/golang/go/issues/54853",
@@ -17149,13 +19015,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132867",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132868",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132872",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2139718",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2149313",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2149311",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2879",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2880",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-41715",
             "https://errata.almalinux.org/9/ALSA-2023-2357.html",
-            "https://errata.rockylinux.org/RLSA-2023:0446",
+            "https://errata.rockylinux.org/RLSA-2023:0328",
             "https://github.com/golang/go/commit/9d2c73a9fd69e45876509bb3bdb2af99bf77da1e (go1.18.7)",
             "https://github.com/golang/go/commit/f6d844510d5f1e3b3098eba255d9b633d45eac3b (go1.19.2)",
             "https://github.com/golang/go/issues/54663",
@@ -17304,7 +19169,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2022-30580"
           ],
           "PublishedDate": "2022-08-10T20:15:40.227Z",
-          "LastModifiedDate": "2024-11-21T07:02:58.367Z"
+          "LastModifiedDate": "2026-03-06T18:16:11.913Z"
         },
         {
           "VulnerabilityID": "CVE-2022-30630",
@@ -17384,7 +19249,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2024-2180.html",
-            "https://errata.rockylinux.org/RLSA-2022:7648",
+            "https://errata.rockylinux.org/RLSA-2022:8250",
             "https://github.com/golang/go/commit/315e80d293b684ac2902819e58f618f1b5a14d49 (1.18)",
             "https://go.dev/cl/417065",
             "https://go.dev/issue/53415",
@@ -17399,7 +19264,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2022-30630"
           ],
           "PublishedDate": "2022-08-10T20:15:40.977Z",
-          "LastModifiedDate": "2024-11-21T07:03:03.843Z"
+          "LastModifiedDate": "2026-03-06T18:16:13.45Z"
         },
         {
           "VulnerabilityID": "CVE-2022-30631",
@@ -17479,7 +19344,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2024-2180.html",
-            "https://errata.rockylinux.org/RLSA-2022:7648",
+            "https://errata.rockylinux.org/RLSA-2022:8250",
             "https://github.com/golang/go/commit/8e27a8ac4c001c27713810b75925aa3794049c48 (1.18)",
             "https://go.dev/cl/417067",
             "https://go.dev/issue/53168",
@@ -17574,7 +19439,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2024-2180.html",
-            "https://errata.rockylinux.org/RLSA-2022:7648",
+            "https://errata.rockylinux.org/RLSA-2022:8250",
             "https://github.com/golang/go/commit/5ebd862b1714dad1544bd10a24c47cdb53ad7f46 (1.18)",
             "https://go.dev/cl/417066",
             "https://go.dev/issue/53416",
@@ -17632,7 +19497,7 @@
             "oracle-oval": 2,
             "photon": 3,
             "redhat": 2,
-            "rocky": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -17667,28 +19532,40 @@
             "https://bugzilla.redhat.com/2107388",
             "https://bugzilla.redhat.com/2107390",
             "https://bugzilla.redhat.com/2107392",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2044628",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2045880",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2085361",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050648",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050742",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2050743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2055349",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2065290",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2104367",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107342",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107371",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107374",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107376",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107383",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107386",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2107388",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107390",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2107392",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-23648",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1705",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1708",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1962",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21673",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21698",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21702",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21703",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-21713",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28131",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30630",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30631",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30632",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30633",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2022-8057.html",
-            "https://errata.rockylinux.org/RLSA-2022:7529",
+            "https://errata.rockylinux.org/RLSA-2022:8057",
             "https://github.com/golang/go/commit/2924ced71d16297320e8ff18829c2038e6ad8d9b (1.18)",
             "https://go.dev/cl/417061",
             "https://go.dev/issue/53611",
@@ -17703,7 +19580,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2022-30633"
           ],
           "PublishedDate": "2022-08-10T20:15:42.21Z",
-          "LastModifiedDate": "2024-11-21T07:03:04.227Z"
+          "LastModifiedDate": "2026-03-06T18:16:13.833Z"
         },
         {
           "VulnerabilityID": "CVE-2022-30634",
@@ -17851,7 +19728,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30635",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32148",
             "https://errata.almalinux.org/9/ALSA-2023-2357.html",
-            "https://errata.rockylinux.org/RLSA-2022:7648",
+            "https://errata.rockylinux.org/RLSA-2022:8250",
             "https://github.com/golang/go/commit/fb979a50823e5a0575cf6166b3f17a13364cbf81 (1.18)",
             "https://go.dev/cl/417064",
             "https://go.dev/issue/53615",
@@ -17866,7 +19743,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2022-30635"
           ],
           "PublishedDate": "2022-08-10T20:15:42.64Z",
-          "LastModifiedDate": "2024-11-21T07:03:04.467Z"
+          "LastModifiedDate": "2026-03-06T18:16:14.177Z"
         },
         {
           "VulnerabilityID": "CVE-2022-32189",
@@ -17936,17 +19813,21 @@
             "https://bugzilla.redhat.com/2132868",
             "https://bugzilla.redhat.com/2132872",
             "https://bugzilla.redhat.com/2161274",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2059867",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2059868",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2060063",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2062694",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2065734",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2104464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2059869",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2059870",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2060061",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2062597",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2064087",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2088459",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2105961",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2110864",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2113814",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2118829",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2118831",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2123055",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2123210",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-32189",
             "https://errata.almalinux.org/9/ALSA-2023-2357.html",
-            "https://errata.rockylinux.org/RLSA-2022:7548",
+            "https://errata.rockylinux.org/RLSA-2022:7950",
             "https://github.com/golang/go/commit/9240558e4f342fc6e98fec22de17c04b45089349 (1.18)",
             "https://go.dev/cl/417774",
             "https://go.dev/issue/53871",
@@ -18026,13 +19907,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132867",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132868",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2132872",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2139718",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2149313",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2149311",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2879",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-2880",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-41715",
             "https://errata.almalinux.org/9/ALSA-2023-2592.html",
-            "https://errata.rockylinux.org/RLSA-2023:0446",
+            "https://errata.rockylinux.org/RLSA-2023:0328",
             "https://github.com/golang/go/commit/645abfe529dc325e16daa17210640c2907d1c17a (go1.19.2)",
             "https://github.com/golang/go/commit/e9017c2416ad0ef642f5e0c2eab2dbf3cba4d997 (go1.18.7)",
             "https://github.com/golang/go/issues/55949",
@@ -18385,6 +20265,7 @@
             "https://security.netapp.com/advisory/ntap-20230331-0010/",
             "https://ubuntu.com/security/notices/USN-7109-1",
             "https://ubuntu.com/security/notices/USN-7111-1",
+            "https://ubuntu.com/security/notices/USN-8089-1",
             "https://vuln.go.dev/ID/GO-2023-1571.json",
             "https://www.couchbase.com/alerts",
             "https://www.couchbase.com/alerts/",
@@ -19471,7 +21352,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-39325",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-44487",
             "https://errata.almalinux.org/9/ALSA-2023-6077.html",
-            "https://errata.rockylinux.org/RLSA-2023:5863",
+            "https://errata.rockylinux.org/RLSA-2023:6077",
             "https://github.com/golang/go/commit/24ae2d927285c697440fdde3ad7f26028354bcf3 [golang- 1.21]",
             "https://github.com/golang/go/commit/e175f27f58aa7b9cd4d79607ae65d2cd5baaee68 [golang-1.20]",
             "https://github.com/golang/go/issues/63417",
@@ -19814,7 +21695,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-45290",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24783",
             "https://errata.almalinux.org/9/ALSA-2024-2724.html",
-            "https://errata.rockylinux.org/RLSA-2024:3346",
+            "https://errata.rockylinux.org/RLSA-2024:2724",
             "https://go.dev/cl/576155",
             "https://go.dev/issue/65051",
             "https://groups.google.com/g/golang-announce/c/YgW0sx8mN3M",
@@ -19890,16 +21771,16 @@
             "https://access.redhat.com/errata/RHSA-2025:3773",
             "https://access.redhat.com/security/cve/CVE-2024-34156",
             "https://bugzilla.redhat.com/2310528",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2268017",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2310527",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2310528",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2310529",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-45290",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-34155",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2341750",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2341751",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2344219",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-34156",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-34158",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-45336",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-45341",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-22866",
             "https://errata.almalinux.org/9/ALSA-2025-3773.html",
-            "https://errata.rockylinux.org/RLSA-2024:8038",
+            "https://errata.rockylinux.org/RLSA-2025:3773",
             "https://github.com/golang/go/commit/2092294f2b097c5828f4eace6c98a322c1510b01 (go1.22.7)",
             "https://github.com/golang/go/commit/fa8ff1a46deb6c816304441ec6740ec112e19012 (go1.23.1)",
             "https://go.dev/cl/611239",
@@ -20046,7 +21927,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2407258",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58183",
             "https://errata.almalinux.org/9/ALSA-2026-1381.html",
-            "https://errata.rockylinux.org/RLSA-2025:23948",
+            "https://errata.rockylinux.org/RLSA-2025:23326",
             "https://go.dev/cl/709861",
             "https://go.dev/issue/75677",
             "https://groups.google.com/g/golang-announce/c/4Emdl2iQ_bI",
@@ -20092,7 +21973,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 3,
             "cbl-mariner": 2,
@@ -20112,25 +21993,21 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:4177",
             "https://access.redhat.com/security/cve/CVE-2025-61726",
-            "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-4177.html",
+            "https://errata.rockylinux.org/RLSA-2026:4177",
             "https://go.dev/cl/736712",
             "https://go.dev/issue/77101",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61726.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3343.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61726",
             "https://pkg.go.dev/vuln/GO-2026-4341",
             "https://www.cve.org/CVERecord?id=CVE-2025-61726"
@@ -20171,7 +22048,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 2,
             "bitnami": 2,
             "oracle-oval": 3,
@@ -20191,25 +22068,27 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/01/15/4",
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3753",
             "https://access.redhat.com/security/cve/CVE-2025-61728",
             "https://bugzilla.redhat.com/2418462",
             "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434431",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61728",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3188",
+            "https://errata.almalinux.org/9/ALSA-2026-3753.html",
+            "https://errata.rockylinux.org/RLSA-2026:3337",
             "https://go.dev/cl/736713",
             "https://go.dev/issue/77102",
             "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
             "https://linux.oracle.com/cve/CVE-2025-61728.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3337.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4672.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61728",
             "https://pkg.go.dev/vuln/GO-2026-4342",
             "https://www.cve.org/CVERecord?id=CVE-2025-61728"
@@ -20251,6 +22130,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 3,
             "bitnami": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -20268,25 +22148,24 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:3337",
+            "https://access.redhat.com/errata/RHSA-2026:3928",
             "https://access.redhat.com/security/cve/CVE-2025-61729",
             "https://bugzilla.redhat.com/2418462",
-            "https://bugzilla.redhat.com/2434431",
             "https://bugzilla.redhat.com/2434432",
             "https://bugzilla.redhat.com/2437111",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2268022",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2418462",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2418900",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24785",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2434432",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2437111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61726",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61729",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-65637",
-            "https://errata.almalinux.org/9/ALSA-2026-3337.html",
-            "https://errata.rockylinux.org/RLSA-2026:3428",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68121",
+            "https://errata.almalinux.org/9/ALSA-2026-3928.html",
+            "https://errata.rockylinux.org/RLSA-2026:3928",
             "https://go.dev/cl/725920",
             "https://go.dev/issue/76445",
             "https://groups.google.com/g/golang-announce/c/8FJoBkPddm4",
             "https://linux.oracle.com/cve/CVE-2025-61729.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3428.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5146.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61729",
             "https://pkg.go.dev/vuln/GO-2025-4155",
             "https://www.cve.org/CVERecord?id=CVE-2025-61729"
@@ -20295,9 +22174,9 @@
           "LastModifiedDate": "2025-12-19T18:25:28.283Z"
         },
         {
-          "VulnerabilityID": "CVE-2025-61730",
+          "VulnerabilityID": "CVE-2026-25679",
           "VendorIDs": [
-            "GO-2026-4340"
+            "GO-2026-4601"
           ],
           "PkgID": "stdlib@v1.16.7",
           "PkgName": "stdlib",
@@ -20306,49 +22185,64 @@
             "UID": "3742d9a2bdff4527"
           },
           "InstalledVersion": "v1.16.7",
-          "FixedVersion": "1.24.12, 1.25.6",
+          "FixedVersion": "1.25.8, 1.26.1",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:72268853310483439a79a34e64b5d1495fccd8db4a57ef563c229e6aa5fba239",
             "DiffID": "sha256:37dd89ba9ef30e710eb8b7e0b44a60e130312bb4cd3fb1214199419745f879b9"
           },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-61730",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25679",
           "DataSource": {
             "ID": "govulndb",
             "Name": "The Go Vulnerability Database",
             "URL": "https://pkg.go.dev/vuln/"
           },
-          "Fingerprint": "sha256:8de5c84190f6d751119b1febe02f28082fadc391cb22cc9172f2e39ab9c483c2",
-          "Title": "During the TLS 1.3 handshake if multiple messages are sent in records  ...",
-          "Description": "During the TLS 1.3 handshake if multiple messages are sent in records that span encryption level boundaries (for instance the Client Hello and Encrypted Extensions messages), the subsequent messages may be processed before the encryption level changes. This can cause some minor information disclosure if a network-local attacker can inject messages during the handshake.",
+          "Fingerprint": "sha256:5248ff84c001c7eac1b7a47af28fc5cf4dfd57835550e42d4b7c2fb79170fc12",
+          "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
+          "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
           "VendorSeverity": {
-            "amazon": 3,
-            "bitnami": 2,
-            "photon": 2
+            "alma": 3,
+            "amazon": 2,
+            "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3
           },
           "CVSS": {
             "bitnami": {
-              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
-              "V3Score": 5.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
-            "https://go.dev/cl/724120",
-            "https://go.dev/issue/76443",
-            "https://groups.google.com/g/golang-announce/c/Vd2tYVM8eUc",
-            "https://nvd.nist.gov/vuln/detail/CVE-2025-61730",
-            "https://pkg.go.dev/vuln/GO-2026-4340"
+            "https://access.redhat.com/errata/RHSA-2026:5942",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2434433",
+            "https://bugzilla.redhat.com/2445356",
+            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
           ],
-          "PublishedDate": "2026-01-28T20:16:09.94Z",
-          "LastModifiedDate": "2026-02-03T20:36:41.3Z"
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
         }
       ],
-      "vulnerability_count": 209
+      "vulnerability_count": 213
     }
   },
   "summary": {
-    "total_versions_scanned": 3,
-    "total_vulnerabilities": 269
+    "total_versions_scanned": 4,
+    "total_vulnerabilities": 296
   }
 }
