@@ -1,55 +1,11 @@
 {
   "tool": "gatk4",
-  "scan_timestamp": "2026-03-02T04:15:45Z",
-  "workflow_run_id": "22560860766",
+  "scan_timestamp": "2026-04-01T05:09:05Z",
+  "workflow_run_id": "23832520682",
   "versions": {
     "4.6.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.6.2.0",
       "vulnerabilities": [
-        {
-          "VulnerabilityID": "GHSA-72hv-8253-57qq",
-          "PkgName": "com.fasterxml.jackson.core:jackson-core",
-          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
-          "PkgIdentifier": {
-            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.17.2",
-            "UID": "ab50e78e9ac7591d"
-          },
-          "InstalledVersion": "2.17.2",
-          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
-          "Status": "fixed",
-          "Layer": {
-            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
-            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
-          },
-          "SeveritySource": "ghsa",
-          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
-          "DataSource": {
-            "ID": "ghsa",
-            "Name": "GitHub Security Advisory Maven",
-            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
-          },
-          "Fingerprint": "sha256:73f5acf80ab66e1de26d7ecbd1e5032fb0e725bf4ac09e017b9c7c1a66febcc5",
-          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
-          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
-          "Severity": "HIGH",
-          "VendorSeverity": {
-            "ghsa": 3
-          },
-          "CVSS": {
-            "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.7
-            }
-          },
-          "References": [
-            "https://github.com/FasterXML/jackson-core",
-            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
-            "https://github.com/FasterXML/jackson-core/issues/1538",
-            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
-          ],
-          "PublishedDate": "2026-02-28T02:01:05Z",
-          "LastModifiedDate": "2026-02-28T02:01:06Z"
-        },
         {
           "VulnerabilityID": "CVE-2021-22569",
           "VendorIDs": [
@@ -445,12 +401,17 @@
             "CWE-201"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "nvd": 3
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
             }
           },
           "References": [
@@ -463,7 +424,66 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
           "PublishedDate": "2025-12-12T23:15:42.067Z",
-          "LastModifiedDate": "2025-12-15T18:22:40.637Z"
+          "LastModifiedDate": "2026-03-17T19:40:07.64Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33870",
+          "VendorIDs": [
+            "GHSA-pwqr-wmgm-9rr8"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "c0f630479c90e64c"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.1.132.Final, 4.2.10.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33870",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:7896e82550fdd298442f52c4560e7ac36eda5d2b0800ed0de676d2d833457c02",
+          "Title": "io.netty/netty-codec-http: Netty: Request smuggling via incorrect parsing of HTTP/1.1 chunked transfer encoding extension values",
+          "Description": "Netty is an asynchronous, event-driven network application framework. In versions prior to 4.1.132.Final and 4.2.10.Final, Netty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks. Versions 4.1.132.Final and 4.2.10.Final fix the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33870",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-pwqr-wmgm-9rr8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33870",
+            "https://w4ke.info/2025/06/18/funky-chunks.html",
+            "https://w4ke.info/2025/10/29/funky-chunks-2.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33870",
+            "https://www.rfc-editor.org/rfc/rfc9110"
+          ],
+          "PublishedDate": "2026-03-27T20:16:34.663Z",
+          "LastModifiedDate": "2026-03-30T20:12:16.33Z"
         },
         {
           "VulnerabilityID": "CVE-2025-55163",
@@ -532,6 +552,67 @@
           ],
           "PublishedDate": "2025-08-13T15:15:39.39Z",
           "LastModifiedDate": "2025-11-04T22:16:30.293Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33871",
+          "VendorIDs": [
+            "GHSA-w9fj-cfpg-grvv"
+          ],
+          "PkgName": "io.netty:netty-codec-http2",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http2@4.1.118.Final",
+            "UID": "29c4d3ee10eac5f4"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.1.132.Final, 4.2.11.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33871",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:79e5f76f3d915794934395d1ddfc9cfac4ce5439142a3107bbae494ce34120c0",
+          "Title": "netty: Netty: Denial of Service via HTTP/2 CONTINUATION frame flood",
+          "Description": "Netty is an asynchronous, event-driven network application framework. In versions prior to 4.1.132.Final and 4.2.10.Final, a remote user can trigger a Denial of Service (DoS) against a Netty HTTP/2 server by sending a flood of `CONTINUATION` frames. The server's lack of a limit on the number of `CONTINUATION` frames, combined with a bypass of existing size-based mitigations using zero-byte frames, allows an user to cause excessive CPU consumption with minimal bandwidth, rendering the server unresponsive. Versions 4.1.132.Final and 4.2.10.Final fix the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33871",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-w9fj-cfpg-grvv",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33871",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33871"
+          ],
+          "PublishedDate": "2026-03-27T20:16:34.833Z",
+          "LastModifiedDate": "2026-03-30T20:10:17.62Z"
         },
         {
           "VulnerabilityID": "CVE-2021-31684",
@@ -679,6 +760,71 @@
           "LastModifiedDate": "2025-02-13T17:15:58.22Z"
         },
         {
+          "VulnerabilityID": "CVE-2025-54920",
+          "VendorIDs": [
+            "GHSA-jwp6-cvj8-fw65"
+          ],
+          "PkgName": "org.apache.spark:spark-core_2.13",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.spark/spark-core_2.13@3.5.0",
+            "UID": "3e48a0bad02dbf35"
+          },
+          "InstalledVersion": "3.5.0",
+          "FixedVersion": "4.0.1, 3.5.7",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-54920",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b16a7afcee067bd3cd768511792f2d29c7c9f37462f014e26dfaa9679abf1435",
+          "Title": "org.apache.spark/spark-core: Apache Spark: Spark History Server Code Execution Vulnerability",
+          "Description": "This issue affects Apache Spark: before 3.5.7 and 4.0.1. Users are recommended to upgrade to version 3.5.7 or 4.0.1 and above, which fixes the issue.\n\n\n\n\n\nSummary\n\nApache Spark 3.5.4 and earlier versions contain a code execution vulnerability in the Spark History Web UI due to overly permissive Jackson deserialization of event log data. This allows an attacker with access to the Spark event logs directory to inject malicious JSON payloads that trigger deserialization of arbitrary classes, enabling command execution on the host running the Spark History Server.\n\n\n\n\n\nDetails\n\nThe vulnerability arises because the Spark History Server uses Jackson polymorphic deserialization with @JsonTypeInfo.Id.CLASS on SparkListenerEvent objects, allowing an attacker to specify arbitrary class names in the event JSON. This behavior permits instantiating unintended classes, such as org.apache.hive.jdbc.HiveConnection, which can perform network calls or other malicious actions during deserialization.\n\n\nThe attacker can exploit this by injecting crafted JSON content into the Spark event log files, which the History Server then deserializes on startup or when loading event logs. For example, the attacker can force the History Server to open a JDBC connection to a remote attacker-controlled server, demonstrating remote command injection capability.\n\n\n\n\n\n\nProof of Concept:\n\n1. Run Spark with event logging enabled, writing to a writable directory (spark-logs).\n\n2. Inject the following JSON at the beginning of an event log file:\n\n\n{\n\n  \"Event\": \"org.apache.hive.jdbc.HiveConnection\",\n  \"uri\": \"jdbc:hive2://<IP>:<PORT>/\",\n  \"info\": {\n    \"hive.metastore.uris\": \"thrift://<IP>:<PORT>\"\n  }\n}\n\n\n\n\n\n\n\n3. Start the Spark History Server with logs pointing to the modified directory.\n\n4. The Spark History Server initiates a JDBC connection to the attacker’s server, confirming the injection.\n\n\n\n\n\n\n\n\n\n\nImpact\n\nAn attacker with write access to Spark event logs can execute arbitrary code on the server running the History Server, potentially compromising the entire system.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+              "V3Score": 6.7
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/13/4",
+            "https://access.redhat.com/security/cve/CVE-2025-54920",
+            "https://github.com/apache/spark",
+            "https://github.com/apache/spark/pull/51312",
+            "https://github.com/apache/spark/pull/51323",
+            "https://issues.apache.org/jira/browse/SPARK-52381",
+            "https://lists.apache.org/thread/4y9n0nfj7m68o2hpmoxgc0y7dm1lo02s",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-54920",
+            "https://www.cve.org/CVERecord?id=CVE-2025-54920"
+          ],
+          "PublishedDate": "2026-03-16T14:17:59.877Z",
+          "LastModifiedDate": "2026-03-20T19:16:45.837Z"
+        },
+        {
           "VulnerabilityID": "CVE-2024-51504",
           "VendorIDs": [
             "GHSA-g93m-8x6h-g5gv"
@@ -743,6 +889,145 @@
           "LastModifiedDate": "2025-06-24T12:27:49.96Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-24281",
+          "VendorIDs": [
+            "GHSA-7xrh-hqfc-g7qr"
+          ],
+          "PkgName": "org.apache.zookeeper:zookeeper",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.zookeeper/zookeeper@3.9.2",
+            "UID": "4fe4bf878c75419b"
+          },
+          "InstalledVersion": "3.9.2",
+          "FixedVersion": "3.8.6, 3.9.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24281",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:27d18303d4e3dd4275b5515542e6e3dbcf19f41c27d89636b397007b83452587",
+          "Title": "Apache ZooKeeper: Apache ZooKeeper: Impersonation of servers or clients via reverse DNS spoofing",
+          "Description": "Hostname verification in Apache ZooKeeper ZKTrustManager falls back to reverse DNS (PTR) when IP SAN validation fails, allowing attackers who control or spoof PTR records to impersonate ZooKeeper servers or clients with a valid certificate for the PTR name. It's important to note that attacker must present a certificate which is trusted by ZKTrustManager which makes the attack vector harder to exploit. Users are recommended to upgrade to version 3.8.6 or 3.9.5, which fixes this issue by introducing a new configuration option to disable reverse DNS lookup in client and quorum protocols.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-350"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/07/4",
+            "https://access.redhat.com/security/cve/CVE-2026-24281",
+            "https://github.com/apache/zookeeper",
+            "https://github.com/apache/zookeeper/commit/66c4efecdda1302d9cfb3af9eedb122b74452bf3",
+            "https://issues.apache.org/jira/browse/ZOOKEEPER-4986",
+            "https://lists.apache.org/thread/088ddsbrzhd5lxzbqf5n24yg0mwh9jt2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24281",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24281"
+          ],
+          "PublishedDate": "2026-03-07T09:16:07.437Z",
+          "LastModifiedDate": "2026-03-10T18:18:17.727Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-24308",
+          "VendorIDs": [
+            "GHSA-crhr-qqj8-rpxc"
+          ],
+          "PkgName": "org.apache.zookeeper:zookeeper",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.zookeeper/zookeeper@3.9.2",
+            "UID": "4fe4bf878c75419b"
+          },
+          "InstalledVersion": "3.9.2",
+          "FixedVersion": "3.9.5, 3.8.6",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24308",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:d1817bdd7d85efe216dd69ca9766592004a5e94e443038390ac5cae7ecd31053",
+          "Title": "Apache ZooKeeper: Apache ZooKeeper: Information disclosure via improper handling of configuration values",
+          "Description": "Improper handling of configuration values in ZKConfig in Apache ZooKeeper 3.8.5 and 3.9.4 on all platforms allows an attacker to expose sensitive information stored in client configuration in the client's logfile. Configuration values are exposed at INFO level logging rendering potential production systems affected by the issue. Users are recommended to upgrade to version 3.8.6 or 3.9.5 which fixes this issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-532"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+              "V3Score": 3.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/07/5",
+            "https://access.redhat.com/security/cve/CVE-2026-24308",
+            "https://github.com/apache/zookeeper",
+            "https://github.com/apache/zookeeper/releases/tag/release-3.8.6",
+            "https://github.com/apache/zookeeper/releases/tag/release-3.9.5",
+            "https://lists.apache.org/thread/qng3rtzv2pqkmko4rhv85jfplkyrgqdr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24308",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24308"
+          ],
+          "PublishedDate": "2026-03-07T09:16:07.66Z",
+          "LastModifiedDate": "2026-03-10T18:18:27.79Z"
+        },
+        {
           "VulnerabilityID": "CVE-2024-13009",
           "VendorIDs": [
             "GHSA-q4rv-gq96-w7c5"
@@ -800,55 +1085,11 @@
           "LastModifiedDate": "2025-07-31T16:31:12.697Z"
         }
       ],
-      "vulnerability_count": 12
+      "vulnerability_count": 16
     },
     "4.5.0.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.5.0.0",
       "vulnerabilities": [
-        {
-          "VulnerabilityID": "GHSA-72hv-8253-57qq",
-          "PkgName": "com.fasterxml.jackson.core:jackson-core",
-          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
-          "PkgIdentifier": {
-            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.0",
-            "UID": "1fe3d4f399d8c23b"
-          },
-          "InstalledVersion": "2.16.0",
-          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
-          "Status": "fixed",
-          "Layer": {
-            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
-            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
-          },
-          "SeveritySource": "ghsa",
-          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
-          "DataSource": {
-            "ID": "ghsa",
-            "Name": "GitHub Security Advisory Maven",
-            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
-          },
-          "Fingerprint": "sha256:2e8ce3f30d7ad8acb8e32e826a77d0bef691f6f52f330e7569e8773e83f3b0c0",
-          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
-          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
-          "Severity": "HIGH",
-          "VendorSeverity": {
-            "ghsa": 3
-          },
-          "CVSS": {
-            "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.7
-            }
-          },
-          "References": [
-            "https://github.com/FasterXML/jackson-core",
-            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
-            "https://github.com/FasterXML/jackson-core/issues/1538",
-            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
-          ],
-          "PublishedDate": "2026-02-28T02:01:05Z",
-          "LastModifiedDate": "2026-02-28T02:01:06Z"
-        },
         {
           "VulnerabilityID": "CVE-2021-22569",
           "VendorIDs": [
@@ -1490,12 +1731,17 @@
             "CWE-201"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "nvd": 3
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
             }
           },
           "References": [
@@ -1508,7 +1754,66 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
           "PublishedDate": "2025-12-12T23:15:42.067Z",
-          "LastModifiedDate": "2025-12-15T18:22:40.637Z"
+          "LastModifiedDate": "2026-03-17T19:40:07.64Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33870",
+          "VendorIDs": [
+            "GHSA-pwqr-wmgm-9rr8"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.96.Final",
+            "UID": "9bdc5a1ab34a8447"
+          },
+          "InstalledVersion": "4.1.96.Final",
+          "FixedVersion": "4.1.132.Final, 4.2.10.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33870",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:c78ebd22f9cd1948e48b7851908ff3e4c36bf8b621ba59f9b123a6426d159b7f",
+          "Title": "io.netty/netty-codec-http: Netty: Request smuggling via incorrect parsing of HTTP/1.1 chunked transfer encoding extension values",
+          "Description": "Netty is an asynchronous, event-driven network application framework. In versions prior to 4.1.132.Final and 4.2.10.Final, Netty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks. Versions 4.1.132.Final and 4.2.10.Final fix the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33870",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-pwqr-wmgm-9rr8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33870",
+            "https://w4ke.info/2025/06/18/funky-chunks.html",
+            "https://w4ke.info/2025/10/29/funky-chunks-2.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33870",
+            "https://www.rfc-editor.org/rfc/rfc9110"
+          ],
+          "PublishedDate": "2026-03-27T20:16:34.663Z",
+          "LastModifiedDate": "2026-03-30T20:12:16.33Z"
         },
         {
           "VulnerabilityID": "CVE-2025-55163",
@@ -1577,6 +1882,67 @@
           ],
           "PublishedDate": "2025-08-13T15:15:39.39Z",
           "LastModifiedDate": "2025-11-04T22:16:30.293Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33871",
+          "VendorIDs": [
+            "GHSA-w9fj-cfpg-grvv"
+          ],
+          "PkgName": "io.netty:netty-codec-http2",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http2@4.1.96.Final",
+            "UID": "55413c37fc6145fe"
+          },
+          "InstalledVersion": "4.1.96.Final",
+          "FixedVersion": "4.1.132.Final, 4.2.11.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33871",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:aec2367ab10b862d963bd655b43cec2cc2655addba4e532f536266a47834a8c8",
+          "Title": "netty: Netty: Denial of Service via HTTP/2 CONTINUATION frame flood",
+          "Description": "Netty is an asynchronous, event-driven network application framework. In versions prior to 4.1.132.Final and 4.2.10.Final, a remote user can trigger a Denial of Service (DoS) against a Netty HTTP/2 server by sending a flood of `CONTINUATION` frames. The server's lack of a limit on the number of `CONTINUATION` frames, combined with a bypass of existing size-based mitigations using zero-byte frames, allows an user to cause excessive CPU consumption with minimal bandwidth, rendering the server unresponsive. Versions 4.1.132.Final and 4.2.10.Final fix the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33871",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-w9fj-cfpg-grvv",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33871",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33871"
+          ],
+          "PublishedDate": "2026-03-27T20:16:34.833Z",
+          "LastModifiedDate": "2026-03-30T20:10:17.62Z"
         },
         {
           "VulnerabilityID": "GHSA-xpw8-rcwv-8f8p",
@@ -1717,7 +2083,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -2174,7 +2540,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -2737,6 +3103,71 @@
           "LastModifiedDate": "2025-04-02T22:15:19.203Z"
         },
         {
+          "VulnerabilityID": "CVE-2025-54920",
+          "VendorIDs": [
+            "GHSA-jwp6-cvj8-fw65"
+          ],
+          "PkgName": "org.apache.spark:spark-core_2.12",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.spark/spark-core_2.12@3.5.0",
+            "UID": "7655779c9b9d1b9b"
+          },
+          "InstalledVersion": "3.5.0",
+          "FixedVersion": "3.5.7",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-54920",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:9821ce1e543775075c5a0a169940fe3510f5824e1af1f89caf0a5c9866f7a530",
+          "Title": "org.apache.spark/spark-core: Apache Spark: Spark History Server Code Execution Vulnerability",
+          "Description": "This issue affects Apache Spark: before 3.5.7 and 4.0.1. Users are recommended to upgrade to version 3.5.7 or 4.0.1 and above, which fixes the issue.\n\n\n\n\n\nSummary\n\nApache Spark 3.5.4 and earlier versions contain a code execution vulnerability in the Spark History Web UI due to overly permissive Jackson deserialization of event log data. This allows an attacker with access to the Spark event logs directory to inject malicious JSON payloads that trigger deserialization of arbitrary classes, enabling command execution on the host running the Spark History Server.\n\n\n\n\n\nDetails\n\nThe vulnerability arises because the Spark History Server uses Jackson polymorphic deserialization with @JsonTypeInfo.Id.CLASS on SparkListenerEvent objects, allowing an attacker to specify arbitrary class names in the event JSON. This behavior permits instantiating unintended classes, such as org.apache.hive.jdbc.HiveConnection, which can perform network calls or other malicious actions during deserialization.\n\n\nThe attacker can exploit this by injecting crafted JSON content into the Spark event log files, which the History Server then deserializes on startup or when loading event logs. For example, the attacker can force the History Server to open a JDBC connection to a remote attacker-controlled server, demonstrating remote command injection capability.\n\n\n\n\n\n\nProof of Concept:\n\n1. Run Spark with event logging enabled, writing to a writable directory (spark-logs).\n\n2. Inject the following JSON at the beginning of an event log file:\n\n\n{\n\n  \"Event\": \"org.apache.hive.jdbc.HiveConnection\",\n  \"uri\": \"jdbc:hive2://<IP>:<PORT>/\",\n  \"info\": {\n    \"hive.metastore.uris\": \"thrift://<IP>:<PORT>\"\n  }\n}\n\n\n\n\n\n\n\n3. Start the Spark History Server with logs pointing to the modified directory.\n\n4. The Spark History Server initiates a JDBC connection to the attacker’s server, confirming the injection.\n\n\n\n\n\n\n\n\n\n\nImpact\n\nAn attacker with write access to Spark event logs can execute arbitrary code on the server running the History Server, potentially compromising the entire system.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+              "V3Score": 6.7
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/13/4",
+            "https://access.redhat.com/security/cve/CVE-2025-54920",
+            "https://github.com/apache/spark",
+            "https://github.com/apache/spark/pull/51312",
+            "https://github.com/apache/spark/pull/51323",
+            "https://issues.apache.org/jira/browse/SPARK-52381",
+            "https://lists.apache.org/thread/4y9n0nfj7m68o2hpmoxgc0y7dm1lo02s",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-54920",
+            "https://www.cve.org/CVERecord?id=CVE-2025-54920"
+          ],
+          "PublishedDate": "2026-03-16T14:17:59.877Z",
+          "LastModifiedDate": "2026-03-20T19:16:45.837Z"
+        },
+        {
           "VulnerabilityID": "CVE-2023-44981",
           "VendorIDs": [
             "GHSA-7286-pgfv-vxvh"
@@ -3206,7 +3637,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -3292,7 +3723,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -3373,7 +3804,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3388,7 +3819,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 34
+      "vulnerability_count": 36
     },
     "4.2.6.1": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.2.6.1",
@@ -3450,7 +3881,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2374804",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-52999",
             "https://errata.almalinux.org/9/ALSA-2025-12280.html",
-            "https://errata.rockylinux.org/RLSA-2025:14126",
+            "https://errata.rockylinux.org/RLSA-2025:12280",
             "https://github.com/FasterXML/jackson-core",
             "https://github.com/FasterXML/jackson-core/pull/943",
             "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-h46c-h94j-95f3",
@@ -3461,50 +3892,6 @@
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
           "LastModifiedDate": "2025-06-26T18:57:43.67Z"
-        },
-        {
-          "VulnerabilityID": "GHSA-72hv-8253-57qq",
-          "PkgName": "com.fasterxml.jackson.core:jackson-core",
-          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
-          "PkgIdentifier": {
-            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.13.1",
-            "UID": "ef5f5dcf236c395c"
-          },
-          "InstalledVersion": "2.13.1",
-          "FixedVersion": "2.18.6, 2.21.1, 3.1.0",
-          "Status": "fixed",
-          "Layer": {
-            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
-            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
-          },
-          "SeveritySource": "ghsa",
-          "PrimaryURL": "https://github.com/advisories/GHSA-72hv-8253-57qq",
-          "DataSource": {
-            "ID": "ghsa",
-            "Name": "GitHub Security Advisory Maven",
-            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
-          },
-          "Fingerprint": "sha256:1e7a197bbbb0f0025d96c969fe7b720976bd383527669fa1446a10678ce56d00",
-          "Title": "jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition",
-          "Description": "### Summary\nThe non-blocking (async) JSON parser in `jackson-core` bypasses the `maxNumberLength` constraint (default: 1000 characters) defined in `StreamReadConstraints`. This allows an attacker to send JSON with arbitrarily long numbers through the async parser API, leading to excessive memory allocation and potential CPU exhaustion, resulting in a Denial of Service (DoS).\n\nThe standard synchronous parser correctly enforces this limit, but the async parser fails to do so, creating an inconsistent enforcement policy.\n\n### Details\nThe root cause is that the async parsing path in `NonBlockingUtf8JsonParserBase` (and related classes) does not call the methods responsible for number length validation.\n\n- The number parsing methods (e.g., `_finishNumberIntegralPart`) accumulate digits into the `TextBuffer` without any length checks.\n- After parsing, they call `_valueComplete()`, which finalizes the token but does **not** call `resetInt()` or `resetFloat()`.\n- The `resetInt()`/`resetFloat()` methods in `ParserBase` are where the `validateIntegerLength()` and `validateFPLength()` checks are performed.\n- Because this validation step is skipped, the `maxNumberLength` constraint is never enforced in the async code path.\n\n### PoC\nThe following JUnit 5 test demonstrates the vulnerability. It shows that the async parser accepts a 5,000-digit number, whereas the limit should be 1,000.\n\n```java\npackage tools.jackson.core.unittest.dos;\n\nimport java.nio.charset.StandardCharsets;\n\nimport org.junit.jupiter.api.Test;\n\nimport tools.jackson.core.*;\nimport tools.jackson.core.exc.StreamConstraintsException;\nimport tools.jackson.core.json.JsonFactory;\nimport tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;\n\nimport static org.junit.jupiter.api.Assertions.*;\n\n/**\n * POC: Number Length Constraint Bypass in Non-Blocking (Async) JSON Parsers\n *\n * Authors: sprabhav7, rohan-repos\n * \n * maxNumberLength default = 1000 characters (digits).\n * A number with more than 1000 digits should be rejected by any parser.\n *\n * BUG: The async parser never calls resetInt()/resetFloat() which is where\n * validateIntegerLength()/validateFPLength() lives. Instead it calls\n * _valueComplete() which skips all number length validation.\n *\n * CWE-770: Allocation of Resources Without Limits or Throttling\n */\nclass AsyncParserNumberLengthBypassTest {\n\n    private static final int MAX_NUMBER_LENGTH = 1000;\n    private static final int TEST_NUMBER_LENGTH = 5000;\n\n    private final JsonFactory factory = new JsonFactory();\n\n    // CONTROL: Sync parser correctly rejects a number exceeding maxNumberLength\n    @Test\n    void syncParserRejectsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\t\t\n\t\t// Output to console\n        System.out.println(\"[SYNC] Parsing \" + TEST_NUMBER_LENGTH + \"-digit number (limit: \" + MAX_NUMBER_LENGTH + \")\");\n        try {\n            try (JsonParser p = factory.createParser(ObjectReadContext.empty(), payload)) {\n                while (p.nextToken() != null) {\n                    if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                        System.out.println(\"[SYNC] Accepted number with \" + p.getText().length() + \" digits — UNEXPECTED\");\n                    }\n                }\n            }\n            fail(\"Sync parser must reject a \" + TEST_NUMBER_LENGTH + \"-digit number\");\n        } catch (StreamConstraintsException e) {\n            System.out.println(\"[SYNC] Rejected with StreamConstraintsException: \" + e.getMessage());\n        }\n    }\n\n    // VULNERABILITY: Async parser accepts the SAME number that sync rejects\n    @Test\n    void asyncParserAcceptsLongNumber() throws Exception {\n        byte[] payload = buildPayloadWithLongInteger(TEST_NUMBER_LENGTH);\n\n        NonBlockingByteArrayJsonParser p =\n            (NonBlockingByteArrayJsonParser) factory.createNonBlockingByteArrayParser(ObjectReadContext.empty());\n        p.feedInput(payload, 0, payload.length);\n        p.endOfInput();\n\n        boolean foundNumber = false;\n        try {\n            while (p.nextToken() != null) {\n                if (p.currentToken() == JsonToken.VALUE_NUMBER_INT) {\n                    foundNumber = true;\n                    String numberText = p.getText();\n                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),\n                        \"Async parser silently accepted all \" + TEST_NUMBER_LENGTH + \" digits\");\n                }\n            }\n            // Output to console\n            System.out.println(\"[ASYNC INT] Accepted number with \" + TEST_NUMBER_LENGTH + \" digits — BUG CONFIRMED\");\n            assertTrue(foundNumber, \"Parser should have produced a VALUE_NUMBER_INT token\");\n        } catch (StreamConstraintsException e) {\n            fail(\"Bug is fixed — async parser now correctly rejects long numbers: \" + e.getMessage());\n        }\n        p.close();\n    }\n\n    private byte[] buildPayloadWithLongInteger(int numDigits) {\n        StringBuilder sb = new StringBuilder(numDigits + 10);\n        sb.append(\"{\\\"v\\\":\");\n        for (int i = 0; i < numDigits; i++) {\n            sb.append((char) ('1' + (i % 9)));\n        }\n        sb.append('}');\n        return sb.toString().getBytes(StandardCharsets.UTF_8);\n    }\n}\n\n```\n\n\n### Impact\nA malicious actor can send a JSON document with an arbitrarily long number to an application using the async parser (e.g., in a Spring WebFlux or other reactive application). This can cause:\n1.  **Memory Exhaustion:** Unbounded allocation of memory in the `TextBuffer` to store the number's digits, leading to an `OutOfMemoryError`.\n2.  **CPU Exhaustion:** If the application subsequently calls `getBigIntegerValue()` or `getDecimalValue()`, the JVM can be tied up in O(n^2) `BigInteger` parsing operations, leading to a CPU-based DoS.\n\n### Suggested Remediation\n\nThe async parsing path should be updated to respect the `maxNumberLength` constraint. The simplest fix appears to ensure that `_valueComplete()` or a similar method in the async path calls the appropriate validation methods (`resetInt()` or `resetFloat()`) already present in `ParserBase`, mirroring the behavior of the synchronous parsers.\n\n**NOTE:** This research was performed in collaboration with [rohan-repos](https://github.com/rohan-repos)",
-          "Severity": "HIGH",
-          "VendorSeverity": {
-            "ghsa": 3
-          },
-          "CVSS": {
-            "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.7
-            }
-          },
-          "References": [
-            "https://github.com/FasterXML/jackson-core",
-            "https://github.com/FasterXML/jackson-core/commit/a004e9789c2cc6b41b379d02d229d58474d9a738",
-            "https://github.com/FasterXML/jackson-core/issues/1538",
-            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq"
-          ],
-          "PublishedDate": "2026-02-28T02:01:05Z",
-          "LastModifiedDate": "2026-02-28T02:01:06Z"
         },
         {
           "VulnerabilityID": "CVE-2020-36518",
@@ -4823,12 +5210,17 @@
             "CWE-201"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "nvd": 3
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
             }
           },
           "References": [
@@ -4841,7 +5233,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
           "PublishedDate": "2025-12-12T23:15:42.067Z",
-          "LastModifiedDate": "2025-12-15T18:22:40.637Z"
+          "LastModifiedDate": "2026-03-17T19:40:07.64Z"
         },
         {
           "VulnerabilityID": "CVE-2019-20444",
@@ -5240,7 +5632,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -5697,7 +6089,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -7295,6 +7687,70 @@
           "LastModifiedDate": "2024-11-21T03:54:03.43Z"
         },
         {
+          "VulnerabilityID": "CVE-2025-54920",
+          "VendorIDs": [
+            "GHSA-jwp6-cvj8-fw65"
+          ],
+          "PkgName": "org.apache.spark:spark-core_2.11",
+          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.spark/spark-core_2.11@2.4.5",
+            "UID": "eb52cd3747d06ebb"
+          },
+          "InstalledVersion": "2.4.5",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-54920",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:89fbd5a62dcfaac4c02a3ce1dc32a07b5b52734d9845c759964ca5a8e51cca85",
+          "Title": "org.apache.spark/spark-core: Apache Spark: Spark History Server Code Execution Vulnerability",
+          "Description": "This issue affects Apache Spark: before 3.5.7 and 4.0.1. Users are recommended to upgrade to version 3.5.7 or 4.0.1 and above, which fixes the issue.\n\n\n\n\n\nSummary\n\nApache Spark 3.5.4 and earlier versions contain a code execution vulnerability in the Spark History Web UI due to overly permissive Jackson deserialization of event log data. This allows an attacker with access to the Spark event logs directory to inject malicious JSON payloads that trigger deserialization of arbitrary classes, enabling command execution on the host running the Spark History Server.\n\n\n\n\n\nDetails\n\nThe vulnerability arises because the Spark History Server uses Jackson polymorphic deserialization with @JsonTypeInfo.Id.CLASS on SparkListenerEvent objects, allowing an attacker to specify arbitrary class names in the event JSON. This behavior permits instantiating unintended classes, such as org.apache.hive.jdbc.HiveConnection, which can perform network calls or other malicious actions during deserialization.\n\n\nThe attacker can exploit this by injecting crafted JSON content into the Spark event log files, which the History Server then deserializes on startup or when loading event logs. For example, the attacker can force the History Server to open a JDBC connection to a remote attacker-controlled server, demonstrating remote command injection capability.\n\n\n\n\n\n\nProof of Concept:\n\n1. Run Spark with event logging enabled, writing to a writable directory (spark-logs).\n\n2. Inject the following JSON at the beginning of an event log file:\n\n\n{\n\n  \"Event\": \"org.apache.hive.jdbc.HiveConnection\",\n  \"uri\": \"jdbc:hive2://<IP>:<PORT>/\",\n  \"info\": {\n    \"hive.metastore.uris\": \"thrift://<IP>:<PORT>\"\n  }\n}\n\n\n\n\n\n\n\n3. Start the Spark History Server with logs pointing to the modified directory.\n\n4. The Spark History Server initiates a JDBC connection to the attacker’s server, confirming the injection.\n\n\n\n\n\n\n\n\n\n\nImpact\n\nAn attacker with write access to Spark event logs can execute arbitrary code on the server running the History Server, potentially compromising the entire system.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+              "V3Score": 6.7
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/13/4",
+            "https://access.redhat.com/security/cve/CVE-2025-54920",
+            "https://github.com/apache/spark",
+            "https://github.com/apache/spark/pull/51312",
+            "https://github.com/apache/spark/pull/51323",
+            "https://issues.apache.org/jira/browse/SPARK-52381",
+            "https://lists.apache.org/thread/4y9n0nfj7m68o2hpmoxgc0y7dm1lo02s",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-54920",
+            "https://www.cve.org/CVERecord?id=CVE-2025-54920"
+          ],
+          "PublishedDate": "2026-03-16T14:17:59.877Z",
+          "LastModifiedDate": "2026-03-20T19:16:45.837Z"
+        },
+        {
           "VulnerabilityID": "CVE-2022-40150",
           "VendorIDs": [
             "GHSA-x27m-9w8j-5vcw"
@@ -7705,6 +8161,63 @@
           ],
           "PublishedDate": "2023-09-25T20:15:10.22Z",
           "LastModifiedDate": "2025-05-05T14:12:14.513Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-67030",
+          "VendorIDs": [
+            "GHSA-6fmv-xxpf-w3cw"
+          ],
+          "PkgName": "org.codehaus.plexus:plexus-utils",
+          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.codehaus.plexus/plexus-utils@1.5.6",
+            "UID": "9d8e39d69615584d"
+          },
+          "InstalledVersion": "1.5.6",
+          "FixedVersion": "4.0.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-67030",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:6993cdeb78e2552ac3d6f928ea31a297a2885ff93888541ffe9c65bb64cbc2ed",
+          "Title": "org.codehaus.plexus:plexus-utils: Plexus-utils: Directory Traversal in extractFile method",
+          "Description": "Directory Traversal vulnerability in the extractFile method of org.codehaus.plexus.util.Expand in plexus-utils before 6d780b3378829318ba5c2d29547e0012d5b29642. This allows an attacker to execute arbitrary code",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:L",
+              "V3Score": 8.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-67030",
+            "https://gist.github.com/weaver4VD/3216dac645220f8c9b488362f61241ec",
+            "https://github.com/codehaus-plexus/plexus-utils",
+            "https://github.com/codehaus-plexus/plexus-utils/commit/6d780b3378829318ba5c2d29547e0012d5b29642",
+            "https://github.com/codehaus-plexus/plexus-utils/issues/294",
+            "https://github.com/codehaus-plexus/plexus-utils/pull/295",
+            "https://github.com/codehaus-plexus/plexus-utils/pull/296",
+            "https://github.com/codehaus-plexus/plexus-utils/releases/tag/plexus-utils-4.0.3",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-67030",
+            "https://www.cve.org/CVERecord?id=CVE-2025-67030"
+          ],
+          "PublishedDate": "2026-03-25T18:16:25.88Z",
+          "LastModifiedDate": "2026-03-27T20:16:24.41Z"
         },
         {
           "VulnerabilityID": "CVE-2021-28165",
@@ -8580,7 +9093,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2158559",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-40897",
             "https://errata.almalinux.org/9/ALSA-2023-0952.html",
-            "https://errata.rockylinux.org/RLSA-2023:0835",
+            "https://errata.rockylinux.org/RLSA-2023:0952",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2022-43012.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/fe8a98e696241487ba6ac9f91faa38ade939ec5d/setuptools/package_index.py#L200",
@@ -8680,7 +9193,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -8766,7 +9279,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -8869,11 +9382,11 @@
           "LastModifiedDate": "2025-04-15T16:15:19.237Z"
         }
       ],
-      "vulnerability_count": 59
+      "vulnerability_count": 60
     }
   },
   "summary": {
     "total_versions_scanned": 3,
-    "total_vulnerabilities": 105
+    "total_vulnerabilities": 112
   }
 }

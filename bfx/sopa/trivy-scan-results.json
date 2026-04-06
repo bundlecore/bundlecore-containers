@@ -1,7 +1,7 @@
 {
   "tool": "sopa",
-  "scan_timestamp": "2026-03-02T04:31:14Z",
-  "workflow_run_id": "22560860766",
+  "scan_timestamp": "2026-04-01T05:28:15Z",
+  "workflow_run_id": "23832520682",
   "versions": {
     "2.1.11": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.1.11",
@@ -117,6 +117,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -181,7 +182,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -216,6 +217,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -255,6 +257,69 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.4.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.4",
+            "UID": "6b29a8d722c546a"
+          },
+          "InstalledVersion": "6.5.4",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:5ed1f6f1ae52aeec8e98b00e6af77c91d0de3071296402f7bd7c7b53108cce0e",
+            "DiffID": "sha256:d3723a4b2a59b515a0fb334d5faa9dd96786844e13f8b36662d191bac4ca4b21"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:f74bdd02bd0cf4ddeb8897347240f79076a99e2e56a7cc8f1deca5accf2deb6b",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2026-21441",
@@ -330,7 +395,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -409,7 +474,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -486,7 +551,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -501,7 +566,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 7
+      "vulnerability_count": 8
     },
     "2.1.10": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.1.10",
@@ -617,6 +682,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -681,7 +747,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -716,6 +782,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -755,6 +822,69 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "9a2c35a165bbac53"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:98d3f8ad485a820b4bff5ba45aadb8ee3e9dc45cb63dd6f1b2cb47cf6ca2a250",
+            "DiffID": "sha256:8fbea967203572e98bddab6f51029fedffe8820a86fa4f796e938424f1532297"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:48bcd45bab0d1663301c77c8169041aac50f6c3cedff12d58aa22be129cd280a",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -828,7 +958,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -915,7 +1045,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -1005,7 +1135,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -1084,7 +1214,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1161,7 +1291,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1176,7 +1306,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 9
+      "vulnerability_count": 10
     },
     "2.1.9": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.1.9",
@@ -1292,6 +1422,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -1356,7 +1487,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -1391,6 +1522,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -1430,6 +1562,69 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "9a2c35a165bbac53"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f68e5413037a3241994ac78ee1df1d1b93c588f4a7916d93df449efae71afa83",
+            "DiffID": "sha256:bce947da12c510373528dfe0ff6374426cc3c7e911adb71e441d5ac631145311"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:33b9ac916bae0d7ae94c03d4a69a2a48973fbbbb4653791b2e905f72c2ff6883",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -1503,7 +1698,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -1590,7 +1785,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -1680,7 +1875,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -1759,7 +1954,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1836,7 +2031,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1851,7 +2046,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 9
+      "vulnerability_count": 10
     },
     "2.1.3": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.1.3",
@@ -1912,7 +2107,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -2041,6 +2236,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -2105,7 +2301,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -2140,6 +2336,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -2179,6 +2376,69 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "9a2c35a165bbac53"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6a6758bbf6701b865d3b4b4f4b566e5d507707ab8a1b4c39c798d3831e9fae1c",
+            "DiffID": "sha256:dc28a0c935de0faa617363e18ed28248835ed6b3efae6269727ce6826f8b29be"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fc867b463358ababac9b21ae9a5b89d830ee8ea8abc38ed439ee99ee48d3b8a0",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -2252,7 +2512,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -2339,7 +2599,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -2429,7 +2689,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -2508,7 +2768,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2585,7 +2845,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2600,7 +2860,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 10
+      "vulnerability_count": 11
     },
     "2.1.0": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.1.0",
@@ -2661,7 +2921,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -2790,6 +3050,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -2854,7 +3115,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2025-48379",
@@ -2959,6 +3220,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -2998,6 +3260,69 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.1",
+            "UID": "5140787bc91076ad"
+          },
+          "InstalledVersion": "6.5.1",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:24861b1cbfa3f3d22ace9e54e68ece22e141225d7e18499cf289244d7fd0566c",
+            "DiffID": "sha256:f6aaa51e655b4ba9079cee77531a5b5548c8a67b55519f281e40164d0ba5e172"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c0d95f27065a6a2c5447bafafce19231d87947d02898952c46ae64f57efda341",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -3071,7 +3396,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -3158,7 +3483,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -3248,7 +3573,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -3327,7 +3652,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3404,7 +3729,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -3419,7 +3744,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 11
+      "vulnerability_count": 12
     },
     "2.0.3": {
       "image": "ghcr.io/bundlecore/products/bfx/sopa:2.0.3",
@@ -3480,7 +3805,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -3609,6 +3934,7 @@
             "https://github.com/geopandas/geopandas/pull/3681",
             "https://github.com/geopandas/geopandas/releases/tag/v1.1.2",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69662",
+            "https://ubuntu.com/security/notices/USN-8083-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69662"
           ],
           "PublishedDate": "2026-01-30T19:16:11.967Z",
@@ -3673,7 +3999,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -3708,6 +4034,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -3818,7 +4145,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
             "https://errata.almalinux.org/9/ALSA-2025-13578.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -3895,7 +4222,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366703",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47287",
             "https://errata.almalinux.org/9/ALSA-2025-8136.html",
-            "https://errata.rockylinux.org/RLSA-2025:8135",
+            "https://errata.rockylinux.org/RLSA-2025:8136",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/b39b892bf78fe8fea01dd45199aa88307e7162f3",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-7cx3-6m66-7c5m",
@@ -3908,6 +4235,69 @@
           ],
           "PublishedDate": "2025-05-15T22:15:18.827Z",
           "LastModifiedDate": "2025-12-23T19:19:44.923Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.4.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.4.2",
+            "UID": "2fc5c6a65e7374e6"
+          },
+          "InstalledVersion": "6.4.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:005eab7827da12a4bbc29083e543fd151d9c238a0c076481df10d2937c6c8cb7",
+            "DiffID": "sha256:5aaf1e046ad57b53a338e4c735b31e65e64bcbe305bf0ec0c2a9e0c73b4f7937"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:68cb9439538f8d49920e0a7bbab584c51a1df725f2eda53a6d47456bb00dbe66",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -3981,7 +4371,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -4068,7 +4458,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -4158,7 +4548,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -4237,7 +4627,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -4314,7 +4704,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -4329,11 +4719,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 12
+      "vulnerability_count": 13
     }
   },
   "summary": {
     "total_versions_scanned": 6,
-    "total_vulnerabilities": 58
+    "total_vulnerabilities": 64
   }
 }

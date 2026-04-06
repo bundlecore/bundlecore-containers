@@ -1,8 +1,415 @@
 {
   "tool": "cactus",
-  "scan_timestamp": "2026-03-02T04:07:34Z",
-  "workflow_run_id": "22560860766",
+  "scan_timestamp": "2026-04-01T04:57:48Z",
+  "workflow_run_id": "23832520682",
   "versions": {
+    "3.1.4": {
+      "image": "ghcr.io/bundlecore/products/bfx/cactus:3.1.4",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pyjwt-2.11.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.11.0",
+            "UID": "d8e8cc7152ad57fc"
+          },
+          "InstalledVersion": "2.11.0",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ee66084eea46deedc75170de45d7ae09e4bab806b5d2c229747387811e357829",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32274",
+          "VendorIDs": [
+            "GHSA-3936-cmfr-pm3m"
+          ],
+          "PkgName": "black",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/black-26.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/black@26.1.0",
+            "UID": "f84f5575abae7801"
+          },
+          "InstalledVersion": "26.1.0",
+          "FixedVersion": "26.3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32274",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:6605fe8b2003f692fa337dcfa9d183a67ee95f9cc99d9f25e94f32fa56276656",
+          "Title": "black: Black: Arbitrary file writes from unsanitized user input in cache file name",
+          "Description": "Black is the uncompromising Python code formatter. Prior to 26.3.1, Black writes a cache file, the name of which is computed from various formatting options. The value of the --python-cell-magics option was placed in the filename without sanitization, which allowed an attacker who controls the value of this argument to write cache files to arbitrary file system locations. Fixed in Black 26.3.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32274",
+            "https://github.com/psf/black",
+            "https://github.com/psf/black/commit/4937fe6cf241139ddbfc16b0bdbb5b422798909d",
+            "https://github.com/psf/black/pull/5038",
+            "https://github.com/psf/black/releases/tag/26.3.1",
+            "https://github.com/psf/black/security/advisories/GHSA-3936-cmfr-pm3m",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32274",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32274"
+          ],
+          "PublishedDate": "2026-03-12T20:16:06.35Z",
+          "LastModifiedDate": "2026-03-18T14:12:39.793Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-4565",
+          "VendorIDs": [
+            "GHSA-8qvm-5x2c-j2w7"
+          ],
+          "PkgName": "protobuf",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/protobuf-4.25.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/protobuf@4.25.3",
+            "UID": "330072e8b3643065"
+          },
+          "InstalledVersion": "4.25.3",
+          "FixedVersion": "4.25.8, 5.29.5, 6.31.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-4565",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2f959eb726e92b3fe1dc93d785175f3c77ba03766d032a6197d7496c647719a7",
+          "Title": "python-protobuf: Unbounded recursion in Python Protobuf",
+          "Description": "Any project that uses Protobuf Pure-Python backend to parse untrusted Protocol Buffers data containing an arbitrary number of recursive groups, recursive messages or a series of SGROUP tags can be corrupted by exceeding the Python recursion limit. This can result in a Denial of service by crashing the application with a RecursionError. We recommend upgrading to version =>6.31.1 or beyond commit 17838beda2943d08b8a9d4df5b68f5f04f26d901",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-4565",
+            "https://github.com/protocolbuffers/protobuf",
+            "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/decoder_test.py#L87-L98",
+            "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/message_test.py#L1436-L1478",
+            "https://github.com/protocolbuffers/protobuf/commit/17838beda2943d08b8a9d4df5b68f5f04f26d901",
+            "https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-735f-pc8j-v9w8",
+            "https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-8qvm-5x2c-j2w7",
+            "https://github.com/protocolbuffers/protobuf/tree/main/python#implementation-backends",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-4565",
+            "https://ubuntu.com/security/notices/USN-7629-1",
+            "https://ubuntu.com/security/notices/USN-7629-2",
+            "https://www.cve.org/CVERecord?id=CVE-2025-4565"
+          ],
+          "PublishedDate": "2025-06-16T15:15:24.99Z",
+          "LastModifiedDate": "2025-08-14T17:05:37.77Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-0994",
+          "VendorIDs": [
+            "GHSA-7gcm-g887-7qv7"
+          ],
+          "PkgName": "protobuf",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/protobuf-4.25.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/protobuf@4.25.3",
+            "UID": "330072e8b3643065"
+          },
+          "InstalledVersion": "4.25.3",
+          "FixedVersion": "6.33.5, 5.29.6",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-0994",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:dacd7722ea4c4061a7d867b1ef08110b3eadd23c1503381aec8c8e14cd02bab4",
+          "Title": "python: protobuf: Protobuf: Denial of Service due to recursion depth bypass",
+          "Description": "A denial-of-service (DoS) vulnerability exists in google.protobuf.json_format.ParseDict() in Python, where the max_recursion_depth limit can be bypassed when parsing nested google.protobuf.Any messages.\n\nDue to missing recursion depth accounting inside the internal Any-handling logic, an attacker can supply deeply nested Any structures that bypass the intended recursion limit, eventually exhausting Python’s recursion stack and causing a RecursionError.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:3095",
+            "https://access.redhat.com/security/cve/CVE-2026-0994",
+            "https://bugzilla.redhat.com/2432398",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
+            "https://errata.almalinux.org/9/ALSA-2026-3095.html",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
+            "https://github.com/protocolbuffers/protobuf",
+            "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
+            "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
+            "https://github.com/protocolbuffers/protobuf/issues/25070",
+            "https://github.com/protocolbuffers/protobuf/pull/25239",
+            "https://github.com/protocolbuffers/protobuf/pull/25586 (33.x)",
+            "https://github.com/protocolbuffers/protobuf/pull/25587 (29.x)",
+            "https://linux.oracle.com/cve/CVE-2026-0994.html",
+            "https://linux.oracle.com/errata/ELSA-2026-3095.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-0994",
+            "https://ubuntu.com/security/notices/USN-8063-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-0994"
+          ],
+          "PublishedDate": "2026-01-23T15:16:06.84Z",
+          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pyopenssl-25.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@25.3.0",
+            "UID": "b85a3965ab19f263"
+          },
+          "InstalledVersion": "25.3.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ba4b149205e479dda0ddf319148a726c9d21f5259b408ebddd4f311d03be4cf0",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pyasn1-0.6.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.6.2",
+            "UID": "abf5bf7ac5788c34"
+          },
+          "InstalledVersion": "0.6.2",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:77bff0eb28d1c849fbb36e196c248531aafdb0a4d759654d3ae9428f98cf758e",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
+        }
+      ],
+      "vulnerability_count": 6
+    },
     "3.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/cactus:3.0.1",
       "vulnerabilities": [
@@ -62,7 +469,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:2042",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -79,6 +486,65 @@
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
           "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32597",
+          "VendorIDs": [
+            "GHSA-752w-5fwx-jx9f"
+          ],
+          "PkgName": "PyJWT",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/PyJWT-2.10.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyjwt@2.10.1",
+            "UID": "42a488ec00535d7c"
+          },
+          "InstalledVersion": "2.10.1",
+          "FixedVersion": "2.12.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32597",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:03faa61c79a33b75309179214eb5b2ec9c3fbddc757bf04bdda9f7c3127abac1",
+          "Title": "pyjwt: PyJWT accepts unknown `crit` header extensions (RFC 7515 §4.1.11 MUST violation)",
+          "Description": "PyJWT is a JSON Web Token implementation in Python. Prior to 2.12.0, PyJWT does not validate the crit (Critical) Header Parameter defined in RFC 7515 §4.1.11. When a JWS token contains a crit array listing extensions that PyJWT does not understand, the library accepts the token instead of rejecting it. This violates the MUST requirement in the RFC. This vulnerability is fixed in 2.12.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-345",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://github.com/jpadilla/pyjwt",
+            "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
+            "https://ubuntu.com/security/notices/USN-8133-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32597"
+          ],
+          "PublishedDate": "2026-03-13T19:55:09.5Z",
+          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69223",
@@ -141,6 +607,70 @@
           "LastModifiedDate": "2026-01-14T19:11:07.5Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-32274",
+          "VendorIDs": [
+            "GHSA-3936-cmfr-pm3m"
+          ],
+          "PkgName": "black",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/black-25.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/black@25.1.0",
+            "UID": "83a5436d249aa74d"
+          },
+          "InstalledVersion": "25.1.0",
+          "FixedVersion": "26.3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32274",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:15b2afc636442422c52a708a052412ecb47c79e5af69d570e4454f950bf95e05",
+          "Title": "black: Black: Arbitrary file writes from unsanitized user input in cache file name",
+          "Description": "Black is the uncompromising Python code formatter. Prior to 26.3.1, Black writes a cache file, the name of which is computed from various formatting options. The value of the --python-cell-magics option was placed in the filename without sanitization, which allowed an attacker who controls the value of this argument to write cache files to arbitrary file system locations. Fixed in Black 26.3.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32274",
+            "https://github.com/psf/black",
+            "https://github.com/psf/black/commit/4937fe6cf241139ddbfc16b0bdbb5b422798909d",
+            "https://github.com/psf/black/pull/5038",
+            "https://github.com/psf/black/releases/tag/26.3.1",
+            "https://github.com/psf/black/security/advisories/GHSA-3936-cmfr-pm3m",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32274",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32274"
+          ],
+          "PublishedDate": "2026-03-12T20:16:06.35Z",
+          "LastModifiedDate": "2026-03-18T14:12:39.793Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-26007",
           "VendorIDs": [
             "GHSA-r6ph-v2qm-q3c2"
@@ -176,7 +706,8 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -200,6 +731,7 @@
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
+            "https://ubuntu.com/security/notices/USN-8087-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -264,7 +796,58 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-01-26T15:05:23.427Z"
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27932",
+          "VendorIDs": [
+            "GHSA-w5r5-m38g-f9f9"
+          ],
+          "PkgName": "joserfc",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/joserfc-1.2.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/joserfc@1.2.2",
+            "UID": "5887eb99f4698027"
+          },
+          "InstalledVersion": "1.2.2",
+          "FixedVersion": "1.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27932",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c632ed04aa90b6e3bcb30b8a353a6b835bdb1692a7fef098cd13df8d64b482a3",
+          "Title": "joserfc is a Python library that provides an implementation of several ...",
+          "Description": "joserfc is a Python library that provides an implementation of several JSON Object Signing and Encryption (JOSE) standards. In 1.6.2 and earlier, a resource exhaustion vulnerability in joserfc allows an unauthenticated attacker to cause a Denial of Service (DoS) via CPU exhaustion. When the library decrypts a JSON Web Encryption (JWE) token using Password-Based Encryption (PBES2) algorithms, it reads the p2c (PBES2 Count) parameter directly from the token's protected header. This parameter defines the number of iterations for the PBKDF2 key derivation function. Because joserfc does not validate or bound this value, an attacker can specify an extremely large iteration count (e.g., 2^31 - 1), forcing the server to expend massive CPU resources processing a single token. This vulnerability exists at the JWA layer and impacts all high-level JWE and JWT decryption interfaces if PBES2 algorithms are allowed by the application's policy.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/authlib/joserfc",
+            "https://github.com/authlib/joserfc/commit/696a961",
+            "https://github.com/authlib/joserfc/commit/696a9611ab982c45ee2190ed79ca8e1d8e09398f",
+            "https://github.com/authlib/joserfc/security/advisories/GHSA-w5r5-m38g-f9f9",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27932"
+          ],
+          "PublishedDate": "2026-03-03T23:15:56.05Z",
+          "LastModifiedDate": "2026-03-05T18:00:44.62Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -299,6 +882,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -470,7 +1054,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3094",
+            "https://errata.rockylinux.org/RLSA-2026:3095",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -486,6 +1070,72 @@
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
           "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27459",
+          "VendorIDs": [
+            "GHSA-5pwr-322w-8jr4"
+          ],
+          "PkgName": "pyOpenSSL",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/pyopenssl-25.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyopenssl@25.1.0",
+            "UID": "6fc8ed9f9d056c31"
+          },
+          "InstalledVersion": "25.1.0",
+          "FixedVersion": "26.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27459",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:aae455aa75144c8ca7f03ded59c54e6379da4177e3bce5e7254fac79b72c4a90",
+          "Title": "pyOpenSSL: DTLS cookie callback buffer overflow",
+          "Description": "pyOpenSSL is a Python wrapper around the OpenSSL library. Starting in version 22.0.0 and prior to version 26.0.0, if a user provided callback to `set_cookie_generate_callback` returned a cookie value greater than 256 bytes, pyOpenSSL would overflow an OpenSSL provided buffer. Starting in version 26.0.0, cookie values that are too long are now rejected.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V40Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27459",
+            "https://github.com/pyca/pyopenssl",
+            "https://github.com/pyca/pyopenssl/blob/358cbf29c4e364c59930e53a270116249581eaa3/CHANGELOG.rst",
+            "https://github.com/pyca/pyopenssl/commit/57f09bb4bb051d3bc2a1abd36e9525313d5cd408",
+            "https://github.com/pyca/pyopenssl/security/advisories/GHSA-5pwr-322w-8jr4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27459",
+            "https://ubuntu.com/security/notices/USN-8115-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27459"
+          ],
+          "PublishedDate": "2026-03-18T00:16:19.273Z",
+          "LastModifiedDate": "2026-03-25T16:41:28.017Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23490",
@@ -545,7 +1195,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2430472",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23490",
             "https://errata.almalinux.org/9/ALSA-2026-3359.html",
-            "https://errata.rockylinux.org/RLSA-2026:1906",
+            "https://errata.rockylinux.org/RLSA-2026:3359",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/blob/0f07d7242a78ab4d129b26256d7474f7168cf536/pyasn1/codec/ber/decoder.py#L496",
             "https://github.com/pyasn1/pyasn1/commit/3908f144229eed4df24bd569d16e5991ace44970",
@@ -553,14 +1203,79 @@
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.2",
             "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-63vm-454h-vhhq",
             "https://linux.oracle.com/cve/CVE-2026-23490.html",
-            "https://linux.oracle.com/errata/ELSA-2026-3359.html",
+            "https://linux.oracle.com/errata/ELSA-2026-4148.html",
             "https://lists.debian.org/debian-lts-announce/2026/02/msg00002.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-23490",
             "https://ubuntu.com/security/notices/USN-7975-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23490"
           ],
           "PublishedDate": "2026-01-16T19:16:19.117Z",
-          "LastModifiedDate": "2026-02-01T17:15:50.82Z"
+          "LastModifiedDate": "2026-03-13T14:19:34.873Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-30922",
+          "VendorIDs": [
+            "GHSA-jr27-m4p2-rc6r"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/pyasn1-0.6.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.6.1",
+            "UID": "5db3021cdcf77fd0"
+          },
+          "InstalledVersion": "0.6.1",
+          "FixedVersion": "0.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-30922",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b345e3d0a74e0cf1e72d88f2304d6766e76380511b96acd6d30df782072a4b4d",
+          "Title": "pyasn1: pyasn1 Vulnerable to Denial of Service via Unbounded Recursion",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.3, the `pyasn1` library is vulnerable to a Denial of Service (DoS) attack caused by uncontrolled recursion when decoding ASN.1 data with deeply nested structures. An attacker can supply a crafted payload containing thousands of nested `SEQUENCE` (`0x30`) or `SET` (`0x31`) tags with \"Indefinite Length\" (`0x80`) markers. This forces the decoder to recursively call itself until the Python interpreter crashes with a `RecursionError` or consumes all available memory (OOM), crashing the host application. This is a distinct vulnerability from CVE-2026-23490 (which addressed integer overflows in OID decoding). The fix for CVE-2026-23490 (`MAX_OID_ARC_CONTINUATION_OCTETS`) does not mitigate this recursion issue. Version 0.6.3 fixes this specific issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-674"
+          ],
+          "VendorSeverity": {
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
+            "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
+            "https://ubuntu.com/security/notices/USN-8129-1",
+            "https://ubuntu.com/security/notices/USN-8134-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-30922"
+          ],
+          "PublishedDate": "2026-03-18T04:17:18.397Z",
+          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -634,7 +1349,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -721,7 +1436,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -811,7 +1526,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
             "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -890,7 +1605,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -967,7 +1682,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
             "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -982,11 +1697,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 13
+      "vulnerability_count": 18
     }
   },
   "summary": {
-    "total_versions_scanned": 1,
-    "total_vulnerabilities": 13
+    "total_versions_scanned": 2,
+    "total_vulnerabilities": 24
   }
 }
