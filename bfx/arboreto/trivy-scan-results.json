@@ -1,0 +1,618 @@
+{
+  "tool": "arboreto",
+  "scan_timestamp": "2026-04-08T04:22:44Z",
+  "workflow_run_id": "24117376688",
+  "versions": {
+    "0.1.6": {
+      "image": "ghcr.io/bundlecore/products/bfx/arboreto:0.1.6",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-23949",
+          "VendorIDs": [
+            "GHSA-58pv-8j8x-9vj2"
+          ],
+          "PkgName": "jaraco.context",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/setuptools/_vendor/jaraco.context-5.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/jaraco.context@5.3.0",
+            "UID": "fd54917eebfa03f3"
+          },
+          "InstalledVersion": "5.3.0",
+          "FixedVersion": "6.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23949",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d265216697eb81bbe3e86f619f0b1f1dcdad3024046f20c673c09490ba06e542",
+          "Title": "jaraco.context: jaraco.context: Path traversal via malicious tar archives",
+          "Description": "jaraco.context, an open-source software package that provides some useful decorators and context managers, has a Zip Slip path traversal vulnerability in the `jaraco.context.tarball()` function starting in version 5.2.0 and prior to version 6.1.0. The vulnerability may allow attackers to extract files outside the intended extraction directory when malicious tar archives are processed. The strip_first_component filter splits the path on the first `/` and extracts the second component, while allowing `../` sequences. Paths like `dummy_dir/../../etc/passwd` become `../../etc/passwd`. Note that this suffers from a nested tarball attack as well with multi-level tar files such as `dummy_dir/inner.tar.gz`, where the inner.tar.gz includes a traversal `dummy_dir/../../config/.env` that also gets translated to `../../config/.env`. Version 6.1.0 contains a patch for the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+              "V3Score": 8.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+              "V3Score": 8.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23949",
+            "https://github.com/jaraco/jaraco.context",
+            "https://github.com/jaraco/jaraco.context/blob/main/jaraco/context/__init__.py#L74-L91",
+            "https://github.com/jaraco/jaraco.context/commit/7b26a42b525735e4085d2e994e13802ea339d5f9",
+            "https://github.com/jaraco/jaraco.context/security/advisories/GHSA-58pv-8j8x-9vj2",
+            "https://github.com/pypa/setuptools/blob/main/setuptools/_vendor/jaraco/context.py#L55-L76",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23949",
+            "https://ubuntu.com/security/notices/USN-7979-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23949"
+          ],
+          "PublishedDate": "2026-01-20T01:15:57.723Z",
+          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-25990",
+          "VendorIDs": [
+            "GHSA-cfh3-3jmp-rvhc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "ea850404851ef6dd"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25990",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b9b65695433c93762a7b64f103b94c603b75c04fee2f264cb5f74c322944d306",
+          "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, n out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 8.9
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 7.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/02/12/1",
+            "https://access.redhat.com/security/cve/CVE-2026-25990",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/54ba4db542ad3c7b918812a4e2d69c27735a3199",
+            "https://github.com/python-pillow/Pillow/commit/9000313cc5d4a31bdcdd6d7f0781101abab553aa",
+            "https://github.com/python-pillow/Pillow/pull/9427",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25990",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.1.1.html",
+            "https://ubuntu.com/security/notices/USN-8047-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25990"
+          ],
+          "PublishedDate": "2026-02-11T21:16:20.67Z",
+          "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31958",
+          "VendorIDs": [
+            "GHSA-qjxf-f2mg-c6mc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "fab38d62982c328e"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31958",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:6b7288ac68d96f2e78604934f320a6c9593221813542c3084e5461b7891c04a0",
+          "Title": "tornado-python: Tornado: Denial of Service via large multipart bodies",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions of Tornado prior to 6.5.5, the only limit on the number of parts in multipart/form-data is the max_body_size setting (default 100MB). Since parsing occurs synchronously on the main thread, this creates the possibility of denial-of-service due to the cost of parsing very large multipart bodies with many parts. This vulnerability is fixed in 6.5.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31958"
+          ],
+          "PublishedDate": "2026-03-11T20:16:16.617Z",
+          "LastModifiedDate": "2026-04-01T15:23:00.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-35536",
+          "VendorIDs": [
+            "GHSA-fqwm-6jpj-5wxc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "fab38d62982c328e"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-35536",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:20052a676cf8ecd4cc212f91ae62ae2d81df94c580c8f55e17ad50b9487f7124",
+          "Title": "tornado: Tornado: Cookie attribute injection due to improper handling of cookie arguments",
+          "Description": "In Tornado before 6.5.5, cookie attribute injection could occur because the domain, path, and samesite arguments to .RequestHandler.set_cookie were not checked for crafted characters.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-159"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
+              "V3Score": 7.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-35536",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://www.cve.org/CVERecord?id=CVE-2026-35536"
+          ],
+          "PublishedDate": "2026-04-03T04:16:53.55Z",
+          "LastModifiedDate": "2026-04-03T16:10:23.73Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-66418",
+          "VendorIDs": [
+            "GHSA-gm62-xv2j-4w53"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/urllib3-2.5.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.5.0",
+            "UID": "d274cf138f9b535b"
+          },
+          "InstalledVersion": "2.5.0",
+          "FixedVersion": "2.6.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-66418",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d0b8eb44bd1af435fc6323b6a41f9d0b8e6124d1a13d4ec66c3e5982f9df49f3",
+          "Title": "urllib3: urllib3: Unbounded decompression chain leads to resource exhaustion",
+          "Description": "urllib3 is a user-friendly HTTP client library for Python. Starting in version 1.24 and prior to 2.6.0, the number of links in the decompression chain was unbounded allowing a malicious server to insert a virtually unlimited number of compression steps leading to high CPU usage and massive memory allocation for the decompressed data. This vulnerability is fixed in 2.6.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:1239",
+            "https://access.redhat.com/security/cve/CVE-2025-66418",
+            "https://bugzilla.redhat.com/2419455",
+            "https://bugzilla.redhat.com/2419467",
+            "https://bugzilla.redhat.com/2427726",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
+            "https://linux.oracle.com/cve/CVE-2025-66418.html",
+            "https://linux.oracle.com/errata/ELSA-2026-1254.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-66418",
+            "https://ubuntu.com/security/notices/USN-7927-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-66418",
+            "https://www.openwall.com/lists/oss-security/2025/12/05/4"
+          ],
+          "PublishedDate": "2025-12-05T16:15:51.053Z",
+          "LastModifiedDate": "2025-12-10T16:08:32.193Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-66471",
+          "VendorIDs": [
+            "GHSA-2xpw-w6gg-jr37"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/urllib3-2.5.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.5.0",
+            "UID": "d274cf138f9b535b"
+          },
+          "InstalledVersion": "2.5.0",
+          "FixedVersion": "2.6.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-66471",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:071307bdd40ba383bcde541f74d91acff47bcb6e24ae8153c2e780190ce09549",
+          "Title": "urllib3: urllib3 Streaming API improperly handles highly compressed data",
+          "Description": "urllib3 is a user-friendly HTTP client library for Python. Starting in version 1.0 and prior to 2.6.0, the Streaming API improperly handles highly compressed data. urllib3's streaming API is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once. When streaming a compressed response, urllib3 can perform decoding or decompression based on the HTTP Content-Encoding header (e.g., gzip, deflate, br, or zstd). The library must read compressed data from the network and decompress it until the requested chunk size is met. Any resulting decompressed data that exceeds the requested amount is held in an internal buffer for the next read operation. The decompression logic could cause urllib3 to fully decode a small amount of highly compressed data in a single operation. This can result in excessive resource consumption (high CPU usage and massive memory allocation for the decompressed data.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-409"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:1239",
+            "https://access.redhat.com/security/cve/CVE-2025-66471",
+            "https://bugzilla.redhat.com/2419455",
+            "https://bugzilla.redhat.com/2419467",
+            "https://bugzilla.redhat.com/2427726",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
+            "https://linux.oracle.com/cve/CVE-2025-66471.html",
+            "https://linux.oracle.com/errata/ELSA-2026-1254.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-66471",
+            "https://ubuntu.com/security/notices/USN-7927-1",
+            "https://ubuntu.com/security/notices/USN-7927-2",
+            "https://ubuntu.com/security/notices/USN-7927-3",
+            "https://www.cve.org/CVERecord?id=CVE-2025-66471",
+            "https://www.openwall.com/lists/oss-security/2025/12/05/4"
+          ],
+          "PublishedDate": "2025-12-05T17:16:04.4Z",
+          "LastModifiedDate": "2025-12-10T16:10:33.5Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-21441",
+          "VendorIDs": [
+            "GHSA-38jv-5279-wg99"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/urllib3-2.5.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.5.0",
+            "UID": "d274cf138f9b535b"
+          },
+          "InstalledVersion": "2.5.0",
+          "FixedVersion": "2.6.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-21441",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:5978c3d9b33ac6b670e81f5331bb24b01cd5064ca355d0c06d7f98141e874422",
+          "Title": "urllib3: urllib3 vulnerable to decompression-bomb safeguard bypass when following HTTP redirects (streaming API)",
+          "Description": "urllib3 is an HTTP client library for Python. urllib3's streaming API is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once. urllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). When using the streaming API, the library decompresses only the necessary bytes, enabling partial content consumption. Starting in version 1.22 and prior to version 2.6.3, for HTTP redirect responses, the library would read the entire response body to drain the connection and decompress the content unnecessarily. This decompression occurred even before any read methods were called, and configured read limits did not restrict the amount of decompressed data. As a result, there was no safeguard against decompression bombs. A malicious server could exploit this to trigger excessive resource consumption on the client. Applications and libraries are affected when they stream content from untrusted sources by setting `preload_content=False` when they do not disable redirects. Users should upgrade to at least urllib3 v2.6.3, in which the library does not decode content of redirect responses when `preload_content=False`. If upgrading is not immediately possible, disable redirects by setting `redirect=False` for requests to untrusted source.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-409"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V3Score": 7.5,
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:1239",
+            "https://access.redhat.com/security/cve/CVE-2026-21441",
+            "https://bugzilla.redhat.com/2419455",
+            "https://bugzilla.redhat.com/2419467",
+            "https://bugzilla.redhat.com/2427726",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
+            "https://linux.oracle.com/cve/CVE-2026-21441.html",
+            "https://linux.oracle.com/errata/ELSA-2026-1254.html",
+            "https://lists.debian.org/debian-lts-announce/2026/01/msg00017.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-21441",
+            "https://ubuntu.com/security/notices/USN-7955-1",
+            "https://ubuntu.com/security/notices/USN-7955-2",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-21441"
+          ],
+          "PublishedDate": "2026-01-07T22:15:44.04Z",
+          "LastModifiedDate": "2026-01-23T09:15:47.823Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-24049",
+          "VendorIDs": [
+            "GHSA-8rrh-rw8j-w5fx"
+          ],
+          "PkgName": "wheel",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/setuptools/_vendor/wheel-0.45.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/wheel@0.45.1",
+            "UID": "aa7d04b48812065"
+          },
+          "InstalledVersion": "0.45.1",
+          "FixedVersion": "0.46.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24049",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:48231526408492b5acd9bb5931f9d9220c971a60f722a4b8b045645b9c755d35",
+          "Title": "wheel: wheel: Privilege Escalation or Arbitrary Code Execution via malicious wheel file unpacking",
+          "Description": "wheel is a command line tool for manipulating Python wheel files, as defined in PEP 427. In versions 0.40.0 through 0.46.1, the unpack function is vulnerable to file permission modification through mishandling of file permissions after extraction. The logic blindly trusts the filename from the archive header for the chmod operation, even though the extraction process itself might have sanitized the path. Attackers can craft a malicious wheel file that, when unpacked, changes the permissions of critical system files (e.g., /etc/passwd, SSH keys, config files), allowing for Privilege Escalation or arbitrary code execution by modifying now-writable scripts. This issue has been fixed in version 0.46.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-732"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N",
+              "V3Score": 5.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:1939",
+            "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://bugzilla.redhat.com/2431959",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://github.com/pypa/wheel",
+            "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
+            "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
+            "https://github.com/pypa/wheel/releases/tag/0.46.2",
+            "https://github.com/pypa/wheel/security/advisories/GHSA-8rrh-rw8j-w5fx",
+            "https://linux.oracle.com/cve/CVE-2026-24049.html",
+            "https://linux.oracle.com/errata/ELSA-2026-2090.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24049"
+          ],
+          "PublishedDate": "2026-01-22T05:16:23.157Z",
+          "LastModifiedDate": "2026-02-18T14:56:48.657Z"
+        }
+      ],
+      "vulnerability_count": 8
+    }
+  },
+  "summary": {
+    "total_versions_scanned": 1,
+    "total_vulnerabilities": 8
+  }
+}
