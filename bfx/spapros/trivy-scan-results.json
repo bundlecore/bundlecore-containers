@@ -1,7 +1,7 @@
 {
   "tool": "spapros",
-  "scan_timestamp": "2026-04-01T05:31:18Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:43:23Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "0.1.6": {
       "image": "ghcr.io/bundlecore/products/bfx/spapros:0.1.6",
@@ -208,6 +208,76 @@
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "1cf2b6da56ec7d2c"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:83cacd7c391393ffd3ed4f4818047197f70dc09048c9ec152f7fba178bfa1656",
+            "DiffID": "sha256:ca6914b33114cbbc3731d5a0f1dfeb8edaabd3e90c8ba9f38ac58d994e9bd309"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:f9019b796e0b160477580ba6c680ae9876fa5dae6541fdca458ec817a6e5ea08",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-31958",
           "VendorIDs": [
             "GHSA-qjxf-f2mg-c6mc"
@@ -240,13 +310,20 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -259,16 +336,87 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
+            "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
-          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
+          "LastModifiedDate": "2026-04-01T15:23:00.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-35536",
+          "VendorIDs": [
+            "GHSA-fqwm-6jpj-5wxc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/tornado-6.5.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.5.2",
+            "UID": "9a2c35a165bbac53"
+          },
+          "InstalledVersion": "6.5.2",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:83cacd7c391393ffd3ed4f4818047197f70dc09048c9ec152f7fba178bfa1656",
+            "DiffID": "sha256:ca6914b33114cbbc3731d5a0f1dfeb8edaabd3e90c8ba9f38ac58d994e9bd309"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-35536",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d216987966858feeda3c3a016a7657b83194354930ae06c9b1fa24e47cf8c52b",
+          "Title": "tornado: Tornado: Cookie attribute injection due to improper handling of cookie arguments",
+          "Description": "In Tornado before 6.5.5, cookie attribute injection could occur because the domain, path, and samesite arguments to .RequestHandler.set_cookie were not checked for crafted characters.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-159"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
+              "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-35536",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-35536"
+          ],
+          "PublishedDate": "2026-04-03T04:16:53.55Z",
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -304,7 +452,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -391,7 +539,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -571,11 +719,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -648,11 +799,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -690,7 +844,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 9
+      "vulnerability_count": 11
     },
     "0.1.5": {
       "image": "ghcr.io/bundlecore/products/bfx/spapros:0.1.5",
@@ -767,7 +921,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-6176"
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
-          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23949",
@@ -1019,6 +1173,76 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/pillow-10.4.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@10.4.0",
+            "UID": "52dcc3c26cf8e76f"
+          },
+          "InstalledVersion": "10.4.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:c39fa2be94e481674d66e307483462af8a57093d61cd42747b7ea2355dc8c83d",
+            "DiffID": "sha256:b0c1504ebe15d41678e4a6e8137d2bf3ac3fecba2555315646f00b9a730fc21e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:183d6f3292c5672c40978d846a2955dd092a612f5fb879b59009bdbb31192522",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -1289,13 +1513,20 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -1308,16 +1539,87 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
+            "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
-          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
+          "LastModifiedDate": "2026-04-01T15:23:00.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-35536",
+          "VendorIDs": [
+            "GHSA-fqwm-6jpj-5wxc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/tornado-6.4.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.4.1",
+            "UID": "254a3e8524862c2d"
+          },
+          "InstalledVersion": "6.4.1",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:c39fa2be94e481674d66e307483462af8a57093d61cd42747b7ea2355dc8c83d",
+            "DiffID": "sha256:b0c1504ebe15d41678e4a6e8137d2bf3ac3fecba2555315646f00b9a730fc21e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-35536",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:8b02087d3f94a8b9b7004da2fe23ea42170b3d14f73b834b5542b4f050ede8e1",
+          "Title": "tornado: Tornado: Cookie attribute injection due to improper handling of cookie arguments",
+          "Description": "In Tornado before 6.5.5, cookie attribute injection could occur because the domain, path, and samesite arguments to .RequestHandler.set_cookie were not checked for crafted characters.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-159"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
+              "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-35536",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-35536"
+          ],
+          "PublishedDate": "2026-04-03T04:16:53.55Z",
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -1353,7 +1655,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1440,7 +1742,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1708,11 +2010,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1785,11 +2090,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1827,11 +2135,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 15
+      "vulnerability_count": 17
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 24
+    "total_vulnerabilities": 28
   }
 }

@@ -1,11 +1,67 @@
 {
   "tool": "mummer",
-  "scan_timestamp": "2026-04-01T05:17:45Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:26:47Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "4.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/mummer:4.0.1",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-41316",
+          "VendorIDs": [
+            "GHSA-q339-8rmv-2mhv"
+          ],
+          "PkgName": "erb",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/erb-4.0.4.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/erb@4.0.4",
+            "UID": "72f12bf23fc60c52"
+          },
+          "InstalledVersion": "4.0.4",
+          "FixedVersion": "4.0.3.1, 4.0.4.1, 6.0.1.1, 6.0.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a97e19ef95dd58e5cf90d37eedfa3d211eb12b2d5934f35036dbeb3778700c45",
+            "DiffID": "sha256:991591d14e50625e4348888595be58ec410fdfb82ae730e081cb1fbd93392ef6"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41316",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory RubyGems",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Arubygems"
+          },
+          "Fingerprint": "sha256:5c52fa3df76e39d49d99edaff1caee5e1798d0bdb96554d93debc9e400728bc1",
+          "Title": "erb: ERB: Arbitrary code execution via deserialization bypass",
+          "Description": "ERB is a templating system for Ruby. Ruby 2.7.0 (before ERB 2.2.0 was published on rubygems.org) introduced an `@_init` instance variable guard in `ERB#result` and `ERB#run` to prevent code execution when an ERB object is reconstructed via `Marshal.load` (deserialization). However, three other public methods that also evaluate `@src` via `eval()` were not given the same guard: `ERB#def_method`, `ERB#def_module`, and `ERB#def_class`. An attacker who can trigger `Marshal.load` on untrusted data in a Ruby application that has `erb` loaded can use `ERB#def_module` (zero-arg, default parameters) as a code execution sink, bypassing the `@_init` protection entirely. ERB 4.0.3.1, 4.0.4.1, 6.0.1.1, and 6.0.4 patch the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-693"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-41316",
+            "https://github.com/ruby/erb",
+            "https://github.com/ruby/erb/security/advisories/GHSA-q339-8rmv-2mhv",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41316",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41316"
+          ],
+          "PublishedDate": "2026-04-24T03:16:11.897Z",
+          "LastModifiedDate": "2026-04-24T14:50:56.203Z"
+        },
         {
           "VulnerabilityID": "CVE-2025-24294",
           "PkgName": "resolv",
@@ -88,7 +144,7 @@
             "https://www.vuxml.org/freebsd/eed1a411-699b-11f0-91fe-000c295725e4.html"
           ],
           "PublishedDate": "2025-07-12T04:15:46.683Z",
-          "LastModifiedDate": "2025-07-16T14:15:23.037Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-61594",
@@ -114,9 +170,10 @@
           },
           "Fingerprint": "sha256:2f5052b40c3e6be0feb215bec75305e6215d4562d6668b125c5f935b512a4a08",
           "Title": "uri: URI module: Credential exposure via URI + operator",
-          "Description": "URI is a module providing classes to handle Uniform Resource Identifiers. In versions prior to 0.12.5, 0.13.3, and 1.0.4, a bypass exists for the fix to CVE-2025-27221 that can expose user credentials. When using the `+` operator to combine URIs, sensitive information like passwords from the original URI can be leaked, violating RFC3986 and making applications vulnerable to credential exposure. Versions 0.12.5, 0.13.3, and 1.0.4 fix the issue.",
+          "Description": "URI is a module providing classes to handle Uniform Resource Identifiers. In versions 0.12.4 and earlier (bundled in Ruby 3.2 series) 0.13.2 and earlier (bundled in Ruby 3.3 series), 1.0.3 and earlier (bundled in Ruby 3.4 series), when using the + operator to combine URIs, sensitive information like passwords from the original URI can be leaked, violating RFC3986 and making applications vulnerable to credential exposure. This is a a bypass for the fix to CVE-2025-27221 that can expose user credentials. This issue has been fixed in versions 0.12.5, 0.13.3 and 1.0.4.",
           "Severity": "HIGH",
           "CweIDs": [
+            "CWE-200",
             "CWE-212"
           ],
           "VendorSeverity": {
@@ -127,11 +184,14 @@
             "nvd": 3,
             "oracle-oval": 2,
             "redhat": 2,
-            "rocky": 2
+            "rocky": 2,
+            "ubuntu": 1
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 7.5,
               "V40Score": 2.7
             },
             "nvd": {
@@ -156,30 +216,35 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61594",
             "https://errata.almalinux.org/9/ALSA-2025-23063.html",
             "https://errata.rockylinux.org/RLSA-2025:23063",
+            "https://github.com/advisories/GHSA-22h5-pq3x-2gf2",
             "https://github.com/ruby/uri",
             "https://github.com/ruby/uri/commit/20157e3e29b125ff41f1d9662e2e3b1d066f5902",
             "https://github.com/ruby/uri/commit/7e521b2da0833d964aab43019e735aea674e1c2c",
             "https://github.com/ruby/uri/commit/d3116ca66a3b1c97dc7577f9d2d6e353f391cd6a",
+            "https://github.com/ruby/uri/security/advisories/GHSA-j4pr-3wm6-xx2r",
             "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/uri/CVE-2025-61594.yml",
+            "https://hackerone.com/reports/2957667",
             "https://linux.oracle.com/cve/CVE-2025-61594.html",
             "https://linux.oracle.com/errata/ELSA-2025-23141.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61594",
             "https://rubygems.org/gems/uri/versions/0.12.5",
             "https://rubygems.org/gems/uri/versions/0.13.3",
             "https://rubygems.org/gems/uri/versions/1.0.4",
+            "https://ubuntu.com/security/notices/USN-8137-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-61594",
+            "https://www.ruby-lang.org/en/news/2025/02/26/security-advisories",
             "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594",
             "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594/"
           ],
           "PublishedDate": "2025-12-30T21:15:43.893Z",
-          "LastModifiedDate": "2026-02-24T14:57:18.363Z"
+          "LastModifiedDate": "2026-04-16T18:16:44.4Z"
         }
       ],
-      "vulnerability_count": 2
+      "vulnerability_count": 3
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 2
+    "total_vulnerabilities": 3
   }
 }

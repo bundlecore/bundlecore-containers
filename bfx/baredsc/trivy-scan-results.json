@@ -1,7 +1,7 @@
 {
   "tool": "baredsc",
-  "scan_timestamp": "2026-04-01T04:55:10Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:01:51Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "1.1.3": {
       "image": "ghcr.io/bundlecore/products/bfx/baredsc:1.1.3",
@@ -178,7 +178,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -304,11 +304,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -529,6 +532,7 @@
             "https://pillow.readthedocs.io/en/stable/releasenotes/10.2.0.html#imagemath-eval-restricted-environment-keys",
             "https://pillow.readthedocs.io/en/stable/releasenotes/10.2.0.html#security",
             "https://ubuntu.com/security/notices/USN-6618-1",
+            "https://ubuntu.com/security/notices/USN-8135-1",
             "https://www.cve.org/CVERecord?id=CVE-2023-50447"
           ],
           "PublishedDate": "2024-01-19T20:15:11.87Z",
@@ -772,6 +776,7 @@
             "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/N2JOEDUJDQLCUII2LQYZYSM7RJL2I3P4/",
             "https://nvd.nist.gov/vuln/detail/CVE-2023-44271",
             "https://ubuntu.com/security/notices/USN-6618-1",
+            "https://ubuntu.com/security/notices/USN-8135-1",
             "https://www.cve.org/CVERecord?id=CVE-2023-44271"
           ],
           "PublishedDate": "2023-11-03T05:15:30.137Z",
@@ -1292,7 +1297,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -1563,13 +1568,20 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -1582,16 +1594,87 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
+            "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
-          "LastModifiedDate": "2026-03-16T19:32:06.37Z"
+          "LastModifiedDate": "2026-04-01T15:23:00.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-35536",
+          "VendorIDs": [
+            "GHSA-fqwm-6jpj-5wxc"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/tornado-6.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@6.1",
+            "UID": "a86041509f576662"
+          },
+          "InstalledVersion": "6.1",
+          "FixedVersion": "6.5.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:c0a7dd40c01f030f0d26c3cd9d65cdb57f9fefe9f357490adbe476505826eac0",
+            "DiffID": "sha256:b6913bb43e02f8cddc50097456aceb28f496a4276deb1ca97c63ae34101e6088"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-35536",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:8529fd095c0fc54fc8efaca1faee6e61827de0ccf30efcc2b5d340f33852a303",
+          "Title": "tornado: Tornado: Cookie attribute injection due to improper handling of cookie arguments",
+          "Description": "In Tornado before 6.5.5, cookie attribute injection could occur because the domain, path, and samesite arguments to .RequestHandler.set_cookie were not checked for crafted characters.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-159"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
+              "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+              "V3Score": 5.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-35536",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-35536"
+          ],
+          "PublishedDate": "2026-04-03T04:16:53.55Z",
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40898",
@@ -1678,11 +1761,11 @@
           "LastModifiedDate": "2025-04-15T16:15:19.237Z"
         }
       ],
-      "vulnerability_count": 15
+      "vulnerability_count": 16
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 19
+    "total_vulnerabilities": 20
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "kofamscan",
-  "scan_timestamp": "2026-04-01T05:13:58Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:22:40Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "1.3.0": {
       "image": "ghcr.io/bundlecore/products/bfx/kofamscan:1.3.0",
@@ -524,7 +524,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 1,
+            "amazon": 2,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 2,
@@ -879,7 +879,7 @@
             "https://www.ruby-lang.org/en/news/2024/03/21/buffer-overread-cve-2024-27280/"
           ],
           "PublishedDate": "2024-05-14T15:11:56.94Z",
-          "LastModifiedDate": "2025-11-04T18:16:12.683Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2023-28755",
@@ -1026,9 +1026,10 @@
           },
           "Fingerprint": "sha256:7337df589aa9e357349196f04deaaec61d223b3d0bc5dde91e2ab5986a11d3af",
           "Title": "uri: URI module: Credential exposure via URI + operator",
-          "Description": "URI is a module providing classes to handle Uniform Resource Identifiers. In versions prior to 0.12.5, 0.13.3, and 1.0.4, a bypass exists for the fix to CVE-2025-27221 that can expose user credentials. When using the `+` operator to combine URIs, sensitive information like passwords from the original URI can be leaked, violating RFC3986 and making applications vulnerable to credential exposure. Versions 0.12.5, 0.13.3, and 1.0.4 fix the issue.",
+          "Description": "URI is a module providing classes to handle Uniform Resource Identifiers. In versions 0.12.4 and earlier (bundled in Ruby 3.2 series) 0.13.2 and earlier (bundled in Ruby 3.3 series), 1.0.3 and earlier (bundled in Ruby 3.4 series), when using the + operator to combine URIs, sensitive information like passwords from the original URI can be leaked, violating RFC3986 and making applications vulnerable to credential exposure. This is a a bypass for the fix to CVE-2025-27221 that can expose user credentials. This issue has been fixed in versions 0.12.5, 0.13.3 and 1.0.4.",
           "Severity": "HIGH",
           "CweIDs": [
+            "CWE-200",
             "CWE-212"
           ],
           "VendorSeverity": {
@@ -1039,11 +1040,14 @@
             "nvd": 3,
             "oracle-oval": 2,
             "redhat": 2,
-            "rocky": 2
+            "rocky": 2,
+            "ubuntu": 1
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 7.5,
               "V40Score": 2.7
             },
             "nvd": {
@@ -1068,23 +1072,28 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61594",
             "https://errata.almalinux.org/9/ALSA-2025-23063.html",
             "https://errata.rockylinux.org/RLSA-2025:23063",
+            "https://github.com/advisories/GHSA-22h5-pq3x-2gf2",
             "https://github.com/ruby/uri",
             "https://github.com/ruby/uri/commit/20157e3e29b125ff41f1d9662e2e3b1d066f5902",
             "https://github.com/ruby/uri/commit/7e521b2da0833d964aab43019e735aea674e1c2c",
             "https://github.com/ruby/uri/commit/d3116ca66a3b1c97dc7577f9d2d6e353f391cd6a",
+            "https://github.com/ruby/uri/security/advisories/GHSA-j4pr-3wm6-xx2r",
             "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/uri/CVE-2025-61594.yml",
+            "https://hackerone.com/reports/2957667",
             "https://linux.oracle.com/cve/CVE-2025-61594.html",
             "https://linux.oracle.com/errata/ELSA-2025-23141.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-61594",
             "https://rubygems.org/gems/uri/versions/0.12.5",
             "https://rubygems.org/gems/uri/versions/0.13.3",
             "https://rubygems.org/gems/uri/versions/1.0.4",
+            "https://ubuntu.com/security/notices/USN-8137-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-61594",
+            "https://www.ruby-lang.org/en/news/2025/02/26/security-advisories",
             "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594",
             "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594/"
           ],
           "PublishedDate": "2025-12-30T21:15:43.893Z",
-          "LastModifiedDate": "2026-02-24T14:57:18.363Z"
+          "LastModifiedDate": "2026-04-16T18:16:44.4Z"
         },
         {
           "VulnerabilityID": "CVE-2020-25613",
@@ -1262,7 +1271,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-47220"
           ],
           "PublishedDate": "2024-09-22T01:15:11.95Z",
-          "LastModifiedDate": "2025-01-09T18:15:28.837Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         }
       ],
       "vulnerability_count": 13

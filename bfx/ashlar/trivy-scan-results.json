@@ -1,8 +1,359 @@
 {
   "tool": "ashlar",
-  "scan_timestamp": "2026-04-01T04:54:49Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T05:57:53Z",
+  "workflow_run_id": "25204081627",
   "versions": {
+    "1.20.0": {
+      "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.20.0",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2025-52999",
+          "VendorIDs": [
+            "GHSA-h46c-h94j-95f3"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.14.2",
+            "UID": "f800698b925b0138"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.15.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-52999",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:7f5bc97614b462be1e4c5563d69b7346d7fadc48ad54c8294c3cc565b697d5ff",
+          "Title": "com.fasterxml.jackson.core/jackson-core: jackson-core Potential StackoverflowError",
+          "Description": "jackson-core contains core low-level incremental (\"streaming\") parser and generator abstractions used by Jackson Data Processor. In versions prior to 2.15.0, if a user parses an input file and it has deeply nested data, Jackson could end up throwing a StackoverflowError if the depth is particularly large. jackson-core 2.15.0 contains a configurable limit for how deep Jackson will traverse in an input document, defaulting to an allowable depth of 1000. jackson-core will throw a StreamConstraintsException if the limit is reached. jackson-databind also benefits from this change because it uses jackson-core to parse JSON inputs. As a workaround, users should avoid parsing input files from untrusted sources.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-121"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 2,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:12280",
+            "https://access.redhat.com/security/cve/CVE-2025-52999",
+            "https://bugzilla.redhat.com/2374804",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2374804",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-52999",
+            "https://errata.almalinux.org/9/ALSA-2025-12280.html",
+            "https://errata.rockylinux.org/RLSA-2025:12280",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/pull/943",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-h46c-h94j-95f3",
+            "https://linux.oracle.com/cve/CVE-2025-52999.html",
+            "https://linux.oracle.com/errata/ELSA-2025-14126.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-52999",
+            "https://www.cve.org/CVERecord?id=CVE-2025-52999"
+          ],
+          "PublishedDate": "2025-06-25T17:15:39.82Z",
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2021-0341",
+          "VendorIDs": [
+            "GHSA-3cqm-mf7h-prrj"
+          ],
+          "PkgName": "com.squareup.okhttp3:okhttp",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.squareup.okhttp3/okhttp@3.7.0",
+            "UID": "a163bbc2b8e97d4"
+          },
+          "InstalledVersion": "3.7.0",
+          "FixedVersion": "4.9.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2021-0341",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:bf8d93d132c64aaf50a6ad459d3ba7a057f22675dab720b526da415b7447478e",
+          "Title": "okhttp: information disclosure via improperly used cryptographic function",
+          "Description": "In verifyHostName of OkHostnameVerifier.java, there is a possible way to accept a certificate for the wrong domain due to improperly used crypto. This could lead to remote information disclosure with no additional execution privileges needed. User interaction is not needed for exploitation.Product: AndroidVersions: Android-8.1 Android-9 Android-10 Android-11Android ID: A-171980069",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V2Vector": "AV:N/AC:L/Au:N/C:P/I:N/A:N",
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V2Score": 5,
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2021-0341",
+            "https://github.com/square/okhttp",
+            "https://github.com/square/okhttp/commit/f574ea2f5259d9040f264ddeb582fb1ce563f10c",
+            "https://github.com/square/okhttp/issues/6724",
+            "https://github.com/square/okhttp/pull/6741",
+            "https://nvd.nist.gov/vuln/detail/CVE-2021-0341",
+            "https://source.android.com/security/bulletin/2021-02-01",
+            "https://www.cve.org/CVERecord?id=CVE-2021-0341"
+          ],
+          "PublishedDate": "2021-02-10T17:15:22.037Z",
+          "LastModifiedDate": "2024-11-21T05:42:32.723Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-47554",
+          "VendorIDs": [
+            "GHSA-78wr-2p64-hpwj"
+          ],
+          "PkgName": "commons-io:commons-io",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/commons-io/commons-io@2.6",
+            "UID": "29693e70dfa5897a"
+          },
+          "InstalledVersion": "2.6",
+          "FixedVersion": "2.14.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-47554",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:f771bf0880f7aba3b59cf8e2b8646d75f61715399307309a32b9960f0b421e06",
+          "Title": "apache-commons-io: Possible denial of service attack on untrusted input to XmlStreamReader",
+          "Description": "Uncontrolled Resource Consumption vulnerability in Apache Commons IO.\n\nThe org.apache.commons.io.input.XmlStreamReader class may excessively consume CPU resources when processing maliciously crafted input.\n\n\nThis issue affects Apache Commons IO: from 2.0 before 2.14.0.\n\nUsers are recommended to upgrade to version 2.14.0 or later, which fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "azure": 2,
+            "cbl-mariner": 2,
+            "ghsa": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+              "V3Score": 4.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2024/10/03/2",
+            "https://access.redhat.com/security/cve/CVE-2024-47554",
+            "https://github.com/apache/commons-io",
+            "https://lists.apache.org/thread/6ozr91rr9cj5lm0zyhv30bsp317hk5z1",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-47554",
+            "https://security.netapp.com/advisory/ntap-20250131-0010",
+            "https://security.netapp.com/advisory/ntap-20250131-0010/",
+            "https://ubuntu.com/security/notices/USN-8191-1",
+            "https://www.cve.org/CVERecord?id=CVE-2024-47554"
+          ],
+          "PublishedDate": "2024-10-03T12:15:02.613Z",
+          "LastModifiedDate": "2025-07-10T21:10:32.113Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-25990",
+          "VendorIDs": [
+            "GHSA-cfh3-3jmp-rvhc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25990",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:78963e498741b2ddf0e26f3449e9d07a7f7e2fd1e3d15501d75c9cd8655fede6",
+          "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, n out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 8.9
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 7.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/02/12/1",
+            "https://access.redhat.com/security/cve/CVE-2026-25990",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/54ba4db542ad3c7b918812a4e2d69c27735a3199",
+            "https://github.com/python-pillow/Pillow/commit/9000313cc5d4a31bdcdd6d7f0781101abab553aa",
+            "https://github.com/python-pillow/Pillow/pull/9427",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25990",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.1.1.html",
+            "https://ubuntu.com/security/notices/USN-8047-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25990"
+          ],
+          "PublishedDate": "2026-02-11T21:16:20.67Z",
+          "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:10366db8af331c9e58b0ef1fcf4fd89999ad68aaaed8e5052dc4b26455ef2dd0",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        }
+      ],
+      "vulnerability_count": 5
+    },
     "1.19.0": {
       "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.19.0",
       "vulnerabilities": [
@@ -73,7 +424,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-52999"
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
-          "LastModifiedDate": "2025-06-26T18:57:43.67Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2021-0341",
@@ -201,6 +552,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-47554",
             "https://security.netapp.com/advisory/ntap-20250131-0010",
             "https://security.netapp.com/advisory/ntap-20250131-0010/",
+            "https://ubuntu.com/security/notices/USN-8191-1",
             "https://www.cve.org/CVERecord?id=CVE-2024-47554"
           ],
           "PublishedDate": "2024-10-03T12:15:02.613Z",
@@ -258,7 +610,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-36114"
           ],
           "PublishedDate": "2024-05-29T21:15:49.237Z",
-          "LastModifiedDate": "2024-11-21T09:21:38.97Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-67721",
@@ -517,6 +869,76 @@
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:583a776dfc423560628fc792a7eaa7fe21d6ca281b84eb4ac0666a0741a411ed",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
           "VulnerabilityID": "CVE-2025-47273",
           "VendorIDs": [
             "GHSA-5rjg-fvgr-3xxf"
@@ -640,11 +1062,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -717,11 +1142,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -759,11 +1187,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 11
+      "vulnerability_count": 12
     }
   },
   "summary": {
-    "total_versions_scanned": 1,
-    "total_vulnerabilities": 11
+    "total_versions_scanned": 2,
+    "total_vulnerabilities": 17
   }
 }

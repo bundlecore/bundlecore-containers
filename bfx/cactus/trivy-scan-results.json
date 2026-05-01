@@ -1,7 +1,7 @@
 {
   "tool": "cactus",
-  "scan_timestamp": "2026-04-01T04:57:48Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:06:08Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "3.1.4": {
       "image": "ghcr.io/bundlecore/products/bfx/cactus:3.1.4",
@@ -40,7 +40,9 @@
             "CWE-863"
           ],
           "VendorSeverity": {
+            "amazon": 2,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -128,6 +130,126 @@
           ],
           "PublishedDate": "2026-03-12T20:16:06.35Z",
           "LastModifiedDate": "2026-03-18T14:12:39.793Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41066",
+          "VendorIDs": [
+            "GHSA-vfmq-68hx-4jfw"
+          ],
+          "PkgName": "lxml",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/lxml-6.0.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/lxml@6.0.2",
+            "UID": "20eb26865b764058"
+          },
+          "InstalledVersion": "6.0.2",
+          "FixedVersion": "6.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41066",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fdb3cc76b46463c2f067260080e3964790c8bc07ad63a4563dece667fc576039",
+          "Title": "lxml is a library for processing XML and HTML in the Python language.  ...",
+          "Description": "lxml is a library for processing XML and HTML in the Python language. Prior to 6.1.0, using either of the two parsers in the default configuration (with resolve_entities=True) allows untrusted XML input to read local files. Setting the resolve_entities option explicitly to resolve_entities='internal' or resolve_entities=False disables the local file access. This vulnerability is fixed in 6.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-611"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://bugs.launchpad.net/lxml/+bug/2146291",
+            "https://github.com/lxml/lxml",
+            "https://github.com/lxml/lxml/releases/tag/lxml-6.1.0",
+            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw"
+          ],
+          "PublishedDate": "2026-04-24T17:16:20.933Z",
+          "LastModifiedDate": "2026-04-24T17:56:41.28Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-12.1.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.1.1",
+            "UID": "f9221d4af4ce699"
+          },
+          "InstalledVersion": "12.1.1",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:55769e9c509740aa7ab7a166badd2c197e0781de723041b11d3664f251f9c0e5",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
         },
         {
           "VulnerabilityID": "CVE-2025-4565",
@@ -238,7 +360,9 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "nvd": 3,
             "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -247,6 +371,10 @@
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -275,7 +403,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
-          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+          "LastModifiedDate": "2026-04-09T14:19:17.7Z"
         },
         {
           "VulnerabilityID": "CVE-2026-27459",
@@ -313,6 +441,7 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 4,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -376,8 +505,11 @@
             "CWE-674"
           ],
           "VendorSeverity": {
+            "amazon": 2,
+            "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -408,7 +540,7 @@
           "LastModifiedDate": "2026-03-21T01:17:06.36Z"
         }
       ],
-      "vulnerability_count": 6
+      "vulnerability_count": 8
     },
     "3.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/cactus:3.0.1",
@@ -485,7 +617,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-6176"
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
-          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2026-32597",
@@ -521,7 +653,9 @@
             "CWE-863"
           ],
           "VendorSeverity": {
+            "amazon": 2,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -850,6 +984,56 @@
           "LastModifiedDate": "2026-03-05T18:00:44.62Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-41066",
+          "VendorIDs": [
+            "GHSA-vfmq-68hx-4jfw"
+          ],
+          "PkgName": "lxml",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/lxml-6.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/lxml@6.0.0",
+            "UID": "79eece6aab4861ee"
+          },
+          "InstalledVersion": "6.0.0",
+          "FixedVersion": "6.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41066",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a1eb56b8baab8dee7bc55310a840e311b9eb65ebd29e99136fbc9dd0893a90b1",
+          "Title": "lxml is a library for processing XML and HTML in the Python language.  ...",
+          "Description": "lxml is a library for processing XML and HTML in the Python language. Prior to 6.1.0, using either of the two parsers in the default configuration (with resolve_entities=True) allows untrusted XML input to read local files. Setting the resolve_entities option explicitly to resolve_entities='internal' or resolve_entities=False disables the local file access. This vulnerability is fixed in 6.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-611"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://bugs.launchpad.net/lxml/+bug/2146291",
+            "https://github.com/lxml/lxml",
+            "https://github.com/lxml/lxml/releases/tag/lxml-6.1.0",
+            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw"
+          ],
+          "PublishedDate": "2026-04-24T17:16:20.933Z",
+          "LastModifiedDate": "2026-04-24T17:56:41.28Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-25990",
           "VendorIDs": [
             "GHSA-cfh3-3jmp-rvhc"
@@ -922,6 +1106,76 @@
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/pillow-11.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.3.0",
+            "UID": "bb1db125a111b6fa"
+          },
+          "InstalledVersion": "11.3.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9a4b4742790fcef43f9b5f843e4cfdf0e78b91772584070e81a09d681d65469c",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
         },
         {
           "VulnerabilityID": "CVE-2025-4565",
@@ -1032,7 +1286,9 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "nvd": 3,
             "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -1041,6 +1297,10 @@
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -1069,7 +1329,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
-          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+          "LastModifiedDate": "2026-04-09T14:19:17.7Z"
         },
         {
           "VulnerabilityID": "CVE-2026-27459",
@@ -1107,6 +1367,7 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 4,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -1174,6 +1435,7 @@
             "amazon": 3,
             "ghsa": 3,
             "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -1246,8 +1508,11 @@
             "CWE-674"
           ],
           "VendorSeverity": {
+            "amazon": 2,
+            "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -1311,7 +1576,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1398,7 +1663,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1578,11 +1843,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1655,11 +1923,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1697,11 +1968,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 18
+      "vulnerability_count": 20
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 24
+    "total_vulnerabilities": 28
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "gatk4",
-  "scan_timestamp": "2026-04-01T05:09:05Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:17:12Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "4.6.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.6.2.0",
@@ -925,7 +925,7 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "redhat": 3
           },
           "CVSS": {
             "bitnami": {
@@ -994,7 +994,7 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "redhat": 3
           },
           "CVSS": {
             "bitnami": {
@@ -1026,6 +1026,64 @@
           ],
           "PublishedDate": "2026-03-07T09:16:07.66Z",
           "LastModifiedDate": "2026-03-10T18:18:27.79Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-2332",
+          "VendorIDs": [
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          "PkgName": "org.eclipse.jetty:jetty-http",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.eclipse.jetty/jetty-http@9.4.52.v20230823",
+            "UID": "31dd9041e9cf602b"
+          },
+          "InstalledVersion": "9.4.52.v20230823",
+          "FixedVersion": "12.1.7, 12.0.33, 11.0.28, 10.0.28, 9.4.60",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-2332",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:9ed5ed04f09ee9584d4d783479336f19ce81196671fbafb706aabd082a79daf7",
+          "Title": "org.eclipse.jetty/jetty-http: HTTP request smuggling via chunked extension quoted-string parsing",
+          "Description": "In Eclipse Jetty, the HTTP/1.1 parser is vulnerable to request smuggling when chunk extensions are used, similar to the \"funky chunks\" techniques outlined here:\n  *  https://w4ke.info/2025/06/18/funky-chunks.html\n\n  *  https://w4ke.info/2025/10/29/funky-chunks-2.html\n\n\nJetty terminates chunk extension parsing at \\r\\n inside quoted strings instead of treating this as an error.\n\n\nPOST / HTTP/1.1\nHost: localhost\nTransfer-Encoding: chunked\n\n1;ext=\"val\nX\n0\n\nGET /smuggled HTTP/1.1\n...\n\n\n\n\n\nNote how the chunk extension does not close the double quotes, and it is able to inject a smuggled request.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-2332",
+            "https://github.com/jetty/jetty.project",
+            "https://github.com/jetty/jetty.project/security/advisories/GHSA-355h-qmc2-wpwf",
+            "https://gitlab.eclipse.org/security/cve-assignment/-/issues/89",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-2332",
+            "https://w4ke.info/2025/06/18/funky-chunks.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-2332"
+          ],
+          "PublishedDate": "2026-04-14T12:16:21.333Z",
+          "LastModifiedDate": "2026-04-17T15:24:57.753Z"
         },
         {
           "VulnerabilityID": "CVE-2024-13009",
@@ -1085,7 +1143,7 @@
           "LastModifiedDate": "2025-07-31T16:31:12.697Z"
         }
       ],
-      "vulnerability_count": 16
+      "vulnerability_count": 17
     },
     "4.5.0.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.5.0.0",
@@ -1577,6 +1635,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-47554",
             "https://security.netapp.com/advisory/ntap-20250131-0010",
             "https://security.netapp.com/advisory/ntap-20250131-0010/",
+            "https://ubuntu.com/security/notices/USN-8191-1",
             "https://www.cve.org/CVERecord?id=CVE-2024-47554"
           ],
           "PublishedDate": "2024-10-03T12:15:02.613Z",
@@ -1641,7 +1700,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-25638"
           ],
           "PublishedDate": "2024-07-22T14:15:04.593Z",
-          "LastModifiedDate": "2024-11-21T09:01:07.94Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-36114",
@@ -1695,7 +1754,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-36114"
           ],
           "PublishedDate": "2024-05-29T21:15:49.237Z",
-          "LastModifiedDate": "2024-11-21T09:21:38.97Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-67721",
@@ -2083,7 +2142,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 3,
+            "amazon": 2,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -2540,7 +2599,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -3513,6 +3572,64 @@
           "LastModifiedDate": "2024-11-21T07:39:11.013Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-2332",
+          "VendorIDs": [
+            "GHSA-355h-qmc2-wpwf"
+          ],
+          "PkgName": "org.eclipse.jetty:jetty-http",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.eclipse.jetty/jetty-http@9.4.52.v20230823",
+            "UID": "189f714f9facadc3"
+          },
+          "InstalledVersion": "9.4.52.v20230823",
+          "FixedVersion": "12.1.7, 12.0.33, 11.0.28, 10.0.28, 9.4.60",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-2332",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:789e63e065ba892192bd54ff6c815299e2d5bf99aa0cb0662e2b7cf6c1a13e10",
+          "Title": "org.eclipse.jetty/jetty-http: HTTP request smuggling via chunked extension quoted-string parsing",
+          "Description": "In Eclipse Jetty, the HTTP/1.1 parser is vulnerable to request smuggling when chunk extensions are used, similar to the \"funky chunks\" techniques outlined here:\n  *  https://w4ke.info/2025/06/18/funky-chunks.html\n\n  *  https://w4ke.info/2025/10/29/funky-chunks-2.html\n\n\nJetty terminates chunk extension parsing at \\r\\n inside quoted strings instead of treating this as an error.\n\n\nPOST / HTTP/1.1\nHost: localhost\nTransfer-Encoding: chunked\n\n1;ext=\"val\nX\n0\n\nGET /smuggled HTTP/1.1\n...\n\n\n\n\n\nNote how the chunk extension does not close the double quotes, and it is able to inject a smuggled request.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-2332",
+            "https://github.com/jetty/jetty.project",
+            "https://github.com/jetty/jetty.project/security/advisories/GHSA-355h-qmc2-wpwf",
+            "https://gitlab.eclipse.org/security/cve-assignment/-/issues/89",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-2332",
+            "https://w4ke.info/2025/06/18/funky-chunks.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-2332"
+          ],
+          "PublishedDate": "2026-04-14T12:16:21.333Z",
+          "LastModifiedDate": "2026-04-17T15:24:57.753Z"
+        },
+        {
           "VulnerabilityID": "CVE-2024-13009",
           "VendorIDs": [
             "GHSA-q4rv-gq96-w7c5"
@@ -3651,7 +3768,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -3777,11 +3894,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -3819,7 +3939,7 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 36
+      "vulnerability_count": 37
     },
     "4.2.6.1": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.2.6.1",
@@ -3891,7 +4011,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-52999"
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
-          "LastModifiedDate": "2025-06-26T18:57:43.67Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2020-36518",
@@ -5056,6 +5176,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-47554",
             "https://security.netapp.com/advisory/ntap-20250131-0010",
             "https://security.netapp.com/advisory/ntap-20250131-0010/",
+            "https://ubuntu.com/security/notices/USN-8191-1",
             "https://www.cve.org/CVERecord?id=CVE-2024-47554"
           ],
           "PublishedDate": "2024-10-03T12:15:02.613Z",
@@ -5120,7 +5241,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-25638"
           ],
           "PublishedDate": "2024-07-22T14:15:04.593Z",
-          "LastModifiedDate": "2024-11-21T09:01:07.94Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-36114",
@@ -5174,7 +5295,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-36114"
           ],
           "PublishedDate": "2024-05-29T21:15:49.237Z",
-          "LastModifiedDate": "2024-11-21T09:21:38.97Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-67721",
@@ -5632,7 +5753,7 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "amazon": 3,
+            "amazon": 2,
             "ghsa": 4,
             "nvd": 4,
             "oracle-oval": 3,
@@ -6089,7 +6210,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "ghsa": 3,
             "nvd": 3,
             "oracle-oval": 3,
@@ -8174,7 +8295,7 @@
             "UID": "9d8e39d69615584d"
           },
           "InstalledVersion": "1.5.6",
-          "FixedVersion": "4.0.3",
+          "FixedVersion": "4.0.3, 3.6.1",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
@@ -8195,10 +8316,18 @@
             "CWE-22"
           ],
           "VendorSeverity": {
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
             "ghsa": 3,
+            "nvd": 3,
             "redhat": 3
           },
           "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:L",
               "V3Score": 8.3
@@ -8217,7 +8346,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-67030"
           ],
           "PublishedDate": "2026-03-25T18:16:25.88Z",
-          "LastModifiedDate": "2026-03-27T20:16:24.41Z"
+          "LastModifiedDate": "2026-04-01T14:15:59.683Z"
         },
         {
           "VulnerabilityID": "CVE-2021-28165",
@@ -9207,7 +9336,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -9387,6 +9516,6 @@
   },
   "summary": {
     "total_versions_scanned": 3,
-    "total_vulnerabilities": 112
+    "total_vulnerabilities": 114
   }
 }
