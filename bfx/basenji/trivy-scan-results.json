@@ -1,7 +1,7 @@
 {
   "tool": "basenji",
-  "scan_timestamp": "2026-04-08T04:26:29Z",
-  "workflow_run_id": "24117376688",
+  "scan_timestamp": "2026-05-01T06:02:05Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "0.6": {
       "image": "ghcr.io/bundlecore/products/bfx/basenji:0.6",
@@ -540,6 +540,7 @@
           "VendorSeverity": {
             "amazon": 2,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -1077,6 +1078,7 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -1086,6 +1088,10 @@
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.4
+            },
+            "julia": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
               "V3Score": 7.4
             },
@@ -1137,6 +1143,7 @@
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=2c6c9d439b484e1ba9830d8454a34fa4f80fdfe9",
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=2f7530077e0ef79d98718138716bc51ca0cad658",
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=fd2af07dc083a350c959147097003a14a5e8ac4d",
+            "https://github.com/advisories/GHSA-x4qr-2fvf-3mr5",
             "https://github.com/pyca/cryptography",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-x4qr-2fvf-3mr5",
             "https://linux.oracle.com/cve/CVE-2023-0286.html",
@@ -1668,7 +1675,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-12060"
           ],
           "PublishedDate": "2025-10-30T17:15:37.52Z",
-          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-9906",
@@ -1738,6 +1745,64 @@
           "LastModifiedDate": "2025-09-23T16:53:28.17Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-1462",
+          "VendorIDs": [
+            "GHSA-4f3f-g24h-fr8m"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/keras-2.9.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@2.9.0",
+            "UID": "c65c3dee7a831260"
+          },
+          "InstalledVersion": "2.9.0",
+          "FixedVersion": "3.13.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7079764a38e8472da4c115b68bb5d50efc2a9903dda7d099f250195df7801f0e",
+            "DiffID": "sha256:93456d7bb5ad56ece26a1ab729f571faafe9bcf9e421c8c1cdb9696d833384a5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-1462",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c4773cef2a080e3c243c0b248232901a51bf58435e3666294aaaac4066205989",
+          "Title": "keras: Keras: Arbitrary Code Execution Vulnerability Bypassing Safe Mode",
+          "Description": "A vulnerability in the `TFSMLayer` class of the `keras` package, version 3.13.0, allows attacker-controlled TensorFlow SavedModels to be loaded during deserialization of `.keras` models, even when `safe_mode=True`. This bypasses the security guarantees of `safe_mode` and enables arbitrary attacker-controlled code execution during model inference under the victim's privileges. The issue arises due to the unconditional loading of external SavedModels, serialization of attacker-controlled file paths, and the lack of validation in the `from_config()` method.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-1462",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/b6773d3decaef1b05d8e794458e148cb362f163f",
+            "https://github.com/keras-team/keras/pull/22035",
+            "https://huntr.com/bounties/7e78d6f1-6977-4300-b595-e81bdbda331c",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-1462",
+            "https://www.cve.org/CVERecord?id=CVE-2026-1462"
+          ],
+          "PublishedDate": "2026-04-13T15:17:18.967Z",
+          "LastModifiedDate": "2026-04-17T15:34:21.867Z"
+        },
+        {
           "VulnerabilityID": "CVE-2022-1941",
           "VendorIDs": [
             "GHSA-8gq9-2x98-w8hf"
@@ -1771,7 +1836,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1936,7 +2001,9 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "nvd": 3,
             "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -1945,6 +2012,10 @@
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -1973,7 +2044,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
-          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+          "LastModifiedDate": "2026-04-09T14:19:17.7Z"
         },
         {
           "VulnerabilityID": "CVE-2026-27459",
@@ -2076,8 +2147,10 @@
           ],
           "VendorSeverity": {
             "amazon": 2,
+            "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -2293,7 +2366,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -3995,10 +4068,14 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
             "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -4017,13 +4094,19 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
             "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
@@ -4063,12 +4146,18 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
-            "redhat": 2
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
               "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
@@ -4081,10 +4170,11 @@
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-35536"
           ],
           "PublishedDate": "2026-04-03T04:16:53.55Z",
-          "LastModifiedDate": "2026-04-03T16:10:23.73Z"
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2023-43804",
@@ -4223,7 +4313,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -4310,7 +4400,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -4539,11 +4629,11 @@
           "LastModifiedDate": "2025-04-15T16:15:19.237Z"
         }
       ],
-      "vulnerability_count": 63
+      "vulnerability_count": 64
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 63
+    "total_vulnerabilities": 64
   }
 }

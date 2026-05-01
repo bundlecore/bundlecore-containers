@@ -1,7 +1,7 @@
 {
   "tool": "arboreto",
-  "scan_timestamp": "2026-04-08T04:22:44Z",
-  "workflow_run_id": "24117376688",
+  "scan_timestamp": "2026-05-01T05:56:52Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "0.1.6": {
       "image": "ghcr.io/bundlecore/products/bfx/arboreto:0.1.6",
@@ -142,6 +142,76 @@
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "ea850404851ef6dd"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a69a2837ff0e61d3728aa70c36496581593f49de1f489617d73a81a6724330f5",
+            "DiffID": "sha256:7b3a3701f7976a4d1fef4a7c0bbcc300060f02c5ec6d7e35e88bed9e9f41e442"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b4316490bba6b497732c67b6e9a328d825f66f9d0af60fb6c448e1486e03e79a",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-31958",
           "VendorIDs": [
             "GHSA-qjxf-f2mg-c6mc"
@@ -174,10 +244,14 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
             "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -196,13 +270,19 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
             "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
@@ -242,12 +322,18 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
-            "redhat": 2
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
               "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
@@ -260,10 +346,11 @@
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-35536"
           ],
           "PublishedDate": "2026-04-03T04:16:53.55Z",
-          "LastModifiedDate": "2026-04-03T16:10:23.73Z"
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -299,7 +386,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -386,7 +473,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -566,11 +653,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -608,11 +698,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 8
+      "vulnerability_count": 9
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 8
+    "total_vulnerabilities": 9
   }
 }

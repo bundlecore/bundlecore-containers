@@ -1,7 +1,7 @@
 {
   "tool": "peakachu",
-  "scan_timestamp": "2026-04-01T05:19:14Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:28:25Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "0.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/peakachu:0.2.0",
@@ -78,7 +78,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-6176"
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
-          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2023-39631",
@@ -215,6 +215,76 @@
           "LastModifiedDate": "2026-02-13T21:32:55.623Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.8/site-packages/pillow-10.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@10.3.0",
+            "UID": "483c8cdc7b7f0427"
+          },
+          "InstalledVersion": "10.3.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:aea7d71f3d3cbed26e771ac43218eb2cd92c7f070b05d7d37f444302ce599322",
+            "DiffID": "sha256:91927e42aa077985a8e37ffc0cb233dcc2270d1cb974794012ed7785b3208349"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a0d91ee8cb983da13358e16d8e5b95880da8d32bca5473058cddebfbbb4a058b",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
           "VulnerabilityID": "CVE-2025-47273",
           "VendorIDs": [
             "GHSA-5rjg-fvgr-3xxf"
@@ -336,7 +406,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -423,7 +493,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -603,11 +673,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -645,11 +718,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 8
+      "vulnerability_count": 9
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 8
+    "total_vulnerabilities": 9
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "ananse",
-  "scan_timestamp": "2026-04-08T04:19:49Z",
-  "workflow_run_id": "24117376688",
+  "scan_timestamp": "2026-05-01T05:53:42Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "0.5.1": {
       "image": "ghcr.io/bundlecore/products/bfx/ananse:0.5.1",
@@ -78,7 +78,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-6176"
           ],
           "PublishedDate": "2025-10-31T00:15:37.333Z",
-          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2023-50447",
@@ -299,6 +299,7 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -308,6 +309,10 @@
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.4
+            },
+            "julia": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
               "V3Score": 7.4
             },
@@ -359,6 +364,7 @@
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=2c6c9d439b484e1ba9830d8454a34fa4f80fdfe9",
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=2f7530077e0ef79d98718138716bc51ca0cad658",
             "https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=fd2af07dc083a350c959147097003a14a5e8ac4d",
+            "https://github.com/advisories/GHSA-x4qr-2fvf-3mr5",
             "https://github.com/pyca/cryptography",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-x4qr-2fvf-3mr5",
             "https://linux.oracle.com/cve/CVE-2023-0286.html",
@@ -656,7 +662,57 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-43859"
           ],
           "PublishedDate": "2025-04-24T19:15:47.06Z",
-          "LastModifiedDate": "2025-04-29T13:52:28.49Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41066",
+          "VendorIDs": [
+            "GHSA-vfmq-68hx-4jfw"
+          ],
+          "PkgName": "lxml",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/lxml-4.9.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/lxml@4.9.1",
+            "UID": "6a80191c52dc5499"
+          },
+          "InstalledVersion": "4.9.1",
+          "FixedVersion": "6.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:48acf7ae2239d9019bd6b1198ad6a5dc0c3c5fab2c08e23c06b05d39ccd1307e",
+            "DiffID": "sha256:f22df8251db55f4854cd84bd112e348348c6d0381126b86ae27b99b64c2fba98"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41066",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0bbd10cf0c13c73a1eaeff04f4d7b45dc14864fd75aea77014b4933806a068cb",
+          "Title": "lxml is a library for processing XML and HTML in the Python language.  ...",
+          "Description": "lxml is a library for processing XML and HTML in the Python language. Prior to 6.1.0, using either of the two parsers in the default configuration (with resolve_entities=True) allows untrusted XML input to read local files. Setting the resolve_entities option explicitly to resolve_entities='internal' or resolve_entities=False disables the local file access. This vulnerability is fixed in 6.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-611"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://bugs.launchpad.net/lxml/+bug/2146291",
+            "https://github.com/lxml/lxml",
+            "https://github.com/lxml/lxml/releases/tag/lxml-6.1.0",
+            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw"
+          ],
+          "PublishedDate": "2026-04-24T17:16:20.933Z",
+          "LastModifiedDate": "2026-04-24T17:56:41.28Z"
         },
         {
           "VulnerabilityID": "CVE-2024-21272",
@@ -819,7 +875,9 @@
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "nvd": 3,
             "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -828,6 +886,10 @@
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:L",
               "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -856,7 +918,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
-          "LastModifiedDate": "2026-01-26T15:03:51.687Z"
+          "LastModifiedDate": "2026-04-09T14:19:17.7Z"
         },
         {
           "VulnerabilityID": "CVE-2023-47248",
@@ -1009,7 +1071,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-6345"
           ],
           "PublishedDate": "2024-07-15T01:15:01.73Z",
-          "LastModifiedDate": "2025-11-04T17:16:16.143Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -1280,10 +1342,14 @@
             "CWE-400"
           ],
           "VendorSeverity": {
+            "alma": 2,
             "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1302,13 +1368,19 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:8093",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://bugzilla.redhat.com/2446765",
+            "https://errata.almalinux.org/8/ALSA-2026-8093.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/119a195e290c43ad2d63a2cf012c29d43d6ed839",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-qjxf-f2mg-c6mc",
+            "https://linux.oracle.com/cve/CVE-2026-31958.html",
+            "https://linux.oracle.com/errata/ELSA-2026-8093.html",
             "https://lists.debian.org/debian-lts-announce/2026/04/msg00000.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-31958",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-31958"
           ],
           "PublishedDate": "2026-03-11T20:16:16.617Z",
@@ -1348,12 +1420,18 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
-            "redhat": 2
+            "nvd": 2,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:N",
               "V3Score": 7.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
@@ -1366,10 +1444,11 @@
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.5",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-78cv-mqj4-43f7",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-35536",
+            "https://ubuntu.com/security/notices/USN-8198-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-35536"
           ],
           "PublishedDate": "2026-04-03T04:16:53.55Z",
-          "LastModifiedDate": "2026-04-03T16:10:23.73Z"
+          "LastModifiedDate": "2026-04-10T15:14:22.7Z"
         },
         {
           "VulnerabilityID": "CVE-2026-32874",
@@ -1405,6 +1484,7 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3
           },
           "CVSS": {
@@ -1465,6 +1545,7 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
+            "photon": 3,
             "redhat": 3
           },
           "CVSS": {
@@ -1523,7 +1604,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1610,7 +1691,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1790,11 +1871,14 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
             "redhat": 3,
-            "rocky": 3
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -1832,11 +1916,11 @@
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 24
+      "vulnerability_count": 25
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 24
+    "total_vulnerabilities": 25
   }
 }

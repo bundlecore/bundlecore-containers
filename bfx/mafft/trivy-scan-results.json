@@ -1,7 +1,7 @@
 {
   "tool": "mafft",
-  "scan_timestamp": "2026-04-01T05:15:07Z",
-  "workflow_run_id": "23832520682",
+  "scan_timestamp": "2026-05-01T06:23:53Z",
+  "workflow_run_id": "25204081627",
   "versions": {
     "7.525": {
       "image": "ghcr.io/bundlecore/products/bfx/mafft:7.525",
@@ -37,7 +37,7 @@
           "Severity": "CRITICAL",
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "bitnami": 4,
             "cbl-mariner": 4,
             "nvd": 4,
@@ -130,7 +130,7 @@
             "URL": "https://pkg.go.dev/vuln/"
           },
           "Fingerprint": "sha256:f6b44100815f8fadbd3b12e596d2d5a259cc6dc6bf28d0e427cd1264c010339f",
-          "Title": "crypto/tls: Unexpected session resumption in crypto/tls",
+          "Title": "crypto/tls: crypto/tls: Incorrect certificate validation during TLS session resumption",
           "Description": "During session resumption in crypto/tls, if the underlying Config has its ClientCAs or RootCAs fields mutated between the initial handshake and the resumed handshake, the resumed handshake may succeed when it should have failed. This may happen when a user calls Config.Clone and mutates the returned Config, or uses Config.GetConfigForClient. This can cause a client to resume a session with a server that it would not have resumed with during the initial handshake, or cause a server to resume a session with a client that it would not have resumed with during the initial handshake.",
           "Severity": "CRITICAL",
           "CweIDs": [
@@ -281,7 +281,7 @@
             "https://www.kb.cert.org/vuls/id/421644"
           ],
           "PublishedDate": "2024-04-04T21:15:16.113Z",
-          "LastModifiedDate": "2025-11-04T19:16:01.263Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-24788",
@@ -374,7 +374,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-24788"
           ],
           "PublishedDate": "2024-05-08T16:15:08.25Z",
-          "LastModifiedDate": "2024-11-21T16:15:22.527Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-34156",
@@ -455,7 +455,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-34156"
           ],
           "PublishedDate": "2024-09-06T21:15:12.02Z",
-          "LastModifiedDate": "2024-11-21T09:18:12.853Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47907",
@@ -595,7 +595,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-58183"
           ],
           "PublishedDate": "2025-10-29T23:16:19.357Z",
-          "LastModifiedDate": "2025-11-04T22:16:33.2Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-61726",
@@ -789,6 +789,7 @@
             "amazon": 3,
             "azure": 3,
             "bitnami": 3,
+            "cbl-mariner": 1,
             "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
@@ -858,10 +859,80 @@
           "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
           "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-425"
+          ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:9044",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2445356",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2445356",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-25679",
+            "https://errata.almalinux.org/9/ALSA-2026-9044.html",
+            "https://errata.rockylinux.org/RLSA-2026:7259",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-9044.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+          ],
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-04-21T14:43:03.8Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32280",
+          "VendorIDs": [
+            "GO-2026-4947"
+          ],
+          "PkgID": "stdlib@v1.22.1",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.22.1",
+            "UID": "8553a2ae6440b01a"
+          },
+          "InstalledVersion": "v1.22.1",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f81c2856d95b0c735184d56e4cf1db79e65552cd7b2d71e420997c9f44ed2c09",
+            "DiffID": "sha256:3c5bc954dc4a1d1b3d9d25aba253ebc626fd25e70f044d6410093c4173bebc42"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32280",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:275f6ac3e336b90c9b975060e8fb667f2abbe56631fef54e9951b72ad3dc7319",
+          "Title": "crypto/x509: crypto/tls: golang: Go: Denial of Service vulnerability in certificate chain building",
+          "Description": "During chain building, the amount of work that is done is not correctly limited when a large number of intermediate certificates are passed in VerifyOptions.Intermediates, which can lead to a denial of service. This affects both direct users of crypto/x509 and users of crypto/tls.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
             "bitnami": 3,
             "oracle-oval": 3,
             "redhat": 3
@@ -877,25 +948,143 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:5942",
-            "https://access.redhat.com/security/cve/CVE-2026-25679",
-            "https://bugzilla.redhat.com/2434433",
-            "https://bugzilla.redhat.com/2445356",
-            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
-            "https://go.dev/cl/752180",
-            "https://go.dev/issue/77578",
-            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
-            "https://linux.oracle.com/cve/CVE-2026-25679.html",
-            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
-            "https://pkg.go.dev/vuln/GO-2026-4601",
-            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+            "https://access.redhat.com/security/cve/CVE-2026-32280",
+            "https://go.dev/cl/758320",
+            "https://go.dev/issue/78282",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32280.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32280",
+            "https://pkg.go.dev/vuln/GO-2026-4947",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32280"
           ],
-          "PublishedDate": "2026-03-06T22:16:00.72Z",
-          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
+          "PublishedDate": "2026-04-08T02:16:03.247Z",
+          "LastModifiedDate": "2026-04-16T19:16:42.18Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32281",
+          "VendorIDs": [
+            "GO-2026-4946"
+          ],
+          "PkgID": "stdlib@v1.22.1",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.22.1",
+            "UID": "8553a2ae6440b01a"
+          },
+          "InstalledVersion": "v1.22.1",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f81c2856d95b0c735184d56e4cf1db79e65552cd7b2d71e420997c9f44ed2c09",
+            "DiffID": "sha256:3c5bc954dc4a1d1b3d9d25aba253ebc626fd25e70f044d6410093c4173bebc42"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32281",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:855fc23516357bf0d89586408e5d7f02c1b7e0e08d277b673acecc4fa1002274",
+          "Title": "crypto/x509: golang: Go crypto/x509: Denial of Service via inefficient certificate chain validation",
+          "Description": "Validating certificate chains which use policies is unexpectedly inefficient when certificates in the chain contain a very large number of policy mappings, possibly causing denial of service. This only affects validation of otherwise trusted certificate chains, issued by a root CA in the VerifyOptions.Roots CertPool, or in the system certificate pool.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32281",
+            "https://go.dev/cl/758061",
+            "https://go.dev/issue/78281",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32281",
+            "https://pkg.go.dev/vuln/GO-2026-4946",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32281"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.35Z",
+          "LastModifiedDate": "2026-04-16T19:15:57.75Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32283",
+          "VendorIDs": [
+            "GO-2026-4870"
+          ],
+          "PkgID": "stdlib@v1.22.1",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.22.1",
+            "UID": "8553a2ae6440b01a"
+          },
+          "InstalledVersion": "v1.22.1",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f81c2856d95b0c735184d56e4cf1db79e65552cd7b2d71e420997c9f44ed2c09",
+            "DiffID": "sha256:3c5bc954dc4a1d1b3d9d25aba253ebc626fd25e70f044d6410093c4173bebc42"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32283",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:a94666f94274db36176b3e46a73d6da3348cb1243fd3a2744f47660e3eb6d1cc",
+          "Title": "If one side of the TLS connection sends multiple key update messages p ...",
+          "Description": "If one side of the TLS connection sends multiple key update messages post-handshake in a single record, the connection can deadlock, causing uncontrolled consumption of resources. This can lead to a denial of service. This only affects TLS 1.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "oracle-oval": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://go.dev/cl/763767",
+            "https://go.dev/issue/78334",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32283.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32283",
+            "https://pkg.go.dev/vuln/GO-2026-4870"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.58Z",
+          "LastModifiedDate": "2026-04-16T19:12:10.54Z"
         }
       ],
-      "vulnerability_count": 11
+      "vulnerability_count": 14
     },
     "7.520": {
       "image": "ghcr.io/bundlecore/products/bfx/mafft:7.520",
@@ -931,7 +1120,7 @@
           "Severity": "CRITICAL",
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "bitnami": 4,
             "cbl-mariner": 4,
             "nvd": 4,
@@ -1024,7 +1213,7 @@
             "URL": "https://pkg.go.dev/vuln/"
           },
           "Fingerprint": "sha256:17886af8ccd2edbf4a8aae630c4f10772b828d8268ef94ead865f8f850ec741f",
-          "Title": "crypto/tls: Unexpected session resumption in crypto/tls",
+          "Title": "crypto/tls: crypto/tls: Incorrect certificate validation during TLS session resumption",
           "Description": "During session resumption in crypto/tls, if the underlying Config has its ClientCAs or RootCAs fields mutated between the initial handshake and the resumed handshake, the resumed handshake may succeed when it should have failed. This may happen when a user calls Config.Clone and mutates the returned Config, or uses Config.GetConfigForClient. This can cause a client to resume a session with a server that it would not have resumed with during the initial handshake, or cause a server to resume a session with a client that it would not have resumed with during the initial handshake.",
           "Severity": "CRITICAL",
           "CweIDs": [
@@ -1239,7 +1428,7 @@
             "https://www.kb.cert.org/vuls/id/421644"
           ],
           "PublishedDate": "2024-04-04T21:15:16.113Z",
-          "LastModifiedDate": "2025-11-04T19:16:01.263Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-34156",
@@ -1320,7 +1509,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-34156"
           ],
           "PublishedDate": "2024-09-06T21:15:12.02Z",
-          "LastModifiedDate": "2024-11-21T09:18:12.853Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47907",
@@ -1460,7 +1649,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-58183"
           ],
           "PublishedDate": "2025-10-29T23:16:19.357Z",
-          "LastModifiedDate": "2025-11-04T22:16:33.2Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-61726",
@@ -1654,6 +1843,7 @@
             "amazon": 3,
             "azure": 3,
             "bitnami": 3,
+            "cbl-mariner": 1,
             "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
@@ -1723,10 +1913,80 @@
           "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
           "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-425"
+          ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:9044",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2445356",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2445356",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-25679",
+            "https://errata.almalinux.org/9/ALSA-2026-9044.html",
+            "https://errata.rockylinux.org/RLSA-2026:7259",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-9044.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+          ],
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-04-21T14:43:03.8Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32280",
+          "VendorIDs": [
+            "GO-2026-4947"
+          ],
+          "PkgID": "stdlib@v1.21.3",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.21.3",
+            "UID": "3e693c35c7cd981b"
+          },
+          "InstalledVersion": "v1.21.3",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f1d2fb2a5774904df6a06dbf4392f0a5d9fb4efc80fa3864cbb5345eb77786e2",
+            "DiffID": "sha256:54caa769c539ac1e67663750d72de8306e7e7260e5985a34e796a0be9276c2fc"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32280",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:821795a16913f996a00d855bf9de6a64282701594a4f663f55cb7dddbc9440c8",
+          "Title": "crypto/x509: crypto/tls: golang: Go: Denial of Service vulnerability in certificate chain building",
+          "Description": "During chain building, the amount of work that is done is not correctly limited when a large number of intermediate certificates are passed in VerifyOptions.Intermediates, which can lead to a denial of service. This affects both direct users of crypto/x509 and users of crypto/tls.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
             "bitnami": 3,
             "oracle-oval": 3,
             "redhat": 3
@@ -1742,25 +2002,143 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:5942",
-            "https://access.redhat.com/security/cve/CVE-2026-25679",
-            "https://bugzilla.redhat.com/2434433",
-            "https://bugzilla.redhat.com/2445356",
-            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
-            "https://go.dev/cl/752180",
-            "https://go.dev/issue/77578",
-            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
-            "https://linux.oracle.com/cve/CVE-2026-25679.html",
-            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
-            "https://pkg.go.dev/vuln/GO-2026-4601",
-            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+            "https://access.redhat.com/security/cve/CVE-2026-32280",
+            "https://go.dev/cl/758320",
+            "https://go.dev/issue/78282",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32280.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32280",
+            "https://pkg.go.dev/vuln/GO-2026-4947",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32280"
           ],
-          "PublishedDate": "2026-03-06T22:16:00.72Z",
-          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
+          "PublishedDate": "2026-04-08T02:16:03.247Z",
+          "LastModifiedDate": "2026-04-16T19:16:42.18Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32281",
+          "VendorIDs": [
+            "GO-2026-4946"
+          ],
+          "PkgID": "stdlib@v1.21.3",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.21.3",
+            "UID": "3e693c35c7cd981b"
+          },
+          "InstalledVersion": "v1.21.3",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f1d2fb2a5774904df6a06dbf4392f0a5d9fb4efc80fa3864cbb5345eb77786e2",
+            "DiffID": "sha256:54caa769c539ac1e67663750d72de8306e7e7260e5985a34e796a0be9276c2fc"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32281",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:70cc5edeed0eb1cf7f7464ddce741b420276c02b99359f8ce5544581469be9a3",
+          "Title": "crypto/x509: golang: Go crypto/x509: Denial of Service via inefficient certificate chain validation",
+          "Description": "Validating certificate chains which use policies is unexpectedly inefficient when certificates in the chain contain a very large number of policy mappings, possibly causing denial of service. This only affects validation of otherwise trusted certificate chains, issued by a root CA in the VerifyOptions.Roots CertPool, or in the system certificate pool.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32281",
+            "https://go.dev/cl/758061",
+            "https://go.dev/issue/78281",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32281",
+            "https://pkg.go.dev/vuln/GO-2026-4946",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32281"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.35Z",
+          "LastModifiedDate": "2026-04-16T19:15:57.75Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32283",
+          "VendorIDs": [
+            "GO-2026-4870"
+          ],
+          "PkgID": "stdlib@v1.21.3",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.21.3",
+            "UID": "3e693c35c7cd981b"
+          },
+          "InstalledVersion": "v1.21.3",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:f1d2fb2a5774904df6a06dbf4392f0a5d9fb4efc80fa3864cbb5345eb77786e2",
+            "DiffID": "sha256:54caa769c539ac1e67663750d72de8306e7e7260e5985a34e796a0be9276c2fc"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32283",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:064dd8769bd2abb8789fe4c9a979e06a90bb1c0b4caea298dfbec0986762b03f",
+          "Title": "If one side of the TLS connection sends multiple key update messages p ...",
+          "Description": "If one side of the TLS connection sends multiple key update messages post-handshake in a single record, the connection can deadlock, causing uncontrolled consumption of resources. This can lead to a denial of service. This only affects TLS 1.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "oracle-oval": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://go.dev/cl/763767",
+            "https://go.dev/issue/78334",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32283.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32283",
+            "https://pkg.go.dev/vuln/GO-2026-4870"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.58Z",
+          "LastModifiedDate": "2026-04-16T19:12:10.54Z"
         }
       ],
-      "vulnerability_count": 11
+      "vulnerability_count": 14
     },
     "7.490": {
       "image": "ghcr.io/bundlecore/products/bfx/mafft:7.490",
@@ -1799,7 +2177,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 4,
             "bitnami": 4,
             "cbl-mariner": 4,
@@ -2143,7 +2521,7 @@
           "Severity": "CRITICAL",
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "bitnami": 4,
             "cbl-mariner": 4,
             "nvd": 4,
@@ -2236,7 +2614,7 @@
             "URL": "https://pkg.go.dev/vuln/"
           },
           "Fingerprint": "sha256:1e5845d8fa9cb4973336cf81eb958cd6b7eaa8b57211021f820e294ca840bd6e",
-          "Title": "crypto/tls: Unexpected session resumption in crypto/tls",
+          "Title": "crypto/tls: crypto/tls: Incorrect certificate validation during TLS session resumption",
           "Description": "During session resumption in crypto/tls, if the underlying Config has its ClientCAs or RootCAs fields mutated between the initial handshake and the resumed handshake, the resumed handshake may succeed when it should have failed. This may happen when a user calls Config.Clone and mutates the returned Config, or uses Config.GetConfigForClient. This can cause a client to resume a session with a server that it would not have resumed with during the initial handshake, or cause a server to resume a session with a client that it would not have resumed with during the initial handshake.",
           "Severity": "CRITICAL",
           "CweIDs": [
@@ -2753,7 +3131,7 @@
             "CWE-20"
           ],
           "VendorSeverity": {
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "bitnami": 3,
             "nvd": 3,
@@ -2839,7 +3217,7 @@
           "Severity": "HIGH",
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
             "bitnami": 3,
             "nvd": 3,
@@ -3313,7 +3691,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 2,
+            "amazon": 3,
             "bitnami": 3,
             "cbl-mariner": 3,
             "nvd": 3,
@@ -3609,7 +3987,7 @@
           "Severity": "HIGH",
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "bitnami": 3,
             "cbl-mariner": 3,
@@ -3695,6 +4073,8 @@
             "https://ubuntu.com/security/notices/USN-6038-1",
             "https://ubuntu.com/security/notices/USN-6038-2",
             "https://ubuntu.com/security/notices/USN-8089-1",
+            "https://ubuntu.com/security/notices/USN-8089-2",
+            "https://ubuntu.com/security/notices/USN-8089-3",
             "https://www.cve.org/CVERecord?id=CVE-2022-27664"
           ],
           "PublishedDate": "2022-09-06T18:15:12.747Z",
@@ -5353,6 +5733,8 @@
             "https://ubuntu.com/security/notices/USN-7109-1",
             "https://ubuntu.com/security/notices/USN-7111-1",
             "https://ubuntu.com/security/notices/USN-8089-1",
+            "https://ubuntu.com/security/notices/USN-8089-2",
+            "https://ubuntu.com/security/notices/USN-8089-3",
             "https://vuln.go.dev/ID/GO-2023-1571.json",
             "https://www.couchbase.com/alerts",
             "https://www.couchbase.com/alerts/",
@@ -5910,7 +6292,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "azure": 3,
             "bitnami": 3,
             "cbl-mariner": 3,
@@ -6804,7 +7186,7 @@
             "https://www.kb.cert.org/vuls/id/421644"
           ],
           "PublishedDate": "2024-04-04T21:15:16.113Z",
-          "LastModifiedDate": "2025-11-04T19:16:01.263Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2024-34156",
@@ -6885,7 +7267,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-34156"
           ],
           "PublishedDate": "2024-09-06T21:15:12.02Z",
-          "LastModifiedDate": "2024-11-21T09:18:12.853Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47907",
@@ -7025,7 +7407,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-58183"
           ],
           "PublishedDate": "2025-10-29T23:16:19.357Z",
-          "LastModifiedDate": "2025-11-04T22:16:33.2Z"
+          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
         },
         {
           "VulnerabilityID": "CVE-2025-61726",
@@ -7219,6 +7601,7 @@
             "amazon": 3,
             "azure": 3,
             "bitnami": 3,
+            "cbl-mariner": 1,
             "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
@@ -7288,10 +7671,80 @@
           "Title": "net/url: Incorrect parsing of IPv6 host literals in net/url",
           "Description": "url.Parse insufficiently validated the host/authority component and accepted some invalid URLs.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-425"
+          ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
+            "bitnami": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:9044",
+            "https://access.redhat.com/security/cve/CVE-2026-25679",
+            "https://bugzilla.redhat.com/2445356",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2445356",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-25679",
+            "https://errata.almalinux.org/9/ALSA-2026-9044.html",
+            "https://errata.rockylinux.org/RLSA-2026:7259",
+            "https://go.dev/cl/752180",
+            "https://go.dev/issue/77578",
+            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
+            "https://linux.oracle.com/cve/CVE-2026-25679.html",
+            "https://linux.oracle.com/errata/ELSA-2026-9044.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
+            "https://pkg.go.dev/vuln/GO-2026-4601",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+          ],
+          "PublishedDate": "2026-03-06T22:16:00.72Z",
+          "LastModifiedDate": "2026-04-21T14:43:03.8Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32280",
+          "VendorIDs": [
+            "GO-2026-4947"
+          ],
+          "PkgID": "stdlib@v1.13.5",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.13.5",
+            "UID": "5497f3f600a8d8c8"
+          },
+          "InstalledVersion": "v1.13.5",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:347260b8af73c29ceea09dd3a9a69cc8bedc083065f2dc978ac34455def6bf7e",
+            "DiffID": "sha256:906c3195c853fbe5769c2286d235f1d063787726bacf5d8b0c737999efe4fbe3"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32280",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:ebfc3b3c513468195bf8f3d530201c8d9c4e899201b1a994c15ba9c6981aecb0",
+          "Title": "crypto/x509: crypto/tls: golang: Go: Denial of Service vulnerability in certificate chain building",
+          "Description": "During chain building, the amount of work that is done is not correctly limited when a large number of intermediate certificates are passed in VerifyOptions.Intermediates, which can lead to a denial of service. This affects both direct users of crypto/x509 and users of crypto/tls.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
             "bitnami": 3,
             "oracle-oval": 3,
             "redhat": 3
@@ -7307,29 +7760,147 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:5942",
-            "https://access.redhat.com/security/cve/CVE-2026-25679",
-            "https://bugzilla.redhat.com/2434433",
-            "https://bugzilla.redhat.com/2445356",
-            "https://errata.almalinux.org/9/ALSA-2026-5942.html",
-            "https://go.dev/cl/752180",
-            "https://go.dev/issue/77578",
-            "https://groups.google.com/g/golang-announce/c/EdhZqrQ98hk",
-            "https://linux.oracle.com/cve/CVE-2026-25679.html",
-            "https://linux.oracle.com/errata/ELSA-2026-5942.html",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-25679",
-            "https://pkg.go.dev/vuln/GO-2026-4601",
-            "https://www.cve.org/CVERecord?id=CVE-2026-25679"
+            "https://access.redhat.com/security/cve/CVE-2026-32280",
+            "https://go.dev/cl/758320",
+            "https://go.dev/issue/78282",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32280.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32280",
+            "https://pkg.go.dev/vuln/GO-2026-4947",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32280"
           ],
-          "PublishedDate": "2026-03-06T22:16:00.72Z",
-          "LastModifiedDate": "2026-03-10T18:18:37.74Z"
+          "PublishedDate": "2026-04-08T02:16:03.247Z",
+          "LastModifiedDate": "2026-04-16T19:16:42.18Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32281",
+          "VendorIDs": [
+            "GO-2026-4946"
+          ],
+          "PkgID": "stdlib@v1.13.5",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.13.5",
+            "UID": "5497f3f600a8d8c8"
+          },
+          "InstalledVersion": "v1.13.5",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:347260b8af73c29ceea09dd3a9a69cc8bedc083065f2dc978ac34455def6bf7e",
+            "DiffID": "sha256:906c3195c853fbe5769c2286d235f1d063787726bacf5d8b0c737999efe4fbe3"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32281",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:2244098f06c0d2130bb5085763118091f64f912681e364b677505365db213bb6",
+          "Title": "crypto/x509: golang: Go crypto/x509: Denial of Service via inefficient certificate chain validation",
+          "Description": "Validating certificate chains which use policies is unexpectedly inefficient when certificates in the chain contain a very large number of policy mappings, possibly causing denial of service. This only affects validation of otherwise trusted certificate chains, issued by a root CA in the VerifyOptions.Roots CertPool, or in the system certificate pool.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-32281",
+            "https://go.dev/cl/758061",
+            "https://go.dev/issue/78281",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32281",
+            "https://pkg.go.dev/vuln/GO-2026-4946",
+            "https://www.cve.org/CVERecord?id=CVE-2026-32281"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.35Z",
+          "LastModifiedDate": "2026-04-16T19:15:57.75Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-32283",
+          "VendorIDs": [
+            "GO-2026-4870"
+          ],
+          "PkgID": "stdlib@v1.13.5",
+          "PkgName": "stdlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:golang/stdlib@v1.13.5",
+            "UID": "5497f3f600a8d8c8"
+          },
+          "InstalledVersion": "v1.13.5",
+          "FixedVersion": "1.25.9, 1.26.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:347260b8af73c29ceea09dd3a9a69cc8bedc083065f2dc978ac34455def6bf7e",
+            "DiffID": "sha256:906c3195c853fbe5769c2286d235f1d063787726bacf5d8b0c737999efe4fbe3"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-32283",
+          "DataSource": {
+            "ID": "govulndb",
+            "Name": "The Go Vulnerability Database",
+            "URL": "https://pkg.go.dev/vuln/"
+          },
+          "Fingerprint": "sha256:996d63571c1586c34d32f4a200daade98b752b5701da035a098dcdb91995d332",
+          "Title": "If one side of the TLS connection sends multiple key update messages p ...",
+          "Description": "If one side of the TLS connection sends multiple key update messages post-handshake in a single record, the connection can deadlock, causing uncontrolled consumption of resources. This can lead to a denial of service. This only affects TLS 1.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "nvd": 3,
+            "oracle-oval": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://go.dev/cl/763767",
+            "https://go.dev/issue/78334",
+            "https://groups.google.com/g/golang-announce/c/0uYbvbPZRWU",
+            "https://linux.oracle.com/cve/CVE-2026-32283.html",
+            "https://linux.oracle.com/errata/ELSA-2026-10219.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-32283",
+            "https://pkg.go.dev/vuln/GO-2026-4870"
+          ],
+          "PublishedDate": "2026-04-08T02:16:03.58Z",
+          "LastModifiedDate": "2026-04-16T19:12:10.54Z"
         }
       ],
-      "vulnerability_count": 57
+      "vulnerability_count": 60
     }
   },
   "summary": {
     "total_versions_scanned": 3,
-    "total_vulnerabilities": 79
+    "total_vulnerabilities": 88
   }
 }
