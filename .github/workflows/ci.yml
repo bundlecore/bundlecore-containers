@@ -42,6 +42,8 @@ jobs:
       uses: docker/setup-buildx-action@v4
 
     - name: Loop through containers
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         for dir in containers/*/; do
           app_name=$(basename $dir)
@@ -53,9 +55,9 @@ jobs:
           echo "Checking for updates for $app_name"
 
           repo_name=$(echo $repo_url | sed 's/https:\/\/github.com\///; s/\.git$//')
-          latest_version=$(curl -s https://api.github.com/repos/${repo_name}/releases/latest | jq -r '.tag_name')
+          latest_version=$(curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${repo_name}/releases/latest | jq -r '.tag_name')
           if [ "$latest_version" == "null" ]; then ## some of the repos do not have releases, so we get the latest tag instead
-            latest_version=$(curl -s https://api.github.com/repos/${repo_name}/tags | jq -r '.[0].name')
+            latest_version=$(curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${repo_name}/tags | jq -r 'if type == "array" then .[0].name else null end')
           fi
           echo "Latest version preset in Github for $app_name is $latest_version"
 
