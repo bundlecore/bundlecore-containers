@@ -1,7 +1,7 @@
 {
   "tool": "alphafold3",
-  "scan_timestamp": "2026-05-01T05:51:44Z",
-  "workflow_run_id": "25204081627",
+  "scan_timestamp": "2026-06-01T07:13:02Z",
+  "workflow_run_id": "26740418119",
   "versions": {
     "3.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/alphafold3:3.0.1",
@@ -41,6 +41,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -49,6 +50,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -69,6 +74,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -89,6 +95,75 @@
           ],
           "PublishedDate": "2025-12-28T17:16:01.5Z",
           "LastModifiedDate": "2026-01-14T19:16:46.857Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41651",
+          "PkgID": "gir1.2-packagekitglib-1.0@1.2.5-2ubuntu3",
+          "PkgName": "gir1.2-packagekitglib-1.0",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/gir1.2-packagekitglib-1.0@1.2.5-2ubuntu3?arch=amd64&distro=ubuntu-22.04",
+            "UID": "dec56041c5d62a3a"
+          },
+          "InstalledVersion": "1.2.5-2ubuntu3",
+          "FixedVersion": "1.2.5-2ubuntu3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41651",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:2bdbaa97155cb5a0cd4e654dae846276874b01d74f20f1268fbad27ec1fb7376",
+          "Title": "PackageKit: race condition vulnerability leads to arbitrary package installation as root",
+          "Description": "PackageKit is a a D-Bus abstraction layer that allows the user to manage packages in a secure way using a cross-distro, cross-architecture API. PackageKit between and including versions 1.0.2 and 1.3.4 is vulnerable to a time-of-check time-of-use (TOCTOU) race condition on transaction flags that allows unprivileged users to install packages as root and thus leads to a local privilege escalation. This is patched in version 1.3.5.\n\nA local unprivileged user can install arbitrary RPM packages as root, including executing RPM scriptlets, without authentication. The vulnerability is a TOCTOU race condition on `transaction->cached_transaction_flags`  combined with a silent state-machine guard that discards illegal backward transitions while leaving corrupted flags in place. Three bugs exist in `src/pk-transaction.c`:\n1. Unconditional flag overwrite (line 4036): `InstallFiles()` writes caller-supplied flags to `transaction->cached_transaction_flags` without checking whether the transaction has already been  authorized/started. A second call blindly overwrites the flags even while the transaction is RUNNING.\n2. Silent state-transition rejection (lines 873–882): `pk_transaction_set_state()` silently discards backward state transitions (e.g. `RUNNING` → `WAITING_FOR_AUTH`) but the flag overwrite at step 1 already happened. The transaction continues running with corrupted flags.\n3. Late flag read at execution time (lines 2273–2277): The scheduler's idle callback reads cached_transaction_flags at dispatch time, not at authorization time. If flags were overwritten between authorization and execution, the backend sees the attacker's flags.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/22/6",
+            "https://access.redhat.com/errata/RHSA-2026:19354",
+            "https://access.redhat.com/security/cve/CVE-2026-41651",
+            "https://bugzilla.redhat.com/2460604",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460604",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-41651",
+            "https://errata.almalinux.org/9/ALSA-2026-19354.html",
+            "https://errata.rockylinux.org/RLSA-2026:19354",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L2273-L2277",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L4036",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L873-L882",
+            "https://github.com/PackageKit/PackageKit/security/advisories/GHSA-f55j-vvr9-69xv",
+            "https://github.security.telekom.com/2026/04/pack2theroot-linux-local-privilege-escalation.html",
+            "https://linux.oracle.com/cve/CVE-2026-41651.html",
+            "https://linux.oracle.com/errata/ELSA-2026-11635.html",
+            "https://lists.freedesktop.org/archives/packagekit/2026-April/026513.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41651",
+            "https://ubuntu.com/security/notices/USN-8195-1",
+            "https://ubuntu.com/security/notices/USN-8195-2",
+            "https://ubuntu.com/security/notices/USN-8195-3",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41651"
+          ],
+          "PublishedDate": "2026-04-22T14:17:04.617Z",
+          "LastModifiedDate": "2026-05-05T20:16:39.25Z"
         },
         {
           "VulnerabilityID": "CVE-2025-48384",
@@ -317,6 +392,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -325,6 +401,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -345,6 +425,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -401,6 +482,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -409,6 +491,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -429,6 +515,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -485,6 +572,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -493,6 +581,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -513,6 +605,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -569,6 +662,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -577,6 +671,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -597,6 +695,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -653,6 +752,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -661,6 +761,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -681,6 +785,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -737,6 +842,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -745,6 +851,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -765,6 +875,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -821,6 +932,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -829,6 +941,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -849,6 +965,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -905,6 +1022,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -913,6 +1031,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -933,6 +1055,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -989,6 +1112,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -997,6 +1121,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -1017,6 +1145,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -1073,6 +1202,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -1081,6 +1211,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -1101,6 +1235,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -1157,6 +1292,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -1165,6 +1301,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -1185,6 +1325,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -1205,6 +1346,75 @@
           ],
           "PublishedDate": "2025-12-28T17:16:01.5Z",
           "LastModifiedDate": "2026-01-14T19:16:46.857Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41651",
+          "PkgID": "libpackagekit-glib2-18@1.2.5-2ubuntu3",
+          "PkgName": "libpackagekit-glib2-18",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/libpackagekit-glib2-18@1.2.5-2ubuntu3?arch=amd64&distro=ubuntu-22.04",
+            "UID": "9b074fb37a02717c"
+          },
+          "InstalledVersion": "1.2.5-2ubuntu3",
+          "FixedVersion": "1.2.5-2ubuntu3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41651",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:dc16556fedcd79389558e46faeb8683687e11d63440ea05137beaa7eca8ab117",
+          "Title": "PackageKit: race condition vulnerability leads to arbitrary package installation as root",
+          "Description": "PackageKit is a a D-Bus abstraction layer that allows the user to manage packages in a secure way using a cross-distro, cross-architecture API. PackageKit between and including versions 1.0.2 and 1.3.4 is vulnerable to a time-of-check time-of-use (TOCTOU) race condition on transaction flags that allows unprivileged users to install packages as root and thus leads to a local privilege escalation. This is patched in version 1.3.5.\n\nA local unprivileged user can install arbitrary RPM packages as root, including executing RPM scriptlets, without authentication. The vulnerability is a TOCTOU race condition on `transaction->cached_transaction_flags`  combined with a silent state-machine guard that discards illegal backward transitions while leaving corrupted flags in place. Three bugs exist in `src/pk-transaction.c`:\n1. Unconditional flag overwrite (line 4036): `InstallFiles()` writes caller-supplied flags to `transaction->cached_transaction_flags` without checking whether the transaction has already been  authorized/started. A second call blindly overwrites the flags even while the transaction is RUNNING.\n2. Silent state-transition rejection (lines 873–882): `pk_transaction_set_state()` silently discards backward state transitions (e.g. `RUNNING` → `WAITING_FOR_AUTH`) but the flag overwrite at step 1 already happened. The transaction continues running with corrupted flags.\n3. Late flag read at execution time (lines 2273–2277): The scheduler's idle callback reads cached_transaction_flags at dispatch time, not at authorization time. If flags were overwritten between authorization and execution, the backend sees the attacker's flags.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/22/6",
+            "https://access.redhat.com/errata/RHSA-2026:19354",
+            "https://access.redhat.com/security/cve/CVE-2026-41651",
+            "https://bugzilla.redhat.com/2460604",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460604",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-41651",
+            "https://errata.almalinux.org/9/ALSA-2026-19354.html",
+            "https://errata.rockylinux.org/RLSA-2026:19354",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L2273-L2277",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L4036",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L873-L882",
+            "https://github.com/PackageKit/PackageKit/security/advisories/GHSA-f55j-vvr9-69xv",
+            "https://github.security.telekom.com/2026/04/pack2theroot-linux-local-privilege-escalation.html",
+            "https://linux.oracle.com/cve/CVE-2026-41651.html",
+            "https://linux.oracle.com/errata/ELSA-2026-11635.html",
+            "https://lists.freedesktop.org/archives/packagekit/2026-April/026513.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41651",
+            "https://ubuntu.com/security/notices/USN-8195-1",
+            "https://ubuntu.com/security/notices/USN-8195-2",
+            "https://ubuntu.com/security/notices/USN-8195-3",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41651"
+          ],
+          "PublishedDate": "2026-04-22T14:17:04.617Z",
+          "LastModifiedDate": "2026-05-05T20:16:39.25Z"
         },
         {
           "VulnerabilityID": "CVE-2022-42919",
@@ -1649,7 +1859,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-8176",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-9900",
             "https://errata.almalinux.org/9/ALSA-2025-20956.html",
-            "https://errata.rockylinux.org/RLSA-2025:19113",
+            "https://errata.rockylinux.org/RLSA-2025:20956",
             "https://github.com/SexyShoelessGodofWar/LibTiff-4.7.0-Write-What-Where?tab=readme-ov-file",
             "https://gitlab.com/libtiff/libtiff/-/commit/3e0dcf0ec651638b2bd849b2e6f3124b36890d99 (v4.7.1rc1)",
             "https://gitlab.com/libtiff/libtiff/-/issues/704",
@@ -1660,6 +1870,9 @@
             "https://lists.debian.org/debian-lts-announce/2025/09/msg00031.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-9900",
             "https://ubuntu.com/security/notices/USN-7783-1",
+            "https://ubuntu.com/security/notices/USN-8345-1",
+            "https://ubuntu.com/security/notices/USN-8346-1",
+            "https://ubuntu.com/security/notices/USN-8347-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-9900"
           ],
           "PublishedDate": "2025-09-23T17:15:38.357Z",
@@ -1736,6 +1949,73 @@
           "LastModifiedDate": "2024-11-21T06:39:49.223Z"
         },
         {
+          "VulnerabilityID": "CVE-2022-21546",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-144.157",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-21546",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:b30c5db666404fec78fe85801d8f841af9eb74035f0a91a1b1b419cf1744f3dc",
+          "Title": "In the Linux kernel, the following vulnerability has been resolved:  s ...",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: target: Fix WRITE_SAME No Data Buffer crash\n\nIn newer version of the SBC specs, we have a NDOB bit that indicates there\nis no data buffer that gets written out. If this bit is set using commands\nlike \"sg_write_same --ndob\" we will crash in target_core_iblock/file's\nexecute_write_same handlers when we go to access the se_cmd->t_data_sg\nbecause its NULL.\n\nThis patch adds a check for the NDOB bit in the common WRITE SAME code\nbecause we don't support it. And, it adds a check for zero SG elements in\neach handler in case the initiator tries to send a normal WRITE SAME with\nno data buffer.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-476"
+          ],
+          "VendorSeverity": {
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://git.kernel.org/linus/ccd3f449052449a917a3e577d8ba0368f43b8f29",
+            "https://git.kernel.org/linus/ccd3f449052449a917a3e577d8ba0368f43b8f29 (5.19-rc7)",
+            "https://git.kernel.org/stable/c/4226622647e3e5ac06d3ebc1605b917446157510",
+            "https://git.kernel.org/stable/c/54e57be2573cf0b8bf650375fd8752987b6c3d3b",
+            "https://git.kernel.org/stable/c/ccd3f449052449a917a3e577d8ba0368f43b8f29",
+            "https://git.kernel.org/stable/c/d8e6a27e9238dd294d6f2f401655f300dca20899",
+            "https://linux.oracle.com/cve/CVE-2022-21546.html",
+            "https://linux.oracle.com/errata/ELSA-2022-9830.html",
+            "https://lists.debian.org/debian-lts-announce/2025/10/msg00007.html",
+            "https://lore.kernel.org/all/20220628022325.14627-2-michael.christie@oracle.com/",
+            "https://ubuntu.com/security/notices/USN-7654-1",
+            "https://ubuntu.com/security/notices/USN-7654-2",
+            "https://ubuntu.com/security/notices/USN-7654-3",
+            "https://ubuntu.com/security/notices/USN-7654-4",
+            "https://ubuntu.com/security/notices/USN-7654-5",
+            "https://ubuntu.com/security/notices/USN-7655-1",
+            "https://ubuntu.com/security/notices/USN-7686-1",
+            "https://ubuntu.com/security/notices/USN-7711-1",
+            "https://ubuntu.com/security/notices/USN-7712-1",
+            "https://ubuntu.com/security/notices/USN-7712-2",
+            "https://www.cve.org/CVERecord?id=CVE-2022-21546"
+          ],
+          "PublishedDate": "2025-05-02T22:15:15.29Z",
+          "LastModifiedDate": "2025-11-10T17:37:14.47Z"
+        },
+        {
           "VulnerabilityID": "CVE-2022-49390",
           "PkgID": "linux-libc-dev@5.15.0-131.141",
           "PkgName": "linux-libc-dev",
@@ -1806,6 +2086,141 @@
           ],
           "PublishedDate": "2025-02-26T07:01:15.62Z",
           "LastModifiedDate": "2025-03-25T13:48:09.85Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-2640",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-177.187",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-2640",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:814c5453a628f0438c1a7d3d605c69ee35368f4736cf12c79bc985b09a99c163",
+          "Title": "kernel: overlayfs: In Ubuntu skip permission checking for trusted.overlayfs.* xattrs",
+          "Description": "On Ubuntu kernels carrying both c914c0e27eb0 and \"UBUNTU: SAUCE: overlayfs: Skip permission checking for trusted.overlayfs.* xattrs\", an unprivileged user may set privileged extended attributes on the mounted files, leading them to be set on the upper files without the appropriate security checks.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2023-2640",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2640",
+            "https://lists.ubuntu.com/archives/kernel-team/2023-July/140920.html",
+            "https://lists.ubuntu.com/archives/kernel-team/2023-July/140923.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-2640",
+            "https://ubuntu.com/security/notices/USN-6248-1",
+            "https://ubuntu.com/security/notices/USN-6250-1",
+            "https://ubuntu.com/security/notices/USN-6260-1",
+            "https://ubuntu.com/security/notices/USN-6285-1",
+            "https://ubuntu.com/security/notices/USN-8255-1",
+            "https://ubuntu.com/security/notices/USN-8255-2",
+            "https://ubuntu.com/security/notices/USN-8255-3",
+            "https://ubuntu.com/security/notices/USN-8275-1",
+            "https://ubuntu.com/security/notices/USN-8297-1",
+            "https://wiz.io/blog/ubuntu-overlayfs-vulnerability",
+            "https://www.cve.org/CVERecord?id=CVE-2023-2640",
+            "https://www.wiz.io/blog/ubuntu-overlayfs-vulnerability"
+          ],
+          "PublishedDate": "2023-07-26T02:15:09.3Z",
+          "LastModifiedDate": "2024-11-21T07:58:59.06Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-32629",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-177.187",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-32629",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:ac0265a54eb5c37aee44d7f1db2b6a1c046eef570cabf2df8a09a1c277d2c320",
+          "Title": "kernel: overlayfs: In Ubuntu skip permission checking for trusted.overlayfs.* xattrs",
+          "Description": "Local privilege escalation vulnerability in Ubuntu Kernels overlayfs ovl_copy_up_meta_inode_data skip permission checks when calling ovl_do_setxattr on Ubuntu kernels",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "http://packetstormsecurity.com/files/174577/Kernel-Live-Patch-Security-Notice-LSN-0097-1.html",
+            "https://access.redhat.com/security/cve/CVE-2023-32629",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-32629",
+            "https://lists.ubuntu.com/archives/kernel-team/2023-July/140920.html",
+            "https://lists.ubuntu.com/archives/kernel-team/2023-July/140923.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-32629",
+            "https://ubuntu.com/security/notices/USN-6248-1",
+            "https://ubuntu.com/security/notices/USN-6250-1",
+            "https://ubuntu.com/security/notices/USN-6251-1",
+            "https://ubuntu.com/security/notices/USN-6260-1",
+            "https://ubuntu.com/security/notices/USN-6261-1",
+            "https://ubuntu.com/security/notices/USN-6285-1",
+            "https://ubuntu.com/security/notices/USN-8255-1",
+            "https://ubuntu.com/security/notices/USN-8255-2",
+            "https://ubuntu.com/security/notices/USN-8255-3",
+            "https://ubuntu.com/security/notices/USN-8275-1",
+            "https://ubuntu.com/security/notices/USN-8297-1",
+            "https://wiz.io/blog/ubuntu-overlayfs-vulnerability",
+            "https://www.cve.org/CVERecord?id=CVE-2023-32629",
+            "https://www.wiz.io/blog/ubuntu-overlayfs-vulnerability"
+          ],
+          "PublishedDate": "2023-07-26T02:15:09.413Z",
+          "LastModifiedDate": "2024-11-21T08:03:44.193Z"
         },
         {
           "VulnerabilityID": "CVE-2023-52664",
@@ -1946,6 +2361,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2023-52927",
+            "https://cert-portal.siemens.com/productcert/html/ssa-082556.html",
             "https://git.kernel.org/linus/4914109a8e1e494c6aa9852f9e84ec77a5fc643f (6.6-rc1)",
             "https://git.kernel.org/stable/c/3fa58a6fbd1e9e5682d09cdafb08fba004cb12ec",
             "https://git.kernel.org/stable/c/4914109a8e1e494c6aa9852f9e84ec77a5fc643f",
@@ -1977,7 +2393,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2023-52927"
           ],
           "PublishedDate": "2025-03-14T15:15:39.253Z",
-          "LastModifiedDate": "2025-12-31T00:48:10.147Z"
+          "LastModifiedDate": "2026-05-12T12:16:16.417Z"
         },
         {
           "VulnerabilityID": "CVE-2024-26928",
@@ -2260,7 +2676,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
-            "amazon": 3,
+            "amazon": 2,
             "oracle-oval": 2,
             "photon": 2,
             "redhat": 2,
@@ -2469,6 +2885,9 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2024-50299",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-355557.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-398330.html",
             "https://git.kernel.org/linus/0ead60804b64f5bd6999eec88e503c6a1a242d41 (6.12-rc7)",
             "https://git.kernel.org/stable/c/0ead60804b64f5bd6999eec88e503c6a1a242d41",
             "https://git.kernel.org/stable/c/40b283ba76665437bc2ac72079c51b57b25bff9e",
@@ -2532,7 +2951,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-50299"
           ],
           "PublishedDate": "2024-11-19T02:16:32.053Z",
-          "LastModifiedDate": "2025-11-03T23:17:12.457Z"
+          "LastModifiedDate": "2026-05-12T13:16:20.427Z"
         },
         {
           "VulnerabilityID": "CVE-2024-50302",
@@ -2598,6 +3017,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2334412",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2337098",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2348562",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-355557.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-50302",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-53197",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-57807",
@@ -2668,7 +3089,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-50302"
           ],
           "PublishedDate": "2024-11-19T02:16:32.32Z",
-          "LastModifiedDate": "2025-11-04T14:36:30.66Z"
+          "LastModifiedDate": "2026-05-12T18:47:16.597Z"
         },
         {
           "VulnerabilityID": "CVE-2024-53063",
@@ -4529,6 +4950,7 @@
             "https://ubuntu.com/security/notices/USN-8098-9",
             "https://ubuntu.com/security/notices/USN-8107-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
             "https://www.cve.org/CVERecord?id=CVE-2024-56640"
           ],
           "PublishedDate": "2024-12-27T15:15:23.73Z",
@@ -4923,6 +5345,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2369184",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2376076",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383441",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-48830",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49024",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49269",
@@ -5079,7 +5502,80 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-56672"
           ],
           "PublishedDate": "2024-12-27T15:15:27.107Z",
-          "LastModifiedDate": "2025-11-03T21:18:17.613Z"
+          "LastModifiedDate": "2026-05-12T13:16:22.777Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-56692",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-56692",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:2bbc8b496d886746878b8264e5fdd7c1d06d88e316ab2dcde345ccfb936c6c88",
+          "Title": "kernel: f2fs: fix to do sanity check on node blkaddr in truncate_node()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix to do sanity check on node blkaddr in truncate_node()\n\nsyzbot reports a f2fs bug as below:\n\n------------[ cut here ]------------\nkernel BUG at fs/f2fs/segment.c:2534!\nRIP: 0010:f2fs_invalidate_blocks+0x35f/0x370 fs/f2fs/segment.c:2534\nCall Trace:\n truncate_node+0x1ae/0x8c0 fs/f2fs/node.c:909\n f2fs_remove_inode_page+0x5c2/0x870 fs/f2fs/node.c:1288\n f2fs_evict_inode+0x879/0x15c0 fs/f2fs/inode.c:856\n evict+0x4e8/0x9b0 fs/inode.c:723\n f2fs_handle_failed_inode+0x271/0x2e0 fs/f2fs/inode.c:986\n f2fs_create+0x357/0x530 fs/f2fs/namei.c:394\n lookup_open fs/namei.c:3595 [inline]\n open_last_lookups fs/namei.c:3694 [inline]\n path_openat+0x1c03/0x3590 fs/namei.c:3930\n do_filp_open+0x235/0x490 fs/namei.c:3960\n do_sys_openat2+0x13e/0x1d0 fs/open.c:1415\n do_sys_open fs/open.c:1430 [inline]\n __do_sys_openat fs/open.c:1446 [inline]\n __se_sys_openat fs/open.c:1441 [inline]\n __x64_sys_openat+0x247/0x2a0 fs/open.c:1441\n do_syscall_x64 arch/x86/entry/common.c:52 [inline]\n do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83\n entry_SYSCALL_64_after_hwframe+0x77/0x7f\nRIP: 0010:f2fs_invalidate_blocks+0x35f/0x370 fs/f2fs/segment.c:2534\n\nThe root cause is: on a fuzzed image, blkaddr in nat entry may be\ncorrupted, then it will cause system panic when using it in\nf2fs_invalidate_blocks(), to avoid this, let's add sanity check on\nnat blkaddr in truncate_node().",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-754"
+          ],
+          "VendorSeverity": {
+            "azure": 2,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-56692",
+            "https://git.kernel.org/linus/6babe00ccd34fc65b78ef8b99754e32b4385f23d (6.13-rc1)",
+            "https://git.kernel.org/stable/c/0a5c8b3fbf6200f1c66062d307c9a52084917788",
+            "https://git.kernel.org/stable/c/27d6e7eff07f8cce8e83b162d8f21a07458c860d",
+            "https://git.kernel.org/stable/c/6babe00ccd34fc65b78ef8b99754e32b4385f23d",
+            "https://git.kernel.org/stable/c/c1077078ce4589b5e5387f6b0aaa0d4534b9eb57",
+            "https://linux.oracle.com/cve/CVE-2024-56692.html",
+            "https://linux.oracle.com/errata/ELSA-2025-20530.html",
+            "https://lore.kernel.org/linux-cve-announce/2024122835-CVE-2024-56692-e6ad@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-56692",
+            "https://ubuntu.com/security/notices/USN-7276-1",
+            "https://ubuntu.com/security/notices/USN-7277-1",
+            "https://ubuntu.com/security/notices/USN-7310-1",
+            "https://ubuntu.com/security/notices/USN-7449-1",
+            "https://ubuntu.com/security/notices/USN-7449-2",
+            "https://ubuntu.com/security/notices/USN-7450-1",
+            "https://ubuntu.com/security/notices/USN-7451-1",
+            "https://ubuntu.com/security/notices/USN-7452-1",
+            "https://ubuntu.com/security/notices/USN-7453-1",
+            "https://ubuntu.com/security/notices/USN-7468-1",
+            "https://ubuntu.com/security/notices/USN-7523-1",
+            "https://ubuntu.com/security/notices/USN-7524-1",
+            "https://www.cve.org/CVERecord?id=CVE-2024-56692"
+          ],
+          "PublishedDate": "2024-12-28T10:15:14.49Z",
+          "LastModifiedDate": "2025-10-01T20:17:40.847Z"
         },
         {
           "VulnerabilityID": "CVE-2024-56759",
@@ -6203,6 +6699,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2369184",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2376076",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383441",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-503939.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-48830",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49024",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49269",
@@ -6381,7 +6879,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-21647"
           ],
           "PublishedDate": "2025-01-19T11:15:10.307Z",
-          "LastModifiedDate": "2025-11-03T21:19:00.843Z"
+          "LastModifiedDate": "2026-05-12T13:16:30.483Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21692",
@@ -6434,6 +6932,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2025-21692",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-355557.html",
             "https://git.kernel.org/linus/d62b04fca4340a0d468d7853bd66e511935a18cb (6.14-rc1)",
             "https://git.kernel.org/stable/c/03c56665dab1f4ac844bc156652d50d639093fa5",
             "https://git.kernel.org/stable/c/1332c6ed446be787f901ed1064ec6a3c694f028a",
@@ -6472,7 +6972,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-21692"
           ],
           "PublishedDate": "2025-02-10T16:15:38.763Z",
-          "LastModifiedDate": "2025-11-03T21:19:08.483Z"
+          "LastModifiedDate": "2026-05-12T13:16:31.877Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21703",
@@ -6603,6 +7103,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2025-21704",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://git.kernel.org/linus/e563b01208f4d1f609bcab13333b6c0e24ce6a01 (6.14-rc3)",
             "https://git.kernel.org/stable/c/383d516a0ebc8641372b521c8cb717f0f1834831",
             "https://git.kernel.org/stable/c/6abb510251e75f875797d8983a830e6731fa281c",
@@ -6669,7 +7170,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-21704"
           ],
           "PublishedDate": "2025-02-22T10:15:11.263Z",
-          "LastModifiedDate": "2025-11-03T20:17:10.19Z"
+          "LastModifiedDate": "2026-05-12T13:16:32.75Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21715",
@@ -6783,6 +7284,119 @@
           ],
           "PublishedDate": "2025-02-27T02:15:15.167Z",
           "LastModifiedDate": "2025-11-03T20:17:11.313Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-21718",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-140.150",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-21718",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:d9d624ea4eb99d1ac73006872709c54cc3ea6b342d656c9cbf857d6b9f566741",
+          "Title": "kernel: net: rose: fix timer races against user threads",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: rose: fix timer races against user threads\n\nRose timers only acquire the socket spinlock, without\nchecking if the socket is owned by one user thread.\n\nAdd a check and rearm the timers if needed.\n\nBUG: KASAN: slab-use-after-free in rose_timer_expiry+0x31d/0x360 net/rose/rose_timer.c:174\nRead of size 2 at addr ffff88802f09b82a by task swapper/0/0\n\nCPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 6.13.0-rc5-syzkaller-00172-gd1bf27c4e176 #0\nHardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024\nCall Trace:\n <IRQ>\n  __dump_stack lib/dump_stack.c:94 [inline]\n  dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120\n  print_address_description mm/kasan/report.c:378 [inline]\n  print_report+0x169/0x550 mm/kasan/report.c:489\n  kasan_report+0x143/0x180 mm/kasan/report.c:602\n  rose_timer_expiry+0x31d/0x360 net/rose/rose_timer.c:174\n  call_timer_fn+0x187/0x650 kernel/time/timer.c:1793\n  expire_timers kernel/time/timer.c:1844 [inline]\n  __run_timers kernel/time/timer.c:2418 [inline]\n  __run_timer_base+0x66a/0x8e0 kernel/time/timer.c:2430\n  run_timer_base kernel/time/timer.c:2439 [inline]\n  run_timer_softirq+0xb7/0x170 kernel/time/timer.c:2449\n  handle_softirqs+0x2d4/0x9b0 kernel/softirq.c:561\n  __do_softirq kernel/softirq.c:595 [inline]\n  invoke_softirq kernel/softirq.c:435 [inline]\n  __irq_exit_rcu+0xf7/0x220 kernel/softirq.c:662\n  irq_exit_rcu+0x9/0x30 kernel/softirq.c:678\n  instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1049 [inline]\n  sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1049\n </IRQ>",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-362",
+            "CWE-416"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "cbl-mariner": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-21718",
+            "https://git.kernel.org/linus/5de7665e0a0746b5ad7943554b34db8f8614a196 (6.14-rc1)",
+            "https://git.kernel.org/stable/c/0d5bca3be27bfcf8f980f2fed49b6cbb7dafe4a1",
+            "https://git.kernel.org/stable/c/1409b45d4690308c502c6caf22f01c3c205b4717",
+            "https://git.kernel.org/stable/c/1992fb261c90e9827cf5dc3115d89bb0853252c9",
+            "https://git.kernel.org/stable/c/51c128ba038cf1b79d605cbee325919b45ab95a5",
+            "https://git.kernel.org/stable/c/52f5aff33ca73b2c2fa93f40a3de308012e63cf4",
+            "https://git.kernel.org/stable/c/58051a284ac18a3bb815aac6289a679903ddcc3f",
+            "https://git.kernel.org/stable/c/5de7665e0a0746b5ad7943554b34db8f8614a196",
+            "https://git.kernel.org/stable/c/f55c88e3ca5939a6a8a329024aed8f3d98eea8e4",
+            "https://linux.oracle.com/cve/CVE-2025-21718.html",
+            "https://linux.oracle.com/errata/ELSA-2025-20530.html",
+            "https://lists.debian.org/debian-lts-announce/2025/03/msg00028.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00030.html",
+            "https://lore.kernel.org/linux-cve-announce/2025022646-CVE-2025-21718-d976@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-21718",
+            "https://ubuntu.com/security/notices/USN-7510-1",
+            "https://ubuntu.com/security/notices/USN-7510-2",
+            "https://ubuntu.com/security/notices/USN-7510-3",
+            "https://ubuntu.com/security/notices/USN-7510-4",
+            "https://ubuntu.com/security/notices/USN-7510-5",
+            "https://ubuntu.com/security/notices/USN-7510-6",
+            "https://ubuntu.com/security/notices/USN-7510-7",
+            "https://ubuntu.com/security/notices/USN-7510-8",
+            "https://ubuntu.com/security/notices/USN-7511-1",
+            "https://ubuntu.com/security/notices/USN-7511-2",
+            "https://ubuntu.com/security/notices/USN-7511-3",
+            "https://ubuntu.com/security/notices/USN-7512-1",
+            "https://ubuntu.com/security/notices/USN-7516-1",
+            "https://ubuntu.com/security/notices/USN-7516-2",
+            "https://ubuntu.com/security/notices/USN-7516-3",
+            "https://ubuntu.com/security/notices/USN-7516-4",
+            "https://ubuntu.com/security/notices/USN-7516-5",
+            "https://ubuntu.com/security/notices/USN-7516-6",
+            "https://ubuntu.com/security/notices/USN-7516-7",
+            "https://ubuntu.com/security/notices/USN-7516-8",
+            "https://ubuntu.com/security/notices/USN-7516-9",
+            "https://ubuntu.com/security/notices/USN-7517-1",
+            "https://ubuntu.com/security/notices/USN-7517-2",
+            "https://ubuntu.com/security/notices/USN-7517-3",
+            "https://ubuntu.com/security/notices/USN-7518-1",
+            "https://ubuntu.com/security/notices/USN-7521-1",
+            "https://ubuntu.com/security/notices/USN-7521-2",
+            "https://ubuntu.com/security/notices/USN-7521-3",
+            "https://ubuntu.com/security/notices/USN-7539-1",
+            "https://ubuntu.com/security/notices/USN-7540-1",
+            "https://ubuntu.com/security/notices/USN-7593-1",
+            "https://ubuntu.com/security/notices/USN-7602-1",
+            "https://ubuntu.com/security/notices/USN-7640-1",
+            "https://ubuntu.com/security/notices/USN-7651-1",
+            "https://ubuntu.com/security/notices/USN-7651-2",
+            "https://ubuntu.com/security/notices/USN-7651-3",
+            "https://ubuntu.com/security/notices/USN-7651-4",
+            "https://ubuntu.com/security/notices/USN-7651-5",
+            "https://ubuntu.com/security/notices/USN-7651-6",
+            "https://ubuntu.com/security/notices/USN-7652-1",
+            "https://ubuntu.com/security/notices/USN-7653-1",
+            "https://ubuntu.com/security/notices/USN-7737-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-21718"
+          ],
+          "PublishedDate": "2025-02-27T02:15:15.473Z",
+          "LastModifiedDate": "2025-11-03T20:17:11.733Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21726",
@@ -7055,6 +7669,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2369184",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2376076",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383441",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-48830",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49024",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49269",
@@ -7216,10 +7831,11 @@
             "https://ubuntu.com/security/notices/USN-7990-4",
             "https://ubuntu.com/security/notices/USN-7990-5",
             "https://ubuntu.com/security/notices/USN-7990-6",
+            "https://ubuntu.com/security/notices/USN-8224-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-21726"
           ],
           "PublishedDate": "2025-02-27T02:15:16.323Z",
-          "LastModifiedDate": "2025-11-03T20:17:12.63Z"
+          "LastModifiedDate": "2026-05-12T13:16:33.49Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21727",
@@ -7286,6 +7902,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366848",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2373380",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2375531",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-49788",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-21727",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-21928",
@@ -7345,7 +7962,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-21727"
           ],
           "PublishedDate": "2025-02-27T02:15:16.423Z",
-          "LastModifiedDate": "2025-11-03T20:17:12.81Z"
+          "LastModifiedDate": "2026-05-12T13:16:33.687Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21735",
@@ -7395,6 +8012,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2025-21735",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://git.kernel.org/linus/110b43ef05342d5a11284cc8b21582b698b4ef1c (6.14-rc1)",
             "https://git.kernel.org/stable/c/10b3f947b609713e04022101f492d288a014ddfa",
             "https://git.kernel.org/stable/c/110b43ef05342d5a11284cc8b21582b698b4ef1c",
@@ -7459,10 +8077,11 @@
             "https://ubuntu.com/security/notices/USN-8145-3",
             "https://ubuntu.com/security/notices/USN-8145-4",
             "https://ubuntu.com/security/notices/USN-8145-5",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-21735"
           ],
           "PublishedDate": "2025-02-27T03:15:14.13Z",
-          "LastModifiedDate": "2025-11-03T20:17:13.49Z"
+          "LastModifiedDate": "2026-05-12T13:16:34.053Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21761",
@@ -7494,7 +8113,6 @@
             "CWE-416"
           ],
           "VendorSeverity": {
-            "alma": 2,
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
@@ -7511,96 +8129,7 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:20095",
             "https://access.redhat.com/security/cve/CVE-2025-21761",
-            "https://bugzilla.redhat.com/2331326",
-            "https://bugzilla.redhat.com/2333985",
-            "https://bugzilla.redhat.com/2334373",
-            "https://bugzilla.redhat.com/2334415",
-            "https://bugzilla.redhat.com/2334547",
-            "https://bugzilla.redhat.com/2334548",
-            "https://bugzilla.redhat.com/2334676",
-            "https://bugzilla.redhat.com/2337121",
-            "https://bugzilla.redhat.com/2338185",
-            "https://bugzilla.redhat.com/2338211",
-            "https://bugzilla.redhat.com/2338813",
-            "https://bugzilla.redhat.com/2338821",
-            "https://bugzilla.redhat.com/2338828",
-            "https://bugzilla.redhat.com/2338998",
-            "https://bugzilla.redhat.com/2339130",
-            "https://bugzilla.redhat.com/2339141",
-            "https://bugzilla.redhat.com/2343172",
-            "https://bugzilla.redhat.com/2343186",
-            "https://bugzilla.redhat.com/2344684",
-            "https://bugzilla.redhat.com/2344687",
-            "https://bugzilla.redhat.com/2345240",
-            "https://bugzilla.redhat.com/2346272",
-            "https://bugzilla.redhat.com/2348522",
-            "https://bugzilla.redhat.com/2348523",
-            "https://bugzilla.redhat.com/2348541",
-            "https://bugzilla.redhat.com/2348543",
-            "https://bugzilla.redhat.com/2348547",
-            "https://bugzilla.redhat.com/2348550",
-            "https://bugzilla.redhat.com/2348556",
-            "https://bugzilla.redhat.com/2348561",
-            "https://bugzilla.redhat.com/2348567",
-            "https://bugzilla.redhat.com/2348572",
-            "https://bugzilla.redhat.com/2348574",
-            "https://bugzilla.redhat.com/2348577",
-            "https://bugzilla.redhat.com/2348581",
-            "https://bugzilla.redhat.com/2348584",
-            "https://bugzilla.redhat.com/2348587",
-            "https://bugzilla.redhat.com/2348590",
-            "https://bugzilla.redhat.com/2348592",
-            "https://bugzilla.redhat.com/2348593",
-            "https://bugzilla.redhat.com/2348595",
-            "https://bugzilla.redhat.com/2348597",
-            "https://bugzilla.redhat.com/2348600",
-            "https://bugzilla.redhat.com/2348601",
-            "https://bugzilla.redhat.com/2348602",
-            "https://bugzilla.redhat.com/2348603",
-            "https://bugzilla.redhat.com/2348612",
-            "https://bugzilla.redhat.com/2348617",
-            "https://bugzilla.redhat.com/2348620",
-            "https://bugzilla.redhat.com/2348621",
-            "https://bugzilla.redhat.com/2348625",
-            "https://bugzilla.redhat.com/2348629",
-            "https://bugzilla.redhat.com/2348630",
-            "https://bugzilla.redhat.com/2348645",
-            "https://bugzilla.redhat.com/2348647",
-            "https://bugzilla.redhat.com/2348650",
-            "https://bugzilla.redhat.com/2348656",
-            "https://bugzilla.redhat.com/2350363",
-            "https://bugzilla.redhat.com/2350364",
-            "https://bugzilla.redhat.com/2350373",
-            "https://bugzilla.redhat.com/2350375",
-            "https://bugzilla.redhat.com/2350386",
-            "https://bugzilla.redhat.com/2350392",
-            "https://bugzilla.redhat.com/2350396",
-            "https://bugzilla.redhat.com/2350397",
-            "https://bugzilla.redhat.com/2350589",
-            "https://bugzilla.redhat.com/2350725",
-            "https://bugzilla.redhat.com/2350726",
-            "https://bugzilla.redhat.com/2351605",
-            "https://bugzilla.redhat.com/2351606",
-            "https://bugzilla.redhat.com/2351608",
-            "https://bugzilla.redhat.com/2351612",
-            "https://bugzilla.redhat.com/2351613",
-            "https://bugzilla.redhat.com/2351616",
-            "https://bugzilla.redhat.com/2351618",
-            "https://bugzilla.redhat.com/2351620",
-            "https://bugzilla.redhat.com/2351624",
-            "https://bugzilla.redhat.com/2351625",
-            "https://bugzilla.redhat.com/2351629",
-            "https://bugzilla.redhat.com/2356664",
-            "https://bugzilla.redhat.com/2360215",
-            "https://bugzilla.redhat.com/2363332",
-            "https://bugzilla.redhat.com/2366125",
-            "https://bugzilla.redhat.com/2369184",
-            "https://bugzilla.redhat.com/2376076",
-            "https://bugzilla.redhat.com/2383398",
-            "https://bugzilla.redhat.com/2383432",
-            "https://bugzilla.redhat.com/2383913",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2331326",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2333985",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2334373",
@@ -7691,6 +8220,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383398",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383432",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2383913",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-28956",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-36350",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-36357",
@@ -7781,7 +8311,6 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-38369",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-38412",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-38468",
-            "https://errata.almalinux.org/10/ALSA-2025-20095.html",
             "https://errata.rockylinux.org/RLSA-2025:20095",
             "https://git.kernel.org/linus/90b2f49a502fa71090d9f4fe29a2f51fe5dff76d (6.14-rc3)",
             "https://git.kernel.org/stable/c/5828937742af74666192835d657095d95c53dbd0",
@@ -7846,7 +8375,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-21761"
           ],
           "PublishedDate": "2025-02-27T03:15:16.757Z",
-          "LastModifiedDate": "2025-11-03T20:17:15.42Z"
+          "LastModifiedDate": "2026-05-12T13:16:35.307Z"
         },
         {
           "VulnerabilityID": "CVE-2025-21780",
@@ -7939,6 +8468,8 @@
             "https://ubuntu.com/security/notices/USN-8163-1",
             "https://ubuntu.com/security/notices/USN-8163-2",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-21780"
           ],
           "PublishedDate": "2025-02-27T03:15:18.827Z",
@@ -8605,7 +9136,11 @@
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8200-1",
             "https://ubuntu.com/security/notices/USN-8200-2",
+            "https://ubuntu.com/security/notices/USN-8200-3",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-37849"
           ],
           "PublishedDate": "2025-05-09T07:16:05.76Z",
@@ -9241,6 +9776,7 @@
             "https://bugzilla.redhat.com/2350725",
             "https://bugzilla.redhat.com/2350726",
             "https://bugzilla.redhat.com/2394627",
+            "https://cert-portal.siemens.com/productcert/html/ssa-032379.html",
             "https://comsec-files.ethz.ch/papers/vmscape_sp26.pdf",
             "https://comsec.ethz.ch/research/microarch/vmscape-exposing-and-exploiting-incomplete-branch-predictor-isolation-in-cloud-environments/",
             "https://errata.almalinux.org/9/ALSA-2025-19930.html",
@@ -9304,7 +9840,126 @@
             "https://www.theregister.com/2025/09/11/vmscape_spectre_vulnerability/"
           ],
           "PublishedDate": "2025-09-11T17:15:45.68Z",
-          "LastModifiedDate": "2026-01-16T20:25:45.94Z"
+          "LastModifiedDate": "2026-05-12T13:17:18.637Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-22984",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-173.183",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-22984",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:f4e537b752b504520ac5ce9eaa5138a49b5894eefa1158d75e2c3b1f406f3189",
+          "Title": "kernel: libceph: prevent potential out-of-bounds reads in handle_auth_done()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: prevent potential out-of-bounds reads in handle_auth_done()\n\nPerform an explicit bounds check on payload_len to avoid a possible\nout-of-bounds access in the callout.\n\n[ idryomov: changelog ]",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-22984",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2394648",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2425046",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2429602",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432389",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432400",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439931",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2453803",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461107",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461521",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467059",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467144",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467771",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477802",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-39766",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68741",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-71116",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22984",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22990",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23204",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23401",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31532",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31607",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43128",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43163",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43284",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46300",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46333",
+            "https://errata.rockylinux.org/RLSA-2026:19568",
+            "https://git.kernel.org/linus/818156caffbf55cb4d368f9c3cac64e458fb49c9 (6.19-rc5)",
+            "https://git.kernel.org/stable/c/194cfe2af4d2a1de599d39dad636b47c2f6c2c96",
+            "https://git.kernel.org/stable/c/2802ef3380fa8c4a08cda51ec1f085b1a712e9e2",
+            "https://git.kernel.org/stable/c/2d653bb63d598ae4b096dd678744bdcc34ee89e8",
+            "https://git.kernel.org/stable/c/79fe3511db416d2f2edcfd93569807cb02736e5e",
+            "https://git.kernel.org/stable/c/818156caffbf55cb4d368f9c3cac64e458fb49c9",
+            "https://git.kernel.org/stable/c/ef208ea331ef688729f64089b895ed1b49e842e3",
+            "https://linux.oracle.com/cve/CVE-2026-22984.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50145.html",
+            "https://lore.kernel.org/linux-cve-announce/2026012349-CVE-2026-22984-001c@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-22984",
+            "https://ubuntu.com/security/notices/USN-8096-1",
+            "https://ubuntu.com/security/notices/USN-8096-2",
+            "https://ubuntu.com/security/notices/USN-8096-3",
+            "https://ubuntu.com/security/notices/USN-8096-4",
+            "https://ubuntu.com/security/notices/USN-8096-5",
+            "https://ubuntu.com/security/notices/USN-8116-1",
+            "https://ubuntu.com/security/notices/USN-8141-1",
+            "https://ubuntu.com/security/notices/USN-8163-1",
+            "https://ubuntu.com/security/notices/USN-8163-2",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8296-1",
+            "https://ubuntu.com/security/notices/USN-8296-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-22984"
+          ],
+          "PublishedDate": "2026-01-23T16:15:54.44Z",
+          "LastModifiedDate": "2026-04-27T14:16:27.673Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23111",
@@ -9405,10 +10060,94 @@
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8203-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23111"
           ],
           "PublishedDate": "2026-02-13T14:16:10.283Z",
           "LastModifiedDate": "2026-04-03T14:16:23.82Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23112",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-177.187",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23112",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:900fefc39a96f25f11c93c985bda02247bced2272f0f5aebfc1c0ae118b28c78",
+          "Title": "kernel: nvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec\n\nnvmet_tcp_build_pdu_iovec() could walk past cmd->req.sg when a PDU\nlength or offset exceeds sg_cnt and then use bogus sg->length/offset\nvalues, leading to _copy_to_iter() GPF/KASAN. Guard sg_idx, remaining\nentries, and sg->length/offset before building the bvec.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "azure": 2,
+            "nvd": 4,
+            "oracle-oval": 3,
+            "photon": 4,
+            "redhat": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:H",
+              "V3Score": 6.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23112",
+            "https://git.kernel.org/linus/52a0a98549344ca20ad81a4176d68d28e3c05a5c (6.19)",
+            "https://git.kernel.org/stable/c/043b4307a99f902697349128fde93b2ddde4686c",
+            "https://git.kernel.org/stable/c/0b9981751be14b59b4473383c731c833738aebdb",
+            "https://git.kernel.org/stable/c/1385be357e8acd09b36e026567f3a9d5c61139de",
+            "https://git.kernel.org/stable/c/19672ae68d52ff75347ebe2420dde1b07adca09f",
+            "https://git.kernel.org/stable/c/42afe8ed8ad2de9c19457156244ef3e1eca94b5d",
+            "https://git.kernel.org/stable/c/52a0a98549344ca20ad81a4176d68d28e3c05a5c",
+            "https://git.kernel.org/stable/c/ab200d71553bdcf4de554a5985b05b2dd606bc57",
+            "https://git.kernel.org/stable/c/dca1a6ba0da9f472ef040525fab10fd9956db59f",
+            "https://linux.oracle.com/cve/CVE-2026-23112.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50232.html",
+            "https://lore.kernel.org/linux-cve-announce/2026021302-CVE-2026-23112-6499@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23112",
+            "https://ubuntu.com/security/notices/USN-8244-1",
+            "https://ubuntu.com/security/notices/USN-8245-1",
+            "https://ubuntu.com/security/notices/USN-8254-1",
+            "https://ubuntu.com/security/notices/USN-8254-2",
+            "https://ubuntu.com/security/notices/USN-8254-3",
+            "https://ubuntu.com/security/notices/USN-8255-1",
+            "https://ubuntu.com/security/notices/USN-8255-2",
+            "https://ubuntu.com/security/notices/USN-8255-3",
+            "https://ubuntu.com/security/notices/USN-8257-1",
+            "https://ubuntu.com/security/notices/USN-8258-1",
+            "https://ubuntu.com/security/notices/USN-8260-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8273-1",
+            "https://ubuntu.com/security/notices/USN-8275-1",
+            "https://ubuntu.com/security/notices/USN-8297-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23112"
+          ],
+          "PublishedDate": "2026-02-13T14:16:10.403Z",
+          "LastModifiedDate": "2026-05-04T09:16:00.39Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23268",
@@ -9463,12 +10202,17 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23268",
             "https://www.qualys.com/2026/03/10/crack-armor.txt"
           ],
           "PublishedDate": "2026-03-18T18:16:25.753Z",
-          "LastModifiedDate": "2026-04-18T09:16:15.237Z"
+          "LastModifiedDate": "2026-05-29T18:41:10.513Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23410",
@@ -9533,6 +10277,11 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23410",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
@@ -9602,12 +10351,340 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23411",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
           ],
           "PublishedDate": "2026-04-01T09:16:17.27Z",
           "LastModifiedDate": "2026-04-24T15:23:12.077Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31431",
+          "PkgID": "linux-libc-dev@5.15.0-131.141",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@5.15.0-131.141?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c4c310d6d36bf8c2"
+          },
+          "InstalledVersion": "5.15.0-131.141",
+          "FixedVersion": "5.15.0-179.189",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31431",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:2dabe53669bfaa2c1494301735380bffde31542b451cb8f3e1b08f2dad3ccad9",
+          "Title": "kernel: crypto: algif_aead - Revert to operating out-of-place",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: algif_aead - Revert to operating out-of-place\n\nThis mostly reverts commit 72548b093ee3 except for the copying of\nthe associated data.\n\nThere is no benefit in operating in-place in algif_aead since the\nsource and destination come from different mappings.  Get rid of\nall the complexity added for in-place operation and just copy the\nAD directly.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-669"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/25",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/26",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/10",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/11",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/12",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/14",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/15",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/16",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/17",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/18",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/2",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/20",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/5",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/22",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/19",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/20",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/21",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/25",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/7",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/1",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/11",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/27",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/28",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/29",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/31",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/9",
+            "http://www.openwall.com/lists/oss-security/2026/05/06/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/08/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/18/3",
+            "https://access.redhat.com/articles/7141989",
+            "https://access.redhat.com/security/cve/CVE-2026-31431",
+            "https://access.redhat.com/security/cve/cve-2026-31431#cve-details-mitigation",
+            "https://access.redhat.com/solutions/7141931",
+            "https://access.redhat.com/solutions/7141979",
+            "https://access.redhat.com/solutions/7141990",
+            "https://access.redhat.com/solutions/7141996",
+            "https://access.redhat.com/solutions/7142032",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460538",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467022",
+            "https://cert-portal.siemens.com/productcert/html/ssa-082556.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://copy.fail",
+            "https://copy.fail/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31431",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43077",
+            "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_monitoring_and_updating_the_kernel/configuring-kernel-command-line-parameters_managing-monitoring-and-updating-the-kernel",
+            "https://errata.almalinux.org/9/ALSA-2026-A002.html",
+            "https://errata.rockylinux.org/RLSA-2026:13565",
+            "https://git.kernel.org/linus/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5 (7.0-rc7)",
+            "https://git.kernel.org/stable/c/19d43105a97be0810edbda875f2cd03f30dc130c",
+            "https://git.kernel.org/stable/c/3115af9644c342b356f3f07a4dd1c8905cd9a6fc",
+            "https://git.kernel.org/stable/c/893d22e0135fa394db81df88697fba6032747667",
+            "https://git.kernel.org/stable/c/8b88d99341f139e23bdeb1027a2a3ae10d341d82",
+            "https://git.kernel.org/stable/c/961cfa271a918ad4ae452420e7c303149002875b",
+            "https://git.kernel.org/stable/c/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5",
+            "https://git.kernel.org/stable/c/ce42ee423e58dffa5ec03524054c9d8bfd4f6237",
+            "https://git.kernel.org/stable/c/fafe0fa2995a0f7073c1c358d7d3145bcc9aedd8",
+            "https://github.com/theori-io/copy-fail-CVE-2026-31431",
+            "https://linux.oracle.com/cve/CVE-2026-31431.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50275.html",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31431",
+            "https://ubuntu.com/blog/copy-fail-vulnerability-fixes-available",
+            "https://ubuntu.com/security/notices/USN-8226-1",
+            "https://ubuntu.com/security/notices/USN-8277-1",
+            "https://ubuntu.com/security/notices/USN-8277-2",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8279-1",
+            "https://ubuntu.com/security/notices/USN-8279-2",
+            "https://ubuntu.com/security/notices/USN-8279-3",
+            "https://ubuntu.com/security/notices/USN-8280-1",
+            "https://ubuntu.com/security/notices/USN-8280-2",
+            "https://ubuntu.com/security/notices/USN-8280-3",
+            "https://ubuntu.com/security/notices/USN-8281-1",
+            "https://ubuntu.com/security/notices/USN-8281-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8305-1",
+            "https://ubuntu.com/security/notices/USN-8305-2",
+            "https://ubuntu.com/security/notices/USN-8310-1",
+            "https://websec.net/blog/cve-2026-31431-linux-algifaead-page-cache-write-to-root-69f38a4ccddd2db1f520f170",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-31431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31431",
+            "https://www.kb.cert.org/vuls/id/260001",
+            "https://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "https://xint.io/blog/copy-fail-linux-distributions",
+            "https://xint.io/blog/copy-fail-linux-distributions#the-fix-6"
+          ],
+          "PublishedDate": "2026-04-22T09:16:21.27Z",
+          "LastModifiedDate": "2026-05-21T19:52:35.217Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41651",
+          "PkgID": "packagekit@1.2.5-2ubuntu3",
+          "PkgName": "packagekit",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/packagekit@1.2.5-2ubuntu3?arch=amd64&distro=ubuntu-22.04",
+            "UID": "e09643221a6a69de"
+          },
+          "InstalledVersion": "1.2.5-2ubuntu3",
+          "FixedVersion": "1.2.5-2ubuntu3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41651",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:740e39385b1d5f3817965cc912d147f7556034306f9ce2e7ceca65f2c6bd8677",
+          "Title": "PackageKit: race condition vulnerability leads to arbitrary package installation as root",
+          "Description": "PackageKit is a a D-Bus abstraction layer that allows the user to manage packages in a secure way using a cross-distro, cross-architecture API. PackageKit between and including versions 1.0.2 and 1.3.4 is vulnerable to a time-of-check time-of-use (TOCTOU) race condition on transaction flags that allows unprivileged users to install packages as root and thus leads to a local privilege escalation. This is patched in version 1.3.5.\n\nA local unprivileged user can install arbitrary RPM packages as root, including executing RPM scriptlets, without authentication. The vulnerability is a TOCTOU race condition on `transaction->cached_transaction_flags`  combined with a silent state-machine guard that discards illegal backward transitions while leaving corrupted flags in place. Three bugs exist in `src/pk-transaction.c`:\n1. Unconditional flag overwrite (line 4036): `InstallFiles()` writes caller-supplied flags to `transaction->cached_transaction_flags` without checking whether the transaction has already been  authorized/started. A second call blindly overwrites the flags even while the transaction is RUNNING.\n2. Silent state-transition rejection (lines 873–882): `pk_transaction_set_state()` silently discards backward state transitions (e.g. `RUNNING` → `WAITING_FOR_AUTH`) but the flag overwrite at step 1 already happened. The transaction continues running with corrupted flags.\n3. Late flag read at execution time (lines 2273–2277): The scheduler's idle callback reads cached_transaction_flags at dispatch time, not at authorization time. If flags were overwritten between authorization and execution, the backend sees the attacker's flags.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/22/6",
+            "https://access.redhat.com/errata/RHSA-2026:19354",
+            "https://access.redhat.com/security/cve/CVE-2026-41651",
+            "https://bugzilla.redhat.com/2460604",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460604",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-41651",
+            "https://errata.almalinux.org/9/ALSA-2026-19354.html",
+            "https://errata.rockylinux.org/RLSA-2026:19354",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L2273-L2277",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L4036",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L873-L882",
+            "https://github.com/PackageKit/PackageKit/security/advisories/GHSA-f55j-vvr9-69xv",
+            "https://github.security.telekom.com/2026/04/pack2theroot-linux-local-privilege-escalation.html",
+            "https://linux.oracle.com/cve/CVE-2026-41651.html",
+            "https://linux.oracle.com/errata/ELSA-2026-11635.html",
+            "https://lists.freedesktop.org/archives/packagekit/2026-April/026513.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41651",
+            "https://ubuntu.com/security/notices/USN-8195-1",
+            "https://ubuntu.com/security/notices/USN-8195-2",
+            "https://ubuntu.com/security/notices/USN-8195-3",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41651"
+          ],
+          "PublishedDate": "2026-04-22T14:17:04.617Z",
+          "LastModifiedDate": "2026-05-05T20:16:39.25Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41651",
+          "PkgID": "packagekit-tools@1.2.5-2ubuntu3",
+          "PkgName": "packagekit-tools",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/packagekit-tools@1.2.5-2ubuntu3?arch=amd64&distro=ubuntu-22.04",
+            "UID": "c38ed218d772ced7"
+          },
+          "InstalledVersion": "1.2.5-2ubuntu3",
+          "FixedVersion": "1.2.5-2ubuntu3.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:71857444b9d9f8dd85c40a22ef6e197fa5401114cb0586390ee1a185882e7356",
+            "DiffID": "sha256:4a7a1cf999c87ecd50e1df9dbee830af4a0d4d6beaebaea10f0675af02518b21"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41651",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:d85d5e2ac8ed5682e348f0cb47c6aba271c6bb1882e227e2677db45977ab95ed",
+          "Title": "PackageKit: race condition vulnerability leads to arbitrary package installation as root",
+          "Description": "PackageKit is a a D-Bus abstraction layer that allows the user to manage packages in a secure way using a cross-distro, cross-architecture API. PackageKit between and including versions 1.0.2 and 1.3.4 is vulnerable to a time-of-check time-of-use (TOCTOU) race condition on transaction flags that allows unprivileged users to install packages as root and thus leads to a local privilege escalation. This is patched in version 1.3.5.\n\nA local unprivileged user can install arbitrary RPM packages as root, including executing RPM scriptlets, without authentication. The vulnerability is a TOCTOU race condition on `transaction->cached_transaction_flags`  combined with a silent state-machine guard that discards illegal backward transitions while leaving corrupted flags in place. Three bugs exist in `src/pk-transaction.c`:\n1. Unconditional flag overwrite (line 4036): `InstallFiles()` writes caller-supplied flags to `transaction->cached_transaction_flags` without checking whether the transaction has already been  authorized/started. A second call blindly overwrites the flags even while the transaction is RUNNING.\n2. Silent state-transition rejection (lines 873–882): `pk_transaction_set_state()` silently discards backward state transitions (e.g. `RUNNING` → `WAITING_FOR_AUTH`) but the flag overwrite at step 1 already happened. The transaction continues running with corrupted flags.\n3. Late flag read at execution time (lines 2273–2277): The scheduler's idle callback reads cached_transaction_flags at dispatch time, not at authorization time. If flags were overwritten between authorization and execution, the backend sees the attacker's flags.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/22/6",
+            "https://access.redhat.com/errata/RHSA-2026:19354",
+            "https://access.redhat.com/security/cve/CVE-2026-41651",
+            "https://bugzilla.redhat.com/2460604",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460604",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-41651",
+            "https://errata.almalinux.org/9/ALSA-2026-19354.html",
+            "https://errata.rockylinux.org/RLSA-2026:19354",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L2273-L2277",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L4036",
+            "https://github.com/PackageKit/PackageKit/blob/04057883189efa225a7c785591aa87cb299782f8/src/pk-transaction.c#L873-L882",
+            "https://github.com/PackageKit/PackageKit/security/advisories/GHSA-f55j-vvr9-69xv",
+            "https://github.security.telekom.com/2026/04/pack2theroot-linux-local-privilege-escalation.html",
+            "https://linux.oracle.com/cve/CVE-2026-41651.html",
+            "https://linux.oracle.com/errata/ELSA-2026-11635.html",
+            "https://lists.freedesktop.org/archives/packagekit/2026-April/026513.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41651",
+            "https://ubuntu.com/security/notices/USN-8195-1",
+            "https://ubuntu.com/security/notices/USN-8195-2",
+            "https://ubuntu.com/security/notices/USN-8195-3",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41651"
+          ],
+          "PublishedDate": "2026-04-22T14:17:04.617Z",
+          "LastModifiedDate": "2026-05-05T20:16:39.25Z"
         },
         {
           "VulnerabilityID": "CVE-2022-42919",
@@ -9992,7 +11069,7 @@
           },
           "Fingerprint": "sha256:a6889af2d71151b3fee2e842309f9e8d27740c71114ff64147bbf8b956764822",
           "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
-          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, n out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, an out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-787"
@@ -10007,12 +11084,12 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -10037,7 +11114,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+          "LastModifiedDate": "2026-04-30T21:16:30.17Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -10076,7 +11153,8 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -10084,7 +11162,9 @@
               "V40Score": 8.7
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -10104,10 +11184,76 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
           "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42311",
+          "VendorIDs": [
+            "GHSA-pwv6-vv43-88gr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "alphafold3_venv/lib/python3.11/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "72be0b6419c9c4d5"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:4a2d03b4de1544782039b65aff96a6e92662c93954daa15fcc1f732299546fdf",
+            "DiffID": "sha256:29e4ffc81a315f45e6a3e61cc0caae26e1aa3c3dfb0c6e0f072c5b55392839f3"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42311",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:61fed2657299f31047331710249f15e874f2ea7ff5e76f732fa76042d89d6a2d",
+          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
+            "https://github.com/python-pillow/Pillow/pull/9520",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+          ],
+          "PublishedDate": "2026-05-09T06:16:10.43Z",
+          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40897",
@@ -10386,11 +11532,11 @@
           "LastModifiedDate": "2025-06-12T16:29:01.66Z"
         }
       ],
-      "vulnerability_count": 87
+      "vulnerability_count": 100
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 87
+    "total_vulnerabilities": 100
   }
 }

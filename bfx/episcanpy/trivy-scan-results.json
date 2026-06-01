@@ -1,7 +1,7 @@
 {
   "tool": "episcanpy",
-  "scan_timestamp": "2026-05-01T06:14:45Z",
-  "workflow_run_id": "25204081627",
+  "scan_timestamp": "2026-06-01T07:43:37Z",
+  "workflow_run_id": "26740418119",
   "versions": {
     "0.4.0": {
       "image": "ghcr.io/bundlecore/products/bfx/episcanpy:0.4.0",
@@ -894,7 +894,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -941,6 +941,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-66418",
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://ubuntu.com/security/notices/USN-8344-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-66418",
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
@@ -981,7 +982,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1029,6 +1030,8 @@
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-7927-2",
             "https://ubuntu.com/security/notices/USN-7927-3",
+            "https://ubuntu.com/security/notices/USN-8344-1",
+            "https://ubuntu.com/security/notices/USN-8344-2",
             "https://www.cve.org/CVERecord?id=CVE-2025-66471",
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
@@ -1126,6 +1129,70 @@
           "LastModifiedDate": "2026-01-23T09:15:47.823Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-44431",
+          "VendorIDs": [
+            "GHSA-qccp-gfcp-xxvc"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/urllib3-2.0.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.0.3",
+            "UID": "f4c1f3815dce53d4"
+          },
+          "InstalledVersion": "2.0.3",
+          "FixedVersion": "2.7.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:00e612b490468e67274451604b57295352a81cf5165938d98c055957dd65e7e1",
+            "DiffID": "sha256:444ce3fda93066c3f0c181f74c94feb860e0c3389319db8c8d1e8fe65f3cc870"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-44431",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c01430aa34c8729ffb59d7e78826e405d700258166938dea93399164b1febb1e",
+          "Title": "urllib3: urllib3: Information disclosure via cross-origin redirects forwarding sensitive headers",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.23 to before 2.7.0, cross-origin redirects followed from the low-level API via ProxyManager.connection_from_url().urlopen(..., assert_same_host=False) still forward these sensitive headers. This vulnerability is fixed in 2.7.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-200"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V3Score": 5.3,
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-44431",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-44431"
+          ],
+          "PublishedDate": "2026-05-13T16:16:57.15Z",
+          "LastModifiedDate": "2026-05-14T13:56:27.263Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-24049",
           "VendorIDs": [
             "GHSA-8rrh-rw8j-w5fx"
@@ -1200,17 +1267,18 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 13
+      "vulnerability_count": 14
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 13
+    "total_vulnerabilities": 14
   }
 }
