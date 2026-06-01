@@ -1,7 +1,7 @@
 {
   "tool": "cactus",
-  "scan_timestamp": "2026-05-01T06:06:08Z",
-  "workflow_run_id": "25204081627",
+  "scan_timestamp": "2026-06-01T07:33:53Z",
+  "workflow_run_id": "26740418119",
   "versions": {
     "3.1.4": {
       "image": "ghcr.io/bundlecore/products/bfx/cactus:3.1.4",
@@ -40,10 +40,13 @@
             "CWE-863"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 2,
             "ghsa": 3,
+            "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -57,15 +60,30 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:12176",
             "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://bugzilla.redhat.com/2438762",
+            "https://bugzilla.redhat.com/2447194",
+            "https://bugzilla.redhat.com/2448553",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
+            "https://errata.almalinux.org/8/ALSA-2026-12176.html",
+            "https://errata.rockylinux.org/RLSA-2026:19355",
             "https://github.com/jpadilla/pyjwt",
             "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://linux.oracle.com/cve/CVE-2026-32597.html",
+            "https://linux.oracle.com/errata/ELSA-2026-13916.html",
+            "https://lists.debian.org/debian-lts-announce/2026/05/msg00008.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
             "https://ubuntu.com/security/notices/USN-8133-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-32597"
           ],
           "PublishedDate": "2026-03-13T19:55:09.5Z",
-          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
+          "LastModifiedDate": "2026-05-05T18:16:02.14Z"
         },
         {
           "VulnerabilityID": "CVE-2026-32274",
@@ -157,29 +175,98 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:fdb3cc76b46463c2f067260080e3964790c8bc07ad63a4563dece667fc576039",
-          "Title": "lxml is a library for processing XML and HTML in the Python language.  ...",
+          "Title": "lxml: python: lxml: Information disclosure via untrusted XML input leading to local file read",
           "Description": "lxml is a library for processing XML and HTML in the Python language. Prior to 6.1.0, using either of the two parsers in the default configuration (with resolve_entities=True) allows untrusted XML input to read local files. Setting the resolve_entities option explicitly to resolve_entities='internal' or resolve_entities=False disables the local file access. This vulnerability is fixed in 6.1.0.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-611"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "amazon": 3,
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-41066",
             "https://bugs.launchpad.net/lxml/+bug/2146291",
             "https://github.com/lxml/lxml",
             "https://github.com/lxml/lxml/releases/tag/lxml-6.1.0",
-            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw"
+            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41066",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41066"
           ],
           "PublishedDate": "2026-04-24T17:16:20.933Z",
-          "LastModifiedDate": "2026-04-24T17:56:41.28Z"
+          "LastModifiedDate": "2026-04-27T17:59:05.297Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33079",
+          "VendorIDs": [
+            "GHSA-8mp2-v27r-99xp"
+          ],
+          "PkgName": "mistune",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/mistune-3.1.4.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/mistune@3.1.4",
+            "UID": "485bc295f01869d5"
+          },
+          "InstalledVersion": "3.1.4",
+          "FixedVersion": "3.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33079",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2beec76c96c655aa31a514ed262a2968b02baca9f863ba07d6fc2b0ec102f873",
+          "Title": "mistune: Mistune: Regular Expression Denial of Service (ReDoS) via crafted Markdown input",
+          "Description": "In versions 3.0.0a1 through 3.2.0 of Mistune, there is a ReDoS (Regular Expression Denial of Service) vulnerability in `LINK_TITLE_RE` that allows an attacker who can supply Markdown for parsing to cause denial of service. The regular expression used for parsing link titles contains overlapping alternatives that can trigger catastrophic backtracking. In both the double-quoted and single-quoted branches, a backslash followed by punctuation can be matched either as an escaped punctuation sequence or as two ordinary characters, creating an ambiguous pattern inside a repeated group. If an attacker supplies Markdown containing repeated ! sequences with no closing quote, the regex engine explores an exponential number of backtracking paths. This is reachable through normal Markdown parsing of inline links and block link reference definitions. A small crafted input can therefore cause significant CPU consumption and make applications using Mistune unresponsive.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33079",
+            "https://github.com/lepture/mistune",
+            "https://github.com/lepture/mistune/blob/df23edd60b43b639d2e6760ef9dd3d618aa11c21/src/mistune/helpers.py#L20-L25",
+            "https://github.com/lepture/mistune/security/advisories/GHSA-8mp2-v27r-99xp",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33079",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33079"
+          ],
+          "PublishedDate": "2026-05-06T18:16:03.097Z",
+          "LastModifiedDate": "2026-05-07T15:43:39.827Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -218,7 +305,8 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -226,7 +314,9 @@
               "V40Score": 8.7
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -246,10 +336,76 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
           "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42311",
+          "VendorIDs": [
+            "GHSA-pwv6-vv43-88gr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-12.1.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.1.1",
+            "UID": "f9221d4af4ce699"
+          },
+          "InstalledVersion": "12.1.1",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42311",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0b5c40abb4a918c0dd2a97647712a811ff63eee1c702ab5bbc6184fdee90ed21",
+          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
+            "https://github.com/python-pillow/Pillow/pull/9520",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+          ],
+          "PublishedDate": "2026-05-09T06:16:10.43Z",
+          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
         },
         {
           "VulnerabilityID": "CVE-2025-4565",
@@ -400,6 +556,7 @@
             "https://linux.oracle.com/errata/ELSA-2026-3095.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-0994",
             "https://ubuntu.com/security/notices/USN-8063-1",
+            "https://ubuntu.com/security/notices/USN-8063-2",
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
@@ -441,7 +598,7 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 4,
-            "photon": 3,
+            "photon": 4,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -505,12 +662,15 @@
             "CWE-674"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -525,22 +685,163 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/errata/RHSA-2026:13917",
             "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://bugzilla.redhat.com/2448553",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
+            "https://errata.almalinux.org/9/ALSA-2026-13917.html",
+            "https://errata.rockylinux.org/RLSA-2026:19355",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
             "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
             "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://linux.oracle.com/cve/CVE-2026-30922.html",
+            "https://linux.oracle.com/errata/ELSA-2026-13917.html",
+            "https://lists.debian.org/debian-lts-announce/2026/05/msg00001.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
             "https://ubuntu.com/security/notices/USN-8129-1",
             "https://ubuntu.com/security/notices/USN-8134-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-30922"
           ],
           "PublishedDate": "2026-03-18T04:17:18.397Z",
-          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
+          "LastModifiedDate": "2026-05-01T17:16:21.95Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-44431",
+          "VendorIDs": [
+            "GHSA-qccp-gfcp-xxvc"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.6.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.6.3",
+            "UID": "63a85cd6cb792cde"
+          },
+          "InstalledVersion": "2.6.3",
+          "FixedVersion": "2.7.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-44431",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7a595127141df129701e02763d4c463d2d400f94b4c4540c38614a1297e77c83",
+          "Title": "urllib3: urllib3: Information disclosure via cross-origin redirects forwarding sensitive headers",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.23 to before 2.7.0, cross-origin redirects followed from the low-level API via ProxyManager.connection_from_url().urlopen(..., assert_same_host=False) still forward these sensitive headers. This vulnerability is fixed in 2.7.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-200"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V3Score": 5.3,
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-44431",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-44431"
+          ],
+          "PublishedDate": "2026-05-13T16:16:57.15Z",
+          "LastModifiedDate": "2026-05-14T13:56:27.263Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-44432",
+          "VendorIDs": [
+            "GHSA-mf9v-mfxr-j63j"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.6.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.6.3",
+            "UID": "63a85cd6cb792cde"
+          },
+          "InstalledVersion": "2.6.3",
+          "FixedVersion": "2.7.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a944b331b31e0744526751be7e278e1f1a785672f748451fa5fcf9b74c61dbb7",
+            "DiffID": "sha256:df8c374a1d7c429ad3e37512f7d50733f7622d412de579821d7ee66539f127fe"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-44432",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0f38f3aa4d7a4328a63212c2d44ea6bf061b6167d43679b04a535dcd846df194",
+          "Title": "urllib3: urllib3: Denial of Service due to excessive HTTP response decompression",
+          "Description": "urllib3 is an HTTP client library for Python. From 2.6.0 to before 2.7.0, urllib3 could decompress the whole response instead of the requested portion (1) during the second HTTPResponse.read(amt=N) call when the response was decompressed using the official Brotli library or (2) when HTTPResponse.drain_conn() was called after the response had been read and decompressed partially (compression algorithm did not matter here). These issues could cause urllib3 to fully decode a small amount of highly compressed data in a single operation. This could result in excessive resource consumption (high CPU usage and massive memory allocation for the decompressed data) on the client side. This vulnerability is fixed in 2.7.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-409"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V3Score": 7.5,
+              "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-44432",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-mf9v-mfxr-j63j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-44432",
+            "https://www.cve.org/CVERecord?id=CVE-2026-44432"
+          ],
+          "PublishedDate": "2026-05-13T16:16:57.303Z",
+          "LastModifiedDate": "2026-05-14T13:49:25.483Z"
         }
       ],
-      "vulnerability_count": 8
+      "vulnerability_count": 12
     },
     "3.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/cactus:3.0.1",
@@ -653,10 +954,13 @@
             "CWE-863"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 2,
             "ghsa": 3,
+            "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -670,15 +974,30 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:12176",
             "https://access.redhat.com/security/cve/CVE-2026-32597",
+            "https://bugzilla.redhat.com/2438762",
+            "https://bugzilla.redhat.com/2447194",
+            "https://bugzilla.redhat.com/2448553",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
+            "https://errata.almalinux.org/8/ALSA-2026-12176.html",
+            "https://errata.rockylinux.org/RLSA-2026:19355",
             "https://github.com/jpadilla/pyjwt",
             "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f",
+            "https://linux.oracle.com/cve/CVE-2026-32597.html",
+            "https://linux.oracle.com/errata/ELSA-2026-13916.html",
+            "https://lists.debian.org/debian-lts-announce/2026/05/msg00008.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-32597",
             "https://ubuntu.com/security/notices/USN-8133-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-32597"
           ],
           "PublishedDate": "2026-03-13T19:55:09.5Z",
-          "LastModifiedDate": "2026-03-19T13:30:29.217Z"
+          "LastModifiedDate": "2026-05-05T18:16:02.14Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69223",
@@ -837,10 +1156,13 @@
             "CWE-345"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
+            "oracle-oval": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -859,13 +1181,28 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/02/10/4",
+            "https://access.redhat.com/errata/RHSA-2026:12176",
             "https://access.redhat.com/security/cve/CVE-2026-26007",
+            "https://bugzilla.redhat.com/2438762",
+            "https://bugzilla.redhat.com/2447194",
+            "https://bugzilla.redhat.com/2448553",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
+            "https://errata.almalinux.org/8/ALSA-2026-12176.html",
+            "https://errata.rockylinux.org/RLSA-2026:19355",
             "https://github.com/pyca/cryptography",
             "https://github.com/pyca/cryptography/commit/0eebb9dbb6343d9bc1d91e5a2482ed4e054a6d8c",
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2",
+            "https://linux.oracle.com/cve/CVE-2026-26007.html",
+            "https://linux.oracle.com/errata/ELSA-2026-12176.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-26007",
             "https://ubuntu.com/security/notices/USN-8087-1",
+            "https://ubuntu.com/security/notices/USN-8087-3",
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
@@ -1009,29 +1346,98 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:a1eb56b8baab8dee7bc55310a840e311b9eb65ebd29e99136fbc9dd0893a90b1",
-          "Title": "lxml is a library for processing XML and HTML in the Python language.  ...",
+          "Title": "lxml: python: lxml: Information disclosure via untrusted XML input leading to local file read",
           "Description": "lxml is a library for processing XML and HTML in the Python language. Prior to 6.1.0, using either of the two parsers in the default configuration (with resolve_entities=True) allows untrusted XML input to read local files. Setting the resolve_entities option explicitly to resolve_entities='internal' or resolve_entities=False disables the local file access. This vulnerability is fixed in 6.1.0.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-611"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "amazon": 3,
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-41066",
             "https://bugs.launchpad.net/lxml/+bug/2146291",
             "https://github.com/lxml/lxml",
             "https://github.com/lxml/lxml/releases/tag/lxml-6.1.0",
-            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw"
+            "https://github.com/lxml/lxml/security/advisories/GHSA-vfmq-68hx-4jfw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41066",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41066"
           ],
           "PublishedDate": "2026-04-24T17:16:20.933Z",
-          "LastModifiedDate": "2026-04-24T17:56:41.28Z"
+          "LastModifiedDate": "2026-04-27T17:59:05.297Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33079",
+          "VendorIDs": [
+            "GHSA-8mp2-v27r-99xp"
+          ],
+          "PkgName": "mistune",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/mistune-3.0.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/mistune@3.0.2",
+            "UID": "23acaeedc9cfea68"
+          },
+          "InstalledVersion": "3.0.2",
+          "FixedVersion": "3.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33079",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:1f90e1466938a66012cdbd32093883aa3be963e325f4b06aa23ca6d866e1b228",
+          "Title": "mistune: Mistune: Regular Expression Denial of Service (ReDoS) via crafted Markdown input",
+          "Description": "In versions 3.0.0a1 through 3.2.0 of Mistune, there is a ReDoS (Regular Expression Denial of Service) vulnerability in `LINK_TITLE_RE` that allows an attacker who can supply Markdown for parsing to cause denial of service. The regular expression used for parsing link titles contains overlapping alternatives that can trigger catastrophic backtracking. In both the double-quoted and single-quoted branches, a backslash followed by punctuation can be matched either as an escaped punctuation sequence or as two ordinary characters, creating an ambiguous pattern inside a repeated group. If an attacker supplies Markdown containing repeated ! sequences with no closing quote, the regex engine explores an exponential number of backtracking paths. This is reachable through normal Markdown parsing of inline links and block link reference definitions. A small crafted input can therefore cause significant CPU consumption and make applications using Mistune unresponsive.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-33079",
+            "https://github.com/lepture/mistune",
+            "https://github.com/lepture/mistune/blob/df23edd60b43b639d2e6760ef9dd3d618aa11c21/src/mistune/helpers.py#L20-L25",
+            "https://github.com/lepture/mistune/security/advisories/GHSA-8mp2-v27r-99xp",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33079",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33079"
+          ],
+          "PublishedDate": "2026-05-06T18:16:03.097Z",
+          "LastModifiedDate": "2026-05-07T15:43:39.827Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -1060,7 +1466,7 @@
           },
           "Fingerprint": "sha256:94bbd4c6ab805546711b2d85b9a1f7f86c2cfa7ed05e150b6eba2461486d3d4b",
           "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
-          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, n out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, an out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-787"
@@ -1075,12 +1481,12 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -1105,7 +1511,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+          "LastModifiedDate": "2026-04-30T21:16:30.17Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -1144,7 +1550,8 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -1152,7 +1559,9 @@
               "V40Score": 8.7
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -1172,10 +1581,76 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
           "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42311",
+          "VendorIDs": [
+            "GHSA-pwv6-vv43-88gr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/pillow-11.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.3.0",
+            "UID": "bb1db125a111b6fa"
+          },
+          "InstalledVersion": "11.3.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42311",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:5b6b346aa67b05fc336555fad56055a63f1f6400376080dc9955eefea2bc9c50",
+          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
+            "https://github.com/python-pillow/Pillow/pull/9520",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+          ],
+          "PublishedDate": "2026-05-09T06:16:10.43Z",
+          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
         },
         {
           "VulnerabilityID": "CVE-2025-4565",
@@ -1326,6 +1801,7 @@
             "https://linux.oracle.com/errata/ELSA-2026-3095.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-0994",
             "https://ubuntu.com/security/notices/USN-8063-1",
+            "https://ubuntu.com/security/notices/USN-8063-2",
             "https://www.cve.org/CVERecord?id=CVE-2026-0994"
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
@@ -1367,7 +1843,7 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 4,
-            "photon": 3,
+            "photon": 4,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -1508,12 +1984,15 @@
             "CWE-674"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 2,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "oracle-oval": 3,
             "photon": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -1528,19 +2007,32 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/03/20/4",
+            "https://access.redhat.com/errata/RHSA-2026:13917",
             "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://bugzilla.redhat.com/2448553",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
+            "https://errata.almalinux.org/9/ALSA-2026-13917.html",
+            "https://errata.rockylinux.org/RLSA-2026:19355",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
             "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.3",
             "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-jr27-m4p2-rc6r",
+            "https://linux.oracle.com/cve/CVE-2026-30922.html",
+            "https://linux.oracle.com/errata/ELSA-2026-13917.html",
+            "https://lists.debian.org/debian-lts-announce/2026/05/msg00001.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-30922",
             "https://ubuntu.com/security/notices/USN-8129-1",
             "https://ubuntu.com/security/notices/USN-8134-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-30922"
           ],
           "PublishedDate": "2026-03-18T04:17:18.397Z",
-          "LastModifiedDate": "2026-03-21T01:17:06.36Z"
+          "LastModifiedDate": "2026-05-01T17:16:21.95Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66418",
@@ -1576,7 +2068,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1623,6 +2115,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-66418",
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://ubuntu.com/security/notices/USN-8344-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-66418",
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
@@ -1663,7 +2156,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
-            "amazon": 2,
+            "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
@@ -1711,6 +2204,8 @@
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-7927-2",
             "https://ubuntu.com/security/notices/USN-7927-3",
+            "https://ubuntu.com/security/notices/USN-8344-1",
+            "https://ubuntu.com/security/notices/USN-8344-2",
             "https://www.cve.org/CVERecord?id=CVE-2025-66471",
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
@@ -1808,6 +2303,70 @@
           "LastModifiedDate": "2026-01-23T09:15:47.823Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-44431",
+          "VendorIDs": [
+            "GHSA-qccp-gfcp-xxvc"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.9/site-packages/urllib3-1.26.19.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@1.26.19",
+            "UID": "99078613369f2854"
+          },
+          "InstalledVersion": "1.26.19",
+          "FixedVersion": "2.7.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:6b6d3dc5d084f35d189e5befeeb11b16da0d08036996c53cb9f76ca0c4fc1f66",
+            "DiffID": "sha256:e1ff22f373e1f906b5ec365c8ba7552f1dbe8d47a1a81b6337d1ed4c2fe0c6cf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-44431",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c985f2f733a2bd4a25f4154a02115530dc600759b0157b2300e6de4d0298562c",
+          "Title": "urllib3: urllib3: Information disclosure via cross-origin redirects forwarding sensitive headers",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.23 to before 2.7.0, cross-origin redirects followed from the low-level API via ProxyManager.connection_from_url().urlopen(..., assert_same_host=False) still forward these sensitive headers. This vulnerability is fixed in 2.7.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-200"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "nvd": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V3Score": 5.3,
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-44431",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-44431"
+          ],
+          "PublishedDate": "2026-05-13T16:16:57.15Z",
+          "LastModifiedDate": "2026-05-14T13:56:27.263Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-24049",
           "VendorIDs": [
             "GHSA-8rrh-rw8j-w5fx"
@@ -1882,6 +2441,7 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
@@ -1962,17 +2522,18 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 20
+      "vulnerability_count": 23
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 28
+    "total_vulnerabilities": 35
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "trycycler",
-  "scan_timestamp": "2026-05-01T06:46:13Z",
-  "workflow_run_id": "25204081627",
+  "scan_timestamp": "2026-06-01T08:24:35Z",
+  "workflow_run_id": "26740418119",
   "versions": {
     "0.5.6": {
       "image": "ghcr.io/bundlecore/products/bfx/trycycler:0.5.6",
@@ -94,7 +94,7 @@
           },
           "Fingerprint": "sha256:c821d6fdf1c584055dbc3f20f9e966cf4169b20bbf844401e69e4c25ea380fbf",
           "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
-          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, n out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, an out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-787"
@@ -109,12 +109,12 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:P",
-              "V40Score": 8.9
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
             },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -139,7 +139,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-02-13T21:32:55.623Z"
+          "LastModifiedDate": "2026-04-30T21:16:30.17Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -178,7 +178,8 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
-            "redhat": 3
+            "redhat": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -186,7 +187,9 @@
               "V40Score": 8.7
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
               "V40Score": 8.7
             },
             "nvd": {
@@ -206,10 +209,76 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
           "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42311",
+          "VendorIDs": [
+            "GHSA-pwv6-vv43-88gr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/pillow-11.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.3.0",
+            "UID": "86bc784a1600a1e8"
+          },
+          "InstalledVersion": "11.3.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:e7fecbf622d558db5822c61c840a0bcb0a141a3761ff7223122c07475762ea3d",
+            "DiffID": "sha256:1d4d26773747700425bd183ccb9cb95f84691a241cde04d1f4e20928c9802e3d"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42311",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ead7ac29f4b6194ad6ced580c85408b13714b3ff28d8f2467efb1553a7c6c248",
+          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
+            "https://github.com/python-pillow/Pillow/pull/9520",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+          ],
+          "PublishedDate": "2026-05-09T06:16:10.43Z",
+          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -286,6 +355,7 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
@@ -366,17 +436,18 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
           "LastModifiedDate": "2026-02-18T14:56:48.657Z"
         }
       ],
-      "vulnerability_count": 5
+      "vulnerability_count": 6
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 5
+    "total_vulnerabilities": 6
   }
 }

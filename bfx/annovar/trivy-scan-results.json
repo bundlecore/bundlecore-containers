@@ -1,7 +1,7 @@
 {
   "tool": "annovar",
-  "scan_timestamp": "2026-05-01T05:55:10Z",
-  "workflow_run_id": "25204081627",
+  "scan_timestamp": "2026-06-01T07:20:00Z",
+  "workflow_run_id": "26740418119",
   "versions": {
     "hg38": {
       "image": "ghcr.io/bundlecore/products/bfx/annovar:hg38",
@@ -41,6 +41,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -49,6 +50,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -69,6 +74,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -270,7 +276,11 @@
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8200-1",
             "https://ubuntu.com/security/notices/USN-8200-2",
+            "https://ubuntu.com/security/notices/USN-8200-3",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-37849"
           ],
           "PublishedDate": "2025-05-09T07:16:05.76Z",
@@ -1000,6 +1010,7 @@
             "https://bugzilla.redhat.com/2350725",
             "https://bugzilla.redhat.com/2350726",
             "https://bugzilla.redhat.com/2394627",
+            "https://cert-portal.siemens.com/productcert/html/ssa-032379.html",
             "https://comsec-files.ethz.ch/papers/vmscape_sp26.pdf",
             "https://comsec.ethz.ch/research/microarch/vmscape-exposing-and-exploiting-incomplete-branch-predictor-isolation-in-cloud-environments/",
             "https://errata.almalinux.org/9/ALSA-2025-19930.html",
@@ -1063,7 +1074,126 @@
             "https://www.theregister.com/2025/09/11/vmscape_spectre_vulnerability/"
           ],
           "PublishedDate": "2025-09-11T17:15:45.68Z",
-          "LastModifiedDate": "2026-01-16T20:25:45.94Z"
+          "LastModifiedDate": "2026-05-12T13:17:18.637Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-22984",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a45f1b73b44cda38eee2abb5430b7420101f8be9b6152bb9268c02dba376f861",
+            "DiffID": "sha256:c4556c2f548b3507ad59ba43c2ba6b33a39b403896838038843107d8b242713c"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-22984",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:c16d7a9b63b94d4c86d5a2189b7f62f2505795914f6278e1860dc3cf85633d5f",
+          "Title": "kernel: libceph: prevent potential out-of-bounds reads in handle_auth_done()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: prevent potential out-of-bounds reads in handle_auth_done()\n\nPerform an explicit bounds check on payload_len to avoid a possible\nout-of-bounds access in the callout.\n\n[ idryomov: changelog ]",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-22984",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2394648",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2425046",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2429602",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432389",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432400",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439931",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2453803",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461107",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461521",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467059",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467144",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467771",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477802",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-39766",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68741",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-71116",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22984",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22990",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23204",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23401",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31532",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31607",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43128",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43163",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43284",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46300",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46333",
+            "https://errata.rockylinux.org/RLSA-2026:19568",
+            "https://git.kernel.org/linus/818156caffbf55cb4d368f9c3cac64e458fb49c9 (6.19-rc5)",
+            "https://git.kernel.org/stable/c/194cfe2af4d2a1de599d39dad636b47c2f6c2c96",
+            "https://git.kernel.org/stable/c/2802ef3380fa8c4a08cda51ec1f085b1a712e9e2",
+            "https://git.kernel.org/stable/c/2d653bb63d598ae4b096dd678744bdcc34ee89e8",
+            "https://git.kernel.org/stable/c/79fe3511db416d2f2edcfd93569807cb02736e5e",
+            "https://git.kernel.org/stable/c/818156caffbf55cb4d368f9c3cac64e458fb49c9",
+            "https://git.kernel.org/stable/c/ef208ea331ef688729f64089b895ed1b49e842e3",
+            "https://linux.oracle.com/cve/CVE-2026-22984.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50145.html",
+            "https://lore.kernel.org/linux-cve-announce/2026012349-CVE-2026-22984-001c@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-22984",
+            "https://ubuntu.com/security/notices/USN-8096-1",
+            "https://ubuntu.com/security/notices/USN-8096-2",
+            "https://ubuntu.com/security/notices/USN-8096-3",
+            "https://ubuntu.com/security/notices/USN-8096-4",
+            "https://ubuntu.com/security/notices/USN-8096-5",
+            "https://ubuntu.com/security/notices/USN-8116-1",
+            "https://ubuntu.com/security/notices/USN-8141-1",
+            "https://ubuntu.com/security/notices/USN-8163-1",
+            "https://ubuntu.com/security/notices/USN-8163-2",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8296-1",
+            "https://ubuntu.com/security/notices/USN-8296-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-22984"
+          ],
+          "PublishedDate": "2026-01-23T16:15:54.44Z",
+          "LastModifiedDate": "2026-04-27T14:16:27.673Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23111",
@@ -1164,10 +1294,250 @@
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8203-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23111"
           ],
           "PublishedDate": "2026-02-13T14:16:10.283Z",
           "LastModifiedDate": "2026-04-03T14:16:23.82Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23112",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-111.111",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a45f1b73b44cda38eee2abb5430b7420101f8be9b6152bb9268c02dba376f861",
+            "DiffID": "sha256:c4556c2f548b3507ad59ba43c2ba6b33a39b403896838038843107d8b242713c"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23112",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:28c84c57e4d38592a0418418c8c44b67a1cfe8069a7e8d6cf2be610fb946cf8b",
+          "Title": "kernel: nvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec\n\nnvmet_tcp_build_pdu_iovec() could walk past cmd->req.sg when a PDU\nlength or offset exceeds sg_cnt and then use bogus sg->length/offset\nvalues, leading to _copy_to_iter() GPF/KASAN. Guard sg_idx, remaining\nentries, and sg->length/offset before building the bvec.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "azure": 2,
+            "nvd": 4,
+            "oracle-oval": 3,
+            "photon": 4,
+            "redhat": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:H",
+              "V3Score": 6.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23112",
+            "https://git.kernel.org/linus/52a0a98549344ca20ad81a4176d68d28e3c05a5c (6.19)",
+            "https://git.kernel.org/stable/c/043b4307a99f902697349128fde93b2ddde4686c",
+            "https://git.kernel.org/stable/c/0b9981751be14b59b4473383c731c833738aebdb",
+            "https://git.kernel.org/stable/c/1385be357e8acd09b36e026567f3a9d5c61139de",
+            "https://git.kernel.org/stable/c/19672ae68d52ff75347ebe2420dde1b07adca09f",
+            "https://git.kernel.org/stable/c/42afe8ed8ad2de9c19457156244ef3e1eca94b5d",
+            "https://git.kernel.org/stable/c/52a0a98549344ca20ad81a4176d68d28e3c05a5c",
+            "https://git.kernel.org/stable/c/ab200d71553bdcf4de554a5985b05b2dd606bc57",
+            "https://git.kernel.org/stable/c/dca1a6ba0da9f472ef040525fab10fd9956db59f",
+            "https://linux.oracle.com/cve/CVE-2026-23112.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50232.html",
+            "https://lore.kernel.org/linux-cve-announce/2026021302-CVE-2026-23112-6499@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23112",
+            "https://ubuntu.com/security/notices/USN-8244-1",
+            "https://ubuntu.com/security/notices/USN-8245-1",
+            "https://ubuntu.com/security/notices/USN-8254-1",
+            "https://ubuntu.com/security/notices/USN-8254-2",
+            "https://ubuntu.com/security/notices/USN-8254-3",
+            "https://ubuntu.com/security/notices/USN-8255-1",
+            "https://ubuntu.com/security/notices/USN-8255-2",
+            "https://ubuntu.com/security/notices/USN-8255-3",
+            "https://ubuntu.com/security/notices/USN-8257-1",
+            "https://ubuntu.com/security/notices/USN-8258-1",
+            "https://ubuntu.com/security/notices/USN-8260-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8273-1",
+            "https://ubuntu.com/security/notices/USN-8275-1",
+            "https://ubuntu.com/security/notices/USN-8297-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23112"
+          ],
+          "PublishedDate": "2026-02-13T14:16:10.403Z",
+          "LastModifiedDate": "2026-05-04T09:16:00.39Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23172",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a45f1b73b44cda38eee2abb5430b7420101f8be9b6152bb9268c02dba376f861",
+            "DiffID": "sha256:c4556c2f548b3507ad59ba43c2ba6b33a39b403896838038843107d8b242713c"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23172",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:479054317cf182ae31eed27e9015ed91c7984d356ca364664f875cb43e27d1fa",
+          "Title": "kernel: net: wwan: t7xx: fix potential skb->frags overflow in RX path",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: wwan: t7xx: fix potential skb->frags overflow in RX path\n\nWhen receiving data in the DPMAIF RX path,\nthe t7xx_dpmaif_set_frag_to_skb() function adds\npage fragments to an skb without checking if the number of\nfragments has exceeded MAX_SKB_FRAGS. This could lead to a buffer overflow\nin skb_shinfo(skb)->frags[] array, corrupting adjacent memory and\npotentially causing kernel crashes or other undefined behavior.\n\nThis issue was identified through static code analysis by comparing with a\nsimilar vulnerability fixed in the mt76 driver commit b102f0c522cf (\"mt76:\nfix array overflow on receiving too many fragments for a packet\").\n\nThe vulnerability could be triggered if the modem firmware sends packets\nwith excessive fragments. While under normal protocol conditions (MTU 3080\nbytes, BAT buffer 3584 bytes),\na single packet should not require additional\nfragments, the kernel should not blindly trust firmware behavior.\nMalicious, buggy, or compromised firmware could potentially craft packets\nwith more fragments than the kernel expects.\n\nFix this by adding a bounds check before calling skb_add_rx_frag() to\nensure nr_frags does not exceed MAX_SKB_FRAGS.\n\nThe check must be performed before unmapping to avoid a page leak\nand double DMA unmap during device teardown.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-401"
+          ],
+          "VendorSeverity": {
+            "nvd": 2,
+            "oracle-oval": 3,
+            "photon": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23172",
+            "https://git.kernel.org/linus/f0813bcd2d9d97fdbdf2efb9532ab03ae92e99e6 (6.19-rc8)",
+            "https://git.kernel.org/stable/c/2a0522f564acd34442652ea083091c329fa7c5d5",
+            "https://git.kernel.org/stable/c/2c0fb0f60bc1545c52da61bc6bd4855c1e7814ba",
+            "https://git.kernel.org/stable/c/af4b8577d0b388cc3d0039eb0cdd9ca5bbbc9276",
+            "https://git.kernel.org/stable/c/f0813bcd2d9d97fdbdf2efb9532ab03ae92e99e6",
+            "https://git.kernel.org/stable/c/f9747a7521a48afded5bff2faf1f2dcfff48c577",
+            "https://linux.oracle.com/cve/CVE-2026-23172.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50160.html",
+            "https://lore.kernel.org/linux-cve-announce/2026021421-CVE-2026-23172-acf0@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23172",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8296-1",
+            "https://ubuntu.com/security/notices/USN-8296-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23172"
+          ],
+          "PublishedDate": "2026-02-14T16:15:57.457Z",
+          "LastModifiedDate": "2026-04-03T14:16:25.353Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23231",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-111.111",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a45f1b73b44cda38eee2abb5430b7420101f8be9b6152bb9268c02dba376f861",
+            "DiffID": "sha256:c4556c2f548b3507ad59ba43c2ba6b33a39b403896838038843107d8b242713c"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23231",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:24ab6f442bf2fdebb44d69d4f3c5b5e028299e16e24a08270ee6ad069fde71ff",
+          "Title": "kernel: kernel: Privilege escalation or denial of service via use-after-free in nf_tables_addchain()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_tables: fix use-after-free in nf_tables_addchain()\n\nnf_tables_addchain() publishes the chain to table->chains via\nlist_add_tail_rcu() (in nft_chain_add()) before registering hooks.\nIf nf_tables_register_hook() then fails, the error path calls\nnft_chain_del() (list_del_rcu()) followed by nf_tables_chain_destroy()\nwith no RCU grace period in between.\n\nThis creates two use-after-free conditions:\n\n 1) Control-plane: nf_tables_dump_chains() traverses table->chains\n    under rcu_read_lock(). A concurrent dump can still be walking\n    the chain when the error path frees it.\n\n 2) Packet path: for NFPROTO_INET, nf_register_net_hook() briefly\n    installs the IPv4 hook before IPv6 registration fails.  Packets\n    entering nft_do_chain() via the transient IPv4 hook can still be\n    dereferencing chain->blob_gen_X when the error path frees the\n    chain.\n\nAdd synchronize_rcu() between nft_chain_del() and the chain destroy\nso that all RCU readers -- both dump threads and in-flight packet\nevaluation -- have finished before the chain is freed.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-416"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:6570",
+            "https://access.redhat.com/security/cve/CVE-2026-23231",
+            "https://bugzilla.redhat.com/2376101",
+            "https://bugzilla.redhat.com/2439687",
+            "https://bugzilla.redhat.com/2439895",
+            "https://bugzilla.redhat.com/2444376",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2376101",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439687",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439895",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2444376",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-38109",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23210",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23231",
+            "https://errata.almalinux.org/9/ALSA-2026-6570.html",
+            "https://errata.rockylinux.org/RLSA-2026:6570",
+            "https://git.kernel.org/linus/71e99ee20fc3f662555118cf1159443250647533 (7.0-rc1)",
+            "https://git.kernel.org/stable/c/2a6586ecfa4ce1413daaafee250d2590e05f1a33",
+            "https://git.kernel.org/stable/c/2f9a4ffeb763aec822f8ff3d1e82202d27d46d4b",
+            "https://git.kernel.org/stable/c/7017745068a9068904e1e7a1b170a5785647cc81",
+            "https://git.kernel.org/stable/c/71e99ee20fc3f662555118cf1159443250647533",
+            "https://git.kernel.org/stable/c/dbd0af8083dd201f07c49110b2ee93710abdff28",
+            "https://git.kernel.org/stable/c/f3fe58ce37926a10115ede527d59b91bcc05400a",
+            "https://linux.oracle.com/cve/CVE-2026-23231.html",
+            "https://linux.oracle.com/errata/ELSA-2026-6571.html",
+            "https://lore.kernel.org/linux-cve-announce/2026030436-CVE-2026-23231-1a96@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23231",
+            "https://ubuntu.com/security/notices/USN-8244-1",
+            "https://ubuntu.com/security/notices/USN-8245-1",
+            "https://ubuntu.com/security/notices/USN-8254-1",
+            "https://ubuntu.com/security/notices/USN-8254-2",
+            "https://ubuntu.com/security/notices/USN-8254-3",
+            "https://ubuntu.com/security/notices/USN-8257-1",
+            "https://ubuntu.com/security/notices/USN-8258-1",
+            "https://ubuntu.com/security/notices/USN-8260-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23231"
+          ],
+          "PublishedDate": "2026-03-04T13:15:58.137Z",
+          "LastModifiedDate": "2026-04-02T15:16:24.693Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23268",
@@ -1222,12 +1592,17 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23268",
             "https://www.qualys.com/2026/03/10/crack-armor.txt"
           ],
           "PublishedDate": "2026-03-18T18:16:25.753Z",
-          "LastModifiedDate": "2026-04-18T09:16:15.237Z"
+          "LastModifiedDate": "2026-05-29T18:41:10.513Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23410",
@@ -1292,6 +1667,11 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23410",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
@@ -1361,15 +1741,205 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23411",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
           ],
           "PublishedDate": "2026-04-01T09:16:17.27Z",
           "LastModifiedDate": "2026-04-24T15:23:12.077Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31431",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a45f1b73b44cda38eee2abb5430b7420101f8be9b6152bb9268c02dba376f861",
+            "DiffID": "sha256:c4556c2f548b3507ad59ba43c2ba6b33a39b403896838038843107d8b242713c"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31431",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:5e1f17a80d8fd60f5b070bc5019e997828b445ad4cca151db791f275a1c5e687",
+          "Title": "kernel: crypto: algif_aead - Revert to operating out-of-place",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: algif_aead - Revert to operating out-of-place\n\nThis mostly reverts commit 72548b093ee3 except for the copying of\nthe associated data.\n\nThere is no benefit in operating in-place in algif_aead since the\nsource and destination come from different mappings.  Get rid of\nall the complexity added for in-place operation and just copy the\nAD directly.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-669"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/25",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/26",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/10",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/11",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/12",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/14",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/15",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/16",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/17",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/18",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/2",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/20",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/5",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/22",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/19",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/20",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/21",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/25",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/7",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/1",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/11",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/27",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/28",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/29",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/31",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/9",
+            "http://www.openwall.com/lists/oss-security/2026/05/06/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/08/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/18/3",
+            "https://access.redhat.com/articles/7141989",
+            "https://access.redhat.com/security/cve/CVE-2026-31431",
+            "https://access.redhat.com/security/cve/cve-2026-31431#cve-details-mitigation",
+            "https://access.redhat.com/solutions/7141931",
+            "https://access.redhat.com/solutions/7141979",
+            "https://access.redhat.com/solutions/7141990",
+            "https://access.redhat.com/solutions/7141996",
+            "https://access.redhat.com/solutions/7142032",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460538",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467022",
+            "https://cert-portal.siemens.com/productcert/html/ssa-082556.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://copy.fail",
+            "https://copy.fail/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31431",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43077",
+            "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_monitoring_and_updating_the_kernel/configuring-kernel-command-line-parameters_managing-monitoring-and-updating-the-kernel",
+            "https://errata.almalinux.org/9/ALSA-2026-A002.html",
+            "https://errata.rockylinux.org/RLSA-2026:13565",
+            "https://git.kernel.org/linus/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5 (7.0-rc7)",
+            "https://git.kernel.org/stable/c/19d43105a97be0810edbda875f2cd03f30dc130c",
+            "https://git.kernel.org/stable/c/3115af9644c342b356f3f07a4dd1c8905cd9a6fc",
+            "https://git.kernel.org/stable/c/893d22e0135fa394db81df88697fba6032747667",
+            "https://git.kernel.org/stable/c/8b88d99341f139e23bdeb1027a2a3ae10d341d82",
+            "https://git.kernel.org/stable/c/961cfa271a918ad4ae452420e7c303149002875b",
+            "https://git.kernel.org/stable/c/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5",
+            "https://git.kernel.org/stable/c/ce42ee423e58dffa5ec03524054c9d8bfd4f6237",
+            "https://git.kernel.org/stable/c/fafe0fa2995a0f7073c1c358d7d3145bcc9aedd8",
+            "https://github.com/theori-io/copy-fail-CVE-2026-31431",
+            "https://linux.oracle.com/cve/CVE-2026-31431.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50275.html",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31431",
+            "https://ubuntu.com/blog/copy-fail-vulnerability-fixes-available",
+            "https://ubuntu.com/security/notices/USN-8226-1",
+            "https://ubuntu.com/security/notices/USN-8277-1",
+            "https://ubuntu.com/security/notices/USN-8277-2",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8279-1",
+            "https://ubuntu.com/security/notices/USN-8279-2",
+            "https://ubuntu.com/security/notices/USN-8279-3",
+            "https://ubuntu.com/security/notices/USN-8280-1",
+            "https://ubuntu.com/security/notices/USN-8280-2",
+            "https://ubuntu.com/security/notices/USN-8280-3",
+            "https://ubuntu.com/security/notices/USN-8281-1",
+            "https://ubuntu.com/security/notices/USN-8281-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8305-1",
+            "https://ubuntu.com/security/notices/USN-8305-2",
+            "https://ubuntu.com/security/notices/USN-8310-1",
+            "https://websec.net/blog/cve-2026-31431-linux-algifaead-page-cache-write-to-root-69f38a4ccddd2db1f520f170",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-31431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31431",
+            "https://www.kb.cert.org/vuls/id/260001",
+            "https://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "https://xint.io/blog/copy-fail-linux-distributions",
+            "https://xint.io/blog/copy-fail-linux-distributions#the-fix-6"
+          ],
+          "PublishedDate": "2026-04-22T09:16:21.27Z",
+          "LastModifiedDate": "2026-05-21T19:52:35.217Z"
         }
       ],
-      "vulnerability_count": 15
+      "vulnerability_count": 20
     },
     "hg19": {
       "image": "ghcr.io/bundlecore/products/bfx/annovar:hg19",
@@ -1409,6 +1979,7 @@
             "amazon": 3,
             "azure": 3,
             "cbl-mariner": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -1417,6 +1988,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 7.8
+            },
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 7
@@ -1437,6 +2012,7 @@
             "https://dev.gnupg.org/T8001",
             "https://errata.almalinux.org/9/ALSA-2026-0719.html",
             "https://errata.rockylinux.org/RLSA-2026:0719",
+            "https://github.com/advisories/GHSA-pj23-86ww-f72p",
             "https://github.com/gpg/gnupg/blob/ff30683418695f5d2cc9e6cf8c9418e09378ebe4/g10/armor.c#L1305-L1306",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9",
             "https://github.com/gpg/gnupg/commit/115d138ba599328005c5321c0ef9f00355838ca9 (gnupg-2.5.14)",
@@ -1638,7 +2214,11 @@
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8200-1",
             "https://ubuntu.com/security/notices/USN-8200-2",
+            "https://ubuntu.com/security/notices/USN-8200-3",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-37849"
           ],
           "PublishedDate": "2025-05-09T07:16:05.76Z",
@@ -2368,6 +2948,7 @@
             "https://bugzilla.redhat.com/2350725",
             "https://bugzilla.redhat.com/2350726",
             "https://bugzilla.redhat.com/2394627",
+            "https://cert-portal.siemens.com/productcert/html/ssa-032379.html",
             "https://comsec-files.ethz.ch/papers/vmscape_sp26.pdf",
             "https://comsec.ethz.ch/research/microarch/vmscape-exposing-and-exploiting-incomplete-branch-predictor-isolation-in-cloud-environments/",
             "https://errata.almalinux.org/9/ALSA-2025-19930.html",
@@ -2431,7 +3012,126 @@
             "https://www.theregister.com/2025/09/11/vmscape_spectre_vulnerability/"
           ],
           "PublishedDate": "2025-09-11T17:15:45.68Z",
-          "LastModifiedDate": "2026-01-16T20:25:45.94Z"
+          "LastModifiedDate": "2026-05-12T13:17:18.637Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-22984",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:69140789921a6dd176115355019293641e82cbf685bc715894ab36dc652477d0",
+            "DiffID": "sha256:96015f7b422e696b390292ed706e961bc7736125e9e704e8d720890b516edbe9"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-22984",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:7fbf7c6b491e350869a8b21c3000b70021f1555c18e55f66cceb4cf2c98c9aff",
+          "Title": "kernel: libceph: prevent potential out-of-bounds reads in handle_auth_done()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: prevent potential out-of-bounds reads in handle_auth_done()\n\nPerform an explicit bounds check on payload_len to avoid a possible\nout-of-bounds access in the callout.\n\n[ idryomov: changelog ]",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-22984",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2394648",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2425046",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2429602",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432389",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2432400",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439931",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2453803",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461107",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461521",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467059",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467144",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467771",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477802",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-39766",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-68741",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-71116",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22984",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-22990",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23204",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23401",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31532",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31607",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43128",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43163",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43284",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46300",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-46333",
+            "https://errata.rockylinux.org/RLSA-2026:19568",
+            "https://git.kernel.org/linus/818156caffbf55cb4d368f9c3cac64e458fb49c9 (6.19-rc5)",
+            "https://git.kernel.org/stable/c/194cfe2af4d2a1de599d39dad636b47c2f6c2c96",
+            "https://git.kernel.org/stable/c/2802ef3380fa8c4a08cda51ec1f085b1a712e9e2",
+            "https://git.kernel.org/stable/c/2d653bb63d598ae4b096dd678744bdcc34ee89e8",
+            "https://git.kernel.org/stable/c/79fe3511db416d2f2edcfd93569807cb02736e5e",
+            "https://git.kernel.org/stable/c/818156caffbf55cb4d368f9c3cac64e458fb49c9",
+            "https://git.kernel.org/stable/c/ef208ea331ef688729f64089b895ed1b49e842e3",
+            "https://linux.oracle.com/cve/CVE-2026-22984.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50145.html",
+            "https://lore.kernel.org/linux-cve-announce/2026012349-CVE-2026-22984-001c@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-22984",
+            "https://ubuntu.com/security/notices/USN-8096-1",
+            "https://ubuntu.com/security/notices/USN-8096-2",
+            "https://ubuntu.com/security/notices/USN-8096-3",
+            "https://ubuntu.com/security/notices/USN-8096-4",
+            "https://ubuntu.com/security/notices/USN-8096-5",
+            "https://ubuntu.com/security/notices/USN-8116-1",
+            "https://ubuntu.com/security/notices/USN-8141-1",
+            "https://ubuntu.com/security/notices/USN-8163-1",
+            "https://ubuntu.com/security/notices/USN-8163-2",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8296-1",
+            "https://ubuntu.com/security/notices/USN-8296-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-22984"
+          ],
+          "PublishedDate": "2026-01-23T16:15:54.44Z",
+          "LastModifiedDate": "2026-04-27T14:16:27.673Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23111",
@@ -2532,10 +3232,250 @@
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8188-1",
             "https://ubuntu.com/security/notices/USN-8203-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-23111"
           ],
           "PublishedDate": "2026-02-13T14:16:10.283Z",
           "LastModifiedDate": "2026-04-03T14:16:23.82Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23112",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-111.111",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:69140789921a6dd176115355019293641e82cbf685bc715894ab36dc652477d0",
+            "DiffID": "sha256:96015f7b422e696b390292ed706e961bc7736125e9e704e8d720890b516edbe9"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23112",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:014b0403369eef1983c4249e070cd344ecc59fa5e6ac6381821b4efd52de2cab",
+          "Title": "kernel: nvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnvmet-tcp: add bounds checks in nvmet_tcp_build_pdu_iovec\n\nnvmet_tcp_build_pdu_iovec() could walk past cmd->req.sg when a PDU\nlength or offset exceeds sg_cnt and then use bogus sg->length/offset\nvalues, leading to _copy_to_iter() GPF/KASAN. Guard sg_idx, remaining\nentries, and sg->length/offset before building the bvec.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "azure": 2,
+            "nvd": 4,
+            "oracle-oval": 3,
+            "photon": 4,
+            "redhat": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:H",
+              "V3Score": 6.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23112",
+            "https://git.kernel.org/linus/52a0a98549344ca20ad81a4176d68d28e3c05a5c (6.19)",
+            "https://git.kernel.org/stable/c/043b4307a99f902697349128fde93b2ddde4686c",
+            "https://git.kernel.org/stable/c/0b9981751be14b59b4473383c731c833738aebdb",
+            "https://git.kernel.org/stable/c/1385be357e8acd09b36e026567f3a9d5c61139de",
+            "https://git.kernel.org/stable/c/19672ae68d52ff75347ebe2420dde1b07adca09f",
+            "https://git.kernel.org/stable/c/42afe8ed8ad2de9c19457156244ef3e1eca94b5d",
+            "https://git.kernel.org/stable/c/52a0a98549344ca20ad81a4176d68d28e3c05a5c",
+            "https://git.kernel.org/stable/c/ab200d71553bdcf4de554a5985b05b2dd606bc57",
+            "https://git.kernel.org/stable/c/dca1a6ba0da9f472ef040525fab10fd9956db59f",
+            "https://linux.oracle.com/cve/CVE-2026-23112.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50232.html",
+            "https://lore.kernel.org/linux-cve-announce/2026021302-CVE-2026-23112-6499@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23112",
+            "https://ubuntu.com/security/notices/USN-8244-1",
+            "https://ubuntu.com/security/notices/USN-8245-1",
+            "https://ubuntu.com/security/notices/USN-8254-1",
+            "https://ubuntu.com/security/notices/USN-8254-2",
+            "https://ubuntu.com/security/notices/USN-8254-3",
+            "https://ubuntu.com/security/notices/USN-8255-1",
+            "https://ubuntu.com/security/notices/USN-8255-2",
+            "https://ubuntu.com/security/notices/USN-8255-3",
+            "https://ubuntu.com/security/notices/USN-8257-1",
+            "https://ubuntu.com/security/notices/USN-8258-1",
+            "https://ubuntu.com/security/notices/USN-8260-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8273-1",
+            "https://ubuntu.com/security/notices/USN-8275-1",
+            "https://ubuntu.com/security/notices/USN-8297-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23112"
+          ],
+          "PublishedDate": "2026-02-13T14:16:10.403Z",
+          "LastModifiedDate": "2026-05-04T09:16:00.39Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23172",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:69140789921a6dd176115355019293641e82cbf685bc715894ab36dc652477d0",
+            "DiffID": "sha256:96015f7b422e696b390292ed706e961bc7736125e9e704e8d720890b516edbe9"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23172",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:8bffdb9b923eb81027140681a365e39994369285e54f1500f83ea166de47c4c7",
+          "Title": "kernel: net: wwan: t7xx: fix potential skb->frags overflow in RX path",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: wwan: t7xx: fix potential skb->frags overflow in RX path\n\nWhen receiving data in the DPMAIF RX path,\nthe t7xx_dpmaif_set_frag_to_skb() function adds\npage fragments to an skb without checking if the number of\nfragments has exceeded MAX_SKB_FRAGS. This could lead to a buffer overflow\nin skb_shinfo(skb)->frags[] array, corrupting adjacent memory and\npotentially causing kernel crashes or other undefined behavior.\n\nThis issue was identified through static code analysis by comparing with a\nsimilar vulnerability fixed in the mt76 driver commit b102f0c522cf (\"mt76:\nfix array overflow on receiving too many fragments for a packet\").\n\nThe vulnerability could be triggered if the modem firmware sends packets\nwith excessive fragments. While under normal protocol conditions (MTU 3080\nbytes, BAT buffer 3584 bytes),\na single packet should not require additional\nfragments, the kernel should not blindly trust firmware behavior.\nMalicious, buggy, or compromised firmware could potentially craft packets\nwith more fragments than the kernel expects.\n\nFix this by adding a bounds check before calling skb_add_rx_frag() to\nensure nr_frags does not exceed MAX_SKB_FRAGS.\n\nThe check must be performed before unmapping to avoid a page leak\nand double DMA unmap during device teardown.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-401"
+          ],
+          "VendorSeverity": {
+            "nvd": 2,
+            "oracle-oval": 3,
+            "photon": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23172",
+            "https://git.kernel.org/linus/f0813bcd2d9d97fdbdf2efb9532ab03ae92e99e6 (6.19-rc8)",
+            "https://git.kernel.org/stable/c/2a0522f564acd34442652ea083091c329fa7c5d5",
+            "https://git.kernel.org/stable/c/2c0fb0f60bc1545c52da61bc6bd4855c1e7814ba",
+            "https://git.kernel.org/stable/c/af4b8577d0b388cc3d0039eb0cdd9ca5bbbc9276",
+            "https://git.kernel.org/stable/c/f0813bcd2d9d97fdbdf2efb9532ab03ae92e99e6",
+            "https://git.kernel.org/stable/c/f9747a7521a48afded5bff2faf1f2dcfff48c577",
+            "https://linux.oracle.com/cve/CVE-2026-23172.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50160.html",
+            "https://lore.kernel.org/linux-cve-announce/2026021421-CVE-2026-23172-acf0@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23172",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8296-1",
+            "https://ubuntu.com/security/notices/USN-8296-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23172"
+          ],
+          "PublishedDate": "2026-02-14T16:15:57.457Z",
+          "LastModifiedDate": "2026-04-03T14:16:25.353Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-23231",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-111.111",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:69140789921a6dd176115355019293641e82cbf685bc715894ab36dc652477d0",
+            "DiffID": "sha256:96015f7b422e696b390292ed706e961bc7736125e9e704e8d720890b516edbe9"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23231",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:0157bb087b3caacc504766c198e89c0fd9da9a9978d83370cc1ca8f6442f1e1e",
+          "Title": "kernel: kernel: Privilege escalation or denial of service via use-after-free in nf_tables_addchain()",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_tables: fix use-after-free in nf_tables_addchain()\n\nnf_tables_addchain() publishes the chain to table->chains via\nlist_add_tail_rcu() (in nft_chain_add()) before registering hooks.\nIf nf_tables_register_hook() then fails, the error path calls\nnft_chain_del() (list_del_rcu()) followed by nf_tables_chain_destroy()\nwith no RCU grace period in between.\n\nThis creates two use-after-free conditions:\n\n 1) Control-plane: nf_tables_dump_chains() traverses table->chains\n    under rcu_read_lock(). A concurrent dump can still be walking\n    the chain when the error path frees it.\n\n 2) Packet path: for NFPROTO_INET, nf_register_net_hook() briefly\n    installs the IPv4 hook before IPv6 registration fails.  Packets\n    entering nft_do_chain() via the transient IPv4 hook can still be\n    dereferencing chain->blob_gen_X when the error path frees the\n    chain.\n\nAdd synchronize_rcu() between nft_chain_del() and the chain destroy\nso that all RCU readers -- both dump threads and in-flight packet\nevaluation -- have finished before the chain is freed.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-416"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:6570",
+            "https://access.redhat.com/security/cve/CVE-2026-23231",
+            "https://bugzilla.redhat.com/2376101",
+            "https://bugzilla.redhat.com/2439687",
+            "https://bugzilla.redhat.com/2439895",
+            "https://bugzilla.redhat.com/2444376",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2376101",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439687",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439895",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2444376",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-38109",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23210",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23231",
+            "https://errata.almalinux.org/9/ALSA-2026-6570.html",
+            "https://errata.rockylinux.org/RLSA-2026:6570",
+            "https://git.kernel.org/linus/71e99ee20fc3f662555118cf1159443250647533 (7.0-rc1)",
+            "https://git.kernel.org/stable/c/2a6586ecfa4ce1413daaafee250d2590e05f1a33",
+            "https://git.kernel.org/stable/c/2f9a4ffeb763aec822f8ff3d1e82202d27d46d4b",
+            "https://git.kernel.org/stable/c/7017745068a9068904e1e7a1b170a5785647cc81",
+            "https://git.kernel.org/stable/c/71e99ee20fc3f662555118cf1159443250647533",
+            "https://git.kernel.org/stable/c/dbd0af8083dd201f07c49110b2ee93710abdff28",
+            "https://git.kernel.org/stable/c/f3fe58ce37926a10115ede527d59b91bcc05400a",
+            "https://linux.oracle.com/cve/CVE-2026-23231.html",
+            "https://linux.oracle.com/errata/ELSA-2026-6571.html",
+            "https://lore.kernel.org/linux-cve-announce/2026030436-CVE-2026-23231-1a96@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23231",
+            "https://ubuntu.com/security/notices/USN-8244-1",
+            "https://ubuntu.com/security/notices/USN-8245-1",
+            "https://ubuntu.com/security/notices/USN-8254-1",
+            "https://ubuntu.com/security/notices/USN-8254-2",
+            "https://ubuntu.com/security/notices/USN-8254-3",
+            "https://ubuntu.com/security/notices/USN-8257-1",
+            "https://ubuntu.com/security/notices/USN-8258-1",
+            "https://ubuntu.com/security/notices/USN-8260-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23231"
+          ],
+          "PublishedDate": "2026-03-04T13:15:58.137Z",
+          "LastModifiedDate": "2026-04-02T15:16:24.693Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23268",
@@ -2590,12 +3530,17 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23268",
             "https://www.qualys.com/2026/03/10/crack-armor.txt"
           ],
           "PublishedDate": "2026-03-18T18:16:25.753Z",
-          "LastModifiedDate": "2026-04-18T09:16:15.237Z"
+          "LastModifiedDate": "2026-05-29T18:41:10.513Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23410",
@@ -2660,6 +3605,11 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23410",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
@@ -2729,19 +3679,209 @@
             "https://ubuntu.com/security/notices/USN-8164-1",
             "https://ubuntu.com/security/notices/USN-8165-1",
             "https://ubuntu.com/security/notices/USN-8201-1",
+            "https://ubuntu.com/security/notices/USN-8224-1",
+            "https://ubuntu.com/security/notices/USN-8243-1",
+            "https://ubuntu.com/security/notices/USN-8261-1",
+            "https://ubuntu.com/security/notices/USN-8266-1",
+            "https://ubuntu.com/security/notices/USN-8267-1",
             "https://ubuntu.com/security/vulnerabilities/crackarmor",
             "https://www.cve.org/CVERecord?id=CVE-2026-23411",
             "https://www.openwall.com/lists/oss-security/2026/04/01/3"
           ],
           "PublishedDate": "2026-04-01T09:16:17.27Z",
           "LastModifiedDate": "2026-04-24T15:23:12.077Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-31431",
+          "PkgID": "linux-libc-dev@6.8.0-84.84",
+          "PkgName": "linux-libc-dev",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/linux-libc-dev@6.8.0-84.84?arch=amd64&distro=ubuntu-24.04",
+            "UID": "e29963c6e0510e44"
+          },
+          "InstalledVersion": "6.8.0-84.84",
+          "FixedVersion": "6.8.0-117.117",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:69140789921a6dd176115355019293641e82cbf685bc715894ab36dc652477d0",
+            "DiffID": "sha256:96015f7b422e696b390292ed706e961bc7736125e9e704e8d720890b516edbe9"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-31431",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:1dee1967c009460982bcb9c8ec98b12ff0bc88a433ac1c9795588bf6b84fd0f5",
+          "Title": "kernel: crypto: algif_aead - Revert to operating out-of-place",
+          "Description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: algif_aead - Revert to operating out-of-place\n\nThis mostly reverts commit 72548b093ee3 except for the copying of\nthe associated data.\n\nThere is no benefit in operating in-place in algif_aead since the\nsource and destination come from different mappings.  Get rid of\nall the complexity added for in-place operation and just copy the\nAD directly.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-669"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/25",
+            "http://www.openwall.com/lists/oss-security/2026/04/29/26",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/10",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/11",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/12",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/14",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/15",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/16",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/17",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/18",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/2",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/20",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/5",
+            "http://www.openwall.com/lists/oss-security/2026/04/30/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/22",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/01/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/15",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/16",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/17",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/18",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/19",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/20",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/21",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/23",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/25",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/7",
+            "http://www.openwall.com/lists/oss-security/2026/05/02/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/3",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/4",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/03/6",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/1",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/10",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/11",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/14",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/24",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/27",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/28",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/29",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/31",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/8",
+            "http://www.openwall.com/lists/oss-security/2026/05/04/9",
+            "http://www.openwall.com/lists/oss-security/2026/05/06/5",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/12",
+            "http://www.openwall.com/lists/oss-security/2026/05/07/2",
+            "http://www.openwall.com/lists/oss-security/2026/05/08/13",
+            "http://www.openwall.com/lists/oss-security/2026/05/18/3",
+            "https://access.redhat.com/articles/7141989",
+            "https://access.redhat.com/security/cve/CVE-2026-31431",
+            "https://access.redhat.com/security/cve/cve-2026-31431#cve-details-mitigation",
+            "https://access.redhat.com/solutions/7141931",
+            "https://access.redhat.com/solutions/7141979",
+            "https://access.redhat.com/solutions/7141990",
+            "https://access.redhat.com/solutions/7141996",
+            "https://access.redhat.com/solutions/7142032",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439852",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2448745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2454844",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2460538",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2467022",
+            "https://cert-portal.siemens.com/productcert/html/ssa-082556.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-265688.html",
+            "https://copy.fail",
+            "https://copy.fail/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23136",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-23270",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31402",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-31431",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-43077",
+            "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_monitoring_and_updating_the_kernel/configuring-kernel-command-line-parameters_managing-monitoring-and-updating-the-kernel",
+            "https://errata.almalinux.org/9/ALSA-2026-A002.html",
+            "https://errata.rockylinux.org/RLSA-2026:13565",
+            "https://git.kernel.org/linus/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5 (7.0-rc7)",
+            "https://git.kernel.org/stable/c/19d43105a97be0810edbda875f2cd03f30dc130c",
+            "https://git.kernel.org/stable/c/3115af9644c342b356f3f07a4dd1c8905cd9a6fc",
+            "https://git.kernel.org/stable/c/893d22e0135fa394db81df88697fba6032747667",
+            "https://git.kernel.org/stable/c/8b88d99341f139e23bdeb1027a2a3ae10d341d82",
+            "https://git.kernel.org/stable/c/961cfa271a918ad4ae452420e7c303149002875b",
+            "https://git.kernel.org/stable/c/a664bf3d603dc3bdcf9ae47cc21e0daec706d7a5",
+            "https://git.kernel.org/stable/c/ce42ee423e58dffa5ec03524054c9d8bfd4f6237",
+            "https://git.kernel.org/stable/c/fafe0fa2995a0f7073c1c358d7d3145bcc9aedd8",
+            "https://github.com/theori-io/copy-fail-CVE-2026-31431",
+            "https://linux.oracle.com/cve/CVE-2026-31431.html",
+            "https://linux.oracle.com/errata/ELSA-2026-50275.html",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/",
+            "https://lore.kernel.org/linux-cve-announce/2026042214-CVE-2026-31431-3d65@gregkh/T",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-31431",
+            "https://ubuntu.com/blog/copy-fail-vulnerability-fixes-available",
+            "https://ubuntu.com/security/notices/USN-8226-1",
+            "https://ubuntu.com/security/notices/USN-8277-1",
+            "https://ubuntu.com/security/notices/USN-8277-2",
+            "https://ubuntu.com/security/notices/USN-8278-1",
+            "https://ubuntu.com/security/notices/USN-8278-2",
+            "https://ubuntu.com/security/notices/USN-8279-1",
+            "https://ubuntu.com/security/notices/USN-8279-2",
+            "https://ubuntu.com/security/notices/USN-8279-3",
+            "https://ubuntu.com/security/notices/USN-8280-1",
+            "https://ubuntu.com/security/notices/USN-8280-2",
+            "https://ubuntu.com/security/notices/USN-8280-3",
+            "https://ubuntu.com/security/notices/USN-8281-1",
+            "https://ubuntu.com/security/notices/USN-8281-2",
+            "https://ubuntu.com/security/notices/USN-8289-1",
+            "https://ubuntu.com/security/notices/USN-8289-2",
+            "https://ubuntu.com/security/notices/USN-8305-1",
+            "https://ubuntu.com/security/notices/USN-8305-2",
+            "https://ubuntu.com/security/notices/USN-8310-1",
+            "https://websec.net/blog/cve-2026-31431-linux-algifaead-page-cache-write-to-root-69f38a4ccddd2db1f520f170",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-31431",
+            "https://www.cve.org/CVERecord?id=CVE-2026-31431",
+            "https://www.kb.cert.org/vuls/id/260001",
+            "https://www.openwall.com/lists/oss-security/2026/04/29/23",
+            "https://xint.io/blog/copy-fail-linux-distributions",
+            "https://xint.io/blog/copy-fail-linux-distributions#the-fix-6"
+          ],
+          "PublishedDate": "2026-04-22T09:16:21.27Z",
+          "LastModifiedDate": "2026-05-21T19:52:35.217Z"
         }
       ],
-      "vulnerability_count": 15
+      "vulnerability_count": 20
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 30
+    "total_vulnerabilities": 40
   }
 }
