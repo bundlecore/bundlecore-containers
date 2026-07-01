@@ -1,7 +1,7 @@
 {
   "tool": "mummer",
-  "scan_timestamp": "2026-06-01T07:59:02Z",
-  "workflow_run_id": "26740418119",
+  "scan_timestamp": "2026-07-01T07:20:45Z",
+  "workflow_run_id": "28498663118",
   "versions": {
     "4.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/mummer:4.0.1",
@@ -33,7 +33,8 @@
           "Description": "ERB is a templating system for Ruby. Ruby 2.7.0 (before ERB 2.2.0 was published on rubygems.org) introduced an `@_init` instance variable guard in `ERB#result` and `ERB#run` to prevent code execution when an ERB object is reconstructed via `Marshal.load` (deserialization). However, three other public methods that also evaluate `@src` via `eval()` were not given the same guard: `ERB#def_method`, `ERB#def_module`, and `ERB#def_class`. An attacker who can trigger `Marshal.load` on untrusted data in a Ruby application that has `erb` loaded can use `ERB#def_module` (zero-arg, default parameters) as a code execution sink, bypassing the `@_init` protection entirely. ERB 4.0.3.1, 4.0.4.1, 6.0.1.1, and 6.0.4 patch the issue.",
           "Severity": "HIGH",
           "CweIDs": [
-            "CWE-693"
+            "CWE-693",
+            "CWE-502"
           ],
           "VendorSeverity": {
             "alma": 3,
@@ -55,7 +56,17 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:18030",
+            "https://access.redhat.com/errata/RHSA-2026:18039",
+            "https://access.redhat.com/errata/RHSA-2026:18065",
             "https://access.redhat.com/errata/RHSA-2026:20596",
+            "https://access.redhat.com/errata/RHSA-2026:20606",
+            "https://access.redhat.com/errata/RHSA-2026:20614",
+            "https://access.redhat.com/errata/RHSA-2026:20670",
+            "https://access.redhat.com/errata/RHSA-2026:26312",
+            "https://access.redhat.com/errata/RHSA-2026:26655",
+            "https://access.redhat.com/errata/RHSA-2026:33462",
+            "https://access.redhat.com/errata/RHSA-2026:33478",
             "https://access.redhat.com/security/cve/CVE-2026-41316",
             "https://bugzilla.redhat.com/2449871",
             "https://bugzilla.redhat.com/2461369",
@@ -70,15 +81,17 @@
             "https://github.com/ruby/erb/blob/master/NEWS.md",
             "https://github.com/ruby/erb/commit/9d017be4e375cdd058650ce528ee6adfead20cac",
             "https://github.com/ruby/erb/security/advisories/GHSA-q339-8rmv-2mhv",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/erb/CVE-2026-41316.yml",
             "https://linux.oracle.com/cve/CVE-2026-41316.html",
             "https://linux.oracle.com/errata/ELSA-2026-20614.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-41316",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-41316.json",
             "https://www.cve.org/CVERecord?id=CVE-2026-41316",
             "https://www.ruby-lang.org/en/news/2026/04/21/erb-cve-2026-41316",
             "https://www.ruby-lang.org/en/news/2026/04/21/ruby-4-0-3-released"
           ],
           "PublishedDate": "2026-04-24T03:16:11.897Z",
-          "LastModifiedDate": "2026-04-29T20:56:50.103Z"
+          "LastModifiedDate": "2026-06-30T13:18:23.523Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42257",
@@ -111,6 +124,7 @@
             "CWE-93"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "ghsa": 2,
             "nvd": 4,
             "redhat": 2,
@@ -143,71 +157,14 @@
             "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
             "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
             "https://github.com/ruby/net-imap/security/advisories/GHSA-hm49-wcqc-g2xg",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42257.yml",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-42257",
+            "https://ubuntu.com/security/notices/USN-8431-1",
+            "https://ubuntu.com/security/notices/USN-8478-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-42257"
           ],
           "PublishedDate": "2026-05-09T20:16:28.463Z",
-          "LastModifiedDate": "2026-05-18T17:59:37.693Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-42258",
-          "PkgName": "net-imap",
-          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/net-imap-0.5.4.gemspec",
-          "PkgIdentifier": {
-            "PURL": "pkg:gem/net-imap@0.5.4",
-            "UID": "b361c823a95fb04f"
-          },
-          "InstalledVersion": "0.5.4",
-          "FixedVersion": "~> 0.4.24, ~> 0.5.14, >= 0.6.4",
-          "Status": "fixed",
-          "Layer": {
-            "Digest": "sha256:a97e19ef95dd58e5cf90d37eedfa3d211eb12b2d5934f35036dbeb3778700c45",
-            "DiffID": "sha256:991591d14e50625e4348888595be58ec410fdfb82ae730e081cb1fbd93392ef6"
-          },
-          "SeveritySource": "nvd",
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42258",
-          "DataSource": {
-            "ID": "ruby-advisory-db",
-            "Name": "Ruby Advisory Database",
-            "URL": "https://github.com/rubysec/ruby-advisory-db"
-          },
-          "Fingerprint": "sha256:199afa3bbec826d98c33e99f338d3026cdc78aed49a020471b0c14017db2fb1c",
-          "Title": "Net::IMAP implements Internet Message Access Protocol (IMAP) client fu ...",
-          "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.4.24, 0.5.14, and 0.6.4, symbol arguments to commands are vulnerable to a CRLF Injection / IMAP Command injection via Symbol arguments passed to IMAP commands. This issue has been patched in versions 0.4.24, 0.5.14, and 0.6.4.",
-          "Severity": "CRITICAL",
-          "CweIDs": [
-            "CWE-77",
-            "CWE-93"
-          ],
-          "VendorSeverity": {
-            "ghsa": 2,
-            "nvd": 4
-          },
-          "CVSS": {
-            "ghsa": {
-              "V40Vector": "CVSS:4.0/AV:L/AC:H/AT:P/PR:N/UI:P/VC:N/VI:H/VA:L/SC:N/SI:N/SA:N",
-              "V40Score": 5.8
-            },
-            "nvd": {
-              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 9.8
-            }
-          },
-          "References": [
-            "https://github.com/advisories/GHSA-75xq-5h9v-w6px",
-            "https://github.com/ruby/net-imap",
-            "https://github.com/ruby/net-imap/commit/6bf02aef7e0b5931010c36e377f79a71636b306b",
-            "https://github.com/ruby/net-imap/commit/9db3e9d60bfb8f3735ea95015bf8a700f4af9cbb",
-            "https://github.com/ruby/net-imap/commit/aec06996eb87a7e1bbcef1f9f8926e8add2b8c71",
-            "https://github.com/ruby/net-imap/releases/tag/v0.4.24",
-            "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
-            "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
-            "https://github.com/ruby/net-imap/security/advisories/GHSA-75xq-5h9v-w6px",
-            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42258.yml",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-42258"
-          ],
-          "PublishedDate": "2026-05-09T20:16:28.623Z",
-          "LastModifiedDate": "2026-05-18T18:02:35.79Z"
+          "LastModifiedDate": "2026-06-17T10:47:35.563Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42245",
@@ -239,6 +196,7 @@
             "CWE-407"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "ghsa": 1,
             "nvd": 3,
             "redhat": 2
@@ -273,7 +231,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42245"
           ],
           "PublishedDate": "2026-05-09T20:16:28.017Z",
-          "LastModifiedDate": "2026-05-18T18:12:26.317Z"
+          "LastModifiedDate": "2026-06-17T10:47:34.177Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42246",
@@ -298,7 +256,7 @@
             "URL": "https://github.com/rubysec/ruby-advisory-db"
           },
           "Fingerprint": "sha256:3cf8de440fdb1edbc4c65926b970dc0724fc662d9db582a68321182a985189a2",
-          "Title": "Net::IMAP implements Internet Message Access Protocol (IMAP) client fu ...",
+          "Title": "net-imap: ruby: Net::IMAP: Information disclosure via man-in-the-middle attack bypassing TLS",
           "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.3.10, 0.4.24, 0.5.14, and 0.6.4, a man-in-the-middle attacker can cause Net::IMAP#starttls to return \"successfully\", without starting TLS. This issue has been patched in versions 0.3.10, 0.4.24, 0.5.14, and 0.6.4.",
           "Severity": "HIGH",
           "CweIDs": [
@@ -306,11 +264,14 @@
             "CWE-393",
             "CWE-636",
             "CWE-754",
-            "CWE-841"
+            "CWE-841",
+            "CWE-325"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "ghsa": 3,
             "nvd": 3,
+            "redhat": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -321,9 +282,16 @@
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
               "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:33462",
+            "https://access.redhat.com/security/cve/CVE-2026-42246",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468499",
             "https://github.com/advisories/GHSA-vcgp-9326-pqcp",
             "https://github.com/ruby/net-imap",
             "https://github.com/ruby/net-imap/commit/0ede4c40b1523dfeaf95777b2678e54cc0fd9618",
@@ -338,11 +306,14 @@
             "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42246.yml",
             "https://nostarttls.secvuln.info",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-42246",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-42246.json",
+            "https://ubuntu.com/security/notices/USN-8431-1",
+            "https://ubuntu.com/security/notices/USN-8478-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-42246",
             "https://www.rfc-editor.org/info/rfc8314"
           ],
           "PublishedDate": "2026-05-09T20:16:28.163Z",
-          "LastModifiedDate": "2026-05-18T18:08:40.813Z"
+          "LastModifiedDate": "2026-06-30T13:18:27.703Z"
         },
         {
           "VulnerabilityID": "CVE-2025-24294",
@@ -426,7 +397,7 @@
             "https://www.vuxml.org/freebsd/eed1a411-699b-11f0-91fe-000c295725e4.html"
           ],
           "PublishedDate": "2025-07-12T04:15:46.683Z",
-          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+          "LastModifiedDate": "2026-06-17T08:58:30.603Z"
         },
         {
           "VulnerabilityID": "CVE-2025-61594",
@@ -521,7 +492,7 @@
             "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594/"
           ],
           "PublishedDate": "2025-12-30T21:15:43.893Z",
-          "LastModifiedDate": "2026-04-16T18:16:44.4Z"
+          "LastModifiedDate": "2026-06-17T09:50:37.197Z"
         },
         {
           "VulnerabilityID": "CVE-2026-27820",
@@ -538,7 +509,7 @@
             "Digest": "sha256:a97e19ef95dd58e5cf90d37eedfa3d211eb12b2d5934f35036dbeb3778700c45",
             "DiffID": "sha256:991591d14e50625e4348888595be58ec410fdfb82ae730e081cb1fbd93392ef6"
           },
-          "SeveritySource": "nvd",
+          "SeveritySource": "ruby-advisory-db",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27820",
           "DataSource": {
             "ID": "ruby-advisory-db",
@@ -554,14 +525,18 @@
             "CWE-131"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "azure": 1,
             "ghsa": 2,
             "nvd": 4,
-            "redhat": 2
+            "redhat": 2,
+            "ruby-advisory-db": 4
           },
           "CVSS": {
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
               "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 9.8,
               "V40Score": 5.9
             },
             "nvd": {
@@ -587,14 +562,14 @@
             "https://www.ruby-lang.org/en/news/2026/03/05/buffer-overflow-zlib-cve-2026-27820"
           ],
           "PublishedDate": "2026-04-16T18:16:44.77Z",
-          "LastModifiedDate": "2026-05-21T19:31:19.27Z"
+          "LastModifiedDate": "2026-06-17T10:27:44.4Z"
         }
       ],
-      "vulnerability_count": 8
+      "vulnerability_count": 7
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 8
+    "total_vulnerabilities": 7
   }
 }
