@@ -1,7 +1,7 @@
 {
   "tool": "ashlar",
-  "scan_timestamp": "2026-06-01T07:23:45Z",
-  "workflow_run_id": "26740418119",
+  "scan_timestamp": "2026-07-01T06:49:34Z",
+  "workflow_run_id": "28498663118",
   "versions": {
     "1.20.0": {
       "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.20.0",
@@ -73,7 +73,121 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-52999"
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
-          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+          "LastModifiedDate": "2026-06-17T09:37:27.057Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54512",
+          "VendorIDs": [
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.14.2",
+            "UID": "35c536bf82d9a77a"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 3.1.4, 2.21.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54512",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:dbcdf39d2a7118e2c5b1a695be6038e727ab20b2e305c27cb8576d447080c88c",
+          "Title": "jackson-databind contains the general-purpose data-binding functionali ...",
+          "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, jackson-databind's PolymorphicTypeValidator (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains <), DatabindContext._resolveAndValidateGeneric() validates only the raw container class name (the substring before <) against the configured PTV. If the container type is approved, the method parses the full canonical type string via TypeFactory.constructFromCanonical() and returns the fully parameterized type without ever validating the nested type arguments against the PTV. The nested type arguments are then resolved, instantiated, and populated as beans during deserialization. An attacker who controls the type ID can therefore place a denied class as a generic type parameter of an allowed container — for example java.util.ArrayList<com.evil.Gadget> when only java.util.ArrayList is allow-listed. The container passes the PTV check; com.evil.Gadget is loaded via Class.forName(name, true, loader), instantiated, and its properties are set from attacker-controlled JSON. This completely bypasses an explicitly configured PTV allow-list. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-184",
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
+            "https://github.com/FasterXML/jackson-databind/issues/5988",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm"
+          ],
+          "PublishedDate": "2026-06-23T21:17:02.203Z",
+          "LastModifiedDate": "2026-06-27T21:01:36.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54513",
+          "VendorIDs": [
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.14.2",
+            "UID": "35c536bf82d9a77a"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 2.21.4, 3.1.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54513",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:12ab7ffa32bd1f6145a7806520458078e1e419f77603109501fbb9514e6a6d97",
+          "Title": "jackson-databind: Jackson-databind: Security bypass allows arbitrary code execution",
+          "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray() allowlists any array type based only on clazz.isArray(), without validating the array's component (element) type against the configured allowlist. A PTV built with allowIfSubTypeIsArray() plus an explicit concrete-type allowlist therefore still permits EvilType[] even though EvilType is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates the component type directly with no further PTV check, bypassing the allowlist. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-184"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54513",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
+            "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
+            "https://github.com/FasterXML/jackson-databind/issues/5981",
+            "https://github.com/FasterXML/jackson-databind/issues/5983",
+            "https://github.com/FasterXML/jackson-databind/pull/5984",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-rmj7-2vxq-3g9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54513",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-54513.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54513"
+          ],
+          "PublishedDate": "2026-06-23T21:17:02.333Z",
+          "LastModifiedDate": "2026-06-30T03:21:03.13Z"
         },
         {
           "VulnerabilityID": "CVE-2021-0341",
@@ -139,7 +253,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2021-0341"
           ],
           "PublishedDate": "2021-02-10T17:15:22.037Z",
-          "LastModifiedDate": "2024-11-21T05:42:32.723Z"
+          "LastModifiedDate": "2026-06-17T03:29:49.4Z"
         },
         {
           "VulnerabilityID": "CVE-2024-47554",
@@ -205,7 +319,51 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-47554"
           ],
           "PublishedDate": "2024-10-03T12:15:02.613Z",
-          "LastModifiedDate": "2025-07-10T21:10:32.113Z"
+          "LastModifiedDate": "2026-06-17T07:57:17.887Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6v7p-g79w-8964",
+          "PkgName": "msgpack",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/msgpack-1.1.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.2",
+            "UID": "afaf51d3ceeca950"
+          },
+          "InstalledVersion": "1.1.2",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6v7p-g79w-8964",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a36364b9f400ab4ab5b7a9105f4c7af9705e6afc4cbc9bf53cf66ecaa36905f2",
+          "Title": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error",
+          "Description": "### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If an error occurs during Streaming Unpacking, the Stream and Streaming Unpacker should be discarded.\n\nTherefore, this is not just a workaround but the correct solution. The above patch only prevents crashes from incorrect usage.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964"
+          ],
+          "PublishedDate": "2026-06-19T21:42:55Z",
+          "LastModifiedDate": "2026-06-19T21:42:55Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -267,7 +425,27 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/02/12/1",
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:14873",
+            "https://access.redhat.com/errata/RHSA-2026:14874",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:28385",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:4128",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5168",
+            "https://access.redhat.com/errata/RHSA-2026:5665",
+            "https://access.redhat.com/errata/RHSA-2026:6277",
+            "https://access.redhat.com/errata/RHSA-2026:6278",
+            "https://access.redhat.com/errata/RHSA-2026:6308",
+            "https://access.redhat.com/errata/RHSA-2026:6309",
+            "https://access.redhat.com/errata/RHSA-2026:6497",
+            "https://access.redhat.com/errata/RHSA-2026:6567",
+            "https://access.redhat.com/errata/RHSA-2026:6568",
             "https://access.redhat.com/security/cve/CVE-2026-25990",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439170",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/54ba4db542ad3c7b918812a4e2d69c27735a3199",
             "https://github.com/python-pillow/Pillow/commit/9000313cc5d4a31bdcdd6d7f0781101abab553aa",
@@ -275,11 +453,12 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-25990",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.1.1.html",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-25990.json",
             "https://ubuntu.com/security/notices/USN-8047-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-04-30T21:16:30.17Z"
+          "LastModifiedDate": "2026-06-30T03:17:46.933Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -312,7 +491,8 @@
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400",
-            "CWE-770"
+            "CWE-770",
+            "CWE-409"
           ],
           "VendorSeverity": {
             "bitnami": 3,
@@ -342,18 +522,39 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:16008",
+            "https://access.redhat.com/errata/RHSA-2026:16009",
+            "https://access.redhat.com/errata/RHSA-2026:16030",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:17609",
+            "https://access.redhat.com/errata/RHSA-2026:17611",
+            "https://access.redhat.com/errata/RHSA-2026:19375",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:21017",
+            "https://access.redhat.com/errata/RHSA-2026:22465",
+            "https://access.redhat.com/errata/RHSA-2026:22629",
+            "https://access.redhat.com/errata/RHSA-2026:22840",
+            "https://access.redhat.com/errata/RHSA-2026:23361",
+            "https://access.redhat.com/errata/RHSA-2026:24761",
+            "https://access.redhat.com/errata/RHSA-2026:24762",
+            "https://access.redhat.com/errata/RHSA-2026:24853",
+            "https://access.redhat.com/errata/RHSA-2026:24866",
+            "https://access.redhat.com/errata/RHSA-2026:24977",
+            "https://access.redhat.com/errata/RHSA-2026:27076",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
             "https://github.com/python-pillow/Pillow/pull/9521",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-40192.json",
             "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+          "LastModifiedDate": "2026-06-30T03:19:16.99Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -392,7 +593,8 @@
             "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
-            "nvd": 3
+            "nvd": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -415,13 +617,15 @@
             "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311",
+            "https://ubuntu.com/security/notices/USN-8399-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42311"
           ],
           "PublishedDate": "2026-05-09T06:16:10.43Z",
-          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
+          "LastModifiedDate": "2026-06-17T10:47:40.52Z"
         }
       ],
-      "vulnerability_count": 6
+      "vulnerability_count": 9
     },
     "1.19.0": {
       "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.19.0",
@@ -493,7 +697,121 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-52999"
           ],
           "PublishedDate": "2025-06-25T17:15:39.82Z",
-          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+          "LastModifiedDate": "2026-06-17T09:37:27.057Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54512",
+          "VendorIDs": [
+            "GHSA-j3rv-43j4-c7qm"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.14.2",
+            "UID": "35c536bf82d9a77a"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 3.1.4, 2.21.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54512",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:75d840d931d07a5d89b0e56d4737ba2767e449105c5e8305577c98e03fe5f367",
+          "Title": "jackson-databind contains the general-purpose data-binding functionali ...",
+          "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, jackson-databind's PolymorphicTypeValidator (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains <), DatabindContext._resolveAndValidateGeneric() validates only the raw container class name (the substring before <) against the configured PTV. If the container type is approved, the method parses the full canonical type string via TypeFactory.constructFromCanonical() and returns the fully parameterized type without ever validating the nested type arguments against the PTV. The nested type arguments are then resolved, instantiated, and populated as beans during deserialization. An attacker who controls the type ID can therefore place a denied class as a generic type parameter of an allowed container — for example java.util.ArrayList<com.evil.Gadget> when only java.util.ArrayList is allow-listed. The container passes the PTV check; com.evil.Gadget is loaded via Class.forName(name, true, loader), instantiated, and its properties are set from attacker-controlled JSON. This completely bypasses an explicitly configured PTV allow-list. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-184",
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
+            "https://github.com/FasterXML/jackson-databind/issues/5988",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm"
+          ],
+          "PublishedDate": "2026-06-23T21:17:02.203Z",
+          "LastModifiedDate": "2026-06-27T21:01:36.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54513",
+          "VendorIDs": [
+            "GHSA-rmj7-2vxq-3g9f"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.14.2",
+            "UID": "35c536bf82d9a77a"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 2.21.4, 3.1.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54513",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:6600968df55fce20e41e150e29329663022c69be6a1a31a484ee30df3fa140eb",
+          "Title": "jackson-databind: Jackson-databind: Security bypass allows arbitrary code execution",
+          "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray() allowlists any array type based only on clazz.isArray(), without validating the array's component (element) type against the configured allowlist. A PTV built with allowIfSubTypeIsArray() plus an explicit concrete-type allowlist therefore still permits EvilType[] even though EvilType is not allowlisted. When Jackson deserializes the elements and no per-element type IDs are present, it instantiates the component type directly with no further PTV check, bypassing the allowlist. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-184"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54513",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
+            "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
+            "https://github.com/FasterXML/jackson-databind/issues/5981",
+            "https://github.com/FasterXML/jackson-databind/issues/5983",
+            "https://github.com/FasterXML/jackson-databind/pull/5984",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-rmj7-2vxq-3g9f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54513",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-54513.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54513"
+          ],
+          "PublishedDate": "2026-06-23T21:17:02.333Z",
+          "LastModifiedDate": "2026-06-30T03:21:03.13Z"
         },
         {
           "VulnerabilityID": "CVE-2021-0341",
@@ -559,7 +877,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2021-0341"
           ],
           "PublishedDate": "2021-02-10T17:15:22.037Z",
-          "LastModifiedDate": "2024-11-21T05:42:32.723Z"
+          "LastModifiedDate": "2026-06-17T03:29:49.4Z"
         },
         {
           "VulnerabilityID": "CVE-2024-47554",
@@ -625,7 +943,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2024-47554"
           ],
           "PublishedDate": "2024-10-03T12:15:02.613Z",
-          "LastModifiedDate": "2025-07-10T21:10:32.113Z"
+          "LastModifiedDate": "2026-06-17T07:57:17.887Z"
         },
         {
           "VulnerabilityID": "CVE-2024-36114",
@@ -679,7 +997,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2024-36114"
           ],
           "PublishedDate": "2024-05-29T21:15:49.237Z",
-          "LastModifiedDate": "2026-04-15T00:35:42.02Z"
+          "LastModifiedDate": "2026-06-17T07:36:07.957Z"
         },
         {
           "VulnerabilityID": "CVE-2025-67721",
@@ -738,7 +1056,7 @@
             "https://nvd.nist.gov/vuln/detail/CVE-2025-67721"
           ],
           "PublishedDate": "2025-12-12T23:15:42.067Z",
-          "LastModifiedDate": "2026-03-17T19:40:07.64Z"
+          "LastModifiedDate": "2026-06-17T09:58:01.89Z"
         },
         {
           "VulnerabilityID": "CVE-2023-32697",
@@ -800,7 +1118,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2023-32697"
           ],
           "PublishedDate": "2023-05-23T23:15:09.337Z",
-          "LastModifiedDate": "2024-11-21T08:03:52.44Z"
+          "LastModifiedDate": "2026-06-17T05:59:24.877Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23949",
@@ -861,7 +1179,51 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-23949"
           ],
           "PublishedDate": "2026-01-20T01:15:57.723Z",
-          "LastModifiedDate": "2026-03-11T23:12:19.323Z"
+          "LastModifiedDate": "2026-06-17T10:22:20.2Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6v7p-g79w-8964",
+          "PkgName": "msgpack",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/msgpack-1.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.0",
+            "UID": "73c173467c6d3e2e"
+          },
+          "InstalledVersion": "1.1.0",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6v7p-g79w-8964",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2cc576584c3ec1f2228ccff4569f2bdfd94be3c9097287efe81d91a994df98d2",
+          "Title": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error",
+          "Description": "### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If an error occurs during Streaming Unpacking, the Stream and Streaming Unpacker should be discarded.\n\nTherefore, this is not just a workaround but the correct solution. The above patch only prevents crashes from incorrect usage.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964"
+          ],
+          "PublishedDate": "2026-06-19T21:42:55Z",
+          "LastModifiedDate": "2026-06-19T21:42:55Z"
         },
         {
           "VulnerabilityID": "CVE-2026-25990",
@@ -923,7 +1285,27 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2026/02/12/1",
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:14873",
+            "https://access.redhat.com/errata/RHSA-2026:14874",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:28385",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:4128",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5168",
+            "https://access.redhat.com/errata/RHSA-2026:5665",
+            "https://access.redhat.com/errata/RHSA-2026:6277",
+            "https://access.redhat.com/errata/RHSA-2026:6278",
+            "https://access.redhat.com/errata/RHSA-2026:6308",
+            "https://access.redhat.com/errata/RHSA-2026:6309",
+            "https://access.redhat.com/errata/RHSA-2026:6497",
+            "https://access.redhat.com/errata/RHSA-2026:6567",
+            "https://access.redhat.com/errata/RHSA-2026:6568",
             "https://access.redhat.com/security/cve/CVE-2026-25990",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439170",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/54ba4db542ad3c7b918812a4e2d69c27735a3199",
             "https://github.com/python-pillow/Pillow/commit/9000313cc5d4a31bdcdd6d7f0781101abab553aa",
@@ -931,11 +1313,12 @@
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-25990",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.1.1.html",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-25990.json",
             "https://ubuntu.com/security/notices/USN-8047-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-04-30T21:16:30.17Z"
+          "LastModifiedDate": "2026-06-30T03:17:46.933Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -968,7 +1351,8 @@
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400",
-            "CWE-770"
+            "CWE-770",
+            "CWE-409"
           ],
           "VendorSeverity": {
             "bitnami": 3,
@@ -998,18 +1382,39 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:16008",
+            "https://access.redhat.com/errata/RHSA-2026:16009",
+            "https://access.redhat.com/errata/RHSA-2026:16030",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:17609",
+            "https://access.redhat.com/errata/RHSA-2026:17611",
+            "https://access.redhat.com/errata/RHSA-2026:19375",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:21017",
+            "https://access.redhat.com/errata/RHSA-2026:22465",
+            "https://access.redhat.com/errata/RHSA-2026:22629",
+            "https://access.redhat.com/errata/RHSA-2026:22840",
+            "https://access.redhat.com/errata/RHSA-2026:23361",
+            "https://access.redhat.com/errata/RHSA-2026:24761",
+            "https://access.redhat.com/errata/RHSA-2026:24762",
+            "https://access.redhat.com/errata/RHSA-2026:24853",
+            "https://access.redhat.com/errata/RHSA-2026:24866",
+            "https://access.redhat.com/errata/RHSA-2026:24977",
+            "https://access.redhat.com/errata/RHSA-2026:27076",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
             "https://github.com/python-pillow/Pillow/pull/9521",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
             "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-40192.json",
             "https://ubuntu.com/security/notices/USN-8211-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-04-22T20:08:33.707Z"
+          "LastModifiedDate": "2026-06-30T03:19:16.99Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -1048,7 +1453,8 @@
             "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
-            "nvd": 3
+            "nvd": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "bitnami": {
@@ -1071,10 +1477,12 @@
             "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
             "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311",
+            "https://ubuntu.com/security/notices/USN-8399-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42311"
           ],
           "PublishedDate": "2026-05-09T06:16:10.43Z",
-          "LastModifiedDate": "2026-05-14T20:27:45.59Z"
+          "LastModifiedDate": "2026-06-17T10:47:40.52Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -1162,7 +1570,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-47273"
           ],
           "PublishedDate": "2025-05-17T16:15:19.11Z",
-          "LastModifiedDate": "2025-06-12T16:29:01.66Z"
+          "LastModifiedDate": "2026-06-17T09:27:38.827Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -1224,7 +1632,48 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:13545",
+            "https://access.redhat.com/errata/RHSA-2026:14020",
+            "https://access.redhat.com/errata/RHSA-2026:1504",
+            "https://access.redhat.com/errata/RHSA-2026:17599",
+            "https://access.redhat.com/errata/RHSA-2026:1902",
             "https://access.redhat.com/errata/RHSA-2026:1939",
+            "https://access.redhat.com/errata/RHSA-2026:1942",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:20089",
+            "https://access.redhat.com/errata/RHSA-2026:2090",
+            "https://access.redhat.com/errata/RHSA-2026:2106",
+            "https://access.redhat.com/errata/RHSA-2026:2139",
+            "https://access.redhat.com/errata/RHSA-2026:2675",
+            "https://access.redhat.com/errata/RHSA-2026:2681",
+            "https://access.redhat.com/errata/RHSA-2026:2694",
+            "https://access.redhat.com/errata/RHSA-2026:2695",
+            "https://access.redhat.com/errata/RHSA-2026:2710",
+            "https://access.redhat.com/errata/RHSA-2026:2754",
+            "https://access.redhat.com/errata/RHSA-2026:2762",
+            "https://access.redhat.com/errata/RHSA-2026:2823",
+            "https://access.redhat.com/errata/RHSA-2026:2865",
+            "https://access.redhat.com/errata/RHSA-2026:2866",
+            "https://access.redhat.com/errata/RHSA-2026:2900",
+            "https://access.redhat.com/errata/RHSA-2026:2925",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:3713",
+            "https://access.redhat.com/errata/RHSA-2026:3782",
+            "https://access.redhat.com/errata/RHSA-2026:3958",
+            "https://access.redhat.com/errata/RHSA-2026:3959",
+            "https://access.redhat.com/errata/RHSA-2026:3960",
+            "https://access.redhat.com/errata/RHSA-2026:4185",
+            "https://access.redhat.com/errata/RHSA-2026:4215",
+            "https://access.redhat.com/errata/RHSA-2026:4271",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:6555",
+            "https://access.redhat.com/errata/RHSA-2026:6562",
+            "https://access.redhat.com/errata/RHSA-2026:6565",
+            "https://access.redhat.com/errata/RHSA-2026:7250",
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
@@ -1239,11 +1688,12 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-24049.json",
             "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-02-18T14:56:48.657Z"
+          "LastModifiedDate": "2026-06-30T03:17:36.743Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -1305,7 +1755,48 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:13545",
+            "https://access.redhat.com/errata/RHSA-2026:14020",
+            "https://access.redhat.com/errata/RHSA-2026:1504",
+            "https://access.redhat.com/errata/RHSA-2026:17599",
+            "https://access.redhat.com/errata/RHSA-2026:1902",
             "https://access.redhat.com/errata/RHSA-2026:1939",
+            "https://access.redhat.com/errata/RHSA-2026:1942",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:20089",
+            "https://access.redhat.com/errata/RHSA-2026:2090",
+            "https://access.redhat.com/errata/RHSA-2026:2106",
+            "https://access.redhat.com/errata/RHSA-2026:2139",
+            "https://access.redhat.com/errata/RHSA-2026:2675",
+            "https://access.redhat.com/errata/RHSA-2026:2681",
+            "https://access.redhat.com/errata/RHSA-2026:2694",
+            "https://access.redhat.com/errata/RHSA-2026:2695",
+            "https://access.redhat.com/errata/RHSA-2026:2710",
+            "https://access.redhat.com/errata/RHSA-2026:2754",
+            "https://access.redhat.com/errata/RHSA-2026:2762",
+            "https://access.redhat.com/errata/RHSA-2026:2823",
+            "https://access.redhat.com/errata/RHSA-2026:2865",
+            "https://access.redhat.com/errata/RHSA-2026:2866",
+            "https://access.redhat.com/errata/RHSA-2026:2900",
+            "https://access.redhat.com/errata/RHSA-2026:2925",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:3713",
+            "https://access.redhat.com/errata/RHSA-2026:3782",
+            "https://access.redhat.com/errata/RHSA-2026:3958",
+            "https://access.redhat.com/errata/RHSA-2026:3959",
+            "https://access.redhat.com/errata/RHSA-2026:3960",
+            "https://access.redhat.com/errata/RHSA-2026:4185",
+            "https://access.redhat.com/errata/RHSA-2026:4215",
+            "https://access.redhat.com/errata/RHSA-2026:4271",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:6555",
+            "https://access.redhat.com/errata/RHSA-2026:6562",
+            "https://access.redhat.com/errata/RHSA-2026:6565",
+            "https://access.redhat.com/errata/RHSA-2026:7250",
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
@@ -1320,18 +1811,19 @@
             "https://linux.oracle.com/cve/CVE-2026-24049.html",
             "https://linux.oracle.com/errata/ELSA-2026-2090.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-24049.json",
             "https://ubuntu.com/security/notices/USN-8221-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-02-18T14:56:48.657Z"
+          "LastModifiedDate": "2026-06-30T03:17:36.743Z"
         }
       ],
-      "vulnerability_count": 13
+      "vulnerability_count": 16
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 19
+    "total_vulnerabilities": 25
   }
 }

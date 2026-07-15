@@ -1,16 +1,61 @@
 {
   "tool": "anndata2ri",
-  "scan_timestamp": "2026-06-01T07:18:58Z",
-  "workflow_run_id": "26740418119",
+  "scan_timestamp": "2026-07-01T06:45:50Z",
+  "workflow_run_id": "28498663118",
   "versions": {
     "2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/anndata2ri:2.0",
-      "vulnerabilities": [],
-      "vulnerability_count": 0
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-6v7p-g79w-8964",
+          "PkgName": "msgpack",
+          "PkgPath": "usr/local/lib/python3.13/site-packages/msgpack-1.1.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.1",
+            "UID": "49fa366f1ee55a23"
+          },
+          "InstalledVersion": "1.1.1",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:385f87e29aef2bbc52ce38f6c1e563fcb85d5b87da75c817e5867424c3475860",
+            "DiffID": "sha256:459a18515976959670c641ae56e9baee656b4516f9cea7e2a0275837d9cda355"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6v7p-g79w-8964",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fba4d9d7852deffa5450a6f8a293eb29e1ebb841aac6c517c0a612e538df1cb6",
+          "Title": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error",
+          "Description": "### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If an error occurs during Streaming Unpacking, the Stream and Streaming Unpacker should be discarded.\n\nTherefore, this is not just a workaround but the correct solution. The above patch only prevents crashes from incorrect usage.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964"
+          ],
+          "PublishedDate": "2026-06-19T21:42:55Z",
+          "LastModifiedDate": "2026-06-19T21:42:55Z"
+        }
+      ],
+      "vulnerability_count": 1
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 0
+    "total_vulnerabilities": 1
   }
 }
