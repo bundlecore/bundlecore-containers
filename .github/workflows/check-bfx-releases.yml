@@ -16,17 +16,17 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v7
               with:
-                token: ${{ secrets.GITHUB_TOKEN }}
+                token: ${{ secrets.GH_AUTOMATION_PAT }}
 
             - name: Install required tools
               run: |
                 sudo apt-get install -y jq curl
-                gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+                gh auth login --with-token <<< "${{ secrets.GH_AUTOMATION_PAT }}"
 
             - name: Check and process updates
               env:
                 BCORE_AUTH_TOKEN: ${{ secrets.BCORE_AUTH_TOKEN_PROD }}
-                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_TOKEN: ${{ secrets.GH_AUTOMATION_PAT }}
               run: |
                 #!/bin/bash
                 set -e # Exit on error

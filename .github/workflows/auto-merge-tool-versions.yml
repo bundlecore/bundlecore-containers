@@ -2,10 +2,15 @@ name: Auto-merge Tool Version PRs
 
 # Auto-merges the bot PRs opened by "Check BFX Container Releases" (the
 # `new tool version` label) once they're safe to merge on sight:
-#   - opened by the github-actions bot (gh reports its login as "app/github-actions")
+#   - opened by gkr0110 (via the GH_AUTOMATION_PAT used to open these PRs)
 #   - labeled "new tool version"
 #   - touches exactly one bfx/<tool>/release.json file
 # Anything that doesn't match all three is left for manual review.
+#
+# Uses GH_AUTOMATION_PAT (not the default GITHUB_TOKEN) for both reading PR
+# state and merging: GITHUB_TOKEN-authored pushes/PRs don't trigger other
+# workflows' `push`/`pull_request` events, which would silently break both
+# this workflow's own trigger and the downstream Retag-and-Sign push trigger.
 on:
   pull_request:
     types: [opened, labeled, reopened, synchronize]
@@ -21,7 +26,7 @@ jobs:
     steps:
       - name: Merge eligible tool-version PRs
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_AUTOMATION_PAT }}
           GH_REPO: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -46,7 +51,6 @@ jobs:
 
             is_draft=$(echo "$pr_json" | jq -r '.isDraft')
             author_login=$(echo "$pr_json" | jq -r '.author.login')
-            author_is_bot=$(echo "$pr_json" | jq -r '.author.is_bot')
             has_label=$(echo "$pr_json" | jq -r '[.labels[].name] | index("new tool version") != null')
             file_count=$(echo "$pr_json" | jq -r '.files | length')
             file_path=$(echo "$pr_json" | jq -r '.files[0].path // ""')
@@ -56,8 +60,8 @@ jobs:
               continue
             fi
 
-            if [ "$author_is_bot" != "true" ] || [ "$author_login" != "app/github-actions" ]; then
-              echo "  [skip] Author is not the github-actions bot (got: $author_login, is_bot=$author_is_bot)"
+            if [ "$author_login" != "gkr0110" ]; then
+              echo "  [skip] Author is not gkr0110 (got: $author_login)"
               continue
             fi
 
