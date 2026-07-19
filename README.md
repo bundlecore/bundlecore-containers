@@ -20,6 +20,7 @@ bundlecore-containers/
 ├── scripts/
 │   └── tools-folder.sh          # Bulk tool onboarding script
 ├── .github/workflows/           # CI/CD automation
+│   ├── onboard-new-tools.yaml             # Auto-detect new tools every 4h
 │   ├── biocontainer-to-bcore-signed.yaml  # Retag & sign
 │   ├── trivy-security-scan.yaml           # Vulnerability scanning
 │   ├── create-release-json.yml            # Populate release.json
@@ -37,14 +38,15 @@ bundlecore-containers/
 When a new tool is onboarded or updated, the following automated chain runs:
 
 ```
-Push release.json ──> create-release-json  ──> Retag & Sign  ──> Trivy Scan  ──> PR with results
-(empty file)         (populate from API)      (pull, retag,     (scan images,   (vulnerability
-                                               push to GHCR,    count vulns)     summary table)
-                                               cosign sign)
+Onboard New Tools ──> Push release.json ──> create-release-json  ──> Retag & Sign  ──> Trivy Scan  ──> PR with results
+(cron every 4h,       (empty file)         (populate from API)      (pull, retag,     (scan images,   (vulnerability
+ creates stub folder)                                               push to GHCR,    count vulns)     summary table)
+                                                                     cosign sign)
 ```
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
+| **Onboard New Tools** | Every 4 hours, or manual | Detects tool slugs in the BundleCore API not yet in `bfx/`, creates stub folders with empty `release.json`, opens a PR |
 | **Generate release.json** | Push to `bfx/*/release.json` or manual | Populates empty release.json files from BundleCore API |
 | **Retag and Sign** | Push to `bfx/*/release.json` or manual | Pulls images from Quay.io, retags to GHCR, signs with Cosign |
 | **Trivy Security Scan** | After retag completes, monthly cron, or manual | Scans GHCR images for CRITICAL/HIGH vulnerabilities |
@@ -55,6 +57,11 @@ Push release.json ──> create-release-json  ──> Retag & Sign  ──> Tri
 | **Build and Push** | CI triggers | Builds and pushes Docker images |
 
 ## Onboarding Tools
+
+> **Note:** The **Onboard New Tools** workflow already runs automatically every 4 hours, polling the
+> BundleCore API for tool slugs that don't yet have a `bfx/` folder and opening a PR with stub
+> `release.json` files. The steps below are only needed for onboarding a tool immediately or in bulk
+> without waiting for the next scheduled run.
 
 ### Single Tool
 
@@ -119,7 +126,7 @@ Automated vulnerability scanning with [Trivy](https://trivy.dev/) runs in three 
 | Trigger | Scope | Typical Duration |
 |---------|-------|-----------------|
 | After retag completes | Only the tools that changed | 5-15 min |
-| Monthly cron (1st Sunday, 2 AM UTC) | All tools | ~40 min |
+| Monthly cron (1st of the month, 2 AM UTC) | All tools | ~40 min |
 | Manual dispatch (`scan_mode=all` or `changed-only`) | Configurable | Varies |
 
 ### How It Works
