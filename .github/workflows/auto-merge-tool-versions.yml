@@ -2,7 +2,7 @@ name: Auto-merge Tool Version PRs
 
 # Auto-merges the bot PRs opened by "Check BFX Container Releases" (the
 # `new tool version` label) once they're safe to merge on sight:
-#   - opened by github-actions[bot]
+#   - opened by the github-actions bot (gh reports its login as "app/github-actions")
 #   - labeled "new tool version"
 #   - touches exactly one bfx/<tool>/release.json file
 # Anything that doesn't match all three is left for manual review.
@@ -46,6 +46,7 @@ jobs:
 
             is_draft=$(echo "$pr_json" | jq -r '.isDraft')
             author_login=$(echo "$pr_json" | jq -r '.author.login')
+            author_is_bot=$(echo "$pr_json" | jq -r '.author.is_bot')
             has_label=$(echo "$pr_json" | jq -r '[.labels[].name] | index("new tool version") != null')
             file_count=$(echo "$pr_json" | jq -r '.files | length')
             file_path=$(echo "$pr_json" | jq -r '.files[0].path // ""')
@@ -55,8 +56,8 @@ jobs:
               continue
             fi
 
-            if [ "$author_login" != "github-actions[bot]" ]; then
-              echo "  [skip] Author is not github-actions[bot] (got: $author_login)"
+            if [ "$author_is_bot" != "true" ] || [ "$author_login" != "app/github-actions" ]; then
+              echo "  [skip] Author is not the github-actions bot (got: $author_login, is_bot=$author_is_bot)"
               continue
             fi
 
