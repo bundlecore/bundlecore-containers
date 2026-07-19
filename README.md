@@ -25,6 +25,7 @@ bundlecore-containers/
 │   ├── trivy-security-scan.yaml           # Vulnerability scanning
 │   ├── create-release-json.yml            # Populate release.json
 │   ├── check-bfx-releases.yml            # Weekly version check
+│   ├── auto-merge-tool-versions.yml       # Auto-merge "new tool version" PRs
 │   ├── generate-lua-files.yml             # Lua module generation
 │   ├── ci.yml                             # Build & push
 │   ├── auto-merge.yml                     # Dependabot auto-merge
@@ -51,6 +52,7 @@ Onboard New Tools ──> Push release.json ──> create-release-json  ──>
 | **Retag and Sign** | Push to `bfx/*/release.json` or manual | Pulls images from Quay.io, retags to GHCR, signs with Cosign |
 | **Trivy Security Scan** | After retag completes, monthly cron, or manual | Scans GHCR images for CRITICAL/HIGH vulnerabilities |
 | **Check BFX Releases** | Weekly (Sundays 8 AM UTC) or manual | Checks Quay.io/GitHub/GitLab for new tool versions |
+| **Auto-merge Tool Version PRs** | PR opened/labeled/synced, or manual | Auto-merges "new tool version" PRs that touch exactly one `bfx/<tool>/release.json` file |
 | **Generate Lua Files** | Manual | Generates Lua module files for each tool version |
 | **Discord Bridge** | Push, PR, issues, releases | Sends GitHub event notifications to Discord |
 | **Dependabot auto-approve** | Dependabot PRs | Auto-merges Dependabot dependency updates |
@@ -159,7 +161,9 @@ The **Check BFX Container Releases** workflow runs weekly and:
 1. Checks each tool's latest version from GitHub/GitLab releases and Quay.io tags
 2. If a new version is found, updates the tool's `release.json` and opens a PR
 3. Updates the BundleCore API with the new version information
-4. Merging the PR triggers the retag -> sign -> scan chain
+4. The **Auto-merge Tool Version PRs** workflow merges the PR automatically as long as it only
+   touches a single `bfx/<tool>/release.json` file, which triggers the retag -> sign -> scan chain.
+   PRs that touch anything else are left for manual review.
 
 ## Using Container Images
 

@@ -1,0 +1,74 @@
+name: Auto-merge Tool Version PRs
+
+# Auto-merges the bot PRs opened by "Check BFX Container Releases" (the
+# `new tool version` label) once they're safe to merge on sight:
+#   - opened by github-actions[bot]
+#   - labeled "new tool version"
+#   - touches exactly one bfx/<tool>/release.json file
+# Anything that doesn't match all three is left for manual review.
+on:
+  pull_request:
+    types: [opened, labeled, reopened, synchronize]
+  workflow_dispatch: # sweep all currently-open matching PRs, e.g. to catch a backlog
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge eligible tool-version PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -e
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_NUMBERS=$(gh pr list --state open --label "new tool version" --json number -q '.[].number')
+          else
+            PR_NUMBERS="$PR_NUMBER"
+          fi
+
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No candidate PRs found."
+            exit 0
+          fi
+
+          for n in $PR_NUMBERS; do
+            echo "=== Checking PR #$n ==="
+
+            pr_json=$(gh pr view "$n" --json number,isDraft,author,labels,files)
+
+            is_draft=$(echo "$pr_json" | jq -r '.isDraft')
+            author_login=$(echo "$pr_json" | jq -r '.author.login')
+            has_label=$(echo "$pr_json" | jq -r '[.labels[].name] | index("new tool version") != null')
+            file_count=$(echo "$pr_json" | jq -r '.files | length')
+            file_path=$(echo "$pr_json" | jq -r '.files[0].path // ""')
+
+            if [ "$is_draft" = "true" ]; then
+              echo "  [skip] PR is a draft"
+              continue
+            fi
+
+            if [ "$author_login" != "github-actions[bot]" ]; then
+              echo "  [skip] Author is not github-actions[bot] (got: $author_login)"
+              continue
+            fi
+
+            if [ "$has_label" != "true" ]; then
+              echo "  [skip] Missing 'new tool version' label"
+              continue
+            fi
+
+            if [ "$file_count" != "1" ] || [[ ! "$file_path" =~ ^bfx/[^/]+/release\.json$ ]]; then
+              echo "  [skip] Unexpected file changes ($file_count file(s), first: $file_path)"
+              continue
+            fi
+
+            echo "  [ok] Eligible - merging PR #$n"
+            gh pr merge "$n" --rebase --auto --delete-branch
+          done

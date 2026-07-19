@@ -48,7 +48,12 @@ Trivy Security Scan (workflow_run after Retag and Sign, or monthly cron, or manu
 
 Check BFX Container Releases (weekly, Sundays 8am UTC)
         → polls each tool's GitHub/GitLab releases + Quay.io tags for newer versions,
-          prepends new images to release.json, opens a PR (re-triggers the retag→scan chain)
+          prepends new images to release.json, opens a PR labeled "new tool version"
+        ↓ triggers on PR opened/labeled/synchronize
+Auto-merge Tool Version PRs
+        → auto-merges the PR iff: author is github-actions[bot], labeled "new tool version",
+          and it touches exactly one bfx/<tool>/release.json file. Anything else is left for
+          manual review. (This re-triggers the retag→scan chain above.)
 
 Generate Lua Files (manual dispatch only)
         → scripts/luagen.py renders scripts/template_file.lua per (tool, version) into bfx/<tool>/<version>.lua
@@ -62,6 +67,7 @@ Key workflow files, all in `.github/workflows/`:
 | `biocontainer-to-bcore-signed.yaml` | Retag Quay.io images → GHCR, cosign sign, update BundleCore |
 | `trivy-security-scan.yaml` | Three-job pipeline: `detect-scope` → `scan` → `create-pr` |
 | `check-bfx-releases.yml` | Weekly check for newer upstream tool versions |
+| `auto-merge-tool-versions.yml` | Auto-merges "new tool version" PRs that touch a single `release.json` |
 | `generate-lua-files.yml` | Regenerates `.lua` module files via `scripts/luagen.py` |
 | `ci.yml` | Legacy build-from-source pipeline for `containers/*` only |
 | `auto-merge.yml` | Auto-merges Dependabot PRs |
