@@ -1,0 +1,2139 @@
+{
+  "tool": "drep",
+  "scan_timestamp": "2026-07-23T19:54:50Z",
+  "workflow_run_id": "30039191837",
+  "versions": {
+    "3.6.2": {
+      "image": "ghcr.io/bundlecore/products/bfx/drep:3.6.2",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-23949",
+          "VendorIDs": [
+            "GHSA-58pv-8j8x-9vj2"
+          ],
+          "PkgName": "jaraco.context",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/setuptools/_vendor/jaraco.context-5.3.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/jaraco.context@5.3.0",
+            "UID": "d6550b81e52efabe"
+          },
+          "InstalledVersion": "5.3.0",
+          "FixedVersion": "6.1.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-23949",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:81e5f8bc253519aa8870ac157a4e6977f9bf528c1d53b57e35437836203f4e5a",
+          "Title": "jaraco.context: jaraco.context: Path traversal via malicious tar archives",
+          "Description": "jaraco.context, an open-source software package that provides some useful decorators and context managers, has a Zip Slip path traversal vulnerability in the `jaraco.context.tarball()` function starting in version 5.2.0 and prior to version 6.1.0. The vulnerability may allow attackers to extract files outside the intended extraction directory when malicious tar archives are processed. The strip_first_component filter splits the path on the first `/` and extracts the second component, while allowing `../` sequences. Paths like `dummy_dir/../../etc/passwd` become `../../etc/passwd`. Note that this suffers from a nested tarball attack as well with multi-level tar files such as `dummy_dir/inner.tar.gz`, where the inner.tar.gz includes a traversal `dummy_dir/../../config/.env` that also gets translated to `../../config/.env`. Version 6.1.0 contains a patch for the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+              "V3Score": 8.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+              "V3Score": 8.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-23949",
+            "https://github.com/jaraco/jaraco.context",
+            "https://github.com/jaraco/jaraco.context/blob/main/jaraco/context/__init__.py#L74-L91",
+            "https://github.com/jaraco/jaraco.context/commit/7b26a42b525735e4085d2e994e13802ea339d5f9",
+            "https://github.com/jaraco/jaraco.context/security/advisories/GHSA-58pv-8j8x-9vj2",
+            "https://github.com/pypa/setuptools/blob/main/setuptools/_vendor/jaraco/context.py#L55-L76",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-23949",
+            "https://ubuntu.com/security/notices/USN-7979-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-23949"
+          ],
+          "PublishedDate": "2026-01-20T01:15:57.723Z",
+          "LastModifiedDate": "2026-06-17T10:22:20.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-25990",
+          "VendorIDs": [
+            "GHSA-cfh3-3jmp-rvhc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-25990",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ec97ed60a2acfc83aae9284f2d59932f11b544b7bd1b0fa9adf4f8f856d4fbcd",
+          "Title": "pillow: Pillow: Out-of-bounds Write via Specially Crafted PSD Image",
+          "Description": "Pillow is a Python imaging library. From 10.3.0 to before 12.1.1, an out-of-bounds write may be triggered when loading a specially crafted PSD image. This vulnerability is fixed in 12.1.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 7.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/02/12/1",
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:14873",
+            "https://access.redhat.com/errata/RHSA-2026:14874",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:28385",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:4128",
+            "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5168",
+            "https://access.redhat.com/errata/RHSA-2026:5665",
+            "https://access.redhat.com/errata/RHSA-2026:6277",
+            "https://access.redhat.com/errata/RHSA-2026:6278",
+            "https://access.redhat.com/errata/RHSA-2026:6308",
+            "https://access.redhat.com/errata/RHSA-2026:6309",
+            "https://access.redhat.com/errata/RHSA-2026:6497",
+            "https://access.redhat.com/errata/RHSA-2026:6567",
+            "https://access.redhat.com/errata/RHSA-2026:6568",
+            "https://access.redhat.com/security/cve/CVE-2026-25990",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2439170",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/54ba4db542ad3c7b918812a4e2d69c27735a3199",
+            "https://github.com/python-pillow/Pillow/commit/9000313cc5d4a31bdcdd6d7f0781101abab553aa",
+            "https://github.com/python-pillow/Pillow/pull/9427",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-25990",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.1.1.html",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-25990.json",
+            "https://ubuntu.com/security/notices/USN-8047-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-25990"
+          ],
+          "PublishedDate": "2026-02-11T21:16:20.67Z",
+          "LastModifiedDate": "2026-07-21T12:17:47.257Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-40192",
+          "VendorIDs": [
+            "GHSA-whj4-6x5x-4v2j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-40192",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b789a1b2911813437ac9cf036d19133d87d343ff2c4e12836390de5fa5402a2d",
+          "Title": "Pillow: Pillow: Denial of Service via decompression bomb in FITS image processing",
+          "Description": "Pillow is a Python imaging library. Versions 10.3.0 through 12.1.1 did not limit the amount of GZIP-compressed data read when decoding a FITS image, making them vulnerable to decompression bomb attacks. A specially crafted FITS file could cause unbounded memory consumption, leading to denial of service (OOM crash or severe performance degradation). If users are unable to immediately upgrade, they should only open specific image formats, excluding FITS, as a workaround.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770",
+            "CWE-409"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:16008",
+            "https://access.redhat.com/errata/RHSA-2026:16009",
+            "https://access.redhat.com/errata/RHSA-2026:16030",
+            "https://access.redhat.com/errata/RHSA-2026:16174",
+            "https://access.redhat.com/errata/RHSA-2026:17609",
+            "https://access.redhat.com/errata/RHSA-2026:17611",
+            "https://access.redhat.com/errata/RHSA-2026:19375",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:21017",
+            "https://access.redhat.com/errata/RHSA-2026:22465",
+            "https://access.redhat.com/errata/RHSA-2026:22629",
+            "https://access.redhat.com/errata/RHSA-2026:22840",
+            "https://access.redhat.com/errata/RHSA-2026:23361",
+            "https://access.redhat.com/errata/RHSA-2026:24761",
+            "https://access.redhat.com/errata/RHSA-2026:24762",
+            "https://access.redhat.com/errata/RHSA-2026:24853",
+            "https://access.redhat.com/errata/RHSA-2026:24866",
+            "https://access.redhat.com/errata/RHSA-2026:24977",
+            "https://access.redhat.com/errata/RHSA-2026:27076",
+            "https://access.redhat.com/errata/RHSA-2026:34365",
+            "https://access.redhat.com/errata/RHSA-2026:34366",
+            "https://access.redhat.com/errata/RHSA-2026:34368",
+            "https://access.redhat.com/errata/RHSA-2026:37275",
+            "https://access.redhat.com/security/cve/CVE-2026-40192",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/3cb854e8b2bab43f40e342e665f9340d861aa628",
+            "https://github.com/python-pillow/Pillow/pull/9521",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-whj4-6x5x-4v2j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-40192",
+            "https://pillow.readthedocs.io/en/stable/releasenotes/12.2.0.html#prevent-fits-decompression-bomb",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-40192.json",
+            "https://ubuntu.com/security/notices/USN-8211-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-40192"
+          ],
+          "PublishedDate": "2026-04-15T23:16:10.053Z",
+          "LastModifiedDate": "2026-07-20T12:19:05.59Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42311",
+          "VendorIDs": [
+            "GHSA-pwv6-vv43-88gr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42311",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a47112660f3ad7dc8a5c0b8b113e4e9d55f9e248bf5c64219121d2f837308440",
+          "Title": "Pillow: python-pillow: Pillow: Arbitrary code execution via malicious PSD file processing",
+          "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-42311",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
+            "https://github.com/python-pillow/Pillow/pull/9520",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.2.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-cfh3-3jmp-rvhc",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-pwv6-vv43-88gr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42311",
+            "https://ubuntu.com/security/notices/USN-8399-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42311"
+          ],
+          "PublishedDate": "2026-05-09T06:16:10.43Z",
+          "LastModifiedDate": "2026-06-17T10:47:40.52Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54058",
+          "VendorIDs": [
+            "GHSA-62p4-gmf7-7g93"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54058",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:4ef04f168f58946873d370b6b0ac9847809bfef93d8f14d280c21a40b664564a",
+          "Title": "Pillow: Pillow: Memory disclosure or denial of service via crafted McIdas AREA image",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, when Pillow loads an uncompressed McIdas AREA image from a filename through the mmap raw codec path, attacker-controlled header words can set a row stride smaller than the natural row width, causing pixel access such as Image.tobytes(), getpixel, convert, or save to read beyond the mapped region and disclose adjacent process memory or fault. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54058",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/6a8de891fb00968e5ea79bfa84368ed90b3cfc1d",
+            "https://github.com/python-pillow/Pillow/pull/9719",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-62p4-gmf7-7g93",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54058",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54058"
+          ],
+          "PublishedDate": "2026-07-14T17:17:03.433Z",
+          "LastModifiedDate": "2026-07-15T20:08:02.787Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54059",
+          "VendorIDs": [
+            "GHSA-8v84-f9pq-wr9x"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54059",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:63b1674251c48813ac9177c47debcc54ac39145daf24f979010d2fb5eede2005",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted PCF font data",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/PcfFontFile.py _load_bitmaps() read glyph dimensions from the PCF METRICS section and passed them directly to Image.frombytes() without calling Image._decompression_bomb_check(), allowing crafted PCF font data to cause excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54059",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2253.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-8v84-f9pq-wr9x",
+            "https://linux.oracle.com/cve/CVE-2026-54059.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54059",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54059"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.127Z",
+          "LastModifiedDate": "2026-07-07T18:58:26.73Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54060",
+          "VendorIDs": [
+            "GHSA-5x94-69rx-g8h2"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54060",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d3932fdb7e765c58141c19de920706d48b1dbd53277927da59c6daf4e858dd29",
+          "Title": "python-pillow: Pillow: Denial of Service via excessive memory allocation when processing font files",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/FontFile.py FontFile.compile() assembled per-glyph images into a combined bitmap with Image.new(\"1\", (xsize, ysize)) without calling Image._decompression_bomb_check(), allowing a font to trigger excessive allocation during conversion or saving. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54060",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2254.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-5x94-69rx-g8h2",
+            "https://linux.oracle.com/cve/CVE-2026-54060.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54060",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54060"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.27Z",
+          "LastModifiedDate": "2026-07-07T18:58:45.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55379",
+          "VendorIDs": [
+            "GHSA-45hq-cxwh-f6vc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55379",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ff3470977155f7a16ed26ffd735d7e0eb2593cba8ee08fa2e4d80a51f4dfcab3",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted BDF font file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/BdfFontFile.py bdf_char() read the BBX width and height field from a BDF font file and passed attacker-controlled dimensions to Image.new() without calling Image._decompression_bomb_check(), bypassing Pillow's documented decompression bomb protection and allowing excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55379",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2255.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-45hq-cxwh-f6vc",
+            "https://linux.oracle.com/cve/CVE-2026-55379.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55379",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55379"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.577Z",
+          "LastModifiedDate": "2026-07-07T18:59:01.817Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55380",
+          "VendorIDs": [
+            "GHSA-phj9-mv4w-65pm"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55380",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ae9294c8110cfb1b1aba0444df7309f91571bb09515b8c4d06491c352c38f01e",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted GD 2.x image file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/GdImageFile.py GdImageFile._open() read image dimensions from the GD 2.x header and stored them in self._size without calling Image._decompression_bomb_check(), allowing a crafted .gd file to trigger excessive C-heap allocation when loaded. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55380",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2256.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/f39b0ae6624eb2d7c5c5d651d9bb5fdbd96a8675",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-phj9-mv4w-65pm",
+            "https://linux.oracle.com/cve/CVE-2026-55380.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55380",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55380"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.703Z",
+          "LastModifiedDate": "2026-07-07T18:58:54.647Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59197",
+          "VendorIDs": [
+            "GHSA-xj96-63gp-2gmr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59197",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:c473b0b0029911229fab847da0b59eac7b324f764fbc1580758b752ea5418036",
+          "Title": "Pillow: Pillow: Native heap out-of-bounds write",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's public rank-filter API can trigger a native heap out-of-bounds write when given a very large odd filter size because ImageFilter.RankFilter.filter() calls image.expand(size // 2, size // 2) before rank-filter size validation and ImagingExpand() computes output dimensions with unchecked signed int arithmetic. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59197",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/cce3bdb867c77a3420261ed1bfdb6b0787ec8fc1",
+            "https://github.com/python-pillow/Pillow/pull/9695",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-xj96-63gp-2gmr",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59197",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59197"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.487Z",
+          "LastModifiedDate": "2026-07-21T19:17:11.907Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59199",
+          "VendorIDs": [
+            "GHSA-6r8x-57c9-28j4"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59199",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:427d3cda2a2dd3d17711dbc35efd224989cd15d0aa571568d8dea10bbad8c83e",
+          "Title": "Pillow: Pillow: Denial of Service via out-of-bounds write in image processing",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow public image coordinate APIs can trigger a native heap out-of-bounds write when given coordinates near the signed 32-bit integer limits in Image.paste(), Image.crop(), or Image.alpha_composite(). This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59199",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3451.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/ceefc348eb3c3844c7f9796ef2cc3a7dd5fbba7b",
+            "https://github.com/python-pillow/Pillow/pull/9703",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-6r8x-57c9-28j4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59199",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59199"
+          ],
+          "PublishedDate": "2026-07-14T16:17:01.937Z",
+          "LastModifiedDate": "2026-07-15T16:16:49.487Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59200",
+          "VendorIDs": [
+            "GHSA-jjj6-mw9f-p565"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59200",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:eec4b46d984ed19d85c4908db037e49c0bb78c38093a1b7d077558ebe1af7657",
+          "Title": "Pillow: Pillow: Denial of service via crafted PDF stream",
+          "Description": "Pillow is a Python imaging library. From 5.1.0 until 12.3.0, PdfParser.PdfStream.decode() in PIL/PdfParser.py calls zlib.decompress() with bufsize set to the PDF stream Length field without bounding the decompressed output size, allowing a crafted FlateDecode PDF stream to exhaust memory from a small file. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59200",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/f7a31ea75e460e108c37126da1f47812f21f6b09",
+            "https://github.com/python-pillow/Pillow/pull/9718",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-jjj6-mw9f-p565",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59200",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59200"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.62Z",
+          "LastModifiedDate": "2026-07-21T15:52:40.107Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59204",
+          "VendorIDs": [
+            "GHSA-vjc4-5qp5-m44j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59204",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fcbf22e6171cbecedf2dee91783379ad1d0505b8d796d43ac8c3d288ab4f01c4",
+          "Title": "Pillow: Pillow: Denial of Service via crafted JPEG2000 image",
+          "Description": "Pillow is a Python imaging library. From 8.2.0 through 12.2.0, src/libImaging/Jpeg2KDecode.c accumulates total_component_width across every tile in a JPEG2000 image instead of recomputing it per tile, allowing a crafted tiled JPEG2000 file to force substantially higher transient memory usage and trigger out-of-memory failures during decoding. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59204",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/13ada41172142f2fd9f0906f615a00ea623a11ca",
+            "https://github.com/python-pillow/Pillow/pull/9704",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-vjc4-5qp5-m44j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59204",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59204"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.227Z",
+          "LastModifiedDate": "2026-07-21T19:17:12.02Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59205",
+          "VendorIDs": [
+            "GHSA-9hw9-ch79-4vh6"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/pillow-11.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.1.0",
+            "UID": "6636710fb14f68cf"
+          },
+          "InstalledVersion": "11.1.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59205",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:97bbe99b7272d63c80edd136f311681563f9738d0a8f9e2840395705f593cb3e",
+          "Title": "Pillow: Pillow: Controlled native heap corruption in ImageCms.ImageCmsTransform.apply API",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's ImageCms.ImageCmsTransform.apply(im, imOut) API can trigger controlled native heap corruption when the caller supplies an output image whose mode does not match the transform's declared output mode. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59205",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3453.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/a9ffc42bedf4fc0a7ef8d6486e7f9e81e3397721",
+            "https://github.com/python-pillow/Pillow/pull/9715",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-9hw9-ch79-4vh6",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59205",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59205"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.37Z",
+          "LastModifiedDate": "2026-07-14T20:09:27.77Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-47273",
+          "VendorIDs": [
+            "GHSA-5rjg-fvgr-3xxf"
+          ],
+          "PkgName": "setuptools",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/setuptools-78.1.0-py3.9.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@78.1.0",
+            "UID": "372efccb8b7be85d"
+          },
+          "InstalledVersion": "78.1.0",
+          "FixedVersion": "78.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-47273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:91d60e44e8ab2fdc3cd63cb2684e0e104f6444e8331925754cafd7a1d6121204",
+          "Title": "setuptools: Path Traversal Vulnerability in setuptools PackageIndex",
+          "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. A path traversal vulnerability in `PackageIndex` is present in setuptools prior to version 78.1.1. An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to remote code execution depending on the context. Version 78.1.1 fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:13578",
+            "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://bugzilla.redhat.com/2366982",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
+            "https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b",
+            "https://github.com/pypa/setuptools/issues/4946",
+            "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
+            "https://linux.oracle.com/cve/CVE-2025-47273.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9940.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
+            "https://ubuntu.com/security/notices/USN-7544-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-47273"
+          ],
+          "PublishedDate": "2025-05-17T16:15:19.11Z",
+          "LastModifiedDate": "2026-06-17T09:27:38.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-24049",
+          "VendorIDs": [
+            "GHSA-8rrh-rw8j-w5fx"
+          ],
+          "PkgName": "wheel",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/setuptools/_vendor/wheel-0.45.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/wheel@0.45.1",
+            "UID": "68d1f5691b386b62"
+          },
+          "InstalledVersion": "0.45.1",
+          "FixedVersion": "0.46.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24049",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:181dc9e83cb76e8fb40cc5785dfc1df3b97d6cd99d7c87d5499cd93bef8d49aa",
+          "Title": "wheel: wheel: Privilege Escalation or Arbitrary Code Execution via malicious wheel file unpacking",
+          "Description": "wheel is a command line tool for manipulating Python wheel files, as defined in PEP 427. In versions 0.40.0 through 0.46.1, the unpack function is vulnerable to file permission modification through mishandling of file permissions after extraction. The logic blindly trusts the filename from the archive header for the chmod operation, even though the extraction process itself might have sanitized the path. Attackers can craft a malicious wheel file that, when unpacked, changes the permissions of critical system files (e.g., /etc/passwd, SSH keys, config files), allowing for Privilege Escalation or arbitrary code execution by modifying now-writable scripts. This issue has been fixed in version 0.46.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-732"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
+            "ghsa": 3,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N",
+              "V3Score": 5.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:13545",
+            "https://access.redhat.com/errata/RHSA-2026:14020",
+            "https://access.redhat.com/errata/RHSA-2026:1504",
+            "https://access.redhat.com/errata/RHSA-2026:17599",
+            "https://access.redhat.com/errata/RHSA-2026:1902",
+            "https://access.redhat.com/errata/RHSA-2026:1939",
+            "https://access.redhat.com/errata/RHSA-2026:1942",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:20089",
+            "https://access.redhat.com/errata/RHSA-2026:2090",
+            "https://access.redhat.com/errata/RHSA-2026:2106",
+            "https://access.redhat.com/errata/RHSA-2026:2139",
+            "https://access.redhat.com/errata/RHSA-2026:2675",
+            "https://access.redhat.com/errata/RHSA-2026:2681",
+            "https://access.redhat.com/errata/RHSA-2026:2694",
+            "https://access.redhat.com/errata/RHSA-2026:2695",
+            "https://access.redhat.com/errata/RHSA-2026:2710",
+            "https://access.redhat.com/errata/RHSA-2026:2754",
+            "https://access.redhat.com/errata/RHSA-2026:2762",
+            "https://access.redhat.com/errata/RHSA-2026:2823",
+            "https://access.redhat.com/errata/RHSA-2026:2865",
+            "https://access.redhat.com/errata/RHSA-2026:2866",
+            "https://access.redhat.com/errata/RHSA-2026:2900",
+            "https://access.redhat.com/errata/RHSA-2026:2925",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:3713",
+            "https://access.redhat.com/errata/RHSA-2026:3782",
+            "https://access.redhat.com/errata/RHSA-2026:3958",
+            "https://access.redhat.com/errata/RHSA-2026:3959",
+            "https://access.redhat.com/errata/RHSA-2026:3960",
+            "https://access.redhat.com/errata/RHSA-2026:4185",
+            "https://access.redhat.com/errata/RHSA-2026:4215",
+            "https://access.redhat.com/errata/RHSA-2026:4271",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:6555",
+            "https://access.redhat.com/errata/RHSA-2026:6562",
+            "https://access.redhat.com/errata/RHSA-2026:6565",
+            "https://access.redhat.com/errata/RHSA-2026:7250",
+            "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://bugzilla.redhat.com/2431959",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://github.com/pypa/wheel",
+            "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
+            "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
+            "https://github.com/pypa/wheel/releases/tag/0.46.2",
+            "https://github.com/pypa/wheel/security/advisories/GHSA-8rrh-rw8j-w5fx",
+            "https://linux.oracle.com/cve/CVE-2026-24049.html",
+            "https://linux.oracle.com/errata/ELSA-2026-2090.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-24049.json",
+            "https://ubuntu.com/security/notices/USN-8221-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24049"
+          ],
+          "PublishedDate": "2026-01-22T05:16:23.157Z",
+          "LastModifiedDate": "2026-07-21T12:17:32.37Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-24049",
+          "VendorIDs": [
+            "GHSA-8rrh-rw8j-w5fx"
+          ],
+          "PkgName": "wheel",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/wheel-0.45.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/wheel@0.45.1",
+            "UID": "588d1d5b79ef6155"
+          },
+          "InstalledVersion": "0.45.1",
+          "FixedVersion": "0.46.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-24049",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:181dc9e83cb76e8fb40cc5785dfc1df3b97d6cd99d7c87d5499cd93bef8d49aa",
+          "Title": "wheel: wheel: Privilege Escalation or Arbitrary Code Execution via malicious wheel file unpacking",
+          "Description": "wheel is a command line tool for manipulating Python wheel files, as defined in PEP 427. In versions 0.40.0 through 0.46.1, the unpack function is vulnerable to file permission modification through mishandling of file permissions after extraction. The logic blindly trusts the filename from the archive header for the chmod operation, even though the extraction process itself might have sanitized the path. Attackers can craft a malicious wheel file that, when unpacked, changes the permissions of critical system files (e.g., /etc/passwd, SSH keys, config files), allowing for Privilege Escalation or arbitrary code execution by modifying now-writable scripts. This issue has been fixed in version 0.46.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-732"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 2,
+            "cbl-mariner": 2,
+            "ghsa": 3,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N",
+              "V3Score": 5.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:13545",
+            "https://access.redhat.com/errata/RHSA-2026:14020",
+            "https://access.redhat.com/errata/RHSA-2026:1504",
+            "https://access.redhat.com/errata/RHSA-2026:17599",
+            "https://access.redhat.com/errata/RHSA-2026:1902",
+            "https://access.redhat.com/errata/RHSA-2026:1939",
+            "https://access.redhat.com/errata/RHSA-2026:1942",
+            "https://access.redhat.com/errata/RHSA-2026:19712",
+            "https://access.redhat.com/errata/RHSA-2026:20089",
+            "https://access.redhat.com/errata/RHSA-2026:2090",
+            "https://access.redhat.com/errata/RHSA-2026:2106",
+            "https://access.redhat.com/errata/RHSA-2026:2139",
+            "https://access.redhat.com/errata/RHSA-2026:2675",
+            "https://access.redhat.com/errata/RHSA-2026:2681",
+            "https://access.redhat.com/errata/RHSA-2026:2694",
+            "https://access.redhat.com/errata/RHSA-2026:2695",
+            "https://access.redhat.com/errata/RHSA-2026:2710",
+            "https://access.redhat.com/errata/RHSA-2026:2754",
+            "https://access.redhat.com/errata/RHSA-2026:2762",
+            "https://access.redhat.com/errata/RHSA-2026:2823",
+            "https://access.redhat.com/errata/RHSA-2026:2865",
+            "https://access.redhat.com/errata/RHSA-2026:2866",
+            "https://access.redhat.com/errata/RHSA-2026:2900",
+            "https://access.redhat.com/errata/RHSA-2026:2925",
+            "https://access.redhat.com/errata/RHSA-2026:3461",
+            "https://access.redhat.com/errata/RHSA-2026:3462",
+            "https://access.redhat.com/errata/RHSA-2026:3713",
+            "https://access.redhat.com/errata/RHSA-2026:3782",
+            "https://access.redhat.com/errata/RHSA-2026:3958",
+            "https://access.redhat.com/errata/RHSA-2026:3959",
+            "https://access.redhat.com/errata/RHSA-2026:3960",
+            "https://access.redhat.com/errata/RHSA-2026:4185",
+            "https://access.redhat.com/errata/RHSA-2026:4215",
+            "https://access.redhat.com/errata/RHSA-2026:4271",
+            "https://access.redhat.com/errata/RHSA-2026:4942",
+            "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:6555",
+            "https://access.redhat.com/errata/RHSA-2026:6562",
+            "https://access.redhat.com/errata/RHSA-2026:6565",
+            "https://access.redhat.com/errata/RHSA-2026:7250",
+            "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://bugzilla.redhat.com/2431959",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://github.com/pypa/wheel",
+            "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
+            "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
+            "https://github.com/pypa/wheel/releases/tag/0.46.2",
+            "https://github.com/pypa/wheel/security/advisories/GHSA-8rrh-rw8j-w5fx",
+            "https://linux.oracle.com/cve/CVE-2026-24049.html",
+            "https://linux.oracle.com/errata/ELSA-2026-2090.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-24049",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-24049.json",
+            "https://ubuntu.com/security/notices/USN-8221-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-24049"
+          ],
+          "PublishedDate": "2026-01-22T05:16:23.157Z",
+          "LastModifiedDate": "2026-07-21T12:17:32.37Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-41316",
+          "PkgName": "erb",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/erb-4.0.4.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/erb@4.0.4",
+            "UID": "72f12bf23fc60c52"
+          },
+          "InstalledVersion": "4.0.4",
+          "FixedVersion": "~> 4.0.3.1, ~> 4.0.4.1, ~> 6.0.1.1, >= 6.0.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-41316",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:c3a2551b323414507f01f6ad56bb9c5fe2dd3abb9f10a48ad5a8fa0b66e34ed6",
+          "Title": "erb: ERB: Arbitrary code execution via deserialization bypass",
+          "Description": "ERB is a templating system for Ruby. Ruby 2.7.0 (before ERB 2.2.0 was published on rubygems.org) introduced an `@_init` instance variable guard in `ERB#result` and `ERB#run` to prevent code execution when an ERB object is reconstructed via `Marshal.load` (deserialization). However, three other public methods that also evaluate `@src` via `eval()` were not given the same guard: `ERB#def_method`, `ERB#def_module`, and `ERB#def_class`. An attacker who can trigger `Marshal.load` on untrusted data in a Ruby application that has `erb` loaded can use `ERB#def_module` (zero-arg, default parameters) as a code execution sink, bypassing the `@_init` protection entirely. ERB 4.0.3.1, 4.0.4.1, 6.0.1.1, and 6.0.4 patch the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-693",
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ruby-advisory-db": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:18030",
+            "https://access.redhat.com/errata/RHSA-2026:18039",
+            "https://access.redhat.com/errata/RHSA-2026:18065",
+            "https://access.redhat.com/errata/RHSA-2026:20596",
+            "https://access.redhat.com/errata/RHSA-2026:20606",
+            "https://access.redhat.com/errata/RHSA-2026:20614",
+            "https://access.redhat.com/errata/RHSA-2026:20670",
+            "https://access.redhat.com/errata/RHSA-2026:26312",
+            "https://access.redhat.com/errata/RHSA-2026:26655",
+            "https://access.redhat.com/errata/RHSA-2026:33462",
+            "https://access.redhat.com/errata/RHSA-2026:33478",
+            "https://access.redhat.com/errata/RHSA-2026:35834",
+            "https://access.redhat.com/errata/RHSA-2026:37238",
+            "https://access.redhat.com/security/cve/CVE-2026-41316",
+            "https://bugzilla.redhat.com/2449871",
+            "https://bugzilla.redhat.com/2461369",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2449871",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2461369",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-33210",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-41316",
+            "https://errata.almalinux.org/9/ALSA-2026-20596.html",
+            "https://errata.rockylinux.org/RLSA-2026:20596",
+            "https://github.com/advisories/GHSA-q339-8rmv-2mhv",
+            "https://github.com/ruby/erb",
+            "https://github.com/ruby/erb/blob/master/NEWS.md",
+            "https://github.com/ruby/erb/commit/9d017be4e375cdd058650ce528ee6adfead20cac",
+            "https://github.com/ruby/erb/security/advisories/GHSA-q339-8rmv-2mhv",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/erb/CVE-2026-41316.yml",
+            "https://linux.oracle.com/cve/CVE-2026-41316.html",
+            "https://linux.oracle.com/errata/ELSA-2026-20614.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-41316",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-41316.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-41316",
+            "https://www.ruby-lang.org/en/news/2026/04/21/erb-cve-2026-41316",
+            "https://www.ruby-lang.org/en/news/2026/04/21/ruby-4-0-3-released",
+            "https://www.ruby-lang.org/en/news/2026/07/16/ruby-3-3-12-released"
+          ],
+          "PublishedDate": "2026-04-24T03:16:11.897Z",
+          "LastModifiedDate": "2026-07-15T02:21:15.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42257",
+          "PkgName": "net-imap",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/net-imap-0.5.6.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/net-imap@0.5.6",
+            "UID": "d919c75b18b7871c"
+          },
+          "InstalledVersion": "0.5.6",
+          "FixedVersion": "~> 0.4.24, ~> 0.5.14, >= 0.6.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42257",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:40c25e4ee297c85928c995f43713c46cbc49333b4c62758e806cc1c115d3978a",
+          "Title": "net-imap: Net::IMAP: Arbitrary IMAP command injection via CRLF sequences in unvalidated input",
+          "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.4.24, 0.5.14, and 0.6.4, several Net::IMAP commands accept a raw string argument that is sent to the server without validation or escaping. If this string is derived from user-controlled input, it may contain contain CRLF sequences, which an attacker can use to inject arbitrary IMAP commands. This issue has been patched in versions 0.4.24, 0.5.14, and 0.6.4.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-77",
+            "CWE-93"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 2,
+            "nvd": 4,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:P/VC:N/VI:H/VA:L/SC:N/SI:N/SA:N",
+              "V40Score": 5.8
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:L",
+              "V3Score": 6.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-42257",
+            "https://github.com/advisories/GHSA-hm49-wcqc-g2xg",
+            "https://github.com/ruby/net-imap",
+            "https://github.com/ruby/net-imap/commit/0ec4fd351263e8b9a4f683713427827b7b1ad974",
+            "https://github.com/ruby/net-imap/commit/47c72186d272441878ca73c9499f66013829ca2f",
+            "https://github.com/ruby/net-imap/commit/6bf02aef7e0b5931010c36e377f79a71636b306b",
+            "https://github.com/ruby/net-imap/commit/a4f7649c3da77dec7631f03a037a478eb4330048",
+            "https://github.com/ruby/net-imap/commit/aec06996eb87a7e1bbcef1f9f8926e8add2b8c71",
+            "https://github.com/ruby/net-imap/releases/tag/v0.4.24",
+            "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
+            "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
+            "https://github.com/ruby/net-imap/security/advisories/GHSA-hm49-wcqc-g2xg",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42257.yml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42257",
+            "https://ubuntu.com/security/notices/USN-8431-1",
+            "https://ubuntu.com/security/notices/USN-8478-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42257"
+          ],
+          "PublishedDate": "2026-05-09T20:16:28.463Z",
+          "LastModifiedDate": "2026-06-17T10:47:35.563Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42245",
+          "PkgName": "net-imap",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/net-imap-0.5.6.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/net-imap@0.5.6",
+            "UID": "d919c75b18b7871c"
+          },
+          "InstalledVersion": "0.5.6",
+          "FixedVersion": "~> 0.4.24, ~> 0.5.14, >= 0.6.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42245",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:011b1e3426cb9bd7032b5a2ef4bd725ad2697bb1b2c4e3a0e2f6a8afbd8f9e35",
+          "Title": "ruby: net-imap: Net::IMAP: Denial of Service via crafted IMAP responses",
+          "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.4.24, 0.5.14, and 0.6.4, Net::IMAP::ResponseReader has quadratic time complexity when reading large responses containing many string literals. A hostile server can send responses which are crafted to exhaust the client's CPU for a denial of service attack. This issue has been patched in versions 0.4.24, 0.5.14, and 0.6.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 1,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "redhat": 2,
+            "rocky": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "V40Score": 2.3
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:33577",
+            "https://access.redhat.com/security/cve/CVE-2026-42245",
+            "https://bugzilla.redhat.com/2468495",
+            "https://bugzilla.redhat.com/2468498",
+            "https://bugzilla.redhat.com/2468499",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468495",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468498",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468499",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42245",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42246",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42258",
+            "https://errata.almalinux.org/9/ALSA-2026-33577.html",
+            "https://errata.rockylinux.org/RLSA-2026:33577",
+            "https://github.com/advisories/GHSA-q2mw-fvj9-vvcw",
+            "https://github.com/ruby/net-imap",
+            "https://github.com/ruby/net-imap/commit/6091f7d6b1f3514cafbfe39c76f2b5d73de3ca96",
+            "https://github.com/ruby/net-imap/commit/88d95231fc8afef11c1f074453f7d75b68c9dfda",
+            "https://github.com/ruby/net-imap/commit/de685f91a4a4cc75eb80da898c2bf8af08d34819",
+            "https://github.com/ruby/net-imap/releases/tag/v0.4.24",
+            "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
+            "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
+            "https://github.com/ruby/net-imap/security/advisories/GHSA-q2mw-fvj9-vvcw",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42245.yml",
+            "https://linux.oracle.com/cve/CVE-2026-42245.html",
+            "https://linux.oracle.com/errata/ELSA-2026-33577.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42245",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42245"
+          ],
+          "PublishedDate": "2026-05-09T20:16:28.017Z",
+          "LastModifiedDate": "2026-06-17T10:47:34.177Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42246",
+          "PkgName": "net-imap",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/net-imap-0.5.6.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/net-imap@0.5.6",
+            "UID": "d919c75b18b7871c"
+          },
+          "InstalledVersion": "0.5.6",
+          "FixedVersion": "~> 0.3.10, ~> 0.4.24, ~> 0.5.14, >= 0.6.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42246",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:228310ffae7e766ac96c1f74d6e5cca4e5a01c23cbf903aba247f91de6a96dc8",
+          "Title": "net-imap: ruby: Net::IMAP: Information disclosure via man-in-the-middle attack bypassing TLS",
+          "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.3.10, 0.4.24, 0.5.14, and 0.6.4, a man-in-the-middle attacker can cause Net::IMAP#starttls to return \"successfully\", without starting TLS. This issue has been patched in versions 0.3.10, 0.4.24, 0.5.14, and 0.6.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-392",
+            "CWE-393",
+            "CWE-636",
+            "CWE-754",
+            "CWE-841",
+            "CWE-325"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:33462",
+            "https://access.redhat.com/errata/RHSA-2026:33512",
+            "https://access.redhat.com/errata/RHSA-2026:33514",
+            "https://access.redhat.com/errata/RHSA-2026:33515",
+            "https://access.redhat.com/errata/RHSA-2026:33540",
+            "https://access.redhat.com/errata/RHSA-2026:33551",
+            "https://access.redhat.com/errata/RHSA-2026:33552",
+            "https://access.redhat.com/errata/RHSA-2026:33565",
+            "https://access.redhat.com/errata/RHSA-2026:33576",
+            "https://access.redhat.com/errata/RHSA-2026:33577",
+            "https://access.redhat.com/errata/RHSA-2026:33630",
+            "https://access.redhat.com/errata/RHSA-2026:33721",
+            "https://access.redhat.com/errata/RHSA-2026:34076",
+            "https://access.redhat.com/errata/RHSA-2026:35834",
+            "https://access.redhat.com/errata/RHSA-2026:35866",
+            "https://access.redhat.com/errata/RHSA-2026:35867",
+            "https://access.redhat.com/errata/RHSA-2026:35895",
+            "https://access.redhat.com/errata/RHSA-2026:36099",
+            "https://access.redhat.com/errata/RHSA-2026:37238",
+            "https://access.redhat.com/errata/RHSA-2026:37397",
+            "https://access.redhat.com/security/cve/CVE-2026-42246",
+            "https://bugzilla.redhat.com/2468495",
+            "https://bugzilla.redhat.com/2468498",
+            "https://bugzilla.redhat.com/2468499",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468495",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468498",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468499",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42245",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42246",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42258",
+            "https://errata.almalinux.org/9/ALSA-2026-33577.html",
+            "https://errata.rockylinux.org/RLSA-2026:33577",
+            "https://github.com/advisories/GHSA-vcgp-9326-pqcp",
+            "https://github.com/ruby/net-imap",
+            "https://github.com/ruby/net-imap/commit/0ede4c40b1523dfeaf95777b2678e54cc0fd9618",
+            "https://github.com/ruby/net-imap/commit/24a4e770b43230286a05aa2a9746cdbb3eb8485e",
+            "https://github.com/ruby/net-imap/commit/97e2488fb5401a1783bddd959dde007d9fbce42c",
+            "https://github.com/ruby/net-imap/commit/f79d35bf5833f186e81044c57c843eda30c873da",
+            "https://github.com/ruby/net-imap/releases/tag/v0.3.10",
+            "https://github.com/ruby/net-imap/releases/tag/v0.4.24",
+            "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
+            "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
+            "https://github.com/ruby/net-imap/security/advisories/GHSA-vcgp-9326-pqcp",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42246.yml",
+            "https://linux.oracle.com/cve/CVE-2026-42246.html",
+            "https://linux.oracle.com/errata/ELSA-2026-33577.html",
+            "https://nostarttls.secvuln.info",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42246",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-42246.json",
+            "https://ubuntu.com/security/notices/USN-8431-1",
+            "https://ubuntu.com/security/notices/USN-8478-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42246",
+            "https://www.rfc-editor.org/info/rfc8314"
+          ],
+          "PublishedDate": "2026-05-09T20:16:28.163Z",
+          "LastModifiedDate": "2026-07-15T02:21:29.203Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42258",
+          "PkgName": "net-imap",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/net-imap-0.5.6.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/net-imap@0.5.6",
+            "UID": "d919c75b18b7871c"
+          },
+          "InstalledVersion": "0.5.6",
+          "FixedVersion": "~> 0.4.24, ~> 0.5.14, >= 0.6.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42258",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:2e27af2cb0cd26ac7bf6cd553bdf1a42c3ae3373027b43266b23ce94d7fd8076",
+          "Title": "ruby/net-imap: ruby: Net::IMAP: IMAP Command Injection via Symbol Arguments",
+          "Description": "Net::IMAP implements Internet Message Access Protocol (IMAP) client functionality in Ruby. Prior to versions 0.4.24, 0.5.14, and 0.6.4, symbol arguments to commands are vulnerable to a CRLF Injection / IMAP Command injection via Symbol arguments passed to IMAP commands. This issue has been patched in versions 0.4.24, 0.5.14, and 0.6.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-77",
+            "CWE-93"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 2,
+            "nvd": 2,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ruby-advisory-db": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V40Vector": "CVSS:4.0/AV:L/AC:H/AT:P/PR:N/UI:P/VC:N/VI:H/VA:L/SC:N/SI:N/SA:N",
+              "V3Score": 5.3,
+              "V40Score": 5.8
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:H/A:N",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:33462",
+            "https://access.redhat.com/errata/RHSA-2026:33512",
+            "https://access.redhat.com/errata/RHSA-2026:33514",
+            "https://access.redhat.com/errata/RHSA-2026:33515",
+            "https://access.redhat.com/errata/RHSA-2026:33540",
+            "https://access.redhat.com/errata/RHSA-2026:33565",
+            "https://access.redhat.com/errata/RHSA-2026:33576",
+            "https://access.redhat.com/errata/RHSA-2026:33577",
+            "https://access.redhat.com/errata/RHSA-2026:33630",
+            "https://access.redhat.com/errata/RHSA-2026:33721",
+            "https://access.redhat.com/errata/RHSA-2026:34076",
+            "https://access.redhat.com/errata/RHSA-2026:35447",
+            "https://access.redhat.com/errata/RHSA-2026:35834",
+            "https://access.redhat.com/errata/RHSA-2026:35866",
+            "https://access.redhat.com/errata/RHSA-2026:35867",
+            "https://access.redhat.com/errata/RHSA-2026:35895",
+            "https://access.redhat.com/errata/RHSA-2026:36099",
+            "https://access.redhat.com/errata/RHSA-2026:36978",
+            "https://access.redhat.com/errata/RHSA-2026:37238",
+            "https://access.redhat.com/errata/RHSA-2026:37397",
+            "https://access.redhat.com/errata/RHSA-2026:38694",
+            "https://access.redhat.com/errata/RHSA-2026:40380",
+            "https://access.redhat.com/security/cve/CVE-2026-42258",
+            "https://bugzilla.redhat.com/2468495",
+            "https://bugzilla.redhat.com/2468498",
+            "https://bugzilla.redhat.com/2468499",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468495",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468498",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2468499",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42245",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42246",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-42258",
+            "https://errata.almalinux.org/9/ALSA-2026-33577.html",
+            "https://errata.rockylinux.org/RLSA-2026:33577",
+            "https://github.com/advisories/GHSA-75xq-5h9v-w6px",
+            "https://github.com/ruby/net-imap",
+            "https://github.com/ruby/net-imap/commit/6bf02aef7e0b5931010c36e377f79a71636b306b",
+            "https://github.com/ruby/net-imap/commit/9db3e9d60bfb8f3735ea95015bf8a700f4af9cbb",
+            "https://github.com/ruby/net-imap/commit/aec06996eb87a7e1bbcef1f9f8926e8add2b8c71",
+            "https://github.com/ruby/net-imap/releases/tag/v0.4.24",
+            "https://github.com/ruby/net-imap/releases/tag/v0.5.14",
+            "https://github.com/ruby/net-imap/releases/tag/v0.6.4",
+            "https://github.com/ruby/net-imap/security/advisories/GHSA-75xq-5h9v-w6px",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/net-imap/CVE-2026-42258.yml",
+            "https://linux.oracle.com/cve/CVE-2026-42258.html",
+            "https://linux.oracle.com/errata/ELSA-2026-33577.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42258",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-42258.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42258"
+          ],
+          "PublishedDate": "2026-05-09T20:16:28.623Z",
+          "LastModifiedDate": "2026-07-22T12:17:53.817Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-24294",
+          "PkgName": "resolv",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/resolv-0.6.0.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/resolv@0.6.0",
+            "UID": "d799dfae5ccdb476"
+          },
+          "InstalledVersion": "0.6.0",
+          "FixedVersion": "~> 0.2.2, ~> 0.3.0, >= 0.6.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-24294",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:bab004d2c6ae15377f5300f1ecbaa99c1bd28cced17763fc191b269433089c5f",
+          "Title": "resolv: Denial of Service in resolv gem",
+          "Description": "The attack vector is a potential Denial of Service (DoS). The vulnerability is caused by an insufficient check on the length of a decompressed domain name within a DNS packet.\r\n\r\nAn attacker can craft a malicious DNS packet containing a highly compressed domain name. When the resolv library parses such a packet, the name decompression process consumes a large amount of CPU resources, as the library does not limit the resulting length of the name.\r\n\r\nThis resource consumption can cause the application thread to become unresponsive, resulting in a Denial of Service condition.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 2,
+            "azure": 2,
+            "cbl-mariner": 2,
+            "ghsa": 2,
+            "oracle-oval": 2,
+            "redhat": 2,
+            "rocky": 2,
+            "ruby-advisory-db": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 5.3,
+              "V40Score": 6.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:23063",
+            "https://access.redhat.com/security/cve/CVE-2025-24294",
+            "https://bugzilla.redhat.com/2379684",
+            "https://bugzilla.redhat.com/2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2379684",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2426336",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-24294",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58767",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61594",
+            "https://errata.almalinux.org/9/ALSA-2025-23063.html",
+            "https://errata.rockylinux.org/RLSA-2025:23063",
+            "https://github.com/advisories/GHSA-xh69-987w-hrp8",
+            "https://github.com/ruby/resolv",
+            "https://github.com/ruby/resolv/commit/4c2f71b5e80826506f78417d85b38481c058fb25",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/resolv/CVE-2025-24294.yml",
+            "https://linux.oracle.com/cve/CVE-2025-24294.html",
+            "https://linux.oracle.com/errata/ELSA-2025-23141.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-24294",
+            "https://rubygems.org/gems/resolv",
+            "https://ubuntu.com/security/notices/USN-7734-1",
+            "https://ubuntu.com/security/notices/USN-7735-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-24294",
+            "https://www.ruby-lang.org/en/news/2025/07/08/dos-resolv-cve-2025-24294",
+            "https://www.ruby-lang.org/en/news/2025/07/08/dos-resolv-cve-2025-24294/",
+            "https://www.vuxml.org/freebsd/eed1a411-699b-11f0-91fe-000c295725e4.html"
+          ],
+          "PublishedDate": "2025-07-12T04:15:46.683Z",
+          "LastModifiedDate": "2026-06-17T08:58:30.603Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-61594",
+          "PkgName": "uri",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/uri-1.0.2.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/uri@1.0.2",
+            "UID": "c77064f678be08e4"
+          },
+          "InstalledVersion": "1.0.2",
+          "FixedVersion": "~> 0.12.5, ~> 0.13.3, >= 1.0.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-61594",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:268b6db5d9cc73368d423c2c00f56e63dec4eac3084e15fdac12306f195b15cf",
+          "Title": "uri: URI module: Credential exposure via URI + operator",
+          "Description": "URI is a module providing classes to handle Uniform Resource Identifiers. In versions 0.12.4 and earlier (bundled in Ruby 3.2 series) 0.13.2 and earlier (bundled in Ruby 3.3 series), 1.0.3 and earlier (bundled in Ruby 3.4 series), when using the + operator to combine URIs, sensitive information like passwords from the original URI can be leaked, violating RFC3986 and making applications vulnerable to credential exposure. This is a a bypass for the fix to CVE-2025-27221 that can expose user credentials. This issue has been fixed in versions 0.12.5, 0.13.3 and 1.0.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-200",
+            "CWE-212"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "azure": 1,
+            "cbl-mariner": 1,
+            "ghsa": 1,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "redhat": 2,
+            "rocky": 2,
+            "ruby-advisory-db": 3,
+            "ubuntu": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 7.5,
+              "V40Score": 2.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:23063",
+            "https://access.redhat.com/security/cve/CVE-2025-61594",
+            "https://bugzilla.redhat.com/2379684",
+            "https://bugzilla.redhat.com/2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2379684",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2396186",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2426336",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-24294",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58767",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-61594",
+            "https://errata.almalinux.org/9/ALSA-2025-23063.html",
+            "https://errata.rockylinux.org/RLSA-2025:23063",
+            "https://github.com/advisories/GHSA-22h5-pq3x-2gf2",
+            "https://github.com/advisories/GHSA-j4pr-3wm6-xx2r",
+            "https://github.com/ruby/uri",
+            "https://github.com/ruby/uri/commit/20157e3e29b125ff41f1d9662e2e3b1d066f5902",
+            "https://github.com/ruby/uri/commit/7e521b2da0833d964aab43019e735aea674e1c2c",
+            "https://github.com/ruby/uri/commit/d3116ca66a3b1c97dc7577f9d2d6e353f391cd6a",
+            "https://github.com/ruby/uri/security/advisories/GHSA-j4pr-3wm6-xx2r",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/uri/CVE-2025-61594.yml",
+            "https://hackerone.com/reports/2957667",
+            "https://linux.oracle.com/cve/CVE-2025-61594.html",
+            "https://linux.oracle.com/errata/ELSA-2025-23141.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-61594",
+            "https://rubygems.org/gems/uri/versions/0.12.5",
+            "https://rubygems.org/gems/uri/versions/0.13.3",
+            "https://rubygems.org/gems/uri/versions/1.0.4",
+            "https://ubuntu.com/security/notices/USN-8137-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-61594",
+            "https://www.ruby-lang.org/en/news/2025/02/26/security-advisories",
+            "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594",
+            "https://www.ruby-lang.org/en/news/2025/10/07/uri-cve-2025-61594/"
+          ],
+          "PublishedDate": "2025-12-30T21:15:43.893Z",
+          "LastModifiedDate": "2026-06-17T09:50:37.197Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-27820",
+          "PkgName": "zlib",
+          "PkgPath": "usr/local/lib/ruby/gems/3.4.0/specifications/default/zlib-3.2.1.gemspec",
+          "PkgIdentifier": {
+            "PURL": "pkg:gem/zlib@3.2.1",
+            "UID": "380419e8d0602a85"
+          },
+          "InstalledVersion": "3.2.1",
+          "FixedVersion": "~> 3.0.1, ~> 3.1.2, >= 3.2.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54c4f5b513cf857811384131c5ae970971f328140789cd9484bc1a42d11be27b",
+            "DiffID": "sha256:74ae644810b22f767cf2905dddca49591001f85127b8b72d9697e9c8a6f3bbea"
+          },
+          "SeveritySource": "ruby-advisory-db",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-27820",
+          "DataSource": {
+            "ID": "ruby-advisory-db",
+            "Name": "Ruby Advisory Database",
+            "URL": "https://github.com/rubysec/ruby-advisory-db"
+          },
+          "Fingerprint": "sha256:7122fdf4ea456565dc579e290d18744dabe4ceacbf9edd16c2961c04cb07f73c",
+          "Title": "zlib: zlib: Memory corruption via buffer overflow in Zlib::GzipReader",
+          "Description": "zlib is a Ruby interface for the zlib compression/decompression library. Versions 3.0.0 and below, 3.1.0, 3.1.1, 3.2.0 and 3.2.1 contain a buffer overflow vulnerability in the Zlib::GzipReader. The zstream_buffer_ungets function prepends caller-provided bytes ahead of previously produced output but fails to guarantee the backing Ruby string has enough capacity before the memmove shifts the existing data. This can lead to memory corruption when the buffer length exceeds capacity. This issue has been fixed in versions 3.0.1, 3.1.2 and 3.2.3.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-120",
+            "CWE-131"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "azure": 1,
+            "ghsa": 2,
+            "nvd": 4,
+            "redhat": 2,
+            "ruby-advisory-db": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 9.8,
+              "V40Score": 5.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-27820",
+            "https://github.com/ruby/zlib",
+            "https://github.com/ruby/zlib/security/advisories/GHSA-g857-hhfv-j68w",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/zlib/CVE-2026-27820.yml",
+            "https://hackerone.com/reports/3467067",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-27820",
+            "https://rubygems.org/gems/zlib/versions/3.0.1",
+            "https://rubygems.org/gems/zlib/versions/3.1.2",
+            "https://rubygems.org/gems/zlib/versions/3.2.3",
+            "https://www.cve.org/CVERecord?id=CVE-2026-27820",
+            "https://www.ruby-lang.org/en/news/2026/03/05/buffer-overflow-zlib-cve-2026-27820"
+          ],
+          "PublishedDate": "2026-04-16T18:16:44.77Z",
+          "LastModifiedDate": "2026-06-17T10:27:44.4Z"
+        }
+      ],
+      "vulnerability_count": 25
+    }
+  },
+  "summary": {
+    "total_versions_scanned": 1,
+    "total_vulnerabilities": 25
+  }
+}
