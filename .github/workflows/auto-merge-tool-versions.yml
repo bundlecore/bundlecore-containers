@@ -20,6 +20,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: auto-merge-pr-${{ github.event.pull_request.number || 'dispatch' }}
+  cancel-in-progress: false
+
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
@@ -47,13 +51,19 @@ jobs:
           for n in $PR_NUMBERS; do
             echo "=== Checking PR #$n ==="
 
-            pr_json=$(gh pr view "$n" --json number,isDraft,author,labels,files)
+            pr_json=$(gh pr view "$n" --json number,state,isDraft,author,labels,files)
 
+            state=$(echo "$pr_json" | jq -r '.state')
             is_draft=$(echo "$pr_json" | jq -r '.isDraft')
             author_login=$(echo "$pr_json" | jq -r '.author.login')
             has_label=$(echo "$pr_json" | jq -r '[.labels[].name] | index("new tool version") != null')
             file_count=$(echo "$pr_json" | jq -r '.files | length')
             file_path=$(echo "$pr_json" | jq -r '.files[0].path // ""')
+
+            if [ "$state" != "OPEN" ]; then
+              echo "  [skip] Already $state (likely merged by a concurrent trigger for the same PR)"
+              continue
+            fi
 
             if [ "$is_draft" = "true" ]; then
               echo "  [skip] PR is a draft"
