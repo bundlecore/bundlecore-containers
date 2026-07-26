@@ -126,14 +126,14 @@ jobs:
                             repo_path=${repo_path%.git}
                             repo_path=${repo_path%/}  
                         #  # Get the latest release tag from GitHub API and remove leading 'v' if present
-                            latest_version=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+                            latest_version=$(curl -sSL -H "Authorization: Bearer $GH_TOKEN" \
                             "https://api.github.com/repos/$repo_path/releases/latest" | jq -r '.tag_name'|sed 's/^v//')
 
                             # if no releases found, fallback to latest tag
                             if [[ -z "$latest_version" || "$latest_version" == "null" ]]; then
                                 ## Sometimes GitHub projects may not have releases, in that case use the following line instead
                                 # Fallback to fetching the latest tag if no releases are found
-                                latest_version=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/$repo_path/tags" |jq -r '.[0].name' |sed 's/^v//')
+                                latest_version=$(curl -sSL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/$repo_path/tags" |jq -r '.[0].name' |sed 's/^v//')
                             fi
                         
                     elif [[ "$git_url" =~ ^https://gitlab.com/ ]]; then
