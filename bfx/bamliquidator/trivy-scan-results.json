@@ -1,7 +1,7 @@
 {
   "tool": "bamliquidator",
-  "scan_timestamp": "2026-07-01T06:53:32Z",
-  "workflow_run_id": "28498663118",
+  "scan_timestamp": "2026-08-01T05:52:29Z",
+  "workflow_run_id": "30686025722",
   "versions": {
     "1.5.2": {
       "image": "ghcr.io/bundlecore/products/bfx/bamliquidator:1.5.2",
@@ -40,6 +40,7 @@
             "amazon": 4,
             "bottlerocket": 3,
             "cbl-mariner": 4,
+            "julia": 4,
             "nvd": 4,
             "oracle-oval": 3,
             "photon": 4,
@@ -48,6 +49,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
             "nvd": {
               "V2Vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -136,6 +141,7 @@
             "amazon": 4,
             "bottlerocket": 3,
             "cbl-mariner": 4,
+            "julia": 4,
             "nvd": 4,
             "oracle-oval": 3,
             "photon": 4,
@@ -144,6 +150,10 @@
             "ubuntu": 3
           },
           "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
             "nvd": {
               "V2Vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -259,6 +269,7 @@
             "bitnami": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -272,6 +283,10 @@
               "V3Score": 7.5
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "julia": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
             },
@@ -507,6 +522,7 @@
             "bitnami": 3,
             "cbl-mariner": 3,
             "ghsa": 3,
+            "julia": 3,
             "nvd": 3,
             "oracle-oval": 3,
             "photon": 3,
@@ -520,6 +536,10 @@
               "V3Score": 7.5
             },
             "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "julia": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
             },
@@ -1378,6 +1398,149 @@
           "LastModifiedDate": "2026-06-17T09:27:40.32Z"
         },
         {
+          "VulnerabilityID": "CVE-2025-67725",
+          "VendorIDs": [
+            "GHSA-c98p-7wgm-6p64"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python2.7/dist-packages/tornado-5.1.1.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@5.1.1",
+            "UID": "355d579ed30b63b8"
+          },
+          "InstalledVersion": "5.1.1",
+          "FixedVersion": "6.5.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54f3ccab73dde5bad669bfd97a3859ba4779cb64715ba21be1b7cce87cdd1cb6",
+            "DiffID": "sha256:19b178bfcf710bac9134e992c91a17f4ce11f4eecdc5573682bab9065db7b096"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-67725",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2f389c64401bda58484fcbf87dc20e66d6626e7b347bc50ca2f02bda31da60d7",
+          "Title": "tornado: Tornado Quadratic DoS via Repeated Header Coalescing",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. In versions 6.5.2 and below, a single maliciously crafted HTTP request can block the server's event loop for an extended period, caused by the HTTPHeaders.add method. The function accumulates values using string concatenation when the same header name is repeated, causing a Denial of Service (DoS).  Due to Python string immutability, each concatenation copies the entire string, resulting in O(n²) time complexity. The severity can vary from high if max_header_size has been increased from its default, to low if it has its default value of 64KB. This issue is fixed in version 6.5.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:0930",
+            "https://access.redhat.com/security/cve/CVE-2025-67725",
+            "https://bugzilla.redhat.com/2421722",
+            "https://bugzilla.redhat.com/2421733",
+            "https://errata.almalinux.org/8/ALSA-2026-0930.html",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/tornado/PYSEC-2025-266.yaml",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/771472cfdaeebc0d89a9cc46e249f8891a6b29cd",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.3",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-c98p-7wgm-6p64",
+            "https://linux.oracle.com/cve/CVE-2025-67725.html",
+            "https://linux.oracle.com/errata/ELSA-2026-0930.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-67725",
+            "https://ubuntu.com/security/notices/USN-7950-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-67725"
+          ],
+          "PublishedDate": "2025-12-12T06:15:41.38Z",
+          "LastModifiedDate": "2026-06-17T09:58:02.337Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-67726",
+          "VendorIDs": [
+            "GHSA-jhmp-mqwm-3gq8"
+          ],
+          "PkgName": "tornado",
+          "PkgPath": "usr/local/lib/python2.7/dist-packages/tornado-5.1.1.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/tornado@5.1.1",
+            "UID": "355d579ed30b63b8"
+          },
+          "InstalledVersion": "5.1.1",
+          "FixedVersion": "6.5.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:54f3ccab73dde5bad669bfd97a3859ba4779cb64715ba21be1b7cce87cdd1cb6",
+            "DiffID": "sha256:19b178bfcf710bac9134e992c91a17f4ce11f4eecdc5573682bab9065db7b096"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-67726",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a206927e8c400833d3667f717f6b19a7b41e40f3e9b01eae88e5b64edc423b20",
+          "Title": "tornado: Tornado Quadratic DoS via Crafted Multipart Parameters",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. Versions 6.5.2 and below use an inefficient algorithm when parsing parameters for HTTP header values, potentially causing a DoS. The _parseparam function in httputil.py is used to parse specific HTTP header values, such as those in multipart/form-data and repeatedly calls string.count() within a nested loop while processing quoted semicolons. If an attacker sends a request with a large number of maliciously crafted parameters in a Content-Disposition header, the server's CPU usage increases quadratically (O(n²)) during parsing. Due to Tornado's single event loop architecture, a single malicious request can cause the entire server to become unresponsive for an extended period. This issue is fixed in version 6.5.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-834"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:0930",
+            "https://access.redhat.com/security/cve/CVE-2025-67726",
+            "https://bugzilla.redhat.com/2421722",
+            "https://bugzilla.redhat.com/2421733",
+            "https://errata.almalinux.org/8/ALSA-2026-0930.html",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/tornado/PYSEC-2025-267.yaml",
+            "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/771472cfdaeebc0d89a9cc46e249f8891a6b29cd",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.3",
+            "https://github.com/tornadoweb/tornado/security/advisories/GHSA-jhmp-mqwm-3gq8",
+            "https://linux.oracle.com/cve/CVE-2025-67726.html",
+            "https://linux.oracle.com/errata/ELSA-2026-0930.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-67726",
+            "https://ubuntu.com/security/notices/USN-7950-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-67726"
+          ],
+          "PublishedDate": "2025-12-12T07:15:44.92Z",
+          "LastModifiedDate": "2026-06-17T09:58:02.44Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-31958",
           "VendorIDs": [
             "GHSA-qjxf-f2mg-c6mc"
@@ -1542,7 +1705,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-35536"
           ],
           "PublishedDate": "2026-04-03T04:16:53.55Z",
-          "LastModifiedDate": "2026-06-17T10:40:44.2Z"
+          "LastModifiedDate": "2026-07-24T21:10:00.143Z"
         },
         {
           "VulnerabilityID": "CVE-2026-49853",
@@ -1570,9 +1733,12 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:05f2b830c35e2b122602142ae286d77702881b8fae70d9348156399d0e9dd8ee",
-          "Title": "Tornado: Authorization header forwarded across cross-origin redirects in SimpleAsyncHTTPClient",
-          "Description": "## Summary\n\nWhen SimpleAsyncHTTPClient follows a 3xx redirect, it shallow-copies the original HTTPRequest, rewrites the URL, decrements max_redirects, and removes only the Host header. It does not clear Authorization, auth_username, auth_password, or auth_mode when the redirect target changes origin.\n\nAs a result, credentials intended for one origin can be forwarded to a different origin when follow_redirects=True, which is the default.\n\nBeginning in Tornado 6.5.6, `SimpleAsyncHTTPClient` matches the default behavior of `libcurl` (and therefore `CurlAsyncHTTPClient`): When a redirect changes the scheme, host, or port of the url, the `Authorization` and `Cookie` headers will be removed when following the redirect.",
+          "Title": "Tornado is a Python web framework and asynchronous networking library. ...",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. Prior to 6.5.6, SimpleAsyncHTTPClient shallow-copied redirected requests and removed only the Host header, leaving Authorization, auth_username, auth_password, and auth_mode in place when a redirect changed scheme, host, or port. This issue is fixed in version 6.5.6.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-200"
+          ],
           "VendorSeverity": {
             "ghsa": 3
           },
@@ -1584,8 +1750,13 @@
           },
           "References": [
             "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/aba2569f7ed7a6bdbef816658fb6b7182531b751",
+            "https://github.com/tornadoweb/tornado/pull/3626",
+            "https://github.com/tornadoweb/tornado/releases/tag/v6.5.6",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-3x9g-8vmp-wqvf"
-          ]
+          ],
+          "PublishedDate": "2026-07-14T21:17:02.13Z",
+          "LastModifiedDate": "2026-07-21T16:17:13.477Z"
         },
         {
           "VulnerabilityID": "CVE-2026-49855",
@@ -1613,9 +1784,12 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:f2d7e8febd847072ecbd29417b9f4dc658d269c93f2bf8ce47f2c7e64cda957f",
-          "Title": "tornado AsyncHTTPClient accumulates decompressed chunks without size limit (gzip bomb)",
-          "Description": "Tornado's gzip decompression routines work in limited-size chunks, but have no overall limit for the total size of decompressed chunks that they will accumulate (There has always been a limit for the total *compressed* size). This allows a malicious server to consume effectively unlimited amounts of memory if it is accessed via SimpleAsyncHTTPClient in its default configuration. `HTTPServer` is not affected in its default configuration, but it is if `decompress_request=True` is set.\n\nThis bug is fixed in Tornado 6.5.6. `max_body_size` is now checked both for the compressed and cumulative decompressed size of the response.\n\nPrior to upgrading, this issue can be mitigated by setting `decompress_response=False` or using `CurlAsyncHTTPClient`.",
+          "Title": "Tornado is a Python web framework and asynchronous networking library. ...",
+          "Description": "Tornado is a Python web framework and asynchronous networking library. Prior to 6.5.6, Tornado gzip decompression routines processed limited-size chunks but did not enforce an overall limit on accumulated decompressed chunks, allowing a malicious server accessed by SimpleAsyncHTTPClient or an HTTPServer configured with decompress_request=True to consume effectively unlimited memory. This issue is fixed in version 6.5.6.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-409"
+          ],
           "VendorSeverity": {
             "ghsa": 3
           },
@@ -1627,8 +1801,12 @@
           },
           "References": [
             "https://github.com/tornadoweb/tornado",
+            "https://github.com/tornadoweb/tornado/commit/ff808b33adc52d89a549376a5e3628e92abbc8ff",
+            "https://github.com/tornadoweb/tornado/pull/3626",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-mgf9-4vpg-hj56"
-          ]
+          ],
+          "PublishedDate": "2026-07-14T21:17:02.437Z",
+          "LastModifiedDate": "2026-07-16T16:19:10.69Z"
         },
         {
           "VulnerabilityID": "CVE-2023-43804",
@@ -2072,10 +2250,12 @@
             "https://access.redhat.com/errata/RHSA-2026:3884",
             "https://access.redhat.com/errata/RHSA-2026:3960",
             "https://access.redhat.com/errata/RHSA-2026:4185",
+            "https://access.redhat.com/errata/RHSA-2026:41928",
             "https://access.redhat.com/errata/RHSA-2026:4215",
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4466",
             "https://access.redhat.com/errata/RHSA-2026:4467",
+            "https://access.redhat.com/errata/RHSA-2026:44696",
             "https://access.redhat.com/errata/RHSA-2026:5459",
             "https://access.redhat.com/errata/RHSA-2026:6287",
             "https://access.redhat.com/errata/RHSA-2026:6292",
@@ -2108,7 +2288,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-21441"
           ],
           "PublishedDate": "2026-01-07T22:15:44.04Z",
-          "LastModifiedDate": "2026-06-30T03:17:23.333Z"
+          "LastModifiedDate": "2026-07-31T13:17:20.517Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44431",
@@ -2148,7 +2328,7 @@
             "azure": 3,
             "ghsa": 3,
             "nvd": 2,
-            "oracle-oval": 3,
+            "oracle-oval": 2,
             "redhat": 2,
             "rocky": 3,
             "ubuntu": 2
@@ -2183,7 +2363,7 @@
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
             "https://linux.oracle.com/cve/CVE-2026-44431.html",
-            "https://linux.oracle.com/errata/ELSA-2026-32992.html",
+            "https://linux.oracle.com/errata/ELSA-2026-47126.html",
             "https://lists.debian.org/debian-lts-announce/2026/06/msg00040.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
             "https://ubuntu.com/security/notices/USN-8379-1",
@@ -2193,11 +2373,11 @@
           "LastModifiedDate": "2026-06-26T12:16:32.423Z"
         }
       ],
-      "vulnerability_count": 23
+      "vulnerability_count": 25
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 23
+    "total_vulnerabilities": 25
   }
 }
