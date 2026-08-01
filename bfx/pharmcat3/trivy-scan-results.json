@@ -1,8 +1,93 @@
 {
   "tool": "pharmcat3",
-  "scan_timestamp": "2026-07-01T07:23:08Z",
-  "workflow_run_id": "28498663118",
+  "scan_timestamp": "2026-08-01T06:51:47Z",
+  "workflow_run_id": "30686025722",
   "versions": {
+    "3.4.0": {
+      "image": "ghcr.io/bundlecore/products/bfx/pharmcat3:3.4.0",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2025-48734",
+          "VendorIDs": [
+            "GHSA-wxr5-93ph-8wr9"
+          ],
+          "PkgName": "commons-beanutils:commons-beanutils",
+          "PkgPath": "usr/local/bin/pharmcat.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/commons-beanutils/commons-beanutils@1.9.4",
+            "UID": "ffdd88231ec46847"
+          },
+          "InstalledVersion": "1.9.4",
+          "FixedVersion": "1.11.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:5eca666d5a4a999e3348bf1a691cf314c524d0b235d21a88a86c5659f9aa474f",
+            "DiffID": "sha256:207270baa2f3a272f36eaa45e5f034cdc17eace5cebe3e0cae464a85e27bc42f"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-48734",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:bda09a0d0eff75fdffa1716fe55786047d49af37825951ff47deeda448d7169c",
+          "Title": "commons-beanutils: Apache Commons BeanUtils: PropertyUtilsBean does not suppresses an enum's declaredClass property by default",
+          "Description": "Improper Access Control vulnerability in Apache Commons.\n\n\n\nA special BeanIntrospector class was added in version 1.9.2. This can be used to stop attackers from using the declared class property of Java enum objects to get access to the classloader. However this protection was not enabled by default. PropertyUtilsBean (and consequently BeanUtilsBean) now disallows declared class level property access by default.\n\n\n\n\n\nReleases 1.11.0 and 2.0.0-M2 address a potential security issue when accessing enum properties in an uncontrolled way. If an application using Commons BeanUtils passes property paths from an external source directly to the getProperty() method of PropertyUtilsBean, an attacker can access the enum’s class loader via the “declaredClass” property available on all Java “enum” objects. Accessing the enum’s “declaredClass” allows remote attackers to access the ClassLoader and execute arbitrary code. The same issue exists with PropertyUtilsBean.getNestedProperty().\nStarting in versions 1.11.0 and 2.0.0-M2 a special BeanIntrospector suppresses the “declaredClass” property. Note that this new BeanIntrospector is enabled by default, but you can disable it to regain the old behavior; see section 2.5 of the user's guide and the unit tests.\n\nThis issue affects Apache Commons BeanUtils 1.x before 1.11.0, and 2.x before 2.0.0-M2.Users of the artifact commons-beanutils:commons-beanutils\n\n 1.x are recommended to upgrade to version 1.11.0, which fixes the issue.\n\n\nUsers of the artifact org.apache.commons:commons-beanutils2\n\n 2.x are recommended to upgrade to version 2.0.0-M2, which fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-284"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/05/28/6",
+            "https://access.redhat.com/errata/RHSA-2025:9114",
+            "https://access.redhat.com/security/cve/CVE-2025-48734",
+            "https://bugzilla.redhat.com/2368956",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=1767483",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2368956",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
+            "https://dlcdn.apache.org/commons/beanutils/RELEASE-NOTES.txt",
+            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
+            "https://errata.rockylinux.org/RLSA-2025:9318",
+            "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
+            "https://github.com/apache/commons-beanutils",
+            "https://github.com/apache/commons-beanutils/commit/28ad955a1613ed5885870cc7da52093c1ce739dc",
+            "https://github.com/apache/commons-beanutils/commit/bd20740da25b69552ddef8523beec0837297eaf9",
+            "https://linux.oracle.com/cve/CVE-2025-48734.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9318.html",
+            "https://lists.apache.org/thread/s0hb3jkfj5f3ryx6c57zqtfohb0of1g9",
+            "https://lists.debian.org/debian-lts-announce/2025/06/msg00027.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-48734",
+            "https://ubuntu.com/security/notices/USN-8322-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-48734",
+            "https://www.openwall.com/lists/oss-security/2025/05/28/6"
+          ],
+          "PublishedDate": "2025-05-28T14:15:34.07Z",
+          "LastModifiedDate": "2026-06-17T09:30:14.797Z"
+        }
+      ],
+      "vulnerability_count": 1
+    },
     "3.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/pharmcat3:3.2.0",
       "vulnerabilities": [
@@ -33,8 +118,11 @@
           },
           "Fingerprint": "sha256:48ec9520b49dc2f8bba419a2d8eb879d1366739f9f59ee62443c982d64dfe975",
           "Title": "handlebars.java FileTemplateLoader Path Traversal",
-          "Description": "### Impact\nAny application that passes user-controlled input to Handlebars.compile() using a FileTemplateLoader (or ClassPathTemplateLoader) is vulnerable to arbitrary file read. This is a realistic attack surface for web applications that use template names from URL path parameters, request parameters, or other user-controlled sources.\n\n### Patches\ncom.github.jknack:handlebars:4.5.2\n\n### Workarounds\n\nValidate template name is derived from user input. \n\n```java\nif (!file.getPath().startsWith(new File(prefix).getCanonicalPath())) {\n        throw new IOException(\"Path traversal attempt detected: \" + location);\n}\n```",
+          "Description": "Handlebars.java provides logic-less and semantic Mustache templates with Java. Prior to 4.5.2, applications that pass user-controlled input to Handlebars.compile() using FileTemplateLoader or ClassPathTemplateLoader are vulnerable to path traversal, allowing arbitrary file read through template names derived from URL path parameters, request parameters, or other user-controlled sources. This issue is fixed in version 4.5.2.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
           "VendorSeverity": {
             "ghsa": 3
           },
@@ -46,8 +134,12 @@
           },
           "References": [
             "https://github.com/jknack/handlebars.java",
+            "https://github.com/jknack/handlebars.java/commit/d177cdee8b750385ca7a0d0f89f2d4be73e28f4e",
+            "https://github.com/jknack/handlebars.java/releases/tag/v4.5.2",
             "https://github.com/jknack/handlebars.java/security/advisories/GHSA-r4gv-qr8j-p3pg"
-          ]
+          ],
+          "PublishedDate": "2026-07-08T20:16:53.287Z",
+          "LastModifiedDate": "2026-07-10T19:13:03.283Z"
         },
         {
           "VulnerabilityID": "CVE-2025-48734",
@@ -161,8 +253,11 @@
           },
           "Fingerprint": "sha256:4c44d656283692d340fcff2c72548b44da505e396939aae88e96778fe0e67f9e",
           "Title": "handlebars.java FileTemplateLoader Path Traversal",
-          "Description": "### Impact\nAny application that passes user-controlled input to Handlebars.compile() using a FileTemplateLoader (or ClassPathTemplateLoader) is vulnerable to arbitrary file read. This is a realistic attack surface for web applications that use template names from URL path parameters, request parameters, or other user-controlled sources.\n\n### Patches\ncom.github.jknack:handlebars:4.5.2\n\n### Workarounds\n\nValidate template name is derived from user input. \n\n```java\nif (!file.getPath().startsWith(new File(prefix).getCanonicalPath())) {\n        throw new IOException(\"Path traversal attempt detected: \" + location);\n}\n```",
+          "Description": "Handlebars.java provides logic-less and semantic Mustache templates with Java. Prior to 4.5.2, applications that pass user-controlled input to Handlebars.compile() using FileTemplateLoader or ClassPathTemplateLoader are vulnerable to path traversal, allowing arbitrary file read through template names derived from URL path parameters, request parameters, or other user-controlled sources. This issue is fixed in version 4.5.2.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
           "VendorSeverity": {
             "ghsa": 3
           },
@@ -174,8 +269,12 @@
           },
           "References": [
             "https://github.com/jknack/handlebars.java",
+            "https://github.com/jknack/handlebars.java/commit/d177cdee8b750385ca7a0d0f89f2d4be73e28f4e",
+            "https://github.com/jknack/handlebars.java/releases/tag/v4.5.2",
             "https://github.com/jknack/handlebars.java/security/advisories/GHSA-r4gv-qr8j-p3pg"
-          ]
+          ],
+          "PublishedDate": "2026-07-08T20:16:53.287Z",
+          "LastModifiedDate": "2026-07-10T19:13:03.283Z"
         },
         {
           "VulnerabilityID": "CVE-2025-48734",
@@ -261,7 +360,7 @@
     }
   },
   "summary": {
-    "total_versions_scanned": 2,
-    "total_vulnerabilities": 4
+    "total_versions_scanned": 3,
+    "total_vulnerabilities": 5
   }
 }

