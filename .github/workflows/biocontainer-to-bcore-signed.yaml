@@ -191,6 +191,9 @@ jobs:
           echo "🚀 Starting retag loop..."
           echo ""
 
+          FAILED_LOG="${RUNNER_TEMP}/failed-images.txt"
+          : > "$FAILED_LOG"
+
           while IFS= read -r appdir <&3; do
             [ -z "$appdir" ] && continue
             app=$(basename "$appdir")
@@ -213,10 +216,27 @@ jobs:
                   continue
                 fi
                 echo "Processing $img -> $dest"
-                docker pull "$img"
-                docker tag "$img" "$dest"
-                docker push "$dest"
-                cosign sign --yes "$dest"
+
+                if ! docker pull "$img"; then
+                  echo "❌ docker pull failed for $img — skipping this image" >&2
+                  printf '%s\t%s\t%s\t%s\t%s\n' "$slug" "$tag" "$img" "$dest" "docker pull failed" >> "$FAILED_LOG"
+                  continue
+                fi
+                if ! docker tag "$img" "$dest"; then
+                  echo "❌ docker tag failed for $img -> $dest — skipping this image" >&2
+                  printf '%s\t%s\t%s\t%s\t%s\n' "$slug" "$tag" "$img" "$dest" "docker tag failed" >> "$FAILED_LOG"
+                  continue
+                fi
+                if ! docker push "$dest"; then
+                  echo "❌ docker push failed for $dest — skipping this image" >&2
+                  printf '%s\t%s\t%s\t%s\t%s\n' "$slug" "$tag" "$img" "$dest" "docker push failed" >> "$FAILED_LOG"
+                  continue
+                fi
+                if ! cosign sign --yes "$dest"; then
+                  echo "❌ cosign sign failed for $dest — skipping this image" >&2
+                  printf '%s\t%s\t%s\t%s\t%s\n' "$slug" "$tag" "$img" "$dest" "cosign sign failed" >> "$FAILED_LOG"
+                  continue
+                fi
 
                 # Update BundleCore API with new version
                 update_bundlecore_tool_version "$slug" "$tag" "$img" "$dest" || true
@@ -231,3 +251,50 @@ jobs:
               docker system prune -af --volumes || true
             fi
           done 3<<< "$TOOL_DIRS"
+
+          if [ -s "$FAILED_LOG" ]; then
+            echo ""
+            echo "⚠️  The following images failed to retag/sign and were skipped:"
+            sed 's/^/  - /' "$FAILED_LOG"
+            exit 1
+          fi
+
+      - name: File issues for failed image pulls
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_AUTOMATION_PAT }}
+        run: |
+          FAILED_LOG="${RUNNER_TEMP}/failed-images.txt"
+
+          if [ ! -s "$FAILED_LOG" ]; then
+            echo "No failed images to report."
+            exit 0
+          fi
+
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          while IFS=$'\t' read -r slug tag img dest reason; do
+            [ -z "$slug" ] && continue
+
+            echo "Checking for an existing open issue for $img..."
+            existing=$(gh issue list --repo "${{ github.repository }}" --state open \
+              --search "\"$img\" in:title,body" --json number --jq '.[0].number' 2>/dev/null || true)
+
+            if [ -n "$existing" ] && [ "$existing" != "null" ]; then
+              echo "  → Issue #$existing already covers $img, skipping"
+              continue
+            fi
+
+            echo "  → Creating new issue for $img"
+            body=$(printf 'The **Retag and Sign BioContainer Images** workflow failed to retag/sign an image.\n\n- **Tool:** `%s`\n- **Source image:** `%s`\n- **Target:** `%s`\n- **Failure reason:** %s\n- **Workflow run:** %s\n\nOther images for this tool (if any) were retagged normally — only this one failed. The workflow now skips failing images instead of aborting the whole run; this issue tracks the follow-up needed to fix or replace the source image.' \
+              "$slug" "$img" "$dest" "$reason" "$RUN_URL")
+            issue_url=$(gh issue create --repo "${{ github.repository }}" \
+              --title "Retag failed: $img ($reason)" \
+              --body "$body")
+            echo "  ✓ Created $issue_url"
+            issue_number="${issue_url##*/}"
+            gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-label "bug" 2>/dev/null \
+              && echo "    ✓ Added label bug" || echo "    ⚠ Could not add label bug (missing permissions or label doesn't exist)"
+            gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-label "retag-failure" 2>/dev/null \
+              && echo "    ✓ Added label retag-failure" || echo "    ⚠ Could not add label retag-failure (missing permissions or label doesn't exist)"
+          done < "$FAILED_LOG"
