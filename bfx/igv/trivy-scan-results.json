@@ -1,0 +1,772 @@
+{
+  "tool": "igv",
+  "scan_timestamp": "2026-08-23T08:30:31Z",
+  "workflow_run_id": "32628339437",
+  "versions": {
+    "2.19.8": {
+      "image": "ghcr.io/bundlecore/products/bfx/igv:2.19.8",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-42583",
+          "VendorIDs": [
+            "GHSA-mj4r-2hfc-f8p6"
+          ],
+          "PkgName": "io.netty:netty-codec",
+          "PkgPath": "usr/local/lib/igv/netty-codec-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec@4.1.118.Final",
+            "UID": "562c6b56f351274"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.1.133.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42583",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:f510052aeb978a02cd7599619cbaddf90299255851360659015b1b73858b2d13",
+          "Title": "netty: io.netty/netty-codec-compression: io.netty/netty-codec: Netty: Denial of Service via excessive memory allocation in LZ4FrameDecoder",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to 4.2.13.Final and 4.1.133.Final, Lz4FrameDecoder allocates a ByteBuf of size decompressedLength (up to 32 MB per block) before LZ4 runs. A peer only needs a 21-byte header plus compressedLength payload bytes - 22 bytes if compressedLength == 1 - to force that allocation. This vulnerability is fixed in 4.2.13.Final and 4.1.133.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-42583",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-mj4r-2hfc-f8p6",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42583",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42583"
+          ],
+          "PublishedDate": "2026-05-13T19:17:23.903Z",
+          "LastModifiedDate": "2026-06-17T10:48:05.55Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-59901",
+          "VendorIDs": [
+            "GHSA-558v-64gr-wgg4"
+          ],
+          "PkgName": "io.netty:netty-codec",
+          "PkgPath": "usr/local/lib/igv/netty-codec-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec@4.1.118.Final",
+            "UID": "562c6b56f351274"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.1.136.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-59901",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:f0b9a3df5775ef6a84741f94dd38554bae0ef87fa4fe52c01ea32af787f13897",
+          "Title": "io.netty/netty-codec-compression: Netty: Infinite loop in netty-codec-compression (bzip2)",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to versions 4.1.136.Final and 4.2.16.Final, the `Bzip2Decoder` handler in Netty's compression codec pipeline is vulnerable to a denial-of-service attack through a malformed bzip2 stream that permanently captures the event-loop thread in an infinite loop. The vulnerability exists in the run-length encoding (RLE) state machine within [`Bzip2BlockDecompressor.read()`]. This issue has been fixed in versions 4.1.136.Final and 4.2.16.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-835"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-59901",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.136.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.16.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-558v-64gr-wgg4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-59901",
+            "https://www.cve.org/CVERecord?id=CVE-2026-59901"
+          ],
+          "PublishedDate": "2026-07-29T18:16:56.467Z",
+          "LastModifiedDate": "2026-08-06T20:29:27.587Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-33870",
+          "VendorIDs": [
+            "GHSA-pwqr-wmgm-9rr8"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.1.132.Final, 4.2.10.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-33870",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:33a2d243820a3217d76c38e884d495709a33d37e86b94586308ca885599a3858",
+          "Title": "io.netty/netty-codec-http: Netty: Request smuggling via incorrect parsing of HTTP/1.1 chunked transfer encoding extension values",
+          "Description": "Netty is an asynchronous, event-driven network application framework. In versions prior to 4.1.132.Final and 4.2.10.Final, Netty incorrectly parses quoted strings in HTTP/1.1 chunked transfer encoding extension values, enabling request smuggling attacks. Versions 4.1.132.Final and 4.2.10.Final fix the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:10175",
+            "https://access.redhat.com/errata/RHSA-2026:10184",
+            "https://access.redhat.com/errata/RHSA-2026:13571",
+            "https://access.redhat.com/errata/RHSA-2026:14272",
+            "https://access.redhat.com/errata/RHSA-2026:14276",
+            "https://access.redhat.com/errata/RHSA-2026:17668",
+            "https://access.redhat.com/errata/RHSA-2026:17789",
+            "https://access.redhat.com/errata/RHSA-2026:18054",
+            "https://access.redhat.com/errata/RHSA-2026:18055",
+            "https://access.redhat.com/errata/RHSA-2026:18059",
+            "https://access.redhat.com/errata/RHSA-2026:22619",
+            "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:7109",
+            "https://access.redhat.com/errata/RHSA-2026:7380",
+            "https://access.redhat.com/errata/RHSA-2026:8159",
+            "https://access.redhat.com/errata/RHSA-2026:8509",
+            "https://access.redhat.com/security/cve/CVE-2026-33870",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2452453",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-pwqr-wmgm-9rr8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-33870",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-33870.json",
+            "https://w4ke.info/2025/06/18/funky-chunks.html",
+            "https://w4ke.info/2025/10/29/funky-chunks-2.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-33870",
+            "https://www.rfc-editor.org/rfc/rfc9110"
+          ],
+          "PublishedDate": "2026-03-27T20:16:34.663Z",
+          "LastModifiedDate": "2026-08-04T13:18:20.043Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42584",
+          "VendorIDs": [
+            "GHSA-57rv-r2g8-2cj3"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.13.Final, 4.1.133.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42584",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:3fd7ec7f8e0c71d3d1a29b11259100f30e2aebad1a40e35f4ab69f36e2423515",
+          "Title": "netty: io.netty/netty-codec-http: Netty: Incorrect HTTP response parsing leads to data confusion",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to 4.2.13.Final and 4.1.133.Final, HttpClientCodec pairs each inbound response with an outbound request by queue.poll() once per response, including for 1xx. If the client pipelines GET then HEAD and the server sends 103, then 200 with GET body, then 200 for HEAD, the queue pairs HEAD with the first 200. The HEAD rule then skips reading that message’s body, so the GET entity bytes stay on the stream and the following 200 is parsed from the wrong offset. This vulnerability is fixed in 4.2.13.Final and 4.1.133.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-444"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 7.3
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 7.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:23808",
+            "https://access.redhat.com/errata/RHSA-2026:24502",
+            "https://access.redhat.com/errata/RHSA-2026:25123",
+            "https://access.redhat.com/errata/RHSA-2026:28010",
+            "https://access.redhat.com/errata/RHSA-2026:36820",
+            "https://access.redhat.com/errata/RHSA-2026:37390",
+            "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:53644",
+            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/security/cve/CVE-2026-42584",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477224",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-57rv-r2g8-2cj3",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42584",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-42584.json",
+            "https://ubuntu.com/security/notices/USN-8401-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42584"
+          ],
+          "PublishedDate": "2026-05-13T19:17:24.043Z",
+          "LastModifiedDate": "2026-08-21T13:17:55.133Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-42587",
+          "VendorIDs": [
+            "GHSA-f6hv-jmp6-3vwv"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.13.Final, 4.1.133.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-42587",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:f31cf31209ee4509c80ffdb0b62cb286d4e5d6cc360a9b7cc62b00d77e49679c",
+          "Title": "netty: io.netty/netty-codec-http: io.netty/netty-codec-http2: Netty: Denial of Service via unbounded memory allocation in HTTP content decompression",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to 4.2.13.Final and 4.1.133.Final, HttpContentDecompressor accepts a maxAllocation parameter to limit decompression buffer size and prevent decompression bomb attacks. This limit is correctly enforced for gzip and deflate encodings via ZlibDecoder, but is silently ignored when the content encoding is br (Brotli), zstd, or snappy. An attacker can bypass the configured decompression limit by sending a compressed payload with Content-Encoding: br instead of Content-Encoding: gzip, causing unbounded memory allocation and out-of-memory denial of service. The same vulnerability exists in DelegatingDecompressorFrameListener for HTTP/2 connections. This vulnerability is fixed in 4.2.13.Final and 4.1.133.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:23808",
+            "https://access.redhat.com/errata/RHSA-2026:24502",
+            "https://access.redhat.com/errata/RHSA-2026:25123",
+            "https://access.redhat.com/errata/RHSA-2026:28010",
+            "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:36820",
+            "https://access.redhat.com/errata/RHSA-2026:37390",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:50085",
+            "https://access.redhat.com/errata/RHSA-2026:53644",
+            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/security/cve/CVE-2026-42587",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477220",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/security/advisories/GHSA-f6hv-jmp6-3vwv",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-42587",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-42587.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-42587"
+          ],
+          "PublishedDate": "2026-05-13T19:17:24.46Z",
+          "LastModifiedDate": "2026-08-13T13:18:57.117Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55831",
+          "VendorIDs": [
+            "GHSA-6jqx-86gh-f27w"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.16.Final, 4.1.136.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55831",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b3edcfa8eedf255c67fec5116d8e9b6442fc60c9e6b1c87514acd3da781b3eeb",
+          "Title": "io.netty/netty-codec-http: Netty: Denial of Service via SPDY SETTINGS frame processing",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. Prior to 4.1.136.Final and 4.2.16.Final, Netty's SPDY SETTINGS decoder accepts a peer-declared SETTINGS entry count up to the 24-bit frame-length limit and materializes every unique setting ID in `DefaultSpdySettingsFrame`, allowing a remote SPDY/3.1 peer to send a syntactically valid roughly 2 MiB SETTINGS frame that creates 262144 map entries and amplifies network input into heap growth and ordered-map insertion work. This issue is fixed in versions 4.1.136.Final and 4.2.16.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-55831",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
+            "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.136.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.16.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-6jqx-86gh-f27w",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55831",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55831"
+          ],
+          "PublishedDate": "2026-07-21T00:17:35.383Z",
+          "LastModifiedDate": "2026-07-23T15:17:16.78Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-55833",
+          "VendorIDs": [
+            "GHSA-mvh2-crg5-v77c"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.16.Final, 4.1.136.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-55833",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:65d8509caafc679cf3d31fecad4f1648b675970e756b3ad1a10fabc51a672cb6",
+          "Title": "netty: io.netty/netty-codec-http: Netty: Denial of Service via SPDY header decompression amplification",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. Prior to 4.1.136.Final and 4.2.16.Final, Netty SPDY header decoding continues inflating zlib-compressed header blocks after the raw header parser has exceeded `maxHeaderSize` and marked the frame truncated in `SpdyFrameCodec`, allowing a remote peer to send a small compressed `HEADERS` block that expands into much larger raw header data and causes compression-amplified CPU and allocation churn. This issue is fixed in versions 4.1.136.Final and 4.2.16.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-55833",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
+            "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.136.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.16.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-mvh2-crg5-v77c",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-55833",
+            "https://www.cve.org/CVERecord?id=CVE-2026-55833"
+          ],
+          "PublishedDate": "2026-07-21T00:17:35.537Z",
+          "LastModifiedDate": "2026-07-23T13:34:45.383Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-56745",
+          "VendorIDs": [
+            "GHSA-jppx-w49h-x2qq"
+          ],
+          "PkgName": "io.netty:netty-codec-http",
+          "PkgPath": "usr/local/lib/igv/netty-codec-http-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-codec-http@4.1.118.Final",
+            "UID": "5acb353df4c56cc3"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.16.Final, 4.1.136.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-56745",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:39cff0c12a283f1843a233dcdf4a6ce03c2dc60cbbfa53a150c5f7d8be42f39a",
+          "Title": "netty: io.netty/netty-codec-http: Netty: Denial of Service via memory exhaustion in SPDY-to-HTTP codec",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. In versions 4.2.0.Final through 4.2.15.Final and 4.1.0.Final through 4.1.135.Final, the `SpdyHttpDecoder` handler in Netty's SPDY-to-HTTP codec allocates a pooled `ByteBuf` when processing a client-initiated `SYN_STREAM` frame with `FLAG_FIN=0` and stores the partially constructed `FullHttpRequest` in `messageMap`; when the remote peer sends `RST_STREAM` for that stream or the accumulated content exceeds `maxContentLength`, the decoder removes the entry but does not release the pooled `ByteBuf`, causing native memory exhaustion. This issue is fixed in versions 4.1.136.Final and 4.2.16.Final.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-56745",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
+            "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.136.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.16.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-jppx-w49h-x2qq",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-56745",
+            "https://www.cve.org/CVERecord?id=CVE-2026-56745"
+          ],
+          "PublishedDate": "2026-07-21T22:17:14.5Z",
+          "LastModifiedDate": "2026-07-30T14:46:55.073Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-44249",
+          "VendorIDs": [
+            "GHSA-3qp7-7mw8-wx86"
+          ],
+          "PkgName": "io.netty:netty-handler",
+          "PkgPath": "usr/local/lib/igv/netty-handler-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-handler@4.1.118.Final",
+            "UID": "312bbec760e08bac"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.15.Final, 4.1.135.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-44249",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:3f89bdb8af4d3967ea8557497a5ec6ec4bbea5225424ad5f608a515cbbbbfc2f",
+          "Title": "netty-handler: netty-handler: IPv6 subnet rule bypass due to incorrect masking operation",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. In netty-handler prior to versions 4.1.135.Final and 4.2.15.Final, an attacker can bypass IPv6 subnet rules due to an incorrect masking operation in IpSubnetFilterRule.compareTo(). Valid public IP addresses can bypass the restrictions. Versions 4.1.135.Final and 4.2.15.Final patch the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-284",
+            "CWE-697",
+            "CWE-1287"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:26017",
+            "https://access.redhat.com/errata/RHSA-2026:26018",
+            "https://access.redhat.com/errata/RHSA-2026:26586",
+            "https://access.redhat.com/errata/RHSA-2026:28573",
+            "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:36820",
+            "https://access.redhat.com/errata/RHSA-2026:37390",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:48124",
+            "https://access.redhat.com/errata/RHSA-2026:48151",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
+            "https://access.redhat.com/errata/RHSA-2026:50085",
+            "https://access.redhat.com/errata/RHSA-2026:53644",
+            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/security/cve/CVE-2026-44249",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2488081",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.15.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-3qp7-7mw8-wx86",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-44249",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-44249.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-44249"
+          ],
+          "PublishedDate": "2026-06-11T22:16:56.707Z",
+          "LastModifiedDate": "2026-08-21T13:17:56.487Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-45416",
+          "VendorIDs": [
+            "GHSA-x4gw-5cx5-pgmh"
+          ],
+          "PkgName": "io.netty:netty-handler",
+          "PkgPath": "usr/local/lib/igv/netty-handler-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-handler@4.1.118.Final",
+            "UID": "312bbec760e08bac"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.15.Final, 4.1.135.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-45416",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:153098006dbbe91b72c5dba08a6d610796eb082f94af13ad90a847d19e08bf82",
+          "Title": "netty-handler: Netty: Denial of Service due to eager buffer allocation in TLS handshake",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. Prior to versions 4.1.135.Final and 4.2.15.Final, SslClientHelloHandler.decode() reads the 24-bit TLS handshake length and, when the ClientHello does not fit in the first record, eagerly allocates `ctx.alloc().buffer(handshakeLength)` (line 161). The guard at line 140 is `handshakeLength > maxClientHelloLength && maxClientHelloLength != 0`, and the commonly-used SniHandler/AbstractSniHandler constructors (SniHandler(Mapping), SniHandler(AsyncMapping), AbstractSniHandler()) pass maxClientHelloLength=0 and handshakeTimeoutMillis=0, so the length guard is disabled and no timeout is scheduled. A 16 MiB request exceeds the default pooled chunk size and becomes a huge/unpooled allocation performed immediately. The buffer is retained in the handler until the channel closes. Versions 4.1.135.Final and 4.2.15.Final patch the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:26017",
+            "https://access.redhat.com/errata/RHSA-2026:26018",
+            "https://access.redhat.com/errata/RHSA-2026:26586",
+            "https://access.redhat.com/errata/RHSA-2026:28573",
+            "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:37390",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:48151",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
+            "https://access.redhat.com/errata/RHSA-2026:50085",
+            "https://access.redhat.com/errata/RHSA-2026:53644",
+            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/security/cve/CVE-2026-45416",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2488391",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.15.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-x4gw-5cx5-pgmh",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-45416",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-45416.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-45416"
+          ],
+          "PublishedDate": "2026-06-12T15:16:26.94Z",
+          "LastModifiedDate": "2026-08-21T13:18:02.08Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-50010",
+          "VendorIDs": [
+            "GHSA-c653-97m9-rcg9"
+          ],
+          "PkgName": "io.netty:netty-handler",
+          "PkgPath": "usr/local/lib/igv/netty-handler-4.1.118.Final.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-handler@4.1.118.Final",
+            "UID": "312bbec760e08bac"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.15.Final, 4.1.135.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-50010",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:64d8c5308986f6d708019401023c420d1287a6fc29844e0e2258c94b195aec67",
+          "Title": "netty-handler: Netty: Improper trust manager handling leads to hostname verification bypass",
+          "Description": "Netty is a network application framework for development of protocol servers and clients. Prior to versions 4.1.135.Final and 4.2.15.Final, SimpleTrustManagerFactory.engineGetTrustManagers() and related paths wrap any user-supplied plain X509TrustManager in X509TrustManagerWrapper, which extends X509ExtendedTrustManager but implements the 3-arg checkServerTrusted(chain, authType, SSLEngine) by discarding the SSLEngine and calling the 2-arg delegate. Because the object now IS an X509ExtendedTrustManager, neither SunJSSE's internal AbstractTrustManagerWrapper nor Netty's own OpenSslX509TrustManagerWrapper will re-wrap it to add endpoint-identification. Consequently, even though Netty 4.2 sets endpointIdentificationAlgorithm=\"HTTPS\" by default, a client built with `SslContextBuilder.forClient().trustManager(somePlainX509TrustManager)` performs no hostname verification at all. Versions 4.1.135.Final and 4.2.15.Final patch the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-347"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:26017",
+            "https://access.redhat.com/errata/RHSA-2026:26018",
+            "https://access.redhat.com/errata/RHSA-2026:26586",
+            "https://access.redhat.com/errata/RHSA-2026:28573",
+            "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:37390",
+            "https://access.redhat.com/errata/RHSA-2026:41951",
+            "https://access.redhat.com/errata/RHSA-2026:48151",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
+            "https://access.redhat.com/errata/RHSA-2026:50085",
+            "https://access.redhat.com/errata/RHSA-2026:53644",
+            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/security/cve/CVE-2026-50010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2488429",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.15.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-c653-97m9-rcg9",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-50010",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-50010.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-50010"
+          ],
+          "PublishedDate": "2026-06-12T16:16:31.18Z",
+          "LastModifiedDate": "2026-08-21T13:18:16.59Z"
+        }
+      ],
+      "vulnerability_count": 11
+    }
+  },
+  "summary": {
+    "total_versions_scanned": 1,
+    "total_vulnerabilities": 11
+  }
+}
