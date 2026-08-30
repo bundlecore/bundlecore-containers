@@ -1,0 +1,153 @@
+{
+  "tool": "last",
+  "scan_timestamp": "2026-08-30T13:44:21Z",
+  "workflow_run_id": "33314778896",
+  "versions": {
+    "1654": {
+      "image": "ghcr.io/bundlecore/products/bfx/last:1654",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-6v7p-g79w-8964",
+          "PkgID": "msgpack@1.1.2",
+          "PkgName": "msgpack",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.2",
+            "UID": "e43e94a450e8917b",
+            "BOMRef": "pkg:pypi/msgpack@1.1.2"
+          },
+          "InstalledVersion": "1.1.2",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1a23741c1376e38b0ea69f537a503e798af5f849b3831b9fb260680a32c19424",
+            "DiffID": "sha256:15ea629cd8a3bc394d0cb7265051f80d231c2ccbf6e30944ec390aed8ffbb24a"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6v7p-g79w-8964",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:dea3e0c3c629a037b13661f333139c0c63daa007463525d798dad13f5c97a2b2",
+          "Title": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error",
+          "Description": "### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If an error occurs during Streaming Unpacking, the Stream and Streaming Unpacker should be discarded.\n\nTherefore, this is not just a workaround but the correct solution. The above patch only prevents crashes from incorrect usage.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964"
+          ],
+          "PublishedDate": "2026-06-19T21:42:55Z",
+          "LastModifiedDate": "2026-06-19T21:42:55Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-47273",
+          "VendorIDs": [
+            "GHSA-5rjg-fvgr-3xxf"
+          ],
+          "PkgID": "setuptools@70.3.0",
+          "PkgName": "setuptools",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@70.3.0",
+            "UID": "9ec0488f55d10bba",
+            "BOMRef": "pkg:pypi/setuptools@70.3.0"
+          },
+          "InstalledVersion": "70.3.0",
+          "FixedVersion": "78.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1a23741c1376e38b0ea69f537a503e798af5f849b3831b9fb260680a32c19424",
+            "DiffID": "sha256:15ea629cd8a3bc394d0cb7265051f80d231c2ccbf6e30944ec390aed8ffbb24a"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-47273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:3c6b0361a59227f1a610c18c462bf23df8ec4c486e0ced3438c4651c4c22de82",
+          "Title": "setuptools: Path Traversal Vulnerability in setuptools PackageIndex",
+          "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. A path traversal vulnerability in `PackageIndex` is present in setuptools prior to version 78.1.1. An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to remote code execution depending on the context. Version 78.1.1 fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:10407",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
+            "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://bugzilla.redhat.com/2366982",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:10407",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
+            "https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b",
+            "https://github.com/pypa/setuptools/issues/4946",
+            "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
+            "https://linux.oracle.com/cve/CVE-2025-47273.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9940.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
+            "https://ubuntu.com/security/notices/USN-7544-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-47273"
+          ],
+          "PublishedDate": "2025-05-17T16:15:19.11Z",
+          "LastModifiedDate": "2026-06-17T09:27:38.827Z"
+        }
+      ],
+      "vulnerability_count": 2
+    }
+  },
+  "summary": {
+    "total_versions_scanned": 1,
+    "total_vulnerabilities": 2
+  }
+}
