@@ -1,7 +1,7 @@
 {
   "tool": "advntr",
-  "scan_timestamp": "2026-08-01T05:34:48Z",
-  "workflow_run_id": "30686025722",
+  "scan_timestamp": "2026-09-01T07:38:45Z",
+  "workflow_run_id": "33482972321",
   "versions": {
     "1.5.0": {
       "image": "ghcr.io/bundlecore/products/bfx/advntr:1.5.0",
@@ -57,12 +57,14 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:2042",
+            "https://access.redhat.com/errata/RHSA-2026:2389",
             "https://access.redhat.com/security/cve/CVE-2025-6176",
             "https://bugzilla.redhat.com/2408762",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2042",
+            "https://errata.rockylinux.org/RLSA-2026:2389",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -399,6 +401,198 @@
           "LastModifiedDate": "2026-07-15T02:18:00.31Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-11816",
+          "VendorIDs": [
+            "GHSA-hqp4-2352-xf5r"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-3.11.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@3.11.2",
+            "UID": "a4fb316b4ed8c546"
+          },
+          "InstalledVersion": "3.11.2",
+          "FixedVersion": "3.14.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1e76829cf64c79a1c6c3b6b9a0e67286e222e7e6be359fde97df60b3eee2d6ac",
+            "DiffID": "sha256:7efeb29944335a25bbfc9d8dd2f8135a7ac86a99900c7641963630908bd2a5a6"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-11816",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:009958215f95aaab466b845efb967f67b5c931cbe3f602770fa297db87c647fc",
+          "Title": "keras: Keras: Arbitrary file write via path traversal in archive extraction utilities",
+          "Description": "Keras versions prior to 3.14.0 are vulnerable to a path traversal issue in the archive extraction utilities located in `keras/src/utils/file_utils.py`. The functions `filter_safe_tarinfos()` and `filter_safe_zipinfos()` validate archive member paths against the process current working directory (CWD) instead of the actual extraction destination. When the process runs with CWD set to `/`, which is common in Docker containers, CI/CD runners, and Jupyter environments, the validation boundary becomes the filesystem root, allowing traversal paths to bypass the security check. Additionally, the zip filter contains a bug that causes an `AttributeError` when a blocked entry is encountered, leading to incomplete extraction. Furthermore, Python 3.11 installations lack the `filter=\"data\"` safety net, leaving them entirely reliant on the flawed CWD-based filter. Exploitation of this vulnerability can result in arbitrary file writes outside the intended extraction directory, enabling attackers to overwrite configuration files, inject malicious code, or corrupt machine learning datasets and pipelines.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+              "V3Score": 8.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/security/cve/CVE-2026-11816",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2487912",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/2465b6657b02c8eed308759b7e800e295ae01888",
+            "https://github.com/keras-team/keras/pull/22194",
+            "https://github.com/keras-team/keras/releases/tag/v3.14.0",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/keras/PYSEC-2026-2324.yaml",
+            "https://huntr.com/bounties/a07e3983-7158-4419-af2b-38f1dea01a4f",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-11816",
+            "https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-11816.json",
+            "https://www.cve.org/CVERecord?id=CVE-2026-11816"
+          ],
+          "PublishedDate": "2026-06-11T14:16:26.557Z",
+          "LastModifiedDate": "2026-07-21T12:17:17.557Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-12481",
+          "VendorIDs": [
+            "GHSA-5gwj-m78q-7pq3"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-3.11.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@3.11.2",
+            "UID": "a4fb316b4ed8c546"
+          },
+          "InstalledVersion": "3.11.2",
+          "FixedVersion": "3.12.3, 3.15.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1e76829cf64c79a1c6c3b6b9a0e67286e222e7e6be359fde97df60b3eee2d6ac",
+            "DiffID": "sha256:7efeb29944335a25bbfc9d8dd2f8135a7ac86a99900c7641963630908bd2a5a6"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-12481",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a7561e971f2f9b00dfb60c26b0d0737573004f0a060898990c2e7821a93e8779",
+          "Title": "keras: Keras: Arbitrary code execution via deserialization vulnerability",
+          "Description": "A vulnerability in keras-team/keras version 3.14.0 allows for arbitrary code execution due to improper handling of deserialization in the `Lambda` layer. Specifically, the `_raise_for_lambda_deserialization()` function fails to enforce the safe-mode guard when `safe_mode` is set to `None`, which is the default value when `from_config()` is called outside of a `SafeModeScope` context. This logic error conflates `None` (unset/default-deny) with `False` (explicitly disabled), bypassing the guard and allowing attacker-controlled `marshal` bytecode to be deserialized. Affected call sites include `keras.layers.deserialize(config)`, `keras.models.clone_model(model)`, and any direct invocation of `Lambda.from_config(config)` without an enclosing `SafeModeScope(True)`. This vulnerability can be exploited to achieve arbitrary OS-level code execution in the context of the server or user process.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-12481",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/55888d3becbdbb45dc16a55b489900f911e2dde5",
+            "https://github.com/keras-team/keras/commit/d338a45204bdc787c8b3c4a9b82c1911cd52dedf",
+            "https://github.com/keras-team/keras/pull/23048",
+            "https://github.com/keras-team/keras/pull/23165",
+            "https://github.com/keras-team/keras/releases/tag/v3.12.3",
+            "https://github.com/keras-team/keras/releases/tag/v3.15.0",
+            "https://huntr.com/bounties/59ceaed1-c8a3-4135-8f94-169ade02823d",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-12481",
+            "https://www.cve.org/CVERecord?id=CVE-2026-12481"
+          ],
+          "PublishedDate": "2026-07-03T21:16:54.737Z",
+          "LastModifiedDate": "2026-07-08T15:01:47.19Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-12484",
+          "VendorIDs": [
+            "GHSA-v2w2-w228-c444"
+          ],
+          "PkgName": "keras",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/keras-3.11.2.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/keras@3.11.2",
+            "UID": "a4fb316b4ed8c546"
+          },
+          "InstalledVersion": "3.11.2",
+          "FixedVersion": "3.12.3, 3.15.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1e76829cf64c79a1c6c3b6b9a0e67286e222e7e6be359fde97df60b3eee2d6ac",
+            "DiffID": "sha256:7efeb29944335a25bbfc9d8dd2f8135a7ac86a99900c7641963630908bd2a5a6"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-12484",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7a0d94a34644b3d12ccfa4d0d958dfdba04a89a01899b15b3bcae0f4a8de375f",
+          "Title": "keras: torch: Keras: Arbitrary code execution via unsafe deserialization of PyTorch data",
+          "Description": "A vulnerability in keras-team/keras version 3.15.0 allows unsafe deserialization of attacker-controlled PyTorch pickle data through the public `keras.layers.TorchModuleWrapper.from_config` method. This method invokes `torch.load(..., weights_only=False)` without requiring an explicit unsafe opt-in, such as a `safe_mode=False` parameter. When called outside a `SafeModeScope(True)` context, the absence of an ambient safe mode state permits unsafe deserialization by default. This issue can lead to arbitrary code execution if untrusted Keras layer configurations are processed using this method. The vulnerability arises because the method does not enforce safe deserialization practices unless explicitly guarded by Keras safe mode.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-12484",
+            "https://github.com/keras-team/keras",
+            "https://github.com/keras-team/keras/commit/55888d3becbdbb45dc16a55b489900f911e2dde5",
+            "https://github.com/keras-team/keras/commit/d338a45204bdc787c8b3c4a9b82c1911cd52dedf",
+            "https://github.com/keras-team/keras/pull/23048",
+            "https://github.com/keras-team/keras/pull/23165",
+            "https://github.com/keras-team/keras/releases/tag/v3.12.3",
+            "https://github.com/keras-team/keras/releases/tag/v3.15.0",
+            "https://huntr.com/bounties/ab14df49-13b5-4442-b754-3189430bfa28",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-12484",
+            "https://www.cve.org/CVERecord?id=CVE-2026-12484"
+          ],
+          "PublishedDate": "2026-07-19T20:16:28.8Z",
+          "LastModifiedDate": "2026-07-23T18:24:39.053Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-1462",
           "VendorIDs": [
             "GHSA-4f3f-g24h-fr8m"
@@ -624,7 +818,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-07-21T12:17:47.257Z"
+          "LastModifiedDate": "2026-08-17T12:17:33.16Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -711,6 +905,7 @@
             "https://access.redhat.com/errata/RHSA-2026:34366",
             "https://access.redhat.com/errata/RHSA-2026:34368",
             "https://access.redhat.com/errata/RHSA-2026:37275",
+            "https://access.redhat.com/errata/RHSA-2026:57387",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -724,7 +919,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-07-20T12:19:05.59Z"
+          "LastModifiedDate": "2026-08-21T13:17:49.023Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -833,10 +1028,14 @@
             "CWE-125"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
+            "nvd": 4,
             "oracle-oval": 3,
-            "redhat": 3
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "bitnami": {
@@ -847,13 +1046,27 @@
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
               "V40Score": 8.3
             },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
+            },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
               "V3Score": 9.1
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:48021",
             "https://access.redhat.com/security/cve/CVE-2026-54058",
+            "https://bugzilla.redhat.com/2500043",
+            "https://bugzilla.redhat.com/2500057",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500057",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54058",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59197",
+            "https://errata.almalinux.org/8/ALSA-2026-48021.html",
+            "https://errata.rockylinux.org/RLSA-2026:48021",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/6a8de891fb00968e5ea79bfa84368ed90b3cfc1d",
             "https://github.com/python-pillow/Pillow/pull/9719",
@@ -865,7 +1078,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54058"
           ],
           "PublishedDate": "2026-07-14T17:17:03.433Z",
-          "LastModifiedDate": "2026-07-15T20:08:02.787Z"
+          "LastModifiedDate": "2026-08-06T15:46:05.867Z"
         },
         {
           "VulnerabilityID": "CVE-2026-54059",
@@ -933,6 +1146,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -1018,6 +1232,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -1103,6 +1318,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -1188,6 +1404,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -1241,10 +1458,13 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "oracle-oval": 3,
-            "redhat": 3
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "bitnami": {
@@ -1261,7 +1481,17 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:48021",
             "https://access.redhat.com/security/cve/CVE-2026-59197",
+            "https://bugzilla.redhat.com/2500043",
+            "https://bugzilla.redhat.com/2500057",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500057",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54058",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59197",
+            "https://errata.almalinux.org/8/ALSA-2026-48021.html",
+            "https://errata.rockylinux.org/RLSA-2026:48021",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/cce3bdb867c77a3420261ed1bfdb6b0787ec8fc1",
             "https://github.com/python-pillow/Pillow/pull/9695",
@@ -1309,6 +1539,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1375,6 +1606,7 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1440,6 +1672,7 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -1509,6 +1742,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1690,9 +1924,10 @@
             "https://access.redhat.com/security/cve/CVE-2026-0994",
             "https://bugzilla.redhat.com/2432398",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3095",
+            "https://errata.rockylinux.org/RLSA-2026:3094",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -1771,7 +2006,8 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:1239",
+            "https://access.redhat.com/errata/RHSA-2026:1086",
+            "https://access.redhat.com/errata/RHSA-2026:1254",
             "https://access.redhat.com/security/cve/CVE-2025-66418",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -1779,11 +2015,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
+            "https://errata.rockylinux.org/RLSA-2026:1254",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -1859,7 +2096,8 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:1239",
+            "https://access.redhat.com/errata/RHSA-2026:1086",
+            "https://access.redhat.com/errata/RHSA-2026:1254",
             "https://access.redhat.com/security/cve/CVE-2025-66471",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -1867,11 +2105,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
+            "https://errata.rockylinux.org/RLSA-2026:1254",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
@@ -2056,6 +2295,7 @@
             "https://access.redhat.com/errata/RHSA-2026:4466",
             "https://access.redhat.com/errata/RHSA-2026:4467",
             "https://access.redhat.com/errata/RHSA-2026:44696",
+            "https://access.redhat.com/errata/RHSA-2026:51357",
             "https://access.redhat.com/errata/RHSA-2026:5459",
             "https://access.redhat.com/errata/RHSA-2026:6287",
             "https://access.redhat.com/errata/RHSA-2026:6292",
@@ -2069,11 +2309,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2419467",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2427726",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
+            "https://errata.rockylinux.org/RLSA-2026:1254",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -2088,7 +2329,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-21441"
           ],
           "PublishedDate": "2026-01-07T22:15:44.04Z",
-          "LastModifiedDate": "2026-07-31T13:17:20.517Z"
+          "LastModifiedDate": "2026-08-31T13:17:22.8Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44431",
@@ -2130,7 +2371,7 @@
             "nvd": 2,
             "oracle-oval": 2,
             "redhat": 2,
-            "rocky": 3,
+            "rocky": 2,
             "ubuntu": 2
           },
           "CVSS": {
@@ -2150,20 +2391,20 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2026:28159",
+            "https://access.redhat.com/errata/RHSA-2026:28000",
+            "https://access.redhat.com/errata/RHSA-2026:36732",
             "https://access.redhat.com/security/cve/CVE-2026-44431",
             "https://bugzilla.redhat.com/2477154",
             "https://bugzilla.redhat.com/2477167",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2477154",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477167",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44431",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44432",
-            "https://errata.almalinux.org/9/ALSA-2026-28159.html",
-            "https://errata.rockylinux.org/RLSA-2026:28158",
+            "https://errata.almalinux.org/10/ALSA-2026-28000.html",
+            "https://errata.rockylinux.org/RLSA-2026:36732",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
             "https://linux.oracle.com/cve/CVE-2026-44431.html",
-            "https://linux.oracle.com/errata/ELSA-2026-47126.html",
+            "https://linux.oracle.com/errata/ELSA-2026-49927.html",
             "https://lists.debian.org/debian-lts-announce/2026/06/msg00040.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
             "https://ubuntu.com/security/notices/USN-8379-1",
@@ -2277,9 +2518,10 @@
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
+            "https://errata.rockylinux.org/RLSA-2026:2090",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2293,7 +2535,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
+          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -2400,9 +2642,10 @@
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
+            "https://errata.rockylinux.org/RLSA-2026:2090",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2416,14 +2659,14 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
+          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
         }
       ],
-      "vulnerability_count": 29
+      "vulnerability_count": 32
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 29
+    "total_vulnerabilities": 32
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "rseqc",
-  "scan_timestamp": "2026-08-01T07:00:38Z",
-  "workflow_run_id": "30686025722",
+  "scan_timestamp": "2026-09-01T09:04:32Z",
+  "workflow_run_id": "33482972321",
   "versions": {
     "5.0.4": {
       "image": "ghcr.io/bundlecore/products/bfx/rseqc:5.0.4",
@@ -92,11 +92,12 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
             "https://errata.almalinux.org/8/ALSA-2026-12176.html",
-            "https://errata.rockylinux.org/RLSA-2026:19355",
+            "https://errata.rockylinux.org/RLSA-2026:12176",
             "https://github.com/pyca/cryptography",
             "https://github.com/pyca/cryptography/commit/0eebb9dbb6343d9bc1d91e5a2482ed4e054a6d8c",
             "https://github.com/pyca/cryptography/releases/tag/46.0.5",
@@ -110,7 +111,127 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-26007"
           ],
           "PublishedDate": "2026-02-10T22:17:00.307Z",
-          "LastModifiedDate": "2026-07-20T12:18:19.603Z"
+          "LastModifiedDate": "2026-08-17T12:17:33.68Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-69247",
+          "VendorIDs": [
+            "GHSA-g6cj-pr64-35w5"
+          ],
+          "PkgName": "cryptography",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/cryptography-45.0.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/cryptography@45.0.7",
+            "UID": "b139bce465f07357"
+          },
+          "InstalledVersion": "45.0.7",
+          "FixedVersion": "50.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:d5f6080aac781002995f63ffa14076b1f30c165336e90e705a2c515afff80e18",
+            "DiffID": "sha256:6762d4ab88fc3cb9d3f67918a5b2a6b7e46a87cd27a54b3ce8aad787806e5173"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-69247",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a8a474cdad4ce9fecd545727a0162331462133eaa5b8d67398e059120fd4eb10",
+          "Title": "python-cryptography: python-cryptography: PKCS#7 EnvelopedData decryption exposes a Bleichenbacher oracle through distinguishable errors and timing",
+          "Description": "cryptography is a package designed to expose cryptographic primitives and recipes to Python developers. From 44.0.0 until 50.0.0, pkcs7_decrypt_der, pkcs7_decrypt_pem, and pkcs7_decrypt_smime reported the outcome of decrypting a RecipientInfo's encryptedKey in several distinguishable ways, one of which disclosed the exact length recovered from the RSA operation. The same distinction was also observable by timing. An application that decrypts attacker-supplied EnvelopedData and reflects the outcome gives the attacker a Bleichenbacher oracle against the content-encryption key. Decryption ran as RSA PKCS#1 v1.5 decrypt of encryptedKey, build an AES cipher from the result, then AES-CBC decrypt and PKCS#7 unpad. Invalid RSA padding, a valid padding with a bad key length, a correct length with a wrong key, and the real key each failed or succeeded differently. Case 1 is reachable only where the linked library lacks implicit rejection: OpenSSL 3.0 and 3.1, LibreSSL, and BoringSSL. Exploitation requires a service that auto-decrypts untrusted EnvelopedData matching the victim certificate and answers adaptively at high volume, such as an S/MIME gateway or mail filter. This issue is fixed in 50.0.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-208",
+            "CWE-209"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-69247",
+            "https://github.com/pyca/cryptography",
+            "https://github.com/pyca/cryptography/commit/53fccd93413a8d7f07d6d8999681f27b75cffa3f",
+            "https://github.com/pyca/cryptography/pull/15369",
+            "https://github.com/pyca/cryptography/security/advisories/GHSA-g6cj-pr64-35w5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-69247",
+            "https://www.cve.org/CVERecord?id=CVE-2026-69247"
+          ],
+          "PublishedDate": "2026-08-03T22:16:52.38Z",
+          "LastModifiedDate": "2026-08-04T15:16:43.393Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-69249",
+          "VendorIDs": [
+            "GHSA-jwv3-5hgf-82ww"
+          ],
+          "PkgName": "cryptography",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/cryptography-45.0.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/cryptography@45.0.7",
+            "UID": "b139bce465f07357"
+          },
+          "InstalledVersion": "45.0.7",
+          "FixedVersion": "49.0.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:d5f6080aac781002995f63ffa14076b1f30c165336e90e705a2c515afff80e18",
+            "DiffID": "sha256:6762d4ab88fc3cb9d3f67918a5b2a6b7e46a87cd27a54b3ce8aad787806e5173"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-69249",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a5bfc87a1fb49ffc21b6da8b3b1544a6689b9d7603c6deea4d4a34eaa00fb632",
+          "Title": "python-cryptography: python-cryptography: Duplicate self-signed intermediates can cause exponential path-building",
+          "Description": "python-cryptography is a package designed to expose cryptographic primitives and recipes to Python developers. Prior to 49.0.0, when resolving invalid certificate chains that include duplicate copies of self-signed certificates, the processing recursively invokes the same candidate, leading to an exponential blowup. Although the limitation that the chain depth cannot exceed a specified maximum depth prevents unbounded recursion and guarantees termination, an attacker-controlled certificate chain can lead the processing to easily take more than 5s to reject in testing. This amplification could form the basis for a resource exhaustion denial of service attack. The core issue arises in the recursive nature of build_chain_inner, which does not de-duplicate against previously analyzed candidates. As the correctness of validation is not affected, the integrity of a system cannot be compromised through this vector, only its availability. This issue is fixed in 49.0.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "azure": 3,
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-69249",
+            "https://github.com/pyca/cryptography",
+            "https://github.com/pyca/cryptography/commit/4a12cf49675a184e47f912b00b04f3a629283582",
+            "https://github.com/pyca/cryptography/pull/14960",
+            "https://github.com/pyca/cryptography/security/advisories/GHSA-jwv3-5hgf-82ww",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-69249",
+            "https://www.cve.org/CVERecord?id=CVE-2026-69249"
+          ],
+          "PublishedDate": "2026-08-03T22:16:52.72Z",
+          "LastModifiedDate": "2026-08-04T15:16:43.86Z"
         },
         {
           "VulnerabilityID": "GHSA-537c-gmf6-5ccf",
@@ -371,7 +492,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-07-21T12:17:47.257Z"
+          "LastModifiedDate": "2026-08-17T12:17:33.16Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -458,6 +579,7 @@
             "https://access.redhat.com/errata/RHSA-2026:34366",
             "https://access.redhat.com/errata/RHSA-2026:34368",
             "https://access.redhat.com/errata/RHSA-2026:37275",
+            "https://access.redhat.com/errata/RHSA-2026:57387",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -471,7 +593,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-07-20T12:19:05.59Z"
+          "LastModifiedDate": "2026-08-21T13:17:49.023Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -580,10 +702,14 @@
             "CWE-125"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
+            "nvd": 4,
             "oracle-oval": 3,
-            "redhat": 3
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "bitnami": {
@@ -594,13 +720,27 @@
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
               "V40Score": 8.3
             },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
+            },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
               "V3Score": 9.1
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:48021",
             "https://access.redhat.com/security/cve/CVE-2026-54058",
+            "https://bugzilla.redhat.com/2500043",
+            "https://bugzilla.redhat.com/2500057",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500057",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54058",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59197",
+            "https://errata.almalinux.org/8/ALSA-2026-48021.html",
+            "https://errata.rockylinux.org/RLSA-2026:48021",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/6a8de891fb00968e5ea79bfa84368ed90b3cfc1d",
             "https://github.com/python-pillow/Pillow/pull/9719",
@@ -612,7 +752,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54058"
           ],
           "PublishedDate": "2026-07-14T17:17:03.433Z",
-          "LastModifiedDate": "2026-07-15T20:08:02.787Z"
+          "LastModifiedDate": "2026-08-06T15:46:05.867Z"
         },
         {
           "VulnerabilityID": "CVE-2026-54059",
@@ -680,6 +820,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -765,6 +906,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -850,6 +992,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -935,6 +1078,7 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497455",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497464",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2497466",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54059",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54060",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-55379",
@@ -988,10 +1132,13 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "oracle-oval": 3,
-            "redhat": 3
+            "redhat": 3,
+            "rocky": 3
           },
           "CVSS": {
             "bitnami": {
@@ -1008,7 +1155,17 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:48021",
             "https://access.redhat.com/security/cve/CVE-2026-59197",
+            "https://bugzilla.redhat.com/2500043",
+            "https://bugzilla.redhat.com/2500057",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500043",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2500057",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54058",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59197",
+            "https://errata.almalinux.org/8/ALSA-2026-48021.html",
+            "https://errata.rockylinux.org/RLSA-2026:48021",
             "https://github.com/python-pillow/Pillow",
             "https://github.com/python-pillow/Pillow/commit/cce3bdb867c77a3420261ed1bfdb6b0787ec8fc1",
             "https://github.com/python-pillow/Pillow/pull/9695",
@@ -1056,6 +1213,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1122,6 +1280,7 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1187,6 +1346,7 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "nvd": 3,
@@ -1256,6 +1416,7 @@
             "CWE-787"
           ],
           "VendorSeverity": {
+            "amazon": 3,
             "bitnami": 3,
             "ghsa": 3,
             "redhat": 3
@@ -1393,9 +1554,10 @@
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
+            "https://errata.rockylinux.org/RLSA-2026:2090",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1409,7 +1571,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
+          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -1516,9 +1678,10 @@
             "https://access.redhat.com/security/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
-            "https://errata.rockylinux.org/RLSA-2026:1939",
+            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
+            "https://errata.rockylinux.org/RLSA-2026:2090",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -1532,14 +1695,14 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-07-29T13:17:55.69Z"
+          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
         }
       ],
-      "vulnerability_count": 19
+      "vulnerability_count": 21
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 19
+    "total_vulnerabilities": 21
   }
 }
