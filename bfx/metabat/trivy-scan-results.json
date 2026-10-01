@@ -1,16 +1,72 @@
 {
   "tool": "metabat",
-  "scan_timestamp": "2026-09-13T17:01:28Z",
-  "workflow_run_id": "34770129788",
+  "scan_timestamp": "2026-10-01T09:44:35Z",
+  "workflow_run_id": "36837607073",
   "versions": {
     "v2.18-25-g8eb9602": {
       "image": "ghcr.io/bundlecore/products/bfx/metabat:v2.18-25-g8eb9602",
-      "vulnerabilities": [],
-      "vulnerability_count": 0
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-84782",
+          "PkgID": "libssl3t64@3.0.13-0ubuntu3.12",
+          "PkgName": "libssl3t64",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/ubuntu/libssl3t64@3.0.13-0ubuntu3.12?arch=amd64&distro=ubuntu-24.04",
+            "UID": "bb9c221d14510388"
+          },
+          "InstalledVersion": "3.0.13-0ubuntu3.12",
+          "FixedVersion": "3.0.13-0ubuntu3.16",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0926a8eb0e608a5c6888d1cd5594184bdf3ed3aa311dba5b42a547caefdc6f2e",
+            "DiffID": "sha256:b9a65b3c65ab22d490085bd0bf5490e2409da8748b406870f2463bdc41cd6795"
+          },
+          "SeveritySource": "ubuntu",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-84782",
+          "DataSource": {
+            "ID": "ubuntu",
+            "Name": "Ubuntu CVE Tracker",
+            "URL": "https://git.launchpad.net/ubuntu-cve-tracker"
+          },
+          "Fingerprint": "sha256:51ac05cdd13714d6d01c761043b7c4c9e4846ea23b207f267998889fb72153ad",
+          "Title": "openssl: compat-openssl: openssl: Information disclosure via DTLS handshake retransmission",
+          "Description": "Issue summary: The DTLS retransmission logic does not correctly handle\na handshake message write that is suspended part-way through.\nThe retransmitted message can be read past the message buffer and\nthe retransmission overwrites the internal state the suspended write\nneeds to resume correctly.\n\nImpact summary: The retransmitted message can disclose a heap memory\nto the peer as plaintext handshake data or cause a crash and a Denial\nof Service when the read reaches an unmapped memory region.\n\nCWE: CWE-125: Out-of-bounds Read\n\nDescription: DTLS handshake messages can be written out in multiple\nfragments, and a write can suspend mid-message (returning WANT_WRITE)\nif the underlying transport temporarily cannot accept more data. While\nsuch a write is suspended, the DTLS retransmission timer may\nindependently fire and ask the retransmission logic to resend an\nearlier, already-acknowledged-as-sent message from its retransmit\nqueue.\n\nThe retransmission logic reused the same internal buffer and position\ntracking as the message that was still being written, without\nresetting the position back to the start of the message being\nretransmitted. As a result the retransmission was read starting from\nwherever the suspended write had left off, producing a mislabelled\nmessage whose body was leftover bytes from the other, larger message\nstill in flight - content that was never meant to be sent at that\npoint, and which could run past the end of the allocated buffer.\n\nSeparately, even when the retransmission is positioned correctly,\nallowing it to run to completion while another write is suspended\noverwrites the same shared bookkeeping that the suspended write\ndepends on to resume. When the application later resumes the\nsuspended write (via a subsequent SSL_read(), SSL_write(),\nSSL_accept(), or SSL_connect() call), it finds that bookkeeping in a\nstate inconsistent with the message and aborts the process in\na debugging build.\n\nThe fix resets the retransmission's read position to the start of the\nmessage before resending, and skips retransmission entirely whenever a\nhandshake write is still suspended, deferring to the next call that\nresumes it instead.\n\nFIPS impact: no\nThe affected code is outside the FIPS module boundary.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-125"
+          ],
+          "VendorSeverity": {
+            "redhat": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-84782",
+            "https://github.com/openssl/openssl/commit/906cf0ef1c85ca40ce69163e9086d6d3fe292943",
+            "https://github.com/openssl/openssl/commit/9f6b34422af7eb5dac61322e33dac1ae989fa628",
+            "https://github.com/openssl/openssl/commit/a383dafdd754eb5b22bf45e37e1bff9d07277a58",
+            "https://github.com/openssl/openssl/commit/d951e02ede8f6a6ff8150546db44b34f0518192c",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-84782",
+            "https://openssl-library.org/news/secadv/20260929.txt",
+            "https://openssl-library.org/news/vulnerabilities/#CVE-2026-84782",
+            "https://ubuntu.com/security/notices/USN-8847-1",
+            "https://ubuntu.com/security/notices/USN-8847-2",
+            "https://www.cve.org/CVERecord?id=CVE-2026-84782"
+          ],
+          "PublishedDate": "2026-09-29T16:17:12.5Z",
+          "LastModifiedDate": "2026-09-29T21:27:41.13Z"
+        }
+      ],
+      "vulnerability_count": 1
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 0
+    "total_vulnerabilities": 1
   }
 }

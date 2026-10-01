@@ -1,8 +1,271 @@
 {
   "tool": "crispritz",
-  "scan_timestamp": "2026-09-01T08:14:35Z",
-  "workflow_run_id": "33482972321",
+  "scan_timestamp": "2026-10-01T09:10:48Z",
+  "workflow_run_id": "36837607073",
   "versions": {
+    "2.8.3": {
+      "image": "ghcr.io/bundlecore/products/bfx/crispritz:2.8.3",
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-6v7p-g79w-8964",
+          "PkgID": "msgpack@1.1.2",
+          "PkgName": "msgpack",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.2",
+            "UID": "3f2c80fd5976bc1f",
+            "BOMRef": "pkg:pypi/msgpack@1.1.2"
+          },
+          "InstalledVersion": "1.1.2",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3365a7dbb8cd66ba6a26cd8e845d53de804090b1eb59e0c5b0f2454faa710b29",
+            "DiffID": "sha256:d9e4ca521a98ac148705fffa51e478ee4314b79837e5658aeab9db3a2687d290"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6v7p-g79w-8964",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7954610fef067fb6dd7197d0260553885b665a5f9bfe3551e64cd61b69adf53d",
+          "Title": "MessagePack for Python: Out-of-bounds read / crash on Unpacker reuse after a caught error",
+          "Description": "### Impact\n\nIf the Unpacker is used repeatedly after an error occurs, the process may crash with a SEGV.\n\nIf the Unpacker is used repeatedly to unpack untrusted input from external sources, it may be vulnerable to a DoS attack.\n\n### Patches\n\nv1.2.1\n\n### Workarounds\n\nUsers should create a new Unpacker instead of reusing the same Unpacker after an error occurs.\n\nApplying the above patch can prevent SEGV, but reusing the Streaming Unpacker after it has encountered an error will not yield correct data. If an error occurs during Streaming Unpacking, the Stream and Streaming Unpacker should be discarded.\n\nTherefore, this is not just a workaround but the correct solution. The above patch only prevents crashes from incorrect usage.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964"
+          ],
+          "PublishedDate": "2026-06-19T21:42:55Z",
+          "LastModifiedDate": "2026-06-19T21:42:55Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-47273",
+          "VendorIDs": [
+            "GHSA-5rjg-fvgr-3xxf"
+          ],
+          "PkgID": "setuptools@70.3.0",
+          "PkgName": "setuptools",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/setuptools@70.3.0",
+            "UID": "171ad461d2f40666",
+            "BOMRef": "pkg:pypi/setuptools@70.3.0"
+          },
+          "InstalledVersion": "70.3.0",
+          "FixedVersion": "78.1.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3365a7dbb8cd66ba6a26cd8e845d53de804090b1eb59e0c5b0f2454faa710b29",
+            "DiffID": "sha256:d9e4ca521a98ac148705fffa51e478ee4314b79837e5658aeab9db3a2687d290"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-47273",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:386273c710372bd64ffe8366c763d936b180d98d139be70dadb3499bcfd64c1c",
+          "Title": "setuptools: Path Traversal Vulnerability in setuptools PackageIndex",
+          "Description": "setuptools is a package that allows users to download, build, install, upgrade, and uninstall Python packages. A path traversal vulnerability in `PackageIndex` is present in setuptools prior to version 78.1.1. An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to remote code execution depending on the context. Version 78.1.1 fixes the issue.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "bitnami": 3,
+            "ghsa": 3,
+            "nvd": 3,
+            "oracle-oval": 2,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N/E:P",
+              "V40Score": 7.7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 7.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2025:13578",
+            "https://access.redhat.com/errata/RHSA-2025:9940",
+            "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://bugzilla.redhat.com/2366982",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
+            "https://github.com/pypa/setuptools",
+            "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
+            "https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b",
+            "https://github.com/pypa/setuptools/issues/4946",
+            "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
+            "https://linux.oracle.com/cve/CVE-2025-47273.html",
+            "https://linux.oracle.com/errata/ELSA-2025-9940.html",
+            "https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
+            "https://ubuntu.com/security/notices/USN-7544-1",
+            "https://ubuntu.com/security/notices/USN-8010-1",
+            "https://www.cve.org/CVERecord?id=CVE-2025-47273"
+          ],
+          "PublishedDate": "2025-05-17T16:15:19.11Z",
+          "LastModifiedDate": "2026-06-17T09:27:38.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3365a7dbb8cd66ba6a26cd8e845d53de804090b1eb59e0c5b0f2454faa710b29",
+            "DiffID": "sha256:d9e4ca521a98ac148705fffa51e478ee4314b79837e5658aeab9db3a2687d290"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:02ab2d0cdd6bea821806ec976e90abce4609ff963b3c7fc420933c62f7e9d06c",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3365a7dbb8cd66ba6a26cd8e845d53de804090b1eb59e0c5b0f2454faa710b29",
+            "DiffID": "sha256:d9e4ca521a98ac148705fffa51e478ee4314b79837e5658aeab9db3a2687d290"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:cc28189c27c15a62be49213461fcc83259d3e478a63478783a2053113c209967",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
+        }
+      ],
+      "vulnerability_count": 4
+    },
     "2.8.1": {
       "image": "ghcr.io/bundlecore/products/bfx/crispritz:2.8.1",
       "vulnerabilities": [
@@ -116,15 +379,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -141,9 +404,249 @@
           ],
           "PublishedDate": "2025-05-17T16:15:19.11Z",
           "LastModifiedDate": "2026-06-17T09:27:38.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.7.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "75609a1e2f80ee9c"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:2c07143fad87a1a7a485903029a41dab4fe2a9c266d0d9811253984b633b7f43",
+            "DiffID": "sha256:74084a6afc4ad2585cd51ebc4b95365605055d4c66cf91126546f47b39182689"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:224687e892fac1fc9779ca1f20afeac189f518002b000c09f062925d9fc62f15",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.7.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "75609a1e2f80ee9c"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:2c07143fad87a1a7a485903029a41dab4fe2a9c266d0d9811253984b633b7f43",
+            "DiffID": "sha256:74084a6afc4ad2585cd51ebc4b95365605055d4c66cf91126546f47b39182689"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:dfad36c1158d11f8eeef57d75675c5a7e9dabfa0c1c273f818b89263e67998cf",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:2c07143fad87a1a7a485903029a41dab4fe2a9c266d0d9811253984b633b7f43",
+            "DiffID": "sha256:74084a6afc4ad2585cd51ebc4b95365605055d4c66cf91126546f47b39182689"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:45d11f6c69378a426515d0798d54a0f9f0c6aae956c0a5828fc752d568633487",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:2c07143fad87a1a7a485903029a41dab4fe2a9c266d0d9811253984b633b7f43",
+            "DiffID": "sha256:74084a6afc4ad2585cd51ebc4b95365605055d4c66cf91126546f47b39182689"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:07fb35bc09a45a4d8718b5944fc1709228306fbd181b4fe8c92449346d310357",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
         }
       ],
-      "vulnerability_count": 2
+      "vulnerability_count": 6
     },
     "2.8.0": {
       "image": "ghcr.io/bundlecore/products/bfx/crispritz:2.8.0",
@@ -258,15 +761,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -283,9 +786,249 @@
           ],
           "PublishedDate": "2025-05-17T16:15:19.11Z",
           "LastModifiedDate": "2026-06-17T09:27:38.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.7.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "75609a1e2f80ee9c"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:56defa9477ce10b0eb911a8f37a361e3f07d50341364f2d64683e2c60629d23a",
+            "DiffID": "sha256:fa5afd89fc49d7ff2afc0801e78ecc3a61ac7aa2d2ed1fc6e5f59ca92b139f8b"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:501f7c2a2524c5c991e0a8c7907477cc3388abe9251832259db41918940e4f0d",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/urllib3-2.7.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "75609a1e2f80ee9c"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:56defa9477ce10b0eb911a8f37a361e3f07d50341364f2d64683e2c60629d23a",
+            "DiffID": "sha256:fa5afd89fc49d7ff2afc0801e78ecc3a61ac7aa2d2ed1fc6e5f59ca92b139f8b"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:509772d47eb6622246aa749ea0c7fe2b31bcd0e8bbb21ed63cffa2494d899a5b",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:56defa9477ce10b0eb911a8f37a361e3f07d50341364f2d64683e2c60629d23a",
+            "DiffID": "sha256:fa5afd89fc49d7ff2afc0801e78ecc3a61ac7aa2d2ed1fc6e5f59ca92b139f8b"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:26397f880e2a2f2da636988b47c8bbc1a40428555ce596b6d0f612274cacc474",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgID": "urllib3@2.7.0",
+          "PkgName": "urllib3",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.7.0",
+            "UID": "110faa1b63a95239",
+            "BOMRef": "pkg:pypi/urllib3@2.7.0"
+          },
+          "InstalledVersion": "2.7.0",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:56defa9477ce10b0eb911a8f37a361e3f07d50341364f2d64683e2c60629d23a",
+            "DiffID": "sha256:fa5afd89fc49d7ff2afc0801e78ecc3a61ac7aa2d2ed1fc6e5f59ca92b139f8b"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:1907e3808e33eaf4a1f68b3b6ef9867d3374ad744c61cc5b63eed0add115d86b",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
         }
       ],
-      "vulnerability_count": 2
+      "vulnerability_count": 6
     },
     "2.7.1": {
       "image": "ghcr.io/bundlecore/products/bfx/crispritz:2.7.1",
@@ -340,15 +1083,15 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:0845",
             "https://access.redhat.com/errata/RHSA-2026:2042",
-            "https://access.redhat.com/errata/RHSA-2026:2389",
             "https://access.redhat.com/security/cve/CVE-2025-6176",
             "https://bugzilla.redhat.com/2408762",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:0845",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -521,7 +1264,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-08-17T12:17:33.16Z"
+          "LastModifiedDate": "2026-09-10T13:17:55.22Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -609,6 +1352,10 @@
             "https://access.redhat.com/errata/RHSA-2026:34368",
             "https://access.redhat.com/errata/RHSA-2026:37275",
             "https://access.redhat.com/errata/RHSA-2026:57387",
+            "https://access.redhat.com/errata/RHSA-2026:61627",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
+            "https://access.redhat.com/errata/RHSA-2026:61629",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -622,7 +1369,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-08-21T13:17:49.023Z"
+          "LastModifiedDate": "2026-09-10T13:20:01.39Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -733,7 +1480,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
-            "bitnami": 3,
+            "bitnami": 4,
             "ghsa": 3,
             "nvd": 4,
             "oracle-oval": 3,
@@ -742,8 +1489,8 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
             },
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
@@ -1601,15 +2348,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -1688,7 +2435,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1254",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66418",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -1700,8 +2447,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -1715,7 +2462,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T16:15:51.053Z",
-          "LastModifiedDate": "2026-06-17T09:56:48.383Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66471",
@@ -1778,7 +2525,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1254",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66471",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -1790,14 +2537,18 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
+            "https://github.com/advisories/GHSA-2xpw-w6gg-jr37",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/urllib3/PYSEC-2026-1994.yaml",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
+            "https://github.com/urllib3/urllib3/commit/d0fde3672e4a4093f7587858dccfc298eb66e46c",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
             "https://linux.oracle.com/cve/CVE-2025-66471.html",
-            "https://linux.oracle.com/errata/ELSA-2026-1254.html",
+            "https://linux.oracle.com/errata/ELSA-2026-9031.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-66471",
+            "https://pypi.org/project/urllib3",
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-7927-2",
             "https://ubuntu.com/security/notices/USN-7927-3",
@@ -1808,7 +2559,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T17:16:04.4Z",
-          "LastModifiedDate": "2026-06-17T09:56:53.65Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2026-21441",
@@ -1978,6 +2729,7 @@
             "https://access.redhat.com/errata/RHSA-2026:44696",
             "https://access.redhat.com/errata/RHSA-2026:51357",
             "https://access.redhat.com/errata/RHSA-2026:5459",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6287",
             "https://access.redhat.com/errata/RHSA-2026:6292",
             "https://access.redhat.com/errata/RHSA-2026:8151",
@@ -1994,8 +2746,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -2010,7 +2762,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-21441"
           ],
           "PublishedDate": "2026-01-07T22:15:44.04Z",
-          "LastModifiedDate": "2026-08-31T13:17:22.8Z"
+          "LastModifiedDate": "2026-09-15T12:16:58.133Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44431",
@@ -2052,7 +2804,7 @@
             "nvd": 2,
             "oracle-oval": 2,
             "redhat": 2,
-            "rocky": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -2073,15 +2825,17 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:28000",
-            "https://access.redhat.com/errata/RHSA-2026:36732",
+            "https://access.redhat.com/errata/RHSA-2026:28159",
             "https://access.redhat.com/security/cve/CVE-2026-44431",
             "https://bugzilla.redhat.com/2477154",
             "https://bugzilla.redhat.com/2477167",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477154",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477167",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44431",
-            "https://errata.almalinux.org/10/ALSA-2026-28000.html",
-            "https://errata.rockylinux.org/RLSA-2026:36732",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44432",
+            "https://errata.almalinux.org/9/ALSA-2026-28159.html",
+            "https://errata.rockylinux.org/RLSA-2026:28000",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
             "https://linux.oracle.com/cve/CVE-2026-44431.html",
@@ -2089,10 +2843,130 @@
             "https://lists.debian.org/debian-lts-announce/2026/06/msg00040.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
             "https://ubuntu.com/security/notices/USN-8379-1",
+            "https://ubuntu.com/security/notices/USN-8811-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-44431"
           ],
           "PublishedDate": "2026-05-13T16:16:57.15Z",
           "LastModifiedDate": "2026-06-26T12:16:32.423Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.8/site-packages/urllib3-2.2.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.2.3",
+            "UID": "3d88a5abb813682d"
+          },
+          "InstalledVersion": "2.2.3",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:d39e7323af892e6eac709271b00de3d04456b0ed9e0d4439947e39a0a68e47f8",
+            "DiffID": "sha256:784a1c09a595521c15d756ea62cf8eb179925693e025dcd396372c7eecef647d"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:59c7bc87a6c624ea831eaa8b830904dc2754b584ad4965414b4f8a12e5e2d9a0",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.8/site-packages/urllib3-2.2.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.2.3",
+            "UID": "3d88a5abb813682d"
+          },
+          "InstalledVersion": "2.2.3",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:d39e7323af892e6eac709271b00de3d04456b0ed9e0d4439947e39a0a68e47f8",
+            "DiffID": "sha256:784a1c09a595521c15d756ea62cf8eb179925693e025dcd396372c7eecef647d"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d6e13ca46f7ab5554e49c264319c2e04a4c4e5f520bdcbf6889f0ca4e6776690",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -2191,7 +3065,9 @@
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:62115",
             "https://access.redhat.com/errata/RHSA-2026:6555",
             "https://access.redhat.com/errata/RHSA-2026:6562",
             "https://access.redhat.com/errata/RHSA-2026:6565",
@@ -2201,8 +3077,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2216,7 +3092,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
+          "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -2315,7 +3191,9 @@
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:62115",
             "https://access.redhat.com/errata/RHSA-2026:6555",
             "https://access.redhat.com/errata/RHSA-2026:6562",
             "https://access.redhat.com/errata/RHSA-2026:6565",
@@ -2325,8 +3203,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -2340,10 +3218,10 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
+          "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         }
       ],
-      "vulnerability_count": 23
+      "vulnerability_count": 25
     },
     "2.7.0": {
       "image": "ghcr.io/bundlecore/products/bfx/crispritz:2.7.0",
@@ -2398,15 +3276,15 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:0845",
             "https://access.redhat.com/errata/RHSA-2026:2042",
-            "https://access.redhat.com/errata/RHSA-2026:2389",
             "https://access.redhat.com/security/cve/CVE-2025-6176",
             "https://bugzilla.redhat.com/2408762",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2408762",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-6176",
             "https://errata.almalinux.org/9/ALSA-2026-2042.html",
-            "https://errata.rockylinux.org/RLSA-2026:2389",
+            "https://errata.rockylinux.org/RLSA-2026:0845",
             "https://github.com/google/brotli",
             "https://github.com/google/brotli/commit/67d78bc41db1a0d03f2e763497748f2f69946627",
             "https://github.com/google/brotli/issues/1327",
@@ -2579,7 +3457,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-25990"
           ],
           "PublishedDate": "2026-02-11T21:16:20.67Z",
-          "LastModifiedDate": "2026-08-17T12:17:33.16Z"
+          "LastModifiedDate": "2026-09-10T13:17:55.22Z"
         },
         {
           "VulnerabilityID": "CVE-2026-40192",
@@ -2667,6 +3545,10 @@
             "https://access.redhat.com/errata/RHSA-2026:34368",
             "https://access.redhat.com/errata/RHSA-2026:37275",
             "https://access.redhat.com/errata/RHSA-2026:57387",
+            "https://access.redhat.com/errata/RHSA-2026:61627",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
+            "https://access.redhat.com/errata/RHSA-2026:61629",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/security/cve/CVE-2026-40192",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2458856",
             "https://github.com/python-pillow/Pillow",
@@ -2680,7 +3562,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-40192"
           ],
           "PublishedDate": "2026-04-15T23:16:10.053Z",
-          "LastModifiedDate": "2026-08-21T13:17:49.023Z"
+          "LastModifiedDate": "2026-09-10T13:20:01.39Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42311",
@@ -2791,7 +3673,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
-            "bitnami": 3,
+            "bitnami": 4,
             "ghsa": 3,
             "nvd": 4,
             "oracle-oval": 3,
@@ -2800,8 +3682,8 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
             },
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
@@ -3659,15 +4541,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -3746,7 +4628,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1254",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66418",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -3758,8 +4640,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -3773,7 +4655,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T16:15:51.053Z",
-          "LastModifiedDate": "2026-06-17T09:56:48.383Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66471",
@@ -3836,7 +4718,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1254",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66471",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -3848,14 +4730,18 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
+            "https://github.com/advisories/GHSA-2xpw-w6gg-jr37",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/urllib3/PYSEC-2026-1994.yaml",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
+            "https://github.com/urllib3/urllib3/commit/d0fde3672e4a4093f7587858dccfc298eb66e46c",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
             "https://linux.oracle.com/cve/CVE-2025-66471.html",
-            "https://linux.oracle.com/errata/ELSA-2026-1254.html",
+            "https://linux.oracle.com/errata/ELSA-2026-9031.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-66471",
+            "https://pypi.org/project/urllib3",
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-7927-2",
             "https://ubuntu.com/security/notices/USN-7927-3",
@@ -3866,7 +4752,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T17:16:04.4Z",
-          "LastModifiedDate": "2026-06-17T09:56:53.65Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2026-21441",
@@ -4036,6 +4922,7 @@
             "https://access.redhat.com/errata/RHSA-2026:44696",
             "https://access.redhat.com/errata/RHSA-2026:51357",
             "https://access.redhat.com/errata/RHSA-2026:5459",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6287",
             "https://access.redhat.com/errata/RHSA-2026:6292",
             "https://access.redhat.com/errata/RHSA-2026:8151",
@@ -4052,8 +4939,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1254",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -4068,7 +4955,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-21441"
           ],
           "PublishedDate": "2026-01-07T22:15:44.04Z",
-          "LastModifiedDate": "2026-08-31T13:17:22.8Z"
+          "LastModifiedDate": "2026-09-15T12:16:58.133Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44431",
@@ -4110,7 +4997,7 @@
             "nvd": 2,
             "oracle-oval": 2,
             "redhat": 2,
-            "rocky": 2,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -4131,15 +5018,17 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:28000",
-            "https://access.redhat.com/errata/RHSA-2026:36732",
+            "https://access.redhat.com/errata/RHSA-2026:28159",
             "https://access.redhat.com/security/cve/CVE-2026-44431",
             "https://bugzilla.redhat.com/2477154",
             "https://bugzilla.redhat.com/2477167",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2477154",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477167",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44431",
-            "https://errata.almalinux.org/10/ALSA-2026-28000.html",
-            "https://errata.rockylinux.org/RLSA-2026:36732",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44432",
+            "https://errata.almalinux.org/9/ALSA-2026-28159.html",
+            "https://errata.rockylinux.org/RLSA-2026:28000",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
             "https://linux.oracle.com/cve/CVE-2026-44431.html",
@@ -4147,10 +5036,130 @@
             "https://lists.debian.org/debian-lts-announce/2026/06/msg00040.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
             "https://ubuntu.com/security/notices/USN-8379-1",
+            "https://ubuntu.com/security/notices/USN-8811-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-44431"
           ],
           "PublishedDate": "2026-05-13T16:16:57.15Z",
           "LastModifiedDate": "2026-06-26T12:16:32.423Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97687",
+          "VendorIDs": [
+            "GHSA-8988-9cw3-xx77"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.8/site-packages/urllib3-2.2.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.2.3",
+            "UID": "3d88a5abb813682d"
+          },
+          "InstalledVersion": "2.2.3",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1808b5ff7c40e3e005d7ef790e1f7548046f0410a5625f4dd76a38718d9c3bcb",
+            "DiffID": "sha256:024a4e1de62c4b5a59f2cc131bd590f144a5812bc3043562f911eebf416244d8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97687",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:6ff631a60cf6e5970c4753421433bbe46487967f7901205285456b088401a154",
+          "Title": "urllib3: urllib3: Traffic interception via HTTPS proxy TLS configuration override",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.26.0 until 2.8.0, the proxy_ssl_context, proxy_assert_hostname, proxy_assert_fingerprint, ssl_context, cert_reqs, verify_mode, use_forwarding_for_https=True, and CERT_NONE configuration paths fail to remain separated because target-server TLS settings are incorrectly applied to the HTTPS proxy connection. The trigger is that an application uses an HTTPS proxy and configures target-server TLS settings that must remain separate from the proxy TLS handshake, including HTTPS forwarding with target-specific identity or credentials. Applying cert_reqs=CERT_NONE can overwrite proxy_ssl_context.verify_mode in place, and the mutation persists so later connections reusing the same context may connect to the HTTPS proxy without certificate verification. The attack mechanism is that an attacker intercepts and impersonates the HTTPS proxy after the effective proxy policy accepts the attacker's certificate. The impact is that the attacker can observe or modify forwarded traffic or receive a target TLS client certificate, while CONNECT tunneling still preserves the separate end-to-end target TLS connection. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-295",
+            "CWE-440"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
+            "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
+            "https://github.com/urllib3/urllib3/pull/5093",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97687"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.517Z",
+          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.8/site-packages/urllib3-2.2.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@2.2.3",
+            "UID": "3d88a5abb813682d"
+          },
+          "InstalledVersion": "2.2.3",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:1808b5ff7c40e3e005d7ef790e1f7548046f0410a5625f4dd76a38718d9c3bcb",
+            "DiffID": "sha256:024a4e1de62c4b5a59f2cc131bd590f144a5812bc3043562f911eebf416244d8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:49ee48cf5adc8c9df26aabdd140bc59b413b4f1b942e2c25cd52ba3457a795f0",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -4249,7 +5258,9 @@
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:62115",
             "https://access.redhat.com/errata/RHSA-2026:6555",
             "https://access.redhat.com/errata/RHSA-2026:6562",
             "https://access.redhat.com/errata/RHSA-2026:6565",
@@ -4259,8 +5270,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -4274,7 +5285,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
+          "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         },
         {
           "VulnerabilityID": "CVE-2026-24049",
@@ -4373,7 +5384,9 @@
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:62115",
             "https://access.redhat.com/errata/RHSA-2026:6555",
             "https://access.redhat.com/errata/RHSA-2026:6562",
             "https://access.redhat.com/errata/RHSA-2026:6565",
@@ -4383,8 +5396,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -4398,14 +5411,14 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
+          "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         }
       ],
-      "vulnerability_count": 23
+      "vulnerability_count": 25
     }
   },
   "summary": {
-    "total_versions_scanned": 4,
-    "total_vulnerabilities": 50
+    "total_versions_scanned": 5,
+    "total_vulnerabilities": 66
   }
 }
