@@ -1,7 +1,7 @@
 {
   "tool": "gatk4",
-  "scan_timestamp": "2026-09-01T08:32:29Z",
-  "workflow_run_id": "33482972321",
+  "scan_timestamp": "2026-10-01T09:26:12Z",
+  "workflow_run_id": "36837607073",
   "versions": {
     "4.6.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.6.2.0",
@@ -104,6 +104,7 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:40895",
             "https://access.redhat.com/errata/RHSA-2026:43400",
             "https://access.redhat.com/security/cve/CVE-2026-54512",
             "https://bugzilla.redhat.com/2492010",
@@ -113,7 +114,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
             "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
@@ -198,14 +199,19 @@
             "https://access.redhat.com/errata/RHSA-2026:50849",
             "https://access.redhat.com/errata/RHSA-2026:54435",
             "https://access.redhat.com/errata/RHSA-2026:54622",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-54513",
             "https://bugzilla.redhat.com/2492010",
             "https://bugzilla.redhat.com/2492015",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
             "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
-            "https://errata.rockylinux.org/RLSA-2026:43218",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
             "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
@@ -220,7 +226,184 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54513"
           ],
           "PublishedDate": "2026-06-23T21:17:02.333Z",
-          "LastModifiedDate": "2026-08-26T13:19:15.917Z"
+          "LastModifiedDate": "2026-09-14T13:18:40.63Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68497",
+          "VendorIDs": [
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.17.2",
+            "UID": "f6732cd4c275d60"
+          },
+          "InstalledVersion": "2.17.2",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:feb5ab05c6aee1c87e0aa940180ce00fb5ff33663a825f3a72aaeb6b53b23f27",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: CPU Denial of Service via unbounded numeric parsing",
+          "Description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-68497",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/a99b7e74c8928f43f6975773a8c862c8316178bd",
+            "https://github.com/FasterXML/jackson-databind/pull/6127",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-q4xh-88c3-wmh7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68497"
+          ],
+          "PublishedDate": "2026-09-11T16:17:39.61Z",
+          "LastModifiedDate": "2026-09-18T19:34:36.657Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.17.2",
+            "UID": "f6732cd4c275d60"
+          },
+          "InstalledVersion": "2.17.2",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:288a49bdfaf3e2746baad92fc1e521845bbde31bfbf0ad1563455edd7aeebeed",
+          "Title": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind ...",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.17.2",
+            "UID": "f6732cd4c275d60"
+          },
+          "InstalledVersion": "2.17.2",
+          "FixedVersion": "2.21.7, 2.18.11, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:3da43080bb7025507a482a03b31d6c9f9803d7ae8932a7adb0f3f79a1ab1ceeb",
+          "Title": "Forward-reference completion for @JsonIdentityInfo object IDs in Faste ...",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
         },
         {
           "VulnerabilityID": "CVE-2021-22569",
@@ -560,7 +743,7 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9166",
+            "https://access.redhat.com/errata/RHSA-2025:9114",
             "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
             "https://bugzilla.redhat.com/2368956",
@@ -570,7 +753,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
             "https://dlcdn.apache.org/commons/beanutils/RELEASE-NOTES.txt",
-            "https://errata.almalinux.org/10/ALSA-2025-9166.html",
+            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -826,6 +1009,7 @@
             "https://access.redhat.com/errata/RHSA-2026:18059",
             "https://access.redhat.com/errata/RHSA-2026:22619",
             "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/errata/RHSA-2026:7109",
             "https://access.redhat.com/errata/RHSA-2026:7380",
             "https://access.redhat.com/errata/RHSA-2026:8159",
@@ -842,7 +1026,7 @@
             "https://www.rfc-editor.org/rfc/rfc9110"
           ],
           "PublishedDate": "2026-03-27T20:16:34.663Z",
-          "LastModifiedDate": "2026-08-04T13:18:20.043Z"
+          "LastModifiedDate": "2026-09-14T13:18:17.593Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42584",
@@ -904,9 +1088,15 @@
             "https://access.redhat.com/errata/RHSA-2026:36820",
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42584",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477224",
             "https://github.com/netty/netty",
@@ -917,7 +1107,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42584"
           ],
           "PublishedDate": "2026-05-13T19:17:24.043Z",
-          "LastModifiedDate": "2026-08-21T13:17:55.133Z"
+          "LastModifiedDate": "2026-09-18T13:18:20.81Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42587",
@@ -976,10 +1166,16 @@
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:41951",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42587",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477220",
             "https://github.com/netty/netty",
@@ -989,7 +1185,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42587"
           ],
           "PublishedDate": "2026-05-13T19:17:24.46Z",
-          "LastModifiedDate": "2026-08-13T13:18:57.117Z"
+          "LastModifiedDate": "2026-09-18T13:18:21.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-55831",
@@ -1311,6 +1507,7 @@
             "https://access.redhat.com/errata/RHSA-2026:18059",
             "https://access.redhat.com/errata/RHSA-2026:22619",
             "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/errata/RHSA-2026:7109",
             "https://access.redhat.com/errata/RHSA-2026:7380",
             "https://access.redhat.com/errata/RHSA-2026:8159",
@@ -1324,7 +1521,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-33871"
           ],
           "PublishedDate": "2026-03-27T20:16:34.833Z",
-          "LastModifiedDate": "2026-08-18T12:18:25.923Z"
+          "LastModifiedDate": "2026-09-14T13:18:18.077Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42587",
@@ -1383,10 +1580,16 @@
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:41951",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42587",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477220",
             "https://github.com/netty/netty",
@@ -1396,7 +1599,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42587"
           ],
           "PublishedDate": "2026-05-13T19:17:24.46Z",
-          "LastModifiedDate": "2026-08-13T13:18:57.117Z"
+          "LastModifiedDate": "2026-09-18T13:18:21.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-56819",
@@ -1461,6 +1664,73 @@
           "LastModifiedDate": "2026-07-30T14:46:35.563Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-75595",
+          "VendorIDs": [
+            "GHSA-c4c3-7fpv-j4q5"
+          ],
+          "PkgName": "io.netty:netty-handler",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-handler@4.1.118.Final",
+            "UID": "40cafcb9ad4d872a"
+          },
+          "InstalledVersion": "4.1.118.Final",
+          "FixedVersion": "4.2.17.Final, 4.1.137.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-75595",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:92918caf682f3dc54b28ffcc9a59ba91ab9f58bd915b878d36e29a17b9127d54",
+          "Title": "io.netty/netty-handler: Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to 4.1.137.Fina and 4.2.17.Final, io.netty.handler.ssl.SslClientHelloHandler#decode checks the wrong offset before reading the four-byte TLS handshake header, so a ClientHello whose handshake header spans records can cause an IndexOutOfBoundsException and invoke select(ctx, null). This selects the default SslContext instead of the SNI-specific context. In deployments where per-SNI clientAuth=REQUIRE is the sole mutual TLS gate, the default SslContext uses clientAuth=NONE or clientAuth=OPTIONAL, and no application-layer certificate verification exists, an unauthenticated remote attacker can bypass the protected route's mutual TLS requirement. This issue is fixed in versions 4.1.137.Final and 4.2.17.Final.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-754"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "nvd": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-75595",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/commit/1b5abc6443b63726c72cdd285af2feb7ddbb8ff7",
+            "https://github.com/netty/netty/commit/9e0519239108a69b7e9bbc5e9182ee139a0d7961",
+            "https://github.com/netty/netty/pull/17213",
+            "https://github.com/netty/netty/pull/17217",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.137.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.17.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-c4c3-7fpv-j4q5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-75595",
+            "https://www.cve.org/CVERecord?id=CVE-2026-75595"
+          ],
+          "PublishedDate": "2026-08-19T21:17:37.563Z",
+          "LastModifiedDate": "2026-09-22T19:33:26.833Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-44249",
           "VendorIDs": [
             "GHSA-3qp7-7mw8-wx86"
@@ -1523,8 +1793,12 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-44249",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488081",
             "https://github.com/netty/netty",
@@ -1536,7 +1810,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-44249"
           ],
           "PublishedDate": "2026-06-11T22:16:56.707Z",
-          "LastModifiedDate": "2026-08-24T13:18:48.087Z"
+          "LastModifiedDate": "2026-09-18T13:18:23.463Z"
         },
         {
           "VulnerabilityID": "CVE-2026-45416",
@@ -1597,8 +1871,13 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-45416",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488391",
             "https://github.com/netty/netty",
@@ -1610,7 +1889,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-45416"
           ],
           "PublishedDate": "2026-06-12T15:16:26.94Z",
-          "LastModifiedDate": "2026-08-24T13:18:54.967Z"
+          "LastModifiedDate": "2026-09-18T13:18:25.647Z"
         },
         {
           "VulnerabilityID": "CVE-2026-50010",
@@ -1671,7 +1950,12 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-50010",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488429",
             "https://github.com/netty/netty",
@@ -1683,7 +1967,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-50010"
           ],
           "PublishedDate": "2026-06-12T16:16:31.18Z",
-          "LastModifiedDate": "2026-08-24T13:19:11.207Z"
+          "LastModifiedDate": "2026-09-18T13:18:31.64Z"
         },
         {
           "VulnerabilityID": "CVE-2021-31684",
@@ -2204,7 +2488,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-2332"
           ],
           "PublishedDate": "2026-04-14T12:16:21.333Z",
-          "LastModifiedDate": "2026-08-27T13:17:18.383Z"
+          "LastModifiedDate": "2026-09-10T13:18:03.987Z"
         },
         {
           "VulnerabilityID": "CVE-2026-10050",
@@ -2334,6 +2618,68 @@
           "LastModifiedDate": "2026-06-17T07:00:58.163Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-77422",
+          "VendorIDs": [
+            "GHSA-r2xf-8xr9-62gw"
+          ],
+          "PkgName": "org.jline:jline-builtins",
+          "PkgPath": "usr/local/share/gatk4-4.6.2.0-0/gatk-package-4.6.2.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.jline/jline-builtins@3.9.0",
+            "UID": "c6b1f775d899b04b"
+          },
+          "InstalledVersion": "3.9.0",
+          "FixedVersion": "4.3.1, 3.30.15",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
+            "DiffID": "sha256:4228323531fb570a3ad55c5f83f9c54e56bcdbae394d5b0370c416c0112fd9a8"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-77422",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:fe71b78b41a992198eff91ccf434e9c616e68a831c9bb3529924f7ee4e856be0",
+          "Title": "org.jline/jline: JLine: Denial of Service via regular expression processing in built-in grep command",
+          "Description": "JLine is a Java library for handling console input. From 3.0.0 until 3.30.15 and 4.3.1, the JLine built-in grep command in builtins/src/main/java/org/jline/builtins/PosixCommands.java accepts a user-controlled regular expression in grep(...) and, unless line-regexp mode is used, automatically adds a dot-star prefix and suffix before compiling it with Java's backtracking regular expression engine. The wrapping expands the backtracking search space, so a short nested-quantifier expression evaluated against non-matching input can consume excessive CPU and indefinitely block a command worker, including in remotely exposed shell sessions. This issue is fixed in versions 3.30.15 and 4.3.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-77422",
+            "https://github.com/jline/jline3",
+            "https://github.com/jline/jline3/commit/1d5fc3099e77938b971e197211cad2d4fbb17541",
+            "https://github.com/jline/jline3/commit/341ee69ccc57b7733c1b40d6993219b64b3206ae",
+            "https://github.com/jline/jline3/pull/2012",
+            "https://github.com/jline/jline3/pull/2018",
+            "https://github.com/jline/jline3/releases/tag/4.3.1",
+            "https://github.com/jline/jline3/releases/tag/jline-3.30.15",
+            "https://github.com/jline/jline3/security/advisories/GHSA-r2xf-8xr9-62gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-77422",
+            "https://www.cve.org/CVERecord?id=CVE-2026-77422"
+          ],
+          "PublishedDate": "2026-09-23T19:19:15.863Z",
+          "LastModifiedDate": "2026-09-30T16:44:39.84Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-56740",
           "VendorIDs": [
             "GHSA-47qp-hqvx-6r3f"
@@ -2345,7 +2691,7 @@
             "UID": "797e75f99e450925"
           },
           "InstalledVersion": "3.9.0",
-          "FixedVersion": "4.2.1",
+          "FixedVersion": "4.2.1, 4.0.16, 3.30.14",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
@@ -2359,22 +2705,28 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:56cf47c2603ffba5eddc238882a77213f3969655486d23f8eee83dc1994e63b4",
-          "Title": "JLine is a Java library for handling console input. Prior to 3.30.14,  ...",
+          "Title": "org.jline/jline-remote-telnet: JLine3 Telnet Server: Denial of Service via excessive environment variable injection",
           "Description": "JLine is a Java library for handling console input. Prior to 3.30.14, 4.0.16, and 4.2.1, the JLine3 Telnet server remote-telnet module does not limit the number of environment variables a client may inject via the Telnet NEW-ENVIRON option, and TelnetIO.readNEVariables() in TelnetIO.java:1127-1180 stores each variable pair in a HashMap held by ConnectionData, allowing an unauthenticated attacker to flood unique variable pairs before the terminating IAC SE byte and exhaust JVM heap memory with an OutOfMemoryError. This issue is fixed in versions 3.30.14, 4.0.16, and 4.2.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-56740",
             "https://github.com/jline/jline3",
             "https://github.com/jline/jline3/commit/0389f0ee6d0375901b602671ad5dafd4d1d4ee09",
             "https://github.com/jline/jline3/commit/4ee3a73849ffb9a85ec748e4e8cd8f6d81f84f40",
@@ -2385,7 +2737,8 @@
             "https://github.com/jline/jline3/releases/tag/4.2.1",
             "https://github.com/jline/jline3/releases/tag/jline-3.30.14",
             "https://github.com/jline/jline3/security/advisories/GHSA-47qp-hqvx-6r3f",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-56740"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-56740",
+            "https://www.cve.org/CVERecord?id=CVE-2026-56740"
           ],
           "PublishedDate": "2026-07-17T22:17:57.153Z",
           "LastModifiedDate": "2026-08-18T15:23:04.283Z"
@@ -2402,7 +2755,7 @@
             "UID": "797e75f99e450925"
           },
           "InstalledVersion": "3.9.0",
-          "FixedVersion": "4.2.1",
+          "FixedVersion": "4.2.1, 4.0.16, 3.30.14",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:3d8b28bc3de97c1f68a830779208430bf78fd245c6093da8580f0d78538bc952",
@@ -2416,22 +2769,28 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:dad81a36f606365567881bd4eb26c2876123fffb8a8ab5df500d6fb7f68af0d2",
-          "Title": "JLine is a Java library for handling console input. Prior to 3.30.14,  ...",
+          "Title": "org.jline/jline-remote-telnet: JLine3 Telnet server: Denial of Service via uncontrolled terminal dimensions",
           "Description": "JLine is a Java library for handling console input. Prior to 3.30.14, 4.0.16, and 4.2.1, the JLine3 Telnet server remote-telnet module does not apply an upper bound to terminal dimensions received via the Telnet NAWS option, and TelnetIO.handleNAWS() in TelnetIO.java:856-879 reads client-supplied width and height as 16-bit unsigned integers and passes values such as 65535x65535 to setTerminalGeometry(), allowing an unauthenticated remote attacker to repeatedly alternate values and trigger continuous expensive rendering work that causes CPU exhaustion and denial of service. This issue is fixed in versions 3.30.14, 4.0.16, and 4.2.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-56741",
             "https://github.com/jline/jline3",
             "https://github.com/jline/jline3/commit/3ea9cad8699714dc072fade29d36be0d1e23d708",
             "https://github.com/jline/jline3/commit/733eb353dca7b0ea0252e724445b6defa29c393e",
@@ -2440,13 +2799,14 @@
             "https://github.com/jline/jline3/releases/tag/4.0.16",
             "https://github.com/jline/jline3/releases/tag/4.2.1",
             "https://github.com/jline/jline3/security/advisories/GHSA-2r2c-cx56-8933",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-56741"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-56741",
+            "https://www.cve.org/CVERecord?id=CVE-2026-56741"
           ],
           "PublishedDate": "2026-07-17T22:17:57.317Z",
           "LastModifiedDate": "2026-08-18T15:17:51.03Z"
         }
       ],
-      "vulnerability_count": 35
+      "vulnerability_count": 40
     },
     "4.5.0.0": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.5.0.0",
@@ -2549,6 +2909,7 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:40895",
             "https://access.redhat.com/errata/RHSA-2026:43400",
             "https://access.redhat.com/security/cve/CVE-2026-54512",
             "https://bugzilla.redhat.com/2492010",
@@ -2558,7 +2919,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
             "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
@@ -2643,14 +3004,19 @@
             "https://access.redhat.com/errata/RHSA-2026:50849",
             "https://access.redhat.com/errata/RHSA-2026:54435",
             "https://access.redhat.com/errata/RHSA-2026:54622",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-54513",
             "https://bugzilla.redhat.com/2492010",
             "https://bugzilla.redhat.com/2492015",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
             "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
-            "https://errata.rockylinux.org/RLSA-2026:43218",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
             "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
@@ -2665,7 +3031,184 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54513"
           ],
           "PublishedDate": "2026-06-23T21:17:02.333Z",
-          "LastModifiedDate": "2026-08-26T13:19:15.917Z"
+          "LastModifiedDate": "2026-09-14T13:18:40.63Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68497",
+          "VendorIDs": [
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.0",
+            "UID": "442db63a986bbe07"
+          },
+          "InstalledVersion": "2.16.0",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:0abbab85d500e467914d426a2f3911ee32cf90ceb918ca435483a815c52dc4bd",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: CPU Denial of Service via unbounded numeric parsing",
+          "Description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-68497",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/a99b7e74c8928f43f6975773a8c862c8316178bd",
+            "https://github.com/FasterXML/jackson-databind/pull/6127",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-q4xh-88c3-wmh7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68497"
+          ],
+          "PublishedDate": "2026-09-11T16:17:39.61Z",
+          "LastModifiedDate": "2026-09-18T19:34:36.657Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.0",
+            "UID": "442db63a986bbe07"
+          },
+          "InstalledVersion": "2.16.0",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:8ba010563f4c0aa7f03ccb80c012f9a240ca0ebb2b58021378140ccfee4c8a05",
+          "Title": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind ...",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.0",
+            "UID": "442db63a986bbe07"
+          },
+          "InstalledVersion": "2.16.0",
+          "FixedVersion": "2.21.7, 2.18.11, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:06e967cce7455ad6aa66d7e83f725b4d38cecdbe3e228e3cf942fbe05bd5919a",
+          "Title": "Forward-reference completion for @JsonIdentityInfo object IDs in Faste ...",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
         },
         {
           "VulnerabilityID": "CVE-2021-22569",
@@ -3071,7 +3614,7 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9166",
+            "https://access.redhat.com/errata/RHSA-2025:9114",
             "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
             "https://bugzilla.redhat.com/2368956",
@@ -3081,7 +3624,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
             "https://dlcdn.apache.org/commons/beanutils/RELEASE-NOTES.txt",
-            "https://errata.almalinux.org/10/ALSA-2025-9166.html",
+            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -3518,6 +4061,7 @@
             "https://access.redhat.com/errata/RHSA-2026:18059",
             "https://access.redhat.com/errata/RHSA-2026:22619",
             "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/errata/RHSA-2026:7109",
             "https://access.redhat.com/errata/RHSA-2026:7380",
             "https://access.redhat.com/errata/RHSA-2026:8159",
@@ -3534,7 +4078,7 @@
             "https://www.rfc-editor.org/rfc/rfc9110"
           ],
           "PublishedDate": "2026-03-27T20:16:34.663Z",
-          "LastModifiedDate": "2026-08-04T13:18:20.043Z"
+          "LastModifiedDate": "2026-09-14T13:18:17.593Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42584",
@@ -3596,9 +4140,15 @@
             "https://access.redhat.com/errata/RHSA-2026:36820",
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42584",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477224",
             "https://github.com/netty/netty",
@@ -3609,7 +4159,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42584"
           ],
           "PublishedDate": "2026-05-13T19:17:24.043Z",
-          "LastModifiedDate": "2026-08-21T13:17:55.133Z"
+          "LastModifiedDate": "2026-09-18T13:18:20.81Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42587",
@@ -3668,10 +4218,16 @@
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:41951",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42587",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477220",
             "https://github.com/netty/netty",
@@ -3681,7 +4237,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42587"
           ],
           "PublishedDate": "2026-05-13T19:17:24.46Z",
-          "LastModifiedDate": "2026-08-13T13:18:57.117Z"
+          "LastModifiedDate": "2026-09-18T13:18:21.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-55831",
@@ -4003,6 +4559,7 @@
             "https://access.redhat.com/errata/RHSA-2026:18059",
             "https://access.redhat.com/errata/RHSA-2026:22619",
             "https://access.redhat.com/errata/RHSA-2026:34608",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/errata/RHSA-2026:7109",
             "https://access.redhat.com/errata/RHSA-2026:7380",
             "https://access.redhat.com/errata/RHSA-2026:8159",
@@ -4016,7 +4573,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-33871"
           ],
           "PublishedDate": "2026-03-27T20:16:34.833Z",
-          "LastModifiedDate": "2026-08-18T12:18:25.923Z"
+          "LastModifiedDate": "2026-09-14T13:18:18.077Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42587",
@@ -4075,10 +4632,16 @@
             "https://access.redhat.com/errata/RHSA-2026:37390",
             "https://access.redhat.com/errata/RHSA-2026:41951",
             "https://access.redhat.com/errata/RHSA-2026:42644",
+            "https://access.redhat.com/errata/RHSA-2026:49700",
+            "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42587",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477220",
             "https://github.com/netty/netty",
@@ -4088,7 +4651,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42587"
           ],
           "PublishedDate": "2026-05-13T19:17:24.46Z",
-          "LastModifiedDate": "2026-08-13T13:18:57.117Z"
+          "LastModifiedDate": "2026-09-18T13:18:21.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-56819",
@@ -4197,6 +4760,73 @@
           ],
           "PublishedDate": "2023-10-10T22:22:54Z",
           "LastModifiedDate": "2023-11-06T22:08:35Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-75595",
+          "VendorIDs": [
+            "GHSA-c4c3-7fpv-j4q5"
+          ],
+          "PkgName": "io.netty:netty-handler",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/io.netty/netty-handler@4.1.96.Final",
+            "UID": "49e194944d3512f7"
+          },
+          "InstalledVersion": "4.1.96.Final",
+          "FixedVersion": "4.2.17.Final, 4.1.137.Final",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-75595",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:d15589af27851b0e5925676d7bee867b760018a438bd44f9a318293832bbbb0d",
+          "Title": "io.netty/netty-handler: Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext",
+          "Description": "Netty is an asynchronous, event-driven network application framework. Prior to 4.1.137.Fina and 4.2.17.Final, io.netty.handler.ssl.SslClientHelloHandler#decode checks the wrong offset before reading the four-byte TLS handshake header, so a ClientHello whose handshake header spans records can cause an IndexOutOfBoundsException and invoke select(ctx, null). This selects the default SslContext instead of the SNI-specific context. In deployments where per-SNI clientAuth=REQUIRE is the sole mutual TLS gate, the default SslContext uses clientAuth=NONE or clientAuth=OPTIONAL, and no application-layer certificate verification exists, an unauthenticated remote attacker can bypass the protected route's mutual TLS requirement. This issue is fixed in versions 4.1.137.Final and 4.2.17.Final.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-754"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "nvd": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 7.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-75595",
+            "https://github.com/netty/netty",
+            "https://github.com/netty/netty/commit/1b5abc6443b63726c72cdd285af2feb7ddbb8ff7",
+            "https://github.com/netty/netty/commit/9e0519239108a69b7e9bbc5e9182ee139a0d7961",
+            "https://github.com/netty/netty/pull/17213",
+            "https://github.com/netty/netty/pull/17217",
+            "https://github.com/netty/netty/releases/tag/netty-4.1.137.Final",
+            "https://github.com/netty/netty/releases/tag/netty-4.2.17.Final",
+            "https://github.com/netty/netty/security/advisories/GHSA-c4c3-7fpv-j4q5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-75595",
+            "https://www.cve.org/CVERecord?id=CVE-2026-75595"
+          ],
+          "PublishedDate": "2026-08-19T21:17:37.563Z",
+          "LastModifiedDate": "2026-09-22T19:33:26.833Z"
         },
         {
           "VulnerabilityID": "CVE-2025-24970",
@@ -4322,8 +4952,12 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-44249",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488081",
             "https://github.com/netty/netty",
@@ -4335,7 +4969,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-44249"
           ],
           "PublishedDate": "2026-06-11T22:16:56.707Z",
-          "LastModifiedDate": "2026-08-24T13:18:48.087Z"
+          "LastModifiedDate": "2026-09-18T13:18:23.463Z"
         },
         {
           "VulnerabilityID": "CVE-2026-45416",
@@ -4396,8 +5030,13 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
             "https://access.redhat.com/errata/RHSA-2026:54435",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-45416",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488391",
             "https://github.com/netty/netty",
@@ -4409,7 +5048,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-45416"
           ],
           "PublishedDate": "2026-06-12T15:16:26.94Z",
-          "LastModifiedDate": "2026-08-24T13:18:54.967Z"
+          "LastModifiedDate": "2026-09-18T13:18:25.647Z"
         },
         {
           "VulnerabilityID": "CVE-2026-50010",
@@ -4470,7 +5109,12 @@
             "https://access.redhat.com/errata/RHSA-2026:49701",
             "https://access.redhat.com/errata/RHSA-2026:50085",
             "https://access.redhat.com/errata/RHSA-2026:53644",
-            "https://access.redhat.com/errata/RHSA-2026:53806",
+            "https://access.redhat.com/errata/RHSA-2026:53645",
+            "https://access.redhat.com/errata/RHSA-2026:53646",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-50010",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488429",
             "https://github.com/netty/netty",
@@ -4482,7 +5126,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-50010"
           ],
           "PublishedDate": "2026-06-12T16:16:31.18Z",
-          "LastModifiedDate": "2026-08-24T13:19:11.207Z"
+          "LastModifiedDate": "2026-09-18T13:18:31.64Z"
         },
         {
           "VulnerabilityID": "CVE-2019-17571",
@@ -5942,7 +6586,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-2332"
           ],
           "PublishedDate": "2026-04-14T12:16:21.333Z",
-          "LastModifiedDate": "2026-08-27T13:17:18.383Z"
+          "LastModifiedDate": "2026-09-10T13:18:03.987Z"
         },
         {
           "VulnerabilityID": "CVE-2026-10050",
@@ -6072,6 +6716,68 @@
           "LastModifiedDate": "2026-06-17T07:00:58.163Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-77422",
+          "VendorIDs": [
+            "GHSA-r2xf-8xr9-62gw"
+          ],
+          "PkgName": "org.jline:jline-builtins",
+          "PkgPath": "usr/local/share/gatk4-4.5.0.0-0/gatk-package-4.5.0.0-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.jline/jline-builtins@3.9.0",
+            "UID": "f48e889ac4b20f15"
+          },
+          "InstalledVersion": "3.9.0",
+          "FixedVersion": "4.3.1, 3.30.15",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
+            "DiffID": "sha256:0c13dcca5a3bc5764ce452620d9bf159f31e6e5ae333e24461d52da9dbbb7123"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-77422",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:f97f94b7848f79eadac518fcfbdaf41aded2a08a011b6376a16382ef1724637d",
+          "Title": "org.jline/jline: JLine: Denial of Service via regular expression processing in built-in grep command",
+          "Description": "JLine is a Java library for handling console input. From 3.0.0 until 3.30.15 and 4.3.1, the JLine built-in grep command in builtins/src/main/java/org/jline/builtins/PosixCommands.java accepts a user-controlled regular expression in grep(...) and, unless line-regexp mode is used, automatically adds a dot-star prefix and suffix before compiling it with Java's backtracking regular expression engine. The wrapping expands the backtracking search space, so a short nested-quantifier expression evaluated against non-matching input can consume excessive CPU and indefinitely block a command worker, including in remotely exposed shell sessions. This issue is fixed in versions 3.30.15 and 4.3.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-77422",
+            "https://github.com/jline/jline3",
+            "https://github.com/jline/jline3/commit/1d5fc3099e77938b971e197211cad2d4fbb17541",
+            "https://github.com/jline/jline3/commit/341ee69ccc57b7733c1b40d6993219b64b3206ae",
+            "https://github.com/jline/jline3/pull/2012",
+            "https://github.com/jline/jline3/pull/2018",
+            "https://github.com/jline/jline3/releases/tag/4.3.1",
+            "https://github.com/jline/jline3/releases/tag/jline-3.30.15",
+            "https://github.com/jline/jline3/security/advisories/GHSA-r2xf-8xr9-62gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-77422",
+            "https://www.cve.org/CVERecord?id=CVE-2026-77422"
+          ],
+          "PublishedDate": "2026-09-23T19:19:15.863Z",
+          "LastModifiedDate": "2026-09-30T16:44:39.84Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-56740",
           "VendorIDs": [
             "GHSA-47qp-hqvx-6r3f"
@@ -6083,7 +6789,7 @@
             "UID": "4fbf85b924257e7e"
           },
           "InstalledVersion": "3.9.0",
-          "FixedVersion": "4.2.1",
+          "FixedVersion": "4.2.1, 4.0.16, 3.30.14",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
@@ -6097,22 +6803,28 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:734ce7c07197bf06087f7b8df68a533244604eba26ee7939af9556158efa8a10",
-          "Title": "JLine is a Java library for handling console input. Prior to 3.30.14,  ...",
+          "Title": "org.jline/jline-remote-telnet: JLine3 Telnet Server: Denial of Service via excessive environment variable injection",
           "Description": "JLine is a Java library for handling console input. Prior to 3.30.14, 4.0.16, and 4.2.1, the JLine3 Telnet server remote-telnet module does not limit the number of environment variables a client may inject via the Telnet NEW-ENVIRON option, and TelnetIO.readNEVariables() in TelnetIO.java:1127-1180 stores each variable pair in a HashMap held by ConnectionData, allowing an unauthenticated attacker to flood unique variable pairs before the terminating IAC SE byte and exhaust JVM heap memory with an OutOfMemoryError. This issue is fixed in versions 3.30.14, 4.0.16, and 4.2.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-56740",
             "https://github.com/jline/jline3",
             "https://github.com/jline/jline3/commit/0389f0ee6d0375901b602671ad5dafd4d1d4ee09",
             "https://github.com/jline/jline3/commit/4ee3a73849ffb9a85ec748e4e8cd8f6d81f84f40",
@@ -6123,7 +6835,8 @@
             "https://github.com/jline/jline3/releases/tag/4.2.1",
             "https://github.com/jline/jline3/releases/tag/jline-3.30.14",
             "https://github.com/jline/jline3/security/advisories/GHSA-47qp-hqvx-6r3f",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-56740"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-56740",
+            "https://www.cve.org/CVERecord?id=CVE-2026-56740"
           ],
           "PublishedDate": "2026-07-17T22:17:57.153Z",
           "LastModifiedDate": "2026-08-18T15:23:04.283Z"
@@ -6140,7 +6853,7 @@
             "UID": "4fbf85b924257e7e"
           },
           "InstalledVersion": "3.9.0",
-          "FixedVersion": "4.2.1",
+          "FixedVersion": "4.2.1, 4.0.16, 3.30.14",
           "Status": "fixed",
           "Layer": {
             "Digest": "sha256:ec1d2cfc7e4d08121b5ad76c933a683aa3b51599fe22543a7af0fc416db57827",
@@ -6154,22 +6867,28 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
           },
           "Fingerprint": "sha256:4da54055f7d03dcd8473a2705ed5581a687f480c00bd0c7c4f85ff32c5f0ca20",
-          "Title": "JLine is a Java library for handling console input. Prior to 3.30.14,  ...",
+          "Title": "org.jline/jline-remote-telnet: JLine3 Telnet server: Denial of Service via uncontrolled terminal dimensions",
           "Description": "JLine is a Java library for handling console input. Prior to 3.30.14, 4.0.16, and 4.2.1, the JLine3 Telnet server remote-telnet module does not apply an upper bound to terminal dimensions received via the Telnet NAWS option, and TelnetIO.handleNAWS() in TelnetIO.java:856-879 reads client-supplied width and height as 16-bit unsigned integers and passes values such as 65535x65535 to setTerminalGeometry(), allowing an unauthenticated remote attacker to repeatedly alternate values and trigger continuous expensive rendering work that causes CPU exhaustion and denial of service. This issue is fixed in versions 3.30.14, 4.0.16, and 4.2.1.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-400"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-56741",
             "https://github.com/jline/jline3",
             "https://github.com/jline/jline3/commit/3ea9cad8699714dc072fade29d36be0d1e23d708",
             "https://github.com/jline/jline3/commit/733eb353dca7b0ea0252e724445b6defa29c393e",
@@ -6178,7 +6897,8 @@
             "https://github.com/jline/jline3/releases/tag/4.0.16",
             "https://github.com/jline/jline3/releases/tag/4.2.1",
             "https://github.com/jline/jline3/security/advisories/GHSA-2r2c-cx56-8933",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-56741"
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-56741",
+            "https://www.cve.org/CVERecord?id=CVE-2026-56741"
           ],
           "PublishedDate": "2026-07-17T22:17:57.317Z",
           "LastModifiedDate": "2026-08-18T15:17:51.03Z"
@@ -6245,7 +6965,6 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2024:5530",
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
@@ -6253,7 +6972,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -6333,15 +7052,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -6456,7 +7175,9 @@
             "https://access.redhat.com/errata/RHSA-2026:4271",
             "https://access.redhat.com/errata/RHSA-2026:4942",
             "https://access.redhat.com/errata/RHSA-2026:5119",
+            "https://access.redhat.com/errata/RHSA-2026:61628",
             "https://access.redhat.com/errata/RHSA-2026:6192",
+            "https://access.redhat.com/errata/RHSA-2026:62115",
             "https://access.redhat.com/errata/RHSA-2026:6555",
             "https://access.redhat.com/errata/RHSA-2026:6562",
             "https://access.redhat.com/errata/RHSA-2026:6565",
@@ -6466,8 +7187,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24049",
-            "https://errata.almalinux.org/10/ALSA-2026-1902.html",
-            "https://errata.rockylinux.org/RLSA-2026:2090",
+            "https://errata.almalinux.org/9/ALSA-2026-1939.html",
+            "https://errata.rockylinux.org/RLSA-2026:1939",
             "https://github.com/pypa/wheel",
             "https://github.com/pypa/wheel/commit/7a7d2de96b22a9adf9208afcc9547e1001569fef",
             "https://github.com/pypa/wheel/commit/934fe177ff912c8e03d5ae951d3805e1fd90ba5e",
@@ -6481,10 +7202,10 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-24049"
           ],
           "PublishedDate": "2026-01-22T05:16:23.157Z",
-          "LastModifiedDate": "2026-08-26T13:17:55.167Z"
+          "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         }
       ],
-      "vulnerability_count": 55
+      "vulnerability_count": 60
     },
     "4.2.6.1": {
       "image": "ghcr.io/bundlecore/products/bfx/gatk4:4.2.6.1",
@@ -6541,14 +7262,13 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2025:12280",
-            "https://access.redhat.com/errata/RHSA-2025:14126",
             "https://access.redhat.com/security/cve/CVE-2025-52999",
             "https://bugzilla.redhat.com/2374804",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2374804",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-52999",
             "https://errata.almalinux.org/9/ALSA-2025-12280.html",
-            "https://errata.rockylinux.org/RLSA-2025:14126",
+            "https://errata.rockylinux.org/RLSA-2025:12280",
             "https://github.com/FasterXML/jackson-core",
             "https://github.com/FasterXML/jackson-core/pull/943",
             "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-h46c-h94j-95f3",
@@ -6904,6 +7624,7 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:40895",
             "https://access.redhat.com/errata/RHSA-2026:43400",
             "https://access.redhat.com/security/cve/CVE-2026-54512",
             "https://bugzilla.redhat.com/2492010",
@@ -6913,7 +7634,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
             "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/434d6c511de7fdd9872f29157aafb6162d12d8d5",
@@ -6998,14 +7719,19 @@
             "https://access.redhat.com/errata/RHSA-2026:50849",
             "https://access.redhat.com/errata/RHSA-2026:54435",
             "https://access.redhat.com/errata/RHSA-2026:54622",
+            "https://access.redhat.com/errata/RHSA-2026:62260",
+            "https://access.redhat.com/errata/RHSA-2026:66488",
+            "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-54513",
             "https://bugzilla.redhat.com/2492010",
             "https://bugzilla.redhat.com/2492015",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2492010",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2492015",
             "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54512",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-54513",
-            "https://errata.almalinux.org/10/ALSA-2026-43400.html",
-            "https://errata.rockylinux.org/RLSA-2026:43218",
+            "https://errata.almalinux.org/9/ALSA-2026-40895.html",
+            "https://errata.rockylinux.org/RLSA-2026:43400",
             "https://github.com/FasterXML/jackson-databind",
             "https://github.com/FasterXML/jackson-databind/commit/01d1692c8d0ed03e51a0e3c4f8a9e6908e4931e5",
             "https://github.com/FasterXML/jackson-databind/commit/24529da29fdf46ff94ca38de9ebf31cd188f5e8e",
@@ -7020,7 +7746,120 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54513"
           ],
           "PublishedDate": "2026-06-23T21:17:02.333Z",
-          "LastModifiedDate": "2026-08-26T13:19:15.917Z"
+          "LastModifiedDate": "2026-09-14T13:18:40.63Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.13.1",
+            "UID": "ad346ee1be96e91c"
+          },
+          "InstalledVersion": "2.13.1",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:e08d34f5be7790fa60eb3a25c2054e0cc7b7f26d6f86b708a59c467e8b5598d8",
+          "Title": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind ...",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "usr/local/share/gatk4-4.2.6.1-0/gatk-package-4.2.6.1-local.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.13.1",
+            "UID": "ad346ee1be96e91c"
+          },
+          "InstalledVersion": "2.13.1",
+          "FixedVersion": "2.21.7, 2.18.11, 2.22.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:7c53ae81b5853f27ff6d582fe138a90baac85709a8819684a2e6c72f25bc447e",
+            "DiffID": "sha256:a0162aa822e94f2bf2f588b47defe8745a0b61786d313b15042973e6ac7ff2c5"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:e6e820506d5ef9fff88c42dd7fae671f0e632f19130c243886a0dec1cf655dec",
+          "Title": "Forward-reference completion for @JsonIdentityInfo object IDs in Faste ...",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
         },
         {
           "VulnerabilityID": "CVE-2021-22573",
@@ -7771,7 +8610,7 @@
           },
           "References": [
             "http://www.openwall.com/lists/oss-security/2025/05/28/6",
-            "https://access.redhat.com/errata/RHSA-2025:9166",
+            "https://access.redhat.com/errata/RHSA-2025:9114",
             "https://access.redhat.com/errata/RHSA-2025:9318",
             "https://access.redhat.com/security/cve/CVE-2025-48734",
             "https://bugzilla.redhat.com/2368956",
@@ -7781,7 +8620,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10086",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-48734",
             "https://dlcdn.apache.org/commons/beanutils/RELEASE-NOTES.txt",
-            "https://errata.almalinux.org/10/ALSA-2025-9166.html",
+            "https://errata.almalinux.org/9/ALSA-2025-9114.html",
             "https://errata.rockylinux.org/RLSA-2025:9318",
             "https://github.com/advisories/GHSA-wxr5-93ph-8wr9",
             "https://github.com/apache/commons-beanutils",
@@ -10954,6 +11793,7 @@
             "https://access.redhat.com/errata/RHSA-2026:60254",
             "https://access.redhat.com/errata/RHSA-2026:60256",
             "https://access.redhat.com/errata/RHSA-2026:60259",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/errata/RHSA-2026:7109",
             "https://access.redhat.com/errata/RHSA-2026:7380",
             "https://access.redhat.com/security/cve/CVE-2025-67030",
@@ -10961,8 +11801,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2451409",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-67030",
-            "https://errata.almalinux.org/10/ALSA-2026-38514.html",
-            "https://errata.rockylinux.org/RLSA-2026:41948",
+            "https://errata.almalinux.org/9/ALSA-2026-38796.html",
+            "https://errata.rockylinux.org/RLSA-2026:38514",
             "https://gist.github.com/weaver4VD/3216dac645220f8c9b488362f61241ec",
             "https://github.com/codehaus-plexus/plexus-utils",
             "https://github.com/codehaus-plexus/plexus-utils/commit/6d780b3378829318ba5c2d29547e0012d5b29642",
@@ -10977,7 +11817,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-67030"
           ],
           "PublishedDate": "2026-03-25T18:16:25.88Z",
-          "LastModifiedDate": "2026-08-27T13:16:50.52Z"
+          "LastModifiedDate": "2026-09-16T13:17:17.453Z"
         },
         {
           "VulnerabilityID": "CVE-2021-28165",
@@ -11622,9 +12462,10 @@
             "https://access.redhat.com/security/cve/CVE-2022-40897",
             "https://bugzilla.redhat.com/2158559",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2158559",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-40897",
             "https://errata.almalinux.org/9/ALSA-2023-0952.html",
-            "https://errata.rockylinux.org/RLSA-2023:0835",
+            "https://errata.rockylinux.org/RLSA-2023:0952",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2022-43012.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/fe8a98e696241487ba6ac9f91faa38ade939ec5d/setuptools/package_index.py#L200",
@@ -11716,7 +12557,6 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2024:5530",
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
@@ -11724,7 +12564,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -11804,15 +12644,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -11915,11 +12755,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 64
+      "vulnerability_count": 66
     }
   },
   "summary": {
     "total_versions_scanned": 3,
-    "total_vulnerabilities": 154
+    "total_vulnerabilities": 166
   }
 }

@@ -1,7 +1,7 @@
 {
   "tool": "liftofftools",
-  "scan_timestamp": "2026-09-01T08:48:40Z",
-  "workflow_run_id": "33482972321",
+  "scan_timestamp": "2026-10-01T09:39:04Z",
+  "workflow_run_id": "36837607073",
   "versions": {
     "0.4.4": {
       "image": "ghcr.io/bundlecore/products/bfx/liftofftools:0.4.4",
@@ -332,6 +332,7 @@
             "http://www.openwall.com/lists/oss-security/2023/09/28/1",
             "http://www.openwall.com/lists/oss-security/2023/09/28/2",
             "http://www.openwall.com/lists/oss-security/2023/09/28/4",
+            "https://access.redhat.com/errata/RHSA-2023:5214",
             "https://access.redhat.com/errata/RHSA-2023:5224",
             "https://access.redhat.com/security/cve/CVE-2023-4863",
             "https://adamcaudill.com/2023/09/14/whose-cve-is-it-anyway",
@@ -345,12 +346,13 @@
             "https://chromereleases.googleblog.com/2023/09/stable-channel-update-for-desktop_12.html",
             "https://chromium.googlesource.com/webm/libwebp.git/+/902bc9190331343b2017211debcec8d2ab87e17a",
             "https://crbug.com/1479274",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-4863",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-5129",
             "https://en.bandisoft.com/honeyview/history",
             "https://en.bandisoft.com/honeyview/history/",
             "https://errata.almalinux.org/9/ALSA-2023-5224.html",
-            "https://errata.rockylinux.org/RLSA-2023:5201",
+            "https://errata.rockylinux.org/RLSA-2023:5214",
             "https://github.com/ImageMagick/ImageMagick/discussions/6664",
             "https://github.com/dlemstra/Magick.NET/releases/tag/13.3.0",
             "https://github.com/electron/electron/pull/39823",
@@ -465,8 +467,8 @@
           },
           "CVSS": {
             "bitnami": {
-              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
-              "V3Score": 5.9
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 6.7
             },
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:H/I:H/A:H",
@@ -545,7 +547,7 @@
           "VendorSeverity": {
             "alma": 3,
             "amazon": 3,
-            "bitnami": 3,
+            "bitnami": 4,
             "ghsa": 3,
             "nvd": 4,
             "oracle-oval": 3,
@@ -554,8 +556,8 @@
           },
           "CVSS": {
             "bitnami": {
-              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
-              "V40Score": 8.3
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:H",
+              "V3Score": 9.1
             },
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
@@ -1505,6 +1507,188 @@
           "LastModifiedDate": "2026-07-15T02:17:16.703Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-78683",
+          "VendorIDs": [
+            "GHSA-rhp5-r9x4-f5g2"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78683",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:e5145a551b4390a9eb8724907655f9c5f948a62033cbd532661afbb825c5be8e",
+          "Title": "nltk: NLTK before 3.10.0 Remote Code Execution via Unsafe Pickle Deserialization",
+          "Description": "NLTK before 3.10.0 (affected versions <=3.9.4) contains an unsafe pickle deserialization vulnerability in the TransitionParser.parse() method (nltk/parse/transitionparser.py). The method calls pickle_load() with the default restricted=False, routing deserialization through WarningUnpickler, which does not override find_class() and therefore permits arbitrary class resolution. When an application loads an attacker-crafted model file, embedded pickle gadget chains execute arbitrary Python code with the privileges of the user running the application. NLTK provides a RestrictedUnpickler for safe deserialization, but it is not used by production code paths. Fixed in 3.10.0.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+              "V40Score": 9.4
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+              "V3Score": 9.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-78683",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/f26b3753038d937b68145daf15e9636f8451053c",
+            "https://github.com/nltk/nltk/pull/3631",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.0",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-rhp5-r9x4-f5g2",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3734.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-78683",
+            "https://www.cve.org/CVERecord?id=CVE-2026-78683",
+            "https://www.vulncheck.com/advisories/nltk-before-remote-code-execution-via-unsafe-pickle-deserialization"
+          ],
+          "PublishedDate": "2026-08-25T02:16:53.033Z",
+          "LastModifiedDate": "2026-08-31T19:05:09.87Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-79657",
+          "VendorIDs": [
+            "GHSA-x99w-6fgc-pmfw"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-79657",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0576a98311d58717f4642ef1716e2ad3ed709e7ed813ea1fe80e04431939b7a0",
+          "Title": "nltk: NLTK before 3.10.3 Remote Code Execution via Unsafe Pickle Deserialization",
+          "Description": "NLTK versions before 3.10.3 contain a remote code execution vulnerability in allowlisted pickle loaders that trust entire module namespaces instead of specific safe callables. Attackers can craft malicious pickle payloads invoking dangerous in-namespace functions like ReppTokenizer._execute and numpy.f2py.crackfortran.myeval through pickle REDUCE to execute arbitrary commands during model or tokenizer artifact loading.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-502"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 9.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-79657",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/c3e37113742a1ebeeb4f2ca58941f320f98805ea",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-x99w-6fgc-pmfw",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3735.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-79657",
+            "https://www.cve.org/CVERecord?id=CVE-2026-79657",
+            "https://www.vulncheck.com/advisories/nltk-before-3.10.3-remote-code-execution-via-unsafe-pickle-deserialization"
+          ],
+          "PublishedDate": "2026-08-25T12:16:28.87Z",
+          "LastModifiedDate": "2026-08-31T19:05:50.737Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-79675",
+          "VendorIDs": [
+            "GHSA-m4rf-3fr8-xwx3"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-79675",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2bba73227f544230b1c26d3980b98114ab7b9496b6ea7fe59b1ed734251b5b05",
+          "Title": "nltk: NLTK before 3.10.3 JVM Argument Injection via Per-Call Options",
+          "Description": "NLTK before 3.10.3 fails to validate JVM options passed through the per-call options parameter in the java() function, allowing attackers to inject dangerous JVM flags. Attackers can supply malicious options like -agentpath, -javaagent, or @argfile to Stanford wrapper classes to achieve arbitrary code execution.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-88"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 9.8,
+              "V40Score": 9.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-79675",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/8fa9650b6009aacfdebbc33d2a08d32c0858ea6c",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-m4rf-3fr8-xwx3",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-79675",
+            "https://www.cve.org/CVERecord?id=CVE-2026-79675",
+            "https://www.vulncheck.com/advisories/nltk-before-jvm-argument-injection-via-per-call-options"
+          ],
+          "PublishedDate": "2026-08-25T16:17:28.013Z",
+          "LastModifiedDate": "2026-09-01T20:08:49.83Z"
+        },
+        {
           "VulnerabilityID": "CVE-2024-39705",
           "VendorIDs": [
             "GHSA-cgvx-9447-vcch"
@@ -1585,14 +1769,15 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:b8b361e1cbd3bd548f8106f57c600b67b200b2d29ff42ed975054f13dbbc965b",
-          "Title": "NLTK (Natural Language Toolkit) before version 3.9.3 contains an eval  ...",
+          "Title": "nltk: NLTK: Arbitrary Code Execution via Eval Injection in Collocations Module",
           "Description": "NLTK (Natural Language Toolkit) before version 3.9.3 contains an eval injection vulnerability in the nltk.collocations module that allows an attacker who controls command-line arguments to execute arbitrary Python code. When collocations.py is invoked directly, the __main__ block passes command-line arguments directly to eval() as suffixes of BigramAssocMeasures without allowlist validation or sanitization, enabling an attacker to supply a Python expression that escapes the intended attribute lookup and executes arbitrary code including OS commands via the os module.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-95"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
@@ -1600,9 +1785,14 @@
               "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
               "V3Score": 7.8,
               "V40Score": 8.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2025-71408",
             "https://aydinnyunus.github.io/2026/06/07/command-injection-nltk-collocations-eval",
             "https://aydinnyunus.github.io/2026/06/07/command-injection-nltk-collocations-eval/",
             "https://github.com/nltk/nltk",
@@ -1611,10 +1801,11 @@
             "https://github.com/nltk/nltk/releases/tag/3.9.3",
             "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3657.yaml",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-71408",
+            "https://www.cve.org/CVERecord?id=CVE-2025-71408",
             "https://www.vulncheck.com/advisories/nltk-eval-injection-via-collocations-py-command-line-arguments"
           ],
           "PublishedDate": "2026-07-24T22:16:50.063Z",
-          "LastModifiedDate": "2026-08-10T13:37:33.607Z"
+          "LastModifiedDate": "2026-09-29T19:10:00.16Z"
         },
         {
           "VulnerabilityID": "CVE-2026-0846",
@@ -1982,6 +2173,7 @@
             "https://access.redhat.com/errata/RHSA-2026:19712",
             "https://access.redhat.com/errata/RHSA-2026:24977",
             "https://access.redhat.com/errata/RHSA-2026:37275",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/security/cve/CVE-2026-33231",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2449836",
             "https://github.com/nltk/nltk",
@@ -1993,7 +2185,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-33231"
           ],
           "PublishedDate": "2026-03-20T23:16:46.85Z",
-          "LastModifiedDate": "2026-07-15T02:20:11.643Z"
+          "LastModifiedDate": "2026-09-09T13:19:24.38Z"
         },
         {
           "VulnerabilityID": "CVE-2026-33236",
@@ -2108,6 +2300,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:42644",
             "https://access.redhat.com/errata/RHSA-2026:60520",
+            "https://access.redhat.com/errata/RHSA-2026:65126",
             "https://access.redhat.com/security/cve/CVE-2026-54293",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2491486",
             "https://github.com/nltk/nltk",
@@ -2119,7 +2312,801 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-54293"
           ],
           "PublishedDate": "2026-06-22T19:17:20.983Z",
-          "LastModifiedDate": "2026-08-28T16:18:14.693Z"
+          "LastModifiedDate": "2026-09-09T13:20:30.723Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-62385",
+          "VendorIDs": [
+            "GHSA-568f-pv23-39p4"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-62385",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:72af903dab82ac756d67080b35220e78fbd2af85d3b5c756c1c79919b517cc0d",
+          "Title": "nltk: NLTK: Information disclosure through path traversal",
+          "Description": "NLTK versions before 3.10.0 contain a path traversal vulnerability in FramenetCorpusReader and NKJPCorpusReader that allows attackers to parse XML files outside the corpus root by supplying unsafe selectors or poisoned index state. Attackers can exploit frame_by_name, doc, lu, and header methods with crafted parameters to read arbitrary XML files accessible to the application.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-73"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V3Score": 5.9,
+              "V40Score": 8.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-62385",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/7d1389d0789c1eca56bd0ed444089e0a3972e3ed",
+            "https://github.com/nltk/nltk/commit/bf3bf32786791394a1008258b4917a7f2d4dbcda",
+            "https://github.com/nltk/nltk/pull/3579",
+            "https://github.com/nltk/nltk/pull/3581",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.0",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-568f-pv23-39p4",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3728.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-62385",
+            "https://www.cve.org/CVERecord?id=CVE-2026-62385",
+            "https://www.vulncheck.com/advisories/nltk-path-traversal-via-framenet-and-nkjp-readers"
+          ],
+          "PublishedDate": "2026-08-22T15:16:18.833Z",
+          "LastModifiedDate": "2026-08-31T18:50:08.49Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-62388",
+          "VendorIDs": [
+            "GHSA-p3m8-78j2-g5p3"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-62388",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:21b92fbbc83aa51a2f6f51a892ad56a295cd561d58c6f7141292f4276614253c",
+          "Title": "NLTK: NLTK: Bypass of path traversal and pickle deserialization protections due to insecure default configuration",
+          "Description": "NLTK versions before 3.10.0 default to ENFORCE=False in pathsec.py, causing all security validation functions to emit warnings instead of raising exceptions. Attackers can bypass path traversal and pickle deserialization protections by exploiting the disabled security controls that are only active when manually enabled.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1188"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-62388",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/155e40343cff0bf50d233e274a12e04d1428b1d9",
+            "https://github.com/nltk/nltk/pull/3593",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.0",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-p3m8-78j2-g5p3",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3722.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-62388",
+            "https://www.cve.org/CVERecord?id=CVE-2026-62388",
+            "https://www.vulncheck.com/advisories/nltk-before-insecure-default-configuration-pathsec"
+          ],
+          "PublishedDate": "2026-08-22T15:16:18.967Z",
+          "LastModifiedDate": "2026-08-27T19:54:52.643Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-63312",
+          "VendorIDs": [
+            "GHSA-x5ph-mj9p-rfr8"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-63312",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:056f2ea117df6233f9b9cf3fb11b64c669954cf4b5bb411bc0e4aeef6e97d800",
+          "Title": "nltk: NLTK: Arbitrary file read via StreamBackedCorpusView bypass",
+          "Description": "NLTK before 3.10.0 contains an arbitrary local file read vulnerability in StreamBackedCorpusView that bypasses pathsec.ENFORCE by calling builtins.open() directly instead of pathsec.open(). Attackers who control the fileid argument can read arbitrary local files regardless of the ENFORCE setting, including sensitive system files and application credentials.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-63312",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/674ea75accdf08eca3782dee0a9c4ed7e0d0025b",
+            "https://github.com/nltk/nltk/pull/3588",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.0",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-x5ph-mj9p-rfr8",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3730.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-63312",
+            "https://www.cve.org/CVERecord?id=CVE-2026-63312",
+            "https://www.vulncheck.com/advisories/nltk-streambackedcorpusview-bypasses-pathsec-enforce-arbitrary-file-read"
+          ],
+          "PublishedDate": "2026-08-22T15:16:19.367Z",
+          "LastModifiedDate": "2026-08-31T18:40:02.81Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-70626",
+          "VendorIDs": [
+            "GHSA-r6gq-whwq-mvg9"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.9.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-70626",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:eb3bb0f756156f6ae5aba3c11f420f48f1a6c36a76c0bcde6b14e7341a41cbab",
+          "Title": "nltk: NLTK: Information disclosure via symlink escape in CorpusReader.open()",
+          "Description": "NLTK versions before 3.9.4 contain a symlink escape vulnerability in CorpusReader.open() that allows local attackers to read arbitrary files outside the corpus root. The vulnerability exists because path validation is lexical and does not account for symlink resolution, enabling attackers to place symlinks inside the corpus root to access files outside the intended boundary.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-59"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 6.2,
+              "V40Score": 8.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 6.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-70626",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/1b0e519e2324bc1a273d56edee63e44d0ad85b48",
+            "https://github.com/nltk/nltk/pull/3522",
+            "https://github.com/nltk/nltk/releases/tag/3.9.4",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-r6gq-whwq-mvg9",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3732.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-70626",
+            "https://www.cve.org/CVERecord?id=CVE-2026-70626",
+            "https://www.vulncheck.com/advisories/nltk-before-symlink-escape-via-corpusreader"
+          ],
+          "PublishedDate": "2026-08-22T15:16:21.1Z",
+          "LastModifiedDate": "2026-08-31T19:09:01.757Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-72818",
+          "VendorIDs": [
+            "GHSA-qx2g-xrx7-vfh8"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-72818",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:2b180ae642fc4363b67e4e4bb08cad3b9d7e9aee48cc0dba71d50ad281aeae05",
+          "Title": "nltk: NLTK TweetTokenizer: Denial of Service via crafted URL input",
+          "Description": "The URLS regular expression in nltk/tokenize/casual.py, compiled into TweetTokenizer.WORD_RE and applied by TweetTokenizer.tokenize, contains a naked-domain branch whose domain-label prefix [a-z0-9]+(?:[.\\-][a-z0-9]+)* is unbounded. Input consisting of many alternating label separators can be partitioned in exponentially many ways, and because the branch also requires a trailing top-level domain that such input never supplies, the engine explores those partitions before failing at each offset. A few kilobytes of input therefore consumes seconds to minutes of single-threaded CPU, and the HANG_RE substitution performed before matching does not collapse the pattern. TweetTokenizer is intended for tokenizing untrusted social-media text, so any service that applies it, or the module-level casual_tokenize, to submitted text can be stalled per request without authentication. Version 3.10.1 bounds the label repetition.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-72818",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/blob/3.9.4/nltk/tokenize/casual.py",
+            "https://github.com/nltk/nltk/commit/e092ed52eccae642304448bffc8d23cb301f85c1",
+            "https://github.com/nltk/nltk/issues/3704",
+            "https://github.com/nltk/nltk/pull/3701",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.1",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-72818",
+            "https://www.cve.org/CVERecord?id=CVE-2026-72818",
+            "https://www.vulncheck.com/advisories/nltk-tweettokenizer-url-pattern-backtracks-catastrophically-on-naked-domain-like-input"
+          ],
+          "PublishedDate": "2026-08-20T22:18:05.087Z",
+          "LastModifiedDate": "2026-09-24T20:02:50.26Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-78680",
+          "VendorIDs": [
+            "GHSA-6hwm-xvph-95vm"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78680",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9328b543320b71702cc3dfe7634a9baeb6533309a12aa80455df1fca12cdd95d",
+          "Title": "NLTK versions before 3.10.3 fail to use validated absolute paths when  ...",
+          "Description": "NLTK versions before 3.10.3 fail to use validated absolute paths when invoking the Graphviz dot binary in dependencygraph.dot2img and AlignedSent._repr_svg_, allowing attackers to execute arbitrary code by placing a malicious dot binary in the search path or current working directory. Attackers can exploit bare-name binary resolution on Windows via the current working directory or on Unix-like systems via relative PATH entries to execute their binary instead of the legitimate Graphviz tool.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-426"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V40Vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.8,
+              "V40Score": 8.5
+            }
+          },
+          "References": [
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/1a3cd1764ab3deb084fb66d0ffb4873717659538",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-6hwm-xvph-95vm",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-78680",
+            "https://www.vulncheck.com/advisories/nltk-before-arbitrary-code-execution-via-graphviz-dot-binary"
+          ],
+          "PublishedDate": "2026-08-25T02:16:52.607Z",
+          "LastModifiedDate": "2026-09-23T18:14:58.577Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-78681",
+          "VendorIDs": [
+            "GHSA-97qj-x29f-37w7"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78681",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:49622f6b09d45e910a1639614adf20397fc968ea2c3700339521e56975587094",
+          "Title": "NLTK versions before 3.10.3 use xml.etree.ElementTree to parse XML in  ...",
+          "Description": "NLTK versions before 3.10.3 use xml.etree.ElementTree to parse XML in multiple modules, which honors entity declarations in document DTDs. Attackers can craft XML payloads with nested entity declarations that expand from hundreds of bytes to megabytes in memory, causing denial of service.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-776"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/e91789c9a043296ad04912ce171c22776d45963b",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-97qj-x29f-37w7",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3748.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-78681",
+            "https://www.vulncheck.com/advisories/nltk-before-entity-expansion-dos-via-elementtree"
+          ],
+          "PublishedDate": "2026-08-25T02:16:52.75Z",
+          "LastModifiedDate": "2026-09-01T20:09:22.72Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-78682",
+          "VendorIDs": [
+            "GHSA-6ww7-3frv-cqxh"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78682",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:995f68ecd380378d1b27bbdf23e96c5c48dec92197cf9cd2e98b11c7a4598ee4",
+          "Title": "nltk: NLTK: Server-Side Request Forgery via HTTP Proxy Configuration",
+          "Description": "NLTK before 3.10.3 contains a server-side request forgery vulnerability in nltk.pathsec.urlopen (and callers nltk.data.load, nltk.downloader.Downloader.index/download) when an HTTP proxy is configured. pathsec.urlopen validates the requested hostname locally, but proxy-handler inheritance disables the safe HTTP/HTTPS handlers so the actual fetch is performed by the proxy against a destination that is never re-validated. An attacker can supply a validated public URL that the proxy forwards to an internal loopback-only service, allowing disclosure of internal HTTP resources, loading of forged downloader indexes, and installation of attacker-chosen package content.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-918"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-78682",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/767333a005a1cd3d82d2029215f2dbe66a5844d9",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-6ww7-3frv-cqxh",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3733.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-78682",
+            "https://www.cve.org/CVERecord?id=CVE-2026-78682",
+            "https://www.vulncheck.com/advisories/nltk-before-ssrf-protection-bypass-via-proxy"
+          ],
+          "PublishedDate": "2026-08-25T02:16:52.89Z",
+          "LastModifiedDate": "2026-08-31T19:05:31.693Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-79674",
+          "VendorIDs": [
+            "GHSA-3gq4-3j92-5w49"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-79674",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:a663f5abfdce4dd066a420b23eb63dae667e509450ef6476a0d43a8225f9e48b",
+          "Title": "nltk: NLTK: Information disclosure via path traversal in corpus-reader constructors",
+          "Description": "NLTK versions before 3.10.3 contain a path sandbox bypass vulnerability in corpus-reader constructors that allows attackers to read files outside the intended data root. Attackers can supply arbitrary corpus root paths to LinThesaurusCorpusReader and PanLexLiteCorpusReader constructors to access filesystem content and SQLite databases outside the pathsec sandbox boundary.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-73"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-79674",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/bc007200d123c1a98d74c2eb230f5e06c53886b8",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-3gq4-3j92-5w49",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3736.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-79674",
+            "https://www.cve.org/CVERecord?id=CVE-2026-79674",
+            "https://www.vulncheck.com/advisories/nltk-path-traversal-via-corpus-reader-constructors"
+          ],
+          "PublishedDate": "2026-08-25T16:17:27.873Z",
+          "LastModifiedDate": "2026-08-31T19:06:01.313Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-79676",
+          "VendorIDs": [
+            "GHSA-p4rw-rvv2-7xwr"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-79676",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:7d72e44e4f1b2823a9afc9f48a50c58fe16993d5e5dd0e63b7cd8802d62ff23a",
+          "Title": "nltk: NLTK: Information disclosure via path traversal with symlink bypass",
+          "Description": "NLTK versions before 3.10.3 contain a path traversal vulnerability in corpus readers that reopen root-derived paths using built-in open() instead of nltk.pathsec.open(), allowing symlinks to escape trusted roots. Attackers who stage symlinked corpus files under a trusted data root can disclose outside-root content through normal corpus reader methods like channels(), domains(), and synonyms().",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-79676",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/10d34b3f4fe3fec74b76527a409eb0acbac2e8ab",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-p4rw-rvv2-7xwr",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3737.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-79676",
+            "https://www.cve.org/CVERecord?id=CVE-2026-79676",
+            "https://www.vulncheck.com/advisories/nltk-before-path-traversal-via-symlink-bypass"
+          ],
+          "PublishedDate": "2026-08-25T16:17:28.177Z",
+          "LastModifiedDate": "2026-08-31T19:06:13.443Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-80205",
+          "VendorIDs": [
+            "GHSA-rrv8-h7p8-rx55"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-80205",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:cb705332dd41b4178451322a890b968a700878e011e1fd18c8d27a13ee790fc7",
+          "Title": "nltk: NLTK: Denial of Service via unvalidated regular expressions",
+          "Description": "NLTK versions before 3.10.0 contain a regular expression denial of service vulnerability in Text.findall() and TokenSearcher.findall() methods that accept user-supplied regular expressions without validation or timeout. Attackers can supply crafted regex patterns that cause catastrophic backtracking, resulting in indefinite CPU saturation and denial of service to all users of the Python process.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 7.5,
+              "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/09/01/3",
+            "https://access.redhat.com/security/cve/CVE-2026-80205",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/d8e47539317b571ab1422981f5b9653d5eae1249",
+            "https://github.com/nltk/nltk/pull/3674",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.0",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-rrv8-h7p8-rx55",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3750.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-80205",
+            "https://www.cve.org/CVERecord?id=CVE-2026-80205",
+            "https://www.vulncheck.com/advisories/nltk-before-3.10.0-redos-via-text-findall-unvalidated-regex"
+          ],
+          "PublishedDate": "2026-08-26T11:16:39.95Z",
+          "LastModifiedDate": "2026-09-03T05:15:15.43Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-80206",
+          "VendorIDs": [
+            "GHSA-w3v8-gmh9-3wv7"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "FixedVersion": "3.10.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-80206",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:339fddeb04e9c130b3c94a16dacc5e07beef0153c486ff26d3afe3aff6165ef9",
+          "Title": "nltk: NLTK: Denial of Service vulnerability in tgrep module",
+          "Description": "NLTK before 3.10.3 contains a regular expression denial of service (ReDoS) vulnerability in the tgrep module. The _tgrep_node_action function compiles user-supplied regular expressions embedded in /regex/ pattern nodes and executes them via re.search against tree node labels without any validation or timeout. An attacker who controls the tgrep pattern (e.g., via tgrep_positions() or tgrep_compile() exposed to external input) can supply a pattern that triggers catastrophic backtracking, causing indefinite CPU saturation that blocks the Python process.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-80206",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/0072ea2fb8be22e038a36e887b7061bb6b9339d9",
+            "https://github.com/nltk/nltk/releases/tag/v3.10.3",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-w3v8-gmh9-3wv7",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3751.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-80206",
+            "https://www.cve.org/CVERecord?id=CVE-2026-80206",
+            "https://www.vulncheck.com/advisories/nltk-3.10.2-regular-expression-denial-of-service-via-tgrep"
+          ],
+          "PublishedDate": "2026-08-26T11:16:40.103Z",
+          "LastModifiedDate": "2026-09-01T20:07:46.19Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-81726",
+          "VendorIDs": [
+            "GHSA-8mgp-746c-j5xp"
+          ],
+          "PkgName": "nltk",
+          "PkgPath": "usr/local/lib/python3.10/site-packages/nltk-3.6.7.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/nltk@3.6.7",
+            "UID": "7e4c9a1773cf288b"
+          },
+          "InstalledVersion": "3.6.7",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:a68607fa08b388f0ec4ebb0159c2ebaf6d27ccafe5cf9a74ab4e393ced2341f1",
+            "DiffID": "sha256:c8049747ff1d745aea6e56e986a0449c89b5ee7e0a1abf7cebe73a1c6b8c6051"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-81726",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:8dd0b7368461224c995d30241bd9d6ed4357d41fb5c5dd9ddf6d721fd46ae7b6",
+          "Title": "nltk: NLTK: Unauthorized file access via path traversal in model-artifact APIs",
+          "Description": "NLTK through 3.10.3 contains a path traversal vulnerability in model-artifact APIs that bypass pathsec enforcement by using raw file operations on caller-controlled paths. Attackers can read or write files outside allowed sandbox roots through TransitionParser, AveragedPerceptron, PerceptronTagger, and maxent parameter APIs when pathsec is enabled.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-73"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:L/A:L",
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:L/VA:L/SC:N/SI:N/SA:N",
+              "V3Score": 7,
+              "V40Score": 8.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:N",
+              "V3Score": 8.7
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-81726",
+            "https://github.com/nltk/nltk",
+            "https://github.com/nltk/nltk/commit/2a92b71827d754ae8920261e7ed0c4bb283ab2d7",
+            "https://github.com/nltk/nltk/commit/a44a7af69bca87e92d9c4a701fcbbe4512e8d450",
+            "https://github.com/nltk/nltk/commit/cbc98458b43de5f792f0382583c16df39e5c5117",
+            "https://github.com/nltk/nltk/pull/3757",
+            "https://github.com/nltk/nltk/pull/3759",
+            "https://github.com/nltk/nltk/pull/3813",
+            "https://github.com/nltk/nltk/security/advisories/GHSA-8mgp-746c-j5xp",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/nltk/PYSEC-2026-3740.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-81726",
+            "https://www.cve.org/CVERecord?id=CVE-2026-81726",
+            "https://www.vulncheck.com/advisories/nltk-through-3.10.3-path-traversal-via-model-artifact-apis"
+          ],
+          "PublishedDate": "2026-08-27T17:21:03.387Z",
+          "LastModifiedDate": "2026-08-31T19:06:49.993Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40897",
@@ -2191,9 +3178,10 @@
             "https://access.redhat.com/security/cve/CVE-2022-40897",
             "https://bugzilla.redhat.com/2158559",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2158559",
+            "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-40897",
             "https://errata.almalinux.org/9/ALSA-2023-0952.html",
-            "https://errata.rockylinux.org/RLSA-2023:0835",
+            "https://errata.rockylinux.org/RLSA-2023:0952",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2022-43012.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/fe8a98e696241487ba6ac9f91faa38ade939ec5d/setuptools/package_index.py#L200",
@@ -2285,7 +3273,6 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2024:5530",
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
@@ -2293,7 +3280,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-6345",
             "https://errata.almalinux.org/9/ALSA-2024-6726.html",
-            "https://errata.rockylinux.org/RLSA-2024:5530",
+            "https://errata.rockylinux.org/RLSA-2024:6726",
             "https://github.com/advisories/GHSA-cx63-2mw6-8hw5",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0",
@@ -2373,15 +3360,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:11036",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:11036",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -2484,11 +3471,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 33
+      "vulnerability_count": 49
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 33
+    "total_vulnerabilities": 49
   }
 }

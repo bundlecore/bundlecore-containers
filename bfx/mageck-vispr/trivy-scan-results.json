@@ -1,7 +1,7 @@
 {
   "tool": "mageck-vispr",
-  "scan_timestamp": "2026-09-13T16:57:56Z",
-  "workflow_run_id": "34770129788",
+  "scan_timestamp": "2026-10-01T09:41:25Z",
+  "workflow_run_id": "36837607073",
   "versions": {
     "0.5.6": {
       "image": "ghcr.io/bundlecore/products/bfx/mageck-vispr:0.5.6",
@@ -665,12 +665,15 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-67322",
+            "https://github.com/advisories/GHSA-rwj8-pgh3-r573",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/8ac5a30519b6f4af85398b9b9d7064ff4d452da2",
             "https://github.com/gitpython-developers/GitPython/pull/2172",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.52",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-rwj8-pgh3-r573",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3842.yaml",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-67322",
+            "https://pypi.org/project/gitpython",
             "https://www.cve.org/CVERecord?id=CVE-2026-67322",
             "https://www.vulncheck.com/advisories/gitpython-before-environment-variable-exfiltration-via-clone-from"
           ],
@@ -1138,14 +1141,15 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:61b9623e4165e638d94e215cf6d2b3bf31a2d1d7a2ca4d587701fbe085b11a35",
-          "Title": "GitPython before 3.1.59 omits --separate-git-dir from unsafe_git_clone ...",
+          "Title": "GitPython: GitPython: Arbitrary Code Execution via Path Traversal",
           "Description": "GitPython before 3.1.59 omits --separate-git-dir from unsafe_git_clone_options, allowing attackers to create arbitrary git directories outside the intended clone destination. Attackers can pass a separate_git_dir parameter to Repo.clone_from() or Repo.clone() to redirect repository metadata to an attacker-controlled filesystem path, enabling arbitrary directory creation and potential hook execution.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-22"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
@@ -1153,9 +1157,14 @@
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
               "V3Score": 7.5,
               "V40Score": 8.7
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-78677",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/b68afff45af0f49e79a3e2d2162018986b37ad5d",
             "https://github.com/gitpython-developers/GitPython/pull/2210",
@@ -1163,10 +1172,125 @@
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-8mcc-hrx5-hvxc",
             "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3787.yaml",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-78677",
+            "https://www.cve.org/CVERecord?id=CVE-2026-78677",
             "https://www.vulncheck.com/advisories/gitpython-before-path-traversal-via-separate-git-dir"
           ],
           "PublishedDate": "2026-08-25T02:16:52.173Z",
           "LastModifiedDate": "2026-09-02T19:12:24.23Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-87817",
+          "VendorIDs": [
+            "GHSA-239g-whfq-7xj9"
+          ],
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.1.60",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-87817",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:fa817eee918206b093606dc4b179aced3e22c9262ed5fb3abedf73f4b026ae24",
+          "Title": "GitPython: GitPython: Remote Code Execution via Git directory impersonation",
+          "Description": "GitPython before 3.1.60 fails to properly validate the git directory location, allowing attackers to impersonate the git directory using tracked files like gitdir, commondir, and HEAD. Attackers can execute arbitrary code by placing a malicious pre-commit hook in the tracked hooks directory that executes when a victim calls index.commit() on a cloned or opened repository.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-87817",
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/c7cf4d13b1ed0a2e70f2a1f3c6b4fc6c2652cf0b",
+            "https://github.com/gitpython-developers/GitPython/pull/2218",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.60",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-239g-whfq-7xj9",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3982.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-87817",
+            "https://www.cve.org/CVERecord?id=CVE-2026-87817",
+            "https://www.vulncheck.com/advisories/gitpython-before-3.1.60-remote-code-execution-via-git-directory-impersonation"
+          ],
+          "PublishedDate": "2026-09-09T12:17:16.83Z",
+          "LastModifiedDate": "2026-09-16T15:24:41.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-87819",
+          "VendorIDs": [
+            "GHSA-g5vv-9gxw-82hx"
+          ],
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.1.60",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-87819",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:145bc775d4190168029c5df573fd96d9fcefdbfd4418353779e5f07ce21ac4d7",
+          "Title": "GitPython before 3.1.60 contains a regular expression denial of servic ...",
+          "Description": "GitPython before 3.1.60 contains a regular expression denial of service vulnerability in Actor.name_email_regex that processes commit author and committer fields. Attackers can craft a commit object with a malformed author field containing an unterminated angle bracket to cause quadratic backtracking, exhausting CPU resources for over two minutes per commit access.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/751473a5f3221d6f989291cbebcc404353fd3ba8",
+            "https://github.com/gitpython-developers/GitPython/pull/2215",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.60",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-g5vv-9gxw-82hx",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3984.yaml",
+            "https://www.vulncheck.com/advisories/gitpython-before-3.1.60-denial-of-service-via-redos"
+          ],
+          "PublishedDate": "2026-09-09T12:17:17.12Z",
+          "LastModifiedDate": "2026-09-18T18:17:34.697Z"
         },
         {
           "VulnerabilityID": "GHSA-3f7w-8rr8-f37f",
@@ -1340,11 +1464,14 @@
           "References": [
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/863417457a0633db7ea5aed4fd01e0b291a41162",
+            "https://github.com/gitpython-developers/GitPython/commit/8ac5a30519b6f4af85398b9b9d7064ff4d452da2",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.55",
-            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-94p4-4cq8-9g67"
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-94p4-4cq8-9g67",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3951.yaml",
+            "https://www.vulncheck.com/advisories/gitpython-before-environment-variable-exfiltration-via-remote-add"
           ],
           "PublishedDate": "2026-07-24T21:45:16Z",
-          "LastModifiedDate": "2026-07-24T21:45:16Z"
+          "LastModifiedDate": "2026-09-24T14:39:20Z"
         },
         {
           "VulnerabilityID": "GHSA-fjr4-x663-mwxc",
@@ -2185,7 +2312,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-69223"
           ],
           "PublishedDate": "2026-01-05T22:15:53.017Z",
-          "LastModifiedDate": "2026-09-09T13:18:08.777Z"
+          "LastModifiedDate": "2026-09-30T22:10:00.273Z"
         },
         {
           "VulnerabilityID": "CVE-2026-69244",
@@ -2968,8 +3095,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2498212",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59939",
-            "https://errata.almalinux.org/10/ALSA-2026-48585.html",
-            "https://errata.rockylinux.org/RLSA-2026:50317",
+            "https://errata.almalinux.org/9/ALSA-2026-50317.html",
+            "https://errata.rockylinux.org/RLSA-2026:48585",
             "https://github.com/httplib2/httplib2",
             "https://github.com/httplib2/httplib2/commit/87581ad6cf752fe3da2090c59058261d2d00a427",
             "https://github.com/httplib2/httplib2/releases/tag/v0.32.0",
@@ -3599,7 +3726,7 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-0994",
             "https://errata.almalinux.org/9/ALSA-2026-3095.html",
-            "https://errata.rockylinux.org/RLSA-2026:3095",
+            "https://errata.rockylinux.org/RLSA-2026:3094",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/commit/5ebddcb1bcbe51d1fe323baa145e85f4f23128cf",
             "https://github.com/protocolbuffers/protobuf/commit/d2b001626d137c62dfee6c88c87324102531868b",
@@ -3713,17 +3840,14 @@
             "https://access.redhat.com/errata/RHSA-2026:6926",
             "https://access.redhat.com/errata/RHSA-2026:8437",
             "https://access.redhat.com/security/cve/CVE-2026-30922",
-            "https://bugzilla.redhat.com/2447194",
             "https://bugzilla.redhat.com/2448553",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2438762",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
             "https://creativecommons.org/licenses/by/4.0/",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-30922",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-32597",
-            "https://errata.almalinux.org/10/ALSA-2026-13916.html",
-            "https://errata.rockylinux.org/RLSA-2026:19355",
+            "https://errata.almalinux.org/9/ALSA-2026-13917.html",
+            "https://errata.rockylinux.org/RLSA-2026:19138",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/25ad481c19fdb006e20485ef3fc2e5b3eff30ef0",
             "https://github.com/pyasn1/pyasn1/commit/5a49bd1fe93b5b866a1210f6bf0a3924f21572c8",
@@ -3931,8 +4055,8 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500041",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59886",
-            "https://errata.almalinux.org/10/ALSA-2026-59243.html",
-            "https://errata.rockylinux.org/RLSA-2026:59242",
+            "https://errata.almalinux.org/9/ALSA-2026-59242.html",
+            "https://errata.rockylinux.org/RLSA-2026:59243",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/e60c691cb91addb8fcefa2f537e85ede6fb1e886",
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.4",
@@ -4338,15 +4462,15 @@
             }
           },
           "References": [
-            "https://access.redhat.com/errata/RHSA-2025:10407",
+            "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47273",
-            "https://errata.almalinux.org/10/ALSA-2025-9940.html",
-            "https://errata.rockylinux.org/RLSA-2025:10407",
+            "https://errata.almalinux.org/9/ALSA-2025-13578.html",
+            "https://errata.rockylinux.org/RLSA-2025:9940",
             "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml",
             "https://github.com/pypa/setuptools",
             "https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88",
@@ -4637,7 +4761,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1087",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66418",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -4649,8 +4773,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/24d7b67eac89f94e11003424bcf0d8f7b72222a8",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-gm62-xv2j-4w53",
@@ -4664,7 +4788,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T16:15:51.053Z",
-          "LastModifiedDate": "2026-06-17T09:56:48.383Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2025-66471",
@@ -4727,7 +4851,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:1086",
-            "https://access.redhat.com/errata/RHSA-2026:1087",
+            "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66471",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
@@ -4739,14 +4863,18 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
+            "https://github.com/advisories/GHSA-2xpw-w6gg-jr37",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/urllib3/PYSEC-2026-1994.yaml",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/c19571de34c47de3a766541b041637ba5f716ed7",
+            "https://github.com/urllib3/urllib3/commit/d0fde3672e4a4093f7587858dccfc298eb66e46c",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-2xpw-w6gg-jr37",
             "https://linux.oracle.com/cve/CVE-2025-66471.html",
             "https://linux.oracle.com/errata/ELSA-2026-9031.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-66471",
+            "https://pypi.org/project/urllib3",
             "https://ubuntu.com/security/notices/USN-7927-1",
             "https://ubuntu.com/security/notices/USN-7927-2",
             "https://ubuntu.com/security/notices/USN-7927-3",
@@ -4757,7 +4885,7 @@
             "https://www.openwall.com/lists/oss-security/2025/12/05/4"
           ],
           "PublishedDate": "2025-12-05T17:16:04.4Z",
-          "LastModifiedDate": "2026-06-17T09:56:53.65Z"
+          "LastModifiedDate": "2026-09-25T23:10:00.463Z"
         },
         {
           "VulnerabilityID": "CVE-2026-21441",
@@ -4944,8 +5072,8 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66418",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66471",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-21441",
-            "https://errata.almalinux.org/10/ALSA-2026-1086.html",
-            "https://errata.rockylinux.org/RLSA-2026:1087",
+            "https://errata.almalinux.org/9/ALSA-2026-1239.html",
+            "https://errata.rockylinux.org/RLSA-2026:1086",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/8864ac407bba8607950025e0979c4c69bc7abc7b",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-38jv-5279-wg99",
@@ -4960,7 +5088,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-21441"
           ],
           "PublishedDate": "2026-01-07T22:15:44.04Z",
-          "LastModifiedDate": "2026-09-11T13:17:08.25Z"
+          "LastModifiedDate": "2026-09-15T12:16:58.133Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44431",
@@ -5023,7 +5151,7 @@
           },
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:28000",
-            "https://access.redhat.com/errata/RHSA-2026:28158",
+            "https://access.redhat.com/errata/RHSA-2026:28159",
             "https://access.redhat.com/security/cve/CVE-2026-44431",
             "https://bugzilla.redhat.com/2477154",
             "https://bugzilla.redhat.com/2477167",
@@ -5032,8 +5160,8 @@
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44431",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-44432",
-            "https://errata.almalinux.org/10/ALSA-2026-28000.html",
-            "https://errata.rockylinux.org/RLSA-2026:28158",
+            "https://errata.almalinux.org/9/ALSA-2026-28159.html",
+            "https://errata.rockylinux.org/RLSA-2026:28000",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-qccp-gfcp-xxvc",
             "https://linux.oracle.com/cve/CVE-2026-44431.html",
@@ -5041,10 +5169,69 @@
             "https://lists.debian.org/debian-lts-announce/2026/06/msg00040.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-44431",
             "https://ubuntu.com/security/notices/USN-8379-1",
+            "https://ubuntu.com/security/notices/USN-8811-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-44431"
           ],
           "PublishedDate": "2026-05-13T16:16:57.15Z",
           "LastModifiedDate": "2026-06-26T12:16:32.423Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-97689",
+          "VendorIDs": [
+            "GHSA-vxq7-64xx-v4gw"
+          ],
+          "PkgName": "urllib3",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/urllib3-1.25.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/urllib3@1.25.11",
+            "UID": "d57a82ebbbbdb7de"
+          },
+          "InstalledVersion": "1.25.11",
+          "FixedVersion": "2.8.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-97689",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:da42a8a9c577cc94bfd9b40ca8c103959577fcd548dcffd8a9bacc660e6db02a",
+          "Title": "urllib3: urllib3: Denial of Service via unbounded memory allocation in chunk parser",
+          "Description": "urllib3 is an HTTP client library for Python. From 1.10.3 until 2.8.0, the HTTPResponse.read_chunked and HTTPResponse.stream methods can allocate unbounded memory because the streaming chunk parser buffers the chunk-size field until newline or EOF without a length bound. The trigger is that a malicious server returns Transfer-Encoding: chunked followed by a very long run of bytes without a newline. The attack mechanism is that a malicious HTTP server sends a very long unterminated chunk-size line. The impact is that unbounded memory allocation can exhaust the client process. This issue is fixed in version 2.8.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
+              "V40Score": 8.9
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://github.com/urllib3/urllib3",
+            "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
+            "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
+            "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://www.cve.org/CVERecord?id=CVE-2026-97689"
+          ],
+          "PublishedDate": "2026-09-29T16:17:18.837Z",
+          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40898",
@@ -5131,11 +5318,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 68
+      "vulnerability_count": 71
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 68
+    "total_vulnerabilities": 71
   }
 }
