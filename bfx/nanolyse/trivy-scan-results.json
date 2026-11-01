@@ -1,7 +1,7 @@
 {
   "tool": "nanolyse",
-  "scan_timestamp": "2026-10-01T09:49:41Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T10:47:41Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "1.2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/nanolyse:1.2.0",
@@ -27,9 +27,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:1b352ece10878865974c60e7d72279d73a1de51be06f4760eb4345e0b055edfc",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -42,11 +45,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "bsdutils@1:2.38.1-5+deb12u3",
+          "PkgName": "bsdutils",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14&epoch=1",
+            "UID": "af5a434542493ff"
+          },
+          "InstalledVersion": "1:2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:00ea7fba14dc441dc69327232f7d04d9084babe7d639f54c3518cc4dfbd8337d",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -149,54 +219,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "bsdutils@1:2.38.1-5+deb12u3",
-          "PkgName": "bsdutils",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/bsdutils@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14&epoch=1",
-            "UID": "af5a434542493ff"
-          },
-          "InstalledVersion": "1:2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:1ddefd7151b63d25cd1dd9d8dac43a58a30a7b84e99c5aba7f3d180bc2bec592",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -244,7 +267,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2026-41992",
@@ -332,7 +355,7 @@
             "https://www.gnu.org/software/gzip/"
           ],
           "PublishedDate": "2026-06-29T12:16:29.94Z",
-          "LastModifiedDate": "2026-08-27T13:17:57.967Z"
+          "LastModifiedDate": "2026-10-25T21:10:00.77Z"
         },
         {
           "VulnerabilityID": "CVE-2026-54369",
@@ -411,7 +434,7 @@
             "https://www.vulncheck.com/advisories/acl-symlink-traversal-privilege-escalation-via-libacl-functions"
           ],
           "PublishedDate": "2026-06-29T14:16:57.487Z",
-          "LastModifiedDate": "2026-09-14T13:18:40.197Z"
+          "LastModifiedDate": "2026-10-25T21:10:00.77Z"
         },
         {
           "VulnerabilityID": "CVE-2026-53613",
@@ -434,9 +457,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:0c534875d6ce95c05543d2a2e7507cf1b1458edbe75c976df345cf6d35826749",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -449,11 +475,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "libblkid1@2.38.1-5+deb12u3",
+          "PkgName": "libblkid1",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "ef2ef32fd8f1c6bb"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:8429d246b0748615cbe3598458ebeb1aceea46e056010ed90482d306c7364f7b",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -556,54 +649,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "libblkid1@2.38.1-5+deb12u3",
-          "PkgName": "libblkid1",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "ef2ef32fd8f1c6bb"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:913b0e0e6d82a46b97b4046a06f09ed16336a04f8af01b3061b508186b61003e",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -651,7 +697,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2026-53613",
@@ -674,9 +720,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:098d88b4402773d721fc854a0df73e3eda7050d39b880908e8adb1494b91ad2a",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -689,11 +738,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "libmount1@2.38.1-5+deb12u3",
+          "PkgName": "libmount1",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "1c28517f3a673db4"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:aedd2160bb46e67161a5450e3dbd0bbda0a839c643035e7cf82f16891a36af88",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -796,54 +912,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "libmount1@2.38.1-5+deb12u3",
-          "PkgName": "libmount1",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "1c28517f3a673db4"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:77ac98fe5deac9b0e7de590a0fc118777c2e7580c3a6237e8c03378806846c3d",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -891,7 +960,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69720",
@@ -978,6 +1047,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-103111",
+          "VendorIDs": [
+            "DLA-4816-1"
+          ],
           "PkgID": "libpcre2-8-0@10.42-1",
           "PkgName": "libpcre2-8-0",
           "PkgIdentifier": {
@@ -985,7 +1057,8 @@
             "UID": "ff608de08d24151b"
           },
           "InstalledVersion": "10.42-1",
-          "Status": "affected",
+          "FixedVersion": "10.42-1+deb12u2",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -1004,7 +1077,13 @@
             "CWE-787"
           ],
           "VendorSeverity": {
-            "redhat": 3
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "redhat": {
@@ -1013,13 +1092,42 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:81522",
+            "https://access.redhat.com/errata/RHSA-2026:81532",
             "https://access.redhat.com/security/cve/CVE-2026-103111",
+            "https://bugzilla.redhat.com/2528993",
+            "https://bugzilla.redhat.com/2531743",
+            "https://bugzilla.redhat.com/2531744",
+            "https://bugzilla.redhat.com/2531745",
+            "https://bugzilla.redhat.com/2531746",
+            "https://bugzilla.redhat.com/2531747",
+            "https://bugzilla.redhat.com/2543797",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2528993",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531744",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531746",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531747",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543797",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-103111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-86145",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89156",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89157",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89158",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89160",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89161",
+            "https://errata.almalinux.org/9/ALSA-2026-81532.html",
+            "https://errata.rockylinux.org/RLSA-2026:81522",
             "https://github.com/PCRE2Project/pcre2/security/advisories/GHSA-r9hj-j2rw-4q3m",
+            "https://linux.oracle.com/cve/CVE-2026-103111.html",
+            "https://linux.oracle.com/errata/ELSA-2026-84799.html",
+            "https://lists.debian.org/debian-lts-announce/2026/10/msg00008.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-103111",
             "https://www.cve.org/CVERecord?id=CVE-2026-103111"
           ],
           "PublishedDate": "2026-09-30T05:16:45.863Z",
-          "LastModifiedDate": "2026-09-30T20:17:29.847Z"
+          "LastModifiedDate": "2026-10-04T00:16:35.563Z"
         },
         {
           "VulnerabilityID": "CVE-2026-86145",
@@ -1053,8 +1161,13 @@
             "CWE-424"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
             "azure": 3,
+            "bottlerocket": 2,
+            "oracle-oval": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -1064,10 +1177,41 @@
             }
           },
           "References": [
+            "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-86145",
             "http://www.openwall.com/lists/oss-security/2026/09/05/3",
+            "https://access.redhat.com/errata/RHSA-2026:81522",
+            "https://access.redhat.com/errata/RHSA-2026:81532",
             "https://access.redhat.com/security/cve/CVE-2026-86145",
+            "https://bugzilla.redhat.com/2528993",
+            "https://bugzilla.redhat.com/2531743",
+            "https://bugzilla.redhat.com/2531744",
+            "https://bugzilla.redhat.com/2531745",
+            "https://bugzilla.redhat.com/2531746",
+            "https://bugzilla.redhat.com/2531747",
+            "https://bugzilla.redhat.com/2543797",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2528993",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531744",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531746",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531747",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543797",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-103111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-86145",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89156",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89157",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89158",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89160",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89161",
+            "https://errata.almalinux.org/9/ALSA-2026-81532.html",
+            "https://errata.rockylinux.org/RLSA-2026:81522",
             "https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-10.48",
             "https://github.com/PCRE2Project/pcre2/security/advisories/GHSA-3r4p-g7gg-ppmf",
+            "https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/advisories/17.1.0/BRSA-xqvt0yt0g9rb.toml",
+            "https://github.com/bottlerocket-os/bottlerocket/security/advisories/GHSA-3r4p-g7gg-ppmf",
+            "https://linux.oracle.com/cve/CVE-2026-86145.html",
+            "https://linux.oracle.com/errata/ELSA-2026-84799.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-86145",
             "https://www.cve.org/CVERecord?id=CVE-2026-86145"
           ],
@@ -1107,9 +1251,14 @@
             "CWE-190"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "azure": 2,
             "nvd": 3,
-            "redhat": 2
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 2,
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "nvd": {
@@ -1122,9 +1271,37 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:81522",
+            "https://access.redhat.com/errata/RHSA-2026:81532",
             "https://access.redhat.com/security/cve/CVE-2026-89157",
+            "https://bugzilla.redhat.com/2528993",
+            "https://bugzilla.redhat.com/2531743",
+            "https://bugzilla.redhat.com/2531744",
+            "https://bugzilla.redhat.com/2531745",
+            "https://bugzilla.redhat.com/2531746",
+            "https://bugzilla.redhat.com/2531747",
+            "https://bugzilla.redhat.com/2543797",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2528993",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531744",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531746",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531747",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543797",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-103111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-86145",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89156",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89157",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89158",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89160",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89161",
+            "https://errata.almalinux.org/9/ALSA-2026-81532.html",
+            "https://errata.rockylinux.org/RLSA-2026:81522",
             "https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-10.48",
             "https://github.com/PCRE2Project/pcre2/security/advisories/GHSA-q8g2-wprr-34m9",
+            "https://linux.oracle.com/cve/CVE-2026-89157.html",
+            "https://linux.oracle.com/errata/ELSA-2026-81613.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-89157",
             "https://www.cve.org/CVERecord?id=CVE-2026-89157"
           ],
@@ -1164,9 +1341,13 @@
             "CWE-590"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 3,
             "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 2
           },
           "CVSS": {
@@ -1180,10 +1361,38 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:81522",
+            "https://access.redhat.com/errata/RHSA-2026:81532",
             "https://access.redhat.com/security/cve/CVE-2026-89161",
+            "https://bugzilla.redhat.com/2528993",
+            "https://bugzilla.redhat.com/2531743",
+            "https://bugzilla.redhat.com/2531744",
+            "https://bugzilla.redhat.com/2531745",
+            "https://bugzilla.redhat.com/2531746",
+            "https://bugzilla.redhat.com/2531747",
+            "https://bugzilla.redhat.com/2543797",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2528993",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531743",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531744",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531745",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531746",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531747",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543797",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-103111",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-86145",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89156",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89157",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89158",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89160",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-89161",
+            "https://errata.almalinux.org/9/ALSA-2026-81532.html",
+            "https://errata.rockylinux.org/RLSA-2026:81522",
             "https://github.com/PCRE2Project/pcre2/commit/1dcd0cf42a6a7cb62cc9a7c024196733abcfda95%20%28pcre2-10.48-RC1%29",
             "https://github.com/PCRE2Project/pcre2/pull/937",
             "https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-10.48",
+            "https://linux.oracle.com/cve/CVE-2026-89161.html",
+            "https://linux.oracle.com/errata/ELSA-2026-84799.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-89161",
             "https://www.cve.org/CVERecord?id=CVE-2026-89161"
           ],
@@ -1211,9 +1420,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:7801658262837f2a6446baa255018588c741392c2d0685413e7bb06407d9543e",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -1226,11 +1438,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "libsmartcols1@2.38.1-5+deb12u3",
+          "PkgName": "libsmartcols1",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "5724e02241dee022"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:915894fad7f6b956c1c991ce934e39fef038fe3d8627f58adc960e990f9a7a6e",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -1333,54 +1612,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "libsmartcols1@2.38.1-5+deb12u3",
-          "PkgName": "libsmartcols1",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "5724e02241dee022"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:a6f555a40ca8c7400b58253353aa9e0d98e9c89dd2e78305f8ae7a4fb69c09c2",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -1428,7 +1660,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2025-7458",
@@ -1510,10 +1742,10 @@
           },
           "Fingerprint": "sha256:0fefbb457560d195f81a631ac80e63a9b554d81a3eb028f94c85f8673e28d30d",
           "Title": "sqlite: SQLite: Arbitrary code execution via crafted FTS5 full-text search data",
-          "Description": "SQLite before 3.53.2 contains memory corruption vulnerabilities in the FTS5 full-text search extension that allow attackers to cause process crashes, memory exhaustion, or arbitrary code execution by supplying a crafted database with malformed FTS5 page data. Attackers can trigger an out-of-bounds read in fts5LeafSeek() via an attacker-controlled loop bound and a heap buffer overflow write in fts5ChunkIterate() through a crafted continuation page causing an integer underflow, exploitable when an FTS5 MATCH query is executed against the malicious database.",
+          "Description": "SQLite before 3.53.2 contains an out-of-bounds read vulnerability in the FTS5 full-text search extension that allows attackers to crash the process by supplying a crafted database with a malformed FTS5 leaf page. Attackers can set an oversized term length in the leaf page so that fts5LeafSeek() reads past the end of the page buffer while comparing terms during an FTS5 MATCH query, in applications compiled with SQLITE_ENABLE_FTS5.",
           "Severity": "HIGH",
           "CweIDs": [
-            "CWE-122"
+            "CWE-125"
           ],
           "VendorSeverity": {
             "alma": 3,
@@ -1542,6 +1774,7 @@
             "https://access.redhat.com/security/cve/CVE-2026-11822",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2487258",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2487269",
+            "https://cert-portal.siemens.com/productcert/html/ssa-765416.html",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-11822",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-11824",
@@ -1553,12 +1786,14 @@
             "https://sqlite.org/releaselog/3_53_2.html",
             "https://sqlite.org/src/info/061febcf41ca",
             "https://sqlite.org/src/info/4a5ad516ea93",
+            "https://sqlite.org/src/info/87b653731171",
+            "https://sqlite.org/src/info/fad98805b7d7",
             "https://ubuntu.com/security/notices/USN-8480-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-11822",
             "https://www.vulncheck.com/advisories/sqlite-before-memory-corruption-in-fts5-extension"
           ],
           "PublishedDate": "2026-06-09T20:16:32.15Z",
-          "LastModifiedDate": "2026-07-23T09:10:00.113Z"
+          "LastModifiedDate": "2026-10-30T02:17:08.76Z"
         },
         {
           "VulnerabilityID": "CVE-2026-11824",
@@ -1614,6 +1849,7 @@
             "https://access.redhat.com/security/cve/CVE-2026-11824",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2487258",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2487269",
+            "https://cert-portal.siemens.com/productcert/html/ssa-765416.html",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-11822",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-11824",
@@ -1630,10 +1866,13 @@
             "https://www.vulncheck.com/advisories/sqlite-before-heap-buffer-overflow-via-fts5-fts5chunkiterate"
           ],
           "PublishedDate": "2026-06-09T20:16:32.3Z",
-          "LastModifiedDate": "2026-07-23T09:10:00.113Z"
+          "LastModifiedDate": "2026-10-15T02:18:37.653Z"
         },
         {
           "VulnerabilityID": "CVE-2026-84782",
+          "VendorIDs": [
+            "DLA-4859-1"
+          ],
           "PkgID": "libssl3@3.0.20-1~deb12u2",
           "PkgName": "libssl3",
           "PkgIdentifier": {
@@ -1641,7 +1880,8 @@
             "UID": "888f63f9f82fa365"
           },
           "InstalledVersion": "3.0.20-1~deb12u2",
-          "Status": "affected",
+          "FixedVersion": "3.0.22-1~deb12u2",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:9465a3b5326202cdeda1f1439e4aaadfe4f4527dd8f9d020ef76b8a8432e5816",
             "DiffID": "sha256:cc3c6f10eea96c0a6f1905e107228e1f9538d7447b6dd50b201d675124fcdf6d"
@@ -1660,7 +1900,12 @@
             "CWE-125"
           ],
           "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 3
           },
           "CVSS": {
@@ -1670,11 +1915,22 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:76918",
+            "https://access.redhat.com/errata/RHSA-2026:80514",
             "https://access.redhat.com/security/cve/CVE-2026-84782",
+            "https://bugzilla.redhat.com/2517560",
+            "https://bugzilla.redhat.com/2537080",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2537080",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-84782",
+            "https://errata.almalinux.org/9/ALSA-2026-80514.html",
+            "https://errata.rockylinux.org/RLSA-2026:76918",
             "https://github.com/openssl/openssl/commit/906cf0ef1c85ca40ce69163e9086d6d3fe292943",
             "https://github.com/openssl/openssl/commit/9f6b34422af7eb5dac61322e33dac1ae989fa628",
             "https://github.com/openssl/openssl/commit/a383dafdd754eb5b22bf45e37e1bff9d07277a58",
             "https://github.com/openssl/openssl/commit/d951e02ede8f6a6ff8150546db44b34f0518192c",
+            "https://linux.oracle.com/cve/CVE-2026-84782.html",
+            "https://linux.oracle.com/errata/ELSA-2026-85968.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-84782",
             "https://openssl-library.org/news/secadv/20260929.txt",
             "https://openssl-library.org/news/vulnerabilities/#CVE-2026-84782",
@@ -1683,7 +1939,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-84782"
           ],
           "PublishedDate": "2026-09-29T16:17:12.5Z",
-          "LastModifiedDate": "2026-09-29T21:27:41.13Z"
+          "LastModifiedDate": "2026-10-08T01:20:56.003Z"
         },
         {
           "VulnerabilityID": "CVE-2026-16742",
@@ -1733,7 +1989,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-16742"
           ],
           "PublishedDate": "2026-08-10T14:17:21.277Z",
-          "LastModifiedDate": "2026-09-01T20:54:51.287Z"
+          "LastModifiedDate": "2026-10-23T20:10:00.16Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69720",
@@ -1866,7 +2122,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-16742"
           ],
           "PublishedDate": "2026-08-10T14:17:21.277Z",
-          "LastModifiedDate": "2026-09-01T20:54:51.287Z"
+          "LastModifiedDate": "2026-10-23T20:10:00.16Z"
         },
         {
           "VulnerabilityID": "CVE-2026-53613",
@@ -1889,9 +2145,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:662212dce27f510587f8f5d92b2ed2c0c69bcfbfeb5b12481932e27c231cfcb7",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -1904,11 +2163,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "libuuid1@2.38.1-5+deb12u3",
+          "PkgName": "libuuid1",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "d649adb64a1fff7d"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:56216591825d653ec180723a48b46f33171cb3bb5636f0b72c405d726e94961e",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -2011,54 +2337,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "libuuid1@2.38.1-5+deb12u3",
-          "PkgName": "libuuid1",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "d649adb64a1fff7d"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:9dca32c32a97deda091215c4bab7803f25801ee43ee061d85c649505f5304882",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -2106,7 +2385,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2026-53613",
@@ -2129,9 +2408,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:89b2514e8cc512737cebc2891cd33c77c96da3f657f544d1127ae94c6bfb2ffb",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -2144,11 +2426,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "mount@2.38.1-5+deb12u3",
+          "PkgName": "mount",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "db6b596e9b2c0272"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:ef65f819785ce080badb92d52c30176799c5c70af16c5aeb6f76bd32d5454cd9",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -2251,54 +2600,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "mount@2.38.1-5+deb12u3",
-          "PkgName": "mount",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "db6b596e9b2c0272"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:6b2fea6caba43f2532f7935b3d2b4e46b8b7a48727df01fef755a69be5f563dc",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -2346,7 +2648,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2025-69720",
@@ -2516,6 +2818,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-84782",
+          "VendorIDs": [
+            "DLA-4859-1"
+          ],
           "PkgID": "openssl@3.0.20-1~deb12u2",
           "PkgName": "openssl",
           "PkgIdentifier": {
@@ -2523,7 +2828,8 @@
             "UID": "8228395ae3c0d59f"
           },
           "InstalledVersion": "3.0.20-1~deb12u2",
-          "Status": "affected",
+          "FixedVersion": "3.0.22-1~deb12u2",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:9465a3b5326202cdeda1f1439e4aaadfe4f4527dd8f9d020ef76b8a8432e5816",
             "DiffID": "sha256:cc3c6f10eea96c0a6f1905e107228e1f9538d7447b6dd50b201d675124fcdf6d"
@@ -2542,7 +2848,12 @@
             "CWE-125"
           ],
           "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 3,
+            "oracle-oval": 3,
             "redhat": 3,
+            "rocky": 3,
             "ubuntu": 3
           },
           "CVSS": {
@@ -2552,11 +2863,22 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:76918",
+            "https://access.redhat.com/errata/RHSA-2026:80514",
             "https://access.redhat.com/security/cve/CVE-2026-84782",
+            "https://bugzilla.redhat.com/2517560",
+            "https://bugzilla.redhat.com/2537080",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2537080",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-84782",
+            "https://errata.almalinux.org/9/ALSA-2026-80514.html",
+            "https://errata.rockylinux.org/RLSA-2026:76918",
             "https://github.com/openssl/openssl/commit/906cf0ef1c85ca40ce69163e9086d6d3fe292943",
             "https://github.com/openssl/openssl/commit/9f6b34422af7eb5dac61322e33dac1ae989fa628",
             "https://github.com/openssl/openssl/commit/a383dafdd754eb5b22bf45e37e1bff9d07277a58",
             "https://github.com/openssl/openssl/commit/d951e02ede8f6a6ff8150546db44b34f0518192c",
+            "https://linux.oracle.com/cve/CVE-2026-84782.html",
+            "https://linux.oracle.com/errata/ELSA-2026-85968.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-84782",
             "https://openssl-library.org/news/secadv/20260929.txt",
             "https://openssl-library.org/news/vulnerabilities/#CVE-2026-84782",
@@ -2565,10 +2887,13 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-84782"
           ],
           "PublishedDate": "2026-09-29T16:17:12.5Z",
-          "LastModifiedDate": "2026-09-29T21:27:41.13Z"
+          "LastModifiedDate": "2026-10-08T01:20:56.003Z"
         },
         {
           "VulnerabilityID": "CVE-2026-13221",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2576,7 +2901,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "affected",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2597,6 +2923,7 @@
           ],
           "VendorSeverity": {
             "alma": 2,
+            "amazon": 2,
             "azure": 2,
             "nvd": 4,
             "oracle-oval": 2,
@@ -2638,10 +2965,13 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-13221"
           ],
           "PublishedDate": "2026-07-13T17:16:48.923Z",
-          "LastModifiedDate": "2026-09-08T22:17:37.217Z"
+          "LastModifiedDate": "2026-10-24T22:10:00.21Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42496",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2649,7 +2979,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "fix_deferred",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2717,6 +3048,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-8376",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2724,7 +3058,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "affected",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2775,6 +3110,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-42497",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2782,7 +3120,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "fix_deferred",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2833,6 +3172,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-48962",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2840,7 +3182,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "affected",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2911,6 +3254,9 @@
         },
         {
           "VulnerabilityID": "CVE-2026-57432",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2918,7 +3264,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "affected",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2939,6 +3286,7 @@
             "CWE-190"
           ],
           "VendorSeverity": {
+            "amazon": 2,
             "azure": 3,
             "nvd": 3,
             "photon": 3,
@@ -2968,10 +3316,13 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-57432"
           ],
           "PublishedDate": "2026-07-13T17:17:55.67Z",
-          "LastModifiedDate": "2026-09-08T22:18:30.64Z"
+          "LastModifiedDate": "2026-10-24T22:10:00.21Z"
         },
         {
           "VulnerabilityID": "CVE-2026-57433",
+          "VendorIDs": [
+            "DLA-4821-1"
+          ],
           "PkgID": "perl-base@5.36.0-7+deb12u3",
           "PkgName": "perl-base",
           "PkgIdentifier": {
@@ -2979,7 +3330,8 @@
             "UID": "4d96814618e564ec"
           },
           "InstalledVersion": "5.36.0-7+deb12u3",
-          "Status": "affected",
+          "FixedVersion": "5.36.0-7+deb12u4",
+          "Status": "fixed",
           "Layer": {
             "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
             "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
@@ -2998,6 +3350,7 @@
             "CWE-190"
           ],
           "VendorSeverity": {
+            "amazon": 2,
             "azure": 4,
             "redhat": 3,
             "ubuntu": 2
@@ -3020,7 +3373,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-57433"
           ],
           "PublishedDate": "2026-07-13T17:17:55.783Z",
-          "LastModifiedDate": "2026-07-14T17:47:20.473Z"
+          "LastModifiedDate": "2026-10-24T22:10:00.21Z"
         },
         {
           "VulnerabilityID": "CVE-2026-9538",
@@ -3113,9 +3466,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:320269faae64415137faccc78fed156fc1f1544ecc6ed3bc21408a410bd48e03",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -3128,11 +3484,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "util-linux@2.38.1-5+deb12u3",
+          "PkgName": "util-linux",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "c50a1829816b9d94"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:57e90c50e3134afb7fd1b924ca040cf3cf547387c8ba89bd08f7e2de315cbf61",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -3235,54 +3658,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "util-linux@2.38.1-5+deb12u3",
-          "PkgName": "util-linux",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "c50a1829816b9d94"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:f632fcf08b14f7480aa48daa079f14b9ef5b17b4f37a4f709aa33d20c20669b2",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -3330,7 +3706,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2026-53613",
@@ -3353,9 +3729,12 @@
             "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
           },
           "Fingerprint": "sha256:18934e5cfa4c45477749e869e355405467c3fed430f0a48456a05ad004c9e0c2",
-          "Title": "util-linux: util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
-          "Description": "When an /etc/fstab entry is configured with the user or users option, mount(8) validates the target path before performing the mount syscall, creating a Time-of-Check-Time-of-Use (TOCTOU) window. A local unprivileged user with write access to an ancestor directory of the mount target can swap that directory to redirect the mount to an arbitrary root-owned location, potentially escalating privileges to root.",
+          "Title": "util-linux: TOCTOU in the mount program via ancestor directory swap on target path",
+          "Description": "util-linux is a random collection of Linux utilities. In util-linux 2.17 through 2.41.6 and 2.42 through 2.42.3, and in 2.42.4 when the legacy `mount(2)` path is used without `/proc`, restricted non-root `mount` requests validate an `/etc/fstab` target before the mount operation re-resolves that pathname. A local low-privileged user authorized by an fstab `user` or `users` entry whose target has an attacker-writable ancestor can use `renameat2(RENAME_EXCHANGE)` to swap a path component and redirect an authorized mount to a root-owned location, such as mounting attacker-controlled content over `/etc/sudoers.d`, and thereby gain root privileges. Versions 2.41.5 and 2.42.2 pin targets for the new mount API, and 2.42.4 pins legacy targets through `/proc/self/fd`; the documented legacy fallback without `/proc` remains affected.",
           "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-367"
+          ],
           "VendorSeverity": {
             "redhat": 3,
             "ubuntu": 2
@@ -3368,11 +3747,78 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53613",
+            "https://github.com/util-linux/util-linux/commit/0b010025a0e429bc80355c94db86a843395d49e2",
+            "https://github.com/util-linux/util-linux/commit/0d3d55975aa3492c62fd345eac38f41cd166c0b0",
+            "https://github.com/util-linux/util-linux/commit/2c773f336134acf016e639abb6f12ba7341fe4b8",
+            "https://github.com/util-linux/util-linux/commit/39fef62bf3226abb6bb018fa8750afa0327e84b4",
+            "https://github.com/util-linux/util-linux/commit/472cc3fb2d4d47cca7aab2e0b59eb3fb8a9359ec",
+            "https://github.com/util-linux/util-linux/commit/646fb66603d10a7ac337e14f566f1af48e3107c9",
+            "https://github.com/util-linux/util-linux/commit/708d1b3c51932dc5ba8082c7368187715e6a8d78",
+            "https://github.com/util-linux/util-linux/commit/78a860982e036f38fe9c0b3344998df5ac2c2ff5",
+            "https://github.com/util-linux/util-linux/commit/85d16b341f7232c9dbb4884b632e1e956584bee9",
+            "https://github.com/util-linux/util-linux/commit/a9508d216eb8977979102782672e0470cc9bf2a2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.5",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.2",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.42.4",
             "https://github.com/util-linux/util-linux/security/advisories/GHSA-8gj5-72r3-428g",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53613",
             "https://ubuntu.com/security/notices/USN-8702-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-53613"
-          ]
+          ],
+          "PublishedDate": "2026-10-14T15:17:20.41Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-53615",
+          "PkgID": "util-linux-extra@2.38.1-5+deb12u3",
+          "PkgName": "util-linux-extra",
+          "PkgIdentifier": {
+            "PURL": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
+            "UID": "ec22fa64ac4832d8"
+          },
+          "InstalledVersion": "2.38.1-5+deb12u3",
+          "Status": "affected",
+          "Layer": {
+            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
+            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-53615",
+          "DataSource": {
+            "ID": "debian",
+            "Name": "Debian Security Tracker",
+            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
+          },
+          "Fingerprint": "sha256:505efaf33a284909726139af7c3ccaf722fa66e079e983ed214a54798d695e48",
+          "Title": "util-linux: util-linux: Partition metadata compromise via integer overflow in DOS partition parser",
+          "Description": "util-linux is a random collection of Linux utilities. Before util-linux 2.41.4, `parse_dos_extended()` in `libblkid/src/partitions/dos.c` computes an extended-partition start sector with 32-bit addition and does not apply the extended-area bounds checks to the first two EBR entries. A local attacker who causes a crafted DOS extended-partition disk image or removable medium to be probed can wrap `cur_start + start` to sector zero and cause libblkid to report a false partition overlapping the MBR. This directly compromises the integrity of the reported partition metadata; disk modification or availability loss requires a separate downstream consumer to act on that metadata. This issue is fixed in 2.41.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-190"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H",
+              "V3Score": 8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-53615",
+            "https://github.com/util-linux/util-linux/commit/05c2dbadf34cc74192287f377904afaaf4061623",
+            "https://github.com/util-linux/util-linux/commit/a2d858176b609ab5b8535021a3af9cd302d23d31",
+            "https://github.com/util-linux/util-linux/commit/e9d544d013267ea86b70ee8ff78abd280e6641af",
+            "https://github.com/util-linux/util-linux/releases/tag/v2.41.4",
+            "https://github.com/util-linux/util-linux/security/advisories/GHSA-h4rw-gv36-wmp5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-53615",
+            "https://ubuntu.com/security/notices/USN-8702-1",
+            "https://www.cve.org/CVERecord?id=CVE-2026-53615"
+          ],
+          "PublishedDate": "2026-10-14T16:17:46.07Z",
+          "LastModifiedDate": "2026-10-16T16:00:33.533Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76642",
@@ -3475,54 +3921,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78408"
           ],
           "PublishedDate": "2026-09-02T16:17:23.687Z",
-          "LastModifiedDate": "2026-09-05T14:17:23.727Z"
-        },
-        {
-          "VulnerabilityID": "CVE-2026-78409",
-          "PkgID": "util-linux-extra@2.38.1-5+deb12u3",
-          "PkgName": "util-linux-extra",
-          "PkgIdentifier": {
-            "PURL": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64&distro=debian-12.14",
-            "UID": "ec22fa64ac4832d8"
-          },
-          "InstalledVersion": "2.38.1-5+deb12u3",
-          "Status": "affected",
-          "Layer": {
-            "Digest": "sha256:44e5fefee415bc2f433adc1146461230101bd94ca3fa531538da96bc690ba24b",
-            "DiffID": "sha256:b05a96227958df6091396f6fbd5aa4616df631a65626ac8688c91cfa70d1a7e6"
-          },
-          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-78409",
-          "DataSource": {
-            "ID": "debian",
-            "Name": "Debian Security Tracker",
-            "URL": "https://salsa.debian.org/security-tracker-team/security-tracker"
-          },
-          "Fingerprint": "sha256:6b1c04cc42d2582816107a0b5a08886bf3b3698f4b794b8a0bdd2be45e1508fb",
-          "Title": "util-linux: util-linux: X-mount.subdir detached-tree resolution can escape via intermediate symlinks",
-          "Description": "The X-mount.subdir option uses a detached-tree fast path on Linux 6.15 and later and passes the configured subdirectory to open_tree() with AT_SYMLINK_NOFOLLOW. That flag does not stop intermediate symlink traversal or keep resolution inside the newly mounted filesystem. A local unprivileged user with an fstab-authorized X-mount.subdir entry can attach a host path at the intended mountpoint.",
-          "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-59"
-          ],
-          "VendorSeverity": {
-            "redhat": 3
-          },
-          "CVSS": {
-            "redhat": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://access.redhat.com/errata/RHSA-2026:63162",
-            "https://access.redhat.com/security/cve/CVE-2026-78409",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2522607",
-            "https://github.com/util-linux/util-linux/security/advisories/GHSA-8f2p-47x3-43mv",
-            "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
-            "https://www.cve.org/CVERecord?id=CVE-2026-78409"
-          ],
-          "PublishedDate": "2026-09-02T16:17:23.833Z",
-          "LastModifiedDate": "2026-09-03T18:12:56.407Z"
+          "LastModifiedDate": "2026-10-30T14:17:09.807Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78410",
@@ -3570,7 +3969,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-78410"
           ],
           "PublishedDate": "2026-09-02T16:17:23.983Z",
-          "LastModifiedDate": "2026-09-04T19:17:27.567Z"
+          "LastModifiedDate": "2026-10-30T14:17:10Z"
         },
         {
           "VulnerabilityID": "CVE-2023-45853",
@@ -3654,7 +4053,7 @@
             "https://www.winimage.com/zLibDll/minizip.html"
           ],
           "PublishedDate": "2023-10-14T02:15:09.323Z",
-          "LastModifiedDate": "2026-07-14T13:17:02.983Z"
+          "LastModifiedDate": "2026-10-15T00:16:39.75Z"
         },
         {
           "VulnerabilityID": "CVE-2026-23949",
@@ -3705,6 +4104,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-23949",
+            "https://advisory.echohq.com/cve/CVE-2026-23949",
             "https://github.com/jaraco/jaraco.context",
             "https://github.com/jaraco/jaraco.context/blob/main/jaraco/context/__init__.py#L74-L91",
             "https://github.com/jaraco/jaraco.context/commit/7b26a42b525735e4085d2e994e13802ea339d5f9",
@@ -3822,6 +4222,7 @@
             "https://access.redhat.com/errata/RHSA-2026:6565",
             "https://access.redhat.com/errata/RHSA-2026:7250",
             "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://advisory.echohq.com/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",

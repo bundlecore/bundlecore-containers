@@ -1,7 +1,7 @@
 {
   "tool": "clairvoyante",
-  "scan_timestamp": "2026-10-01T09:07:43Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T09:41:14Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "1.02": {
       "image": "ghcr.io/bundlecore/products/bfx/clairvoyante:1.02",
@@ -135,6 +135,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2024-34069",
+            "https://advisory.echohq.com/cve/CVE-2024-34069",
             "https://github.com/pallets/werkzeug",
             "https://github.com/pallets/werkzeug/commit/3386395b24c7371db11a5b8eaac0c91da5362692",
             "https://github.com/pallets/werkzeug/security/advisories/GHSA-2g68-c3qc-8985",
@@ -151,6 +152,52 @@
           ],
           "PublishedDate": "2024-05-06T15:15:23.99Z",
           "LastModifiedDate": "2026-06-17T07:32:50.85Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6q48-6c7w-9gw2",
+          "PkgName": "certifi",
+          "PkgPath": "usr/local/lib/python2.7/site-packages/certifi-2019.9.11-py2.7.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/certifi@2019.9.11",
+            "UID": "77a734b5aac8413f"
+          },
+          "InstalledVersion": "2019.9.11",
+          "FixedVersion": "2026.10.18",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:4d637f1ec4abae10e87b924de053ce0b261f1ba902f93b548713ac12d97aeb70",
+            "DiffID": "sha256:ea2ed2707614260fb24b78026c408c707e73f92b9ba526884958ad00432315d0"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:3445ba0e113561b4d882516ea3ed162ad0b171010d328233389d2108d139cf48",
+          "Title": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "Description": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+          "Severity": "CRITICAL",
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/GHSA-6q48-6c7w-9gw2",
+            "https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576",
+            "https://emudhra.we-have-a-problem.com",
+            "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+            "https://github.com/certifi/python-certifi",
+            "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2"
+          ],
+          "PublishedDate": "2026-10-20T19:35:05Z",
+          "LastModifiedDate": "2026-10-26T16:02:12Z"
         },
         {
           "VulnerabilityID": "CVE-2023-37920",
@@ -366,6 +413,17 @@
             "https://access.redhat.com/errata/RHSA-2019:3335",
             "https://access.redhat.com/errata/RHSA-2019:3704",
             "https://access.redhat.com/security/cve/CVE-2019-6446",
+            "https://bugzilla.redhat.com/1667950",
+            "https://bugzilla.redhat.com/1680967",
+            "https://bugzilla.redhat.com/1688169",
+            "https://bugzilla.redhat.com/1695570",
+            "https://bugzilla.redhat.com/1695572",
+            "https://bugzilla.redhat.com/1700824",
+            "https://bugzilla.redhat.com/1700993",
+            "https://bugzilla.redhat.com/1702473",
+            "https://bugzilla.redhat.com/1709599",
+            "https://bugzilla.redhat.com/1718398",
+            "https://bugzilla.redhat.com/1734126",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1667950",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1680967",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1688169",
@@ -580,7 +638,7 @@
             "https://www.oracle.com/security-alerts/cpujul2022.html"
           ],
           "PublishedDate": "2021-11-10T18:15:09.51Z",
-          "LastModifiedDate": "2026-08-25T16:28:27.31Z"
+          "LastModifiedDate": "2026-10-08T21:17:40.637Z"
         },
         {
           "VulnerabilityID": "CVE-2022-1941",
@@ -727,6 +785,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2025-4565",
+            "https://advisory.echohq.com/cve/CVE-2025-4565",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/decoder_test.py#L87-L98",
             "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/message_test.py#L1436-L1478",
@@ -820,6 +879,7 @@
             "https://access.redhat.com/errata/RHSA-2026:8747",
             "https://access.redhat.com/errata/RHSA-2026:8748",
             "https://access.redhat.com/security/cve/CVE-2026-0994",
+            "https://advisory.echohq.com/cve/CVE-2026-0994",
             "https://bugzilla.redhat.com/2432398",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -1011,6 +1071,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://advisory.echohq.com/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -1099,6 +1160,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -8518,11 +8580,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 125
+      "vulnerability_count": 126
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 125
+    "total_vulnerabilities": 126
   }
 }

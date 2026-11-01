@@ -1,16 +1,135 @@
 {
   "tool": "anndata2ri",
-  "scan_timestamp": "2026-10-01T08:45:54Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T09:08:38Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "2.0.1": {
       "image": "ghcr.io/bundlecore/products/bfx/anndata2ri:2.0.1",
-      "vulnerabilities": [],
-      "vulnerability_count": 0
+      "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-114613",
+          "VendorIDs": [
+            "GHSA-j586-36cw-2gc2"
+          ],
+          "PkgName": "msgpack",
+          "PkgPath": "usr/local/lib/python3.14/site-packages/msgpack-1.2.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.2.1",
+            "UID": "2e05be203e307fd3"
+          },
+          "InstalledVersion": "1.2.1",
+          "FixedVersion": "1.2.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:cddb347bb6425c64f40a133d9b1ce1e7ebfb2e37251d810a8cd2415e003db710",
+            "DiffID": "sha256:dce8ff8d2488ea1015856a17c4421029e333d937c54ce651941bc9e8c6982ab4"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-114613",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:6de3ef0442e4764f5d85bb9b00ecc35ccd97438f0f288bd21fbdc68cf59a7759",
+          "Title": "msgpack: msgpack: Denial of Service via memory leak during map deserialization",
+          "Description": "MessagePack is the serializer implementation for Python msgpack.org. Prior to 1.2.3, the msgpack-python C extension (msgpack._cmsgpack) leaks a decoded map value when deserialization rejects a key with strict_map_key=True (the default). Repeated malformed inputs can cause unbounded process memory growth and denial of service in applications that deserialize attacker-controlled MessagePack data. Both unpackb() and the streaming Unpacker API are affected. The pure-Python fallback does not exhibit this leak in the reported tests. This issue is fixed in version 1.2.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-401"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-114613",
+            "https://advisory.echohq.com/cve/CVE-2026-114613",
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/620b0eb4c89cd72d4098564537624d9dbb2ce141",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.3",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-j586-36cw-2gc2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-114613",
+            "https://www.cve.org/CVERecord?id=CVE-2026-114613"
+          ],
+          "PublishedDate": "2026-10-22T19:17:37.733Z",
+          "LastModifiedDate": "2026-10-23T21:17:21.823Z"
+        }
+      ],
+      "vulnerability_count": 1
     },
     "2.0": {
       "image": "ghcr.io/bundlecore/products/bfx/anndata2ri:2.0",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-114613",
+          "VendorIDs": [
+            "GHSA-j586-36cw-2gc2"
+          ],
+          "PkgName": "msgpack",
+          "PkgPath": "usr/local/lib/python3.13/site-packages/msgpack-1.1.1.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/msgpack@1.1.1",
+            "UID": "49fa366f1ee55a23"
+          },
+          "InstalledVersion": "1.1.1",
+          "FixedVersion": "1.2.3",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:385f87e29aef2bbc52ce38f6c1e563fcb85d5b87da75c817e5867424c3475860",
+            "DiffID": "sha256:459a18515976959670c641ae56e9baee656b4516f9cea7e2a0275837d9cda355"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-114613",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:038ca23bf06ca9d8898384e0bfd9ba557f1dffe31e023c992720f12db477ac3d",
+          "Title": "msgpack: msgpack: Denial of Service via memory leak during map deserialization",
+          "Description": "MessagePack is the serializer implementation for Python msgpack.org. Prior to 1.2.3, the msgpack-python C extension (msgpack._cmsgpack) leaks a decoded map value when deserialization rejects a key with strict_map_key=True (the default). Repeated malformed inputs can cause unbounded process memory growth and denial of service in applications that deserialize attacker-controlled MessagePack data. Both unpackb() and the streaming Unpacker API are affected. The pure-Python fallback does not exhibit this leak in the reported tests. This issue is fixed in version 1.2.3.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-401"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-114613",
+            "https://advisory.echohq.com/cve/CVE-2026-114613",
+            "https://github.com/msgpack/msgpack-python",
+            "https://github.com/msgpack/msgpack-python/commit/620b0eb4c89cd72d4098564537624d9dbb2ce141",
+            "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.3",
+            "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-j586-36cw-2gc2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-114613",
+            "https://www.cve.org/CVERecord?id=CVE-2026-114613"
+          ],
+          "PublishedDate": "2026-10-22T19:17:37.733Z",
+          "LastModifiedDate": "2026-10-23T21:17:21.823Z"
+        },
         {
           "VulnerabilityID": "GHSA-6v7p-g79w-8964",
           "PkgName": "msgpack",
@@ -47,6 +166,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-6v7p-g79w-8964",
+            "https://github.com/advisories/GHSA-6v7p-g79w-8964",
             "https://github.com/msgpack/msgpack-python",
             "https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d",
             "https://github.com/msgpack/msgpack-python/releases/tag/v1.2.1",
@@ -56,11 +177,11 @@
           "LastModifiedDate": "2026-06-19T21:42:55Z"
         }
       ],
-      "vulnerability_count": 1
+      "vulnerability_count": 2
     }
   },
   "summary": {
     "total_versions_scanned": 2,
-    "total_vulnerabilities": 1
+    "total_vulnerabilities": 3
   }
 }

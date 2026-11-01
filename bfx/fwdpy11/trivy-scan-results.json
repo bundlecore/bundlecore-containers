@@ -1,11 +1,59 @@
 {
   "tool": "fwdpy11",
-  "scan_timestamp": "2026-10-01T09:25:36Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T10:09:26Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "0.24.5": {
       "image": "ghcr.io/bundlecore/products/bfx/fwdpy11:0.24.5",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-114134",
+          "VendorIDs": [
+            "GHSA-cg8m-r9f2-5wm2"
+          ],
+          "PkgName": "black",
+          "PkgPath": "usr/local/lib/python3.11/site-packages/black-25.1.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/black@25.1.0",
+            "UID": "ca95c3fdedbfa8ae"
+          },
+          "InstalledVersion": "25.1.0",
+          "FixedVersion": "26.10.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:fdc3773686cbe7499dc61dbe69e3c140c11ef2672b4af10cf8e2b4b11a2cea84",
+            "DiffID": "sha256:0102183e7d51c846a9b1e50b469550d4c753cf8b08d843997864ea7e92894664"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-114134",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:d0a87b4e10b74081a049b4ab737e1ac56e7a2eb7252252ab18b94d1e28ff060d",
+          "Title": "Black: GitHub Action installs unvalidated required-version from pyproject.toml",
+          "Description": "### Summary\n\nThe GitHub Action bundled with Black can read the version from `tool.black.required-version` if `use_pyproject` is set to True. This version is not validated and therefore can be used to execute untrusted code in the context of a victim's repository.\n\n### Details\n\nThis is similar to the previous CVE-2026-31900. The value in `tool.black.required-version` is accepted as the version to be installed by the action without validation.\n\n### Proof of concept\n\nReproduction requires a victim to use Black's GitHub Action with `use_pyproject: true`. The attacker would then issue a PR to the victim's repository with `pyproject.toml` edited so that Black points to a malicious repository.\n\n### Impact\n\nThis is a remote code execution vulnerability impacting users using the GitHub Action bundled with psf/black and using the `use_pyproject: true` setting.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/CVE-2026-114134",
+            "https://github.com/advisories/GHSA-cg8m-r9f2-5wm2",
+            "https://github.com/psf/black",
+            "https://github.com/psf/black/commit/ac1f71563aeccf73cf13ece00f231d9d6c66a514",
+            "https://github.com/psf/black/pull/5510",
+            "https://github.com/psf/black/releases/tag/26.10.1",
+            "https://github.com/psf/black/security/advisories/GHSA-cg8m-r9f2-5wm2"
+          ]
+        },
         {
           "VulnerabilityID": "CVE-2026-32274",
           "VendorIDs": [
@@ -64,7 +112,9 @@
             "https://access.redhat.com/errata/RHSA-2026:13545",
             "https://access.redhat.com/errata/RHSA-2026:13553",
             "https://access.redhat.com/security/cve/CVE-2026-32274",
+            "https://advisory.echohq.com/cve/CVE-2026-32274",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2447111",
+            "https://github.com/advisories/GHSA-3936-cmfr-pm3m",
             "https://github.com/psf/black",
             "https://github.com/psf/black/commit/4937fe6cf241139ddbfc16b0bdbb5b422798909d",
             "https://github.com/psf/black/commit/ed770ba4dd50c419148a0fca2b43937a7447e1f9",
@@ -129,6 +179,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-23949",
+            "https://advisory.echohq.com/cve/CVE-2026-23949",
             "https://github.com/jaraco/jaraco.context",
             "https://github.com/jaraco/jaraco.context/blob/main/jaraco/context/__init__.py#L74-L91",
             "https://github.com/jaraco/jaraco.context/commit/7b26a42b525735e4085d2e994e13802ea339d5f9",
@@ -208,6 +259,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -336,6 +388,7 @@
             "https://access.redhat.com/errata/RHSA-2026:6565",
             "https://access.redhat.com/errata/RHSA-2026:7250",
             "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://advisory.echohq.com/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -462,6 +515,7 @@
             "https://access.redhat.com/errata/RHSA-2026:6565",
             "https://access.redhat.com/errata/RHSA-2026:7250",
             "https://access.redhat.com/security/cve/CVE-2026-24049",
+            "https://advisory.echohq.com/cve/CVE-2026-24049",
             "https://bugzilla.redhat.com/2431959",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2431959",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -484,11 +538,11 @@
           "LastModifiedDate": "2026-09-10T13:17:45.017Z"
         }
       ],
-      "vulnerability_count": 5
+      "vulnerability_count": 6
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 5
+    "total_vulnerabilities": 6
   }
 }
