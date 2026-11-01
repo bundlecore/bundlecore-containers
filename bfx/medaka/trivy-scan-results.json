@@ -1,11 +1,304 @@
 {
   "tool": "medaka",
-  "scan_timestamp": "2026-10-01T09:43:51Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T10:38:21Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "2.2.2": {
       "image": "ghcr.io/bundlecore/products/bfx/medaka:2.2.2",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-111497",
+          "VendorIDs": [
+            "GHSA-9v8h-qqgm-4m35"
+          ],
+          "PkgName": "Brotli",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/brotli-1.2.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/brotli@1.2.0",
+            "UID": "d2134f73a3588470"
+          },
+          "InstalledVersion": "1.2.0",
+          "FixedVersion": "1.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:902e2a95e8e0ba541a8045c36832655c7767ae9a6255a607f9dd86c101149111",
+            "DiffID": "sha256:92d3bde3350a7fa90d54fb6dcd9aeaefa4c025a6f8cb72267e9cc1e0452280c7"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-111497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:373bdc955c2a59af1f6cd8393fb45fb2f254125609017ba62afb1610439604cc",
+          "Title": "brotli: Out-of-Bounds Write in Google Brotli Decoder",
+          "Description": "A buffer overflow vulnerability in the Brotli decoder (c/dec/decode.c) in Google Brotli versions 1.0.3 through 1.2.0 on all platforms allows a remote unauthenticated attacker to corrupt adjacent decoder state memory, disclose sensitive memory contents, cause a denial of service, or potentially execute arbitrary code using a crafted Brotli-compressed stream.\n\n\n\n\n\nUsers need to update any Brotli libraries or binaries between 1.0.3 through 1.2.0 to the latest available version: 1.0.10 or 1.1.1 or 1.2.1.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-252",
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 4,
+            "bitnami": 4,
+            "ghsa": 4,
+            "nvd": 4,
+            "oracle-oval": 3,
+            "photon": 4,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 9.2
+            },
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 9.2
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 8.1
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/10/23/25",
+            "http://www.openwall.com/lists/oss-security/2026/10/24/6",
+            "http://www.openwall.com/lists/oss-security/2026/10/26/12",
+            "http://www.openwall.com/lists/oss-security/2026/10/26/13",
+            "http://www.openwall.com/lists/oss-security/2026/10/26/16",
+            "https://access.redhat.com/errata/RHSA-2026:90449",
+            "https://access.redhat.com/errata/RHSA-2026:92492",
+            "https://access.redhat.com/security/cve/CVE-2026-111497",
+            "https://advisory.echohq.com/cve/CVE-2026-111497",
+            "https://broccoli2shell.com",
+            "https://bugzilla.redhat.com/2558973",
+            "https://bugzilla.redhat.com/2562054",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2558973",
+            "https://cert-portal.siemens.com/productcert/html/ssa-045512.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-443410.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-898633.html",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-111497",
+            "https://devblogs.microsoft.com/dotnet/dotnet-october-2026-oob-security-updates",
+            "https://ellio.tech/en/blog/node2shell-cve-2026-111497-rce-on-stock-nodejs-builds",
+            "https://ellio.tech/en/blog/node2shell-cve-2026-111497-rce-on-stock-nodejs-builds/",
+            "https://errata.almalinux.org/9/ALSA-2026-92492.html",
+            "https://errata.rockylinux.org/RLSA-2026:90449",
+            "https://github.com/advisories/GHSA-9v8h-qqgm-4m35",
+            "https://github.com/andybalholm/brotli/releases/tag/v1.2.7",
+            "https://github.com/dotnet/announcements/issues/494",
+            "https://github.com/google/brotli",
+            "https://github.com/google/brotli/commit/0ed4268a4401abcb4472096340477cf4af7d1a2b",
+            "https://github.com/google/brotli/commit/50a9b70a4d5e1443fc40927952276b68fffa83a0",
+            "https://github.com/google/brotli/commit/b418fa81c48262a86a95332b0bc6d62c30aa78b6",
+            "https://github.com/google/brotli/commit/da9806362874b9bd4b552a3af360b5d6347beb12",
+            "https://github.com/google/brotli/releases/tag/v1.0.10",
+            "https://github.com/google/brotli/releases/tag/v1.1.1",
+            "https://github.com/google/brotli/releases/tag/v1.2.1",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/brotli/PYSEC-2026-4322.yaml",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/brotlicffi/PYSEC-2026-4323.yaml",
+            "https://linux.oracle.com/cve/CVE-2026-111497.html",
+            "https://linux.oracle.com/errata/ELSA-2026-92492.html",
+            "https://lists.debian.org/debian-lts-announce/2026/10/msg00049.html",
+            "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-114148",
+            "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases",
+            "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases#nodejs-brotli-decoder-out-of-bounds-write-permits-remote-code-execution-cve-2026-111497---high",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-111497",
+            "https://opensourcemalware.com/blog/node2shell-affects-python",
+            "https://patchtheplanet.org/brotli",
+            "https://pypi.org/project/Brotli",
+            "https://pypi.org/project/brotlicffi",
+            "https://ubuntu.com/security/notices/USN-8956-1",
+            "https://ubuntu.com/security/notices/USN-8956-2",
+            "https://ubuntu.com/security/notices/USN-8958-1",
+            "https://www.aikido.dev/blog/node2shell-nodejs-brotli-rce-cve-2026-111497",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+            "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-111497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-111497"
+          ],
+          "PublishedDate": "2026-10-22T14:17:37.19Z",
+          "LastModifiedDate": "2026-10-30T20:30:11.67Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6q48-6c7w-9gw2",
+          "PkgName": "certifi",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/certifi@2026.4.22",
+            "UID": "51ae24711e529137"
+          },
+          "InstalledVersion": "2026.4.22",
+          "FixedVersion": "2026.10.18",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:902e2a95e8e0ba541a8045c36832655c7767ae9a6255a607f9dd86c101149111",
+            "DiffID": "sha256:92d3bde3350a7fa90d54fb6dcd9aeaefa4c025a6f8cb72267e9cc1e0452280c7"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9e8b642ad4e8087b03d8cb9770376d23826d51d73680377df67d3c3e64c0c2f0",
+          "Title": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "Description": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+          "Severity": "CRITICAL",
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/GHSA-6q48-6c7w-9gw2",
+            "https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576",
+            "https://emudhra.we-have-a-problem.com",
+            "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+            "https://github.com/certifi/python-certifi",
+            "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2"
+          ],
+          "PublishedDate": "2026-10-20T19:35:05Z",
+          "LastModifiedDate": "2026-10-26T16:02:12Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-112940",
+          "VendorIDs": [
+            "GHSA-v4x8-3wr5-3wq8"
+          ],
+          "PkgName": "filelock",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/filelock-3.29.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/filelock@3.29.0",
+            "UID": "9a16422244a33565"
+          },
+          "InstalledVersion": "3.29.0",
+          "FixedVersion": "4.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:902e2a95e8e0ba541a8045c36832655c7767ae9a6255a607f9dd86c101149111",
+            "DiffID": "sha256:92d3bde3350a7fa90d54fb6dcd9aeaefa4c025a6f8cb72267e9cc1e0452280c7"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-112940",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:42f85b08b913dcae0a199002b9a631297fb11b4860fe09c4854a88d8f9b8207b",
+          "Title": "filelock: filelock: Arbitrary file overwrite via insecure database file reopening",
+          "Description": "filelock is a platform-independent file lock for Python. From 3.20.4 until 4.2.1, ReadWriteLock let SQLite reopen the database and side files by name; on POSIX systems an attacker with rename access in a non-sticky parent can swap those names to cause overwrite or unlink operations, while a writable adjacent hot journal is additionally required for attacker-chosen content overwrites. This issue is fixed in version 4.2.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-363",
+            "CWE-59"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+              "V3Score": 7.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:H",
+              "V3Score": 6.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-112940",
+            "https://advisory.echohq.com/cve/CVE-2026-112940",
+            "https://github.com/tox-dev/filelock",
+            "https://github.com/tox-dev/filelock/commit/5e3f2ec0c5fb17cb2635b60b2b68bc63ab81ca2d",
+            "https://github.com/tox-dev/filelock/pull/834",
+            "https://github.com/tox-dev/filelock/releases/tag/4.2.1",
+            "https://github.com/tox-dev/filelock/security/advisories/GHSA-v4x8-3wr5-3wq8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-112940",
+            "https://www.cve.org/CVERecord?id=CVE-2026-112940"
+          ],
+          "PublishedDate": "2026-10-20T15:17:16.827Z",
+          "LastModifiedDate": "2026-10-22T22:18:02.827Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-104851",
+          "VendorIDs": [
+            "GHSA-27vj-qcqg-25rc"
+          ],
+          "PkgName": "fsspec",
+          "PkgPath": "usr/local/lib/python3.12/site-packages/fsspec-2026.4.0.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/fsspec@2026.4.0",
+            "UID": "cb0d005a5b84095d"
+          },
+          "InstalledVersion": "2026.4.0",
+          "FixedVersion": "2026.6.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:902e2a95e8e0ba541a8045c36832655c7767ae9a6255a607f9dd86c101149111",
+            "DiffID": "sha256:92d3bde3350a7fa90d54fb6dcd9aeaefa4c025a6f8cb72267e9cc1e0452280c7"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-104851",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ea7737baf026b1bebdb1fa13f6d588061ca1c1151a9c41fcac939f157fb9922a",
+          "Title": "fsspec: fsspec: arbitrary code execution via unrestricted template rendering in ReferenceFileSystem",
+          "Description": "fsspec is a specification and Python implementation framework for filesystem interfaces. From 0.9.0 until 2026.6.0, fsspec.implementations.reference.ReferenceFileSystem evaluates fields from Kerchunk reference JSON documents through unrestricted jinja2.Template(...).render(...) calls in _process_references1._render_jinja, _process_templates, and _process_gen in fsspec/implementations/reference.py. A document supplied inline or fetched from an attacker-controlled URL can provide template expressions that execute Python code when the reference filesystem is opened, including through consumers such as xarray, before referenced data is read. The _process_gen path is reached whenever a document includes a gen array, while the other paths depend on template-related options and values. This issue is fixed in version 2026.6.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-94",
+            "CWE-1336"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 8.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-104851",
+            "https://advisory.echohq.com/cve/CVE-2026-104851",
+            "https://github.com/fsspec/filesystem_spec",
+            "https://github.com/fsspec/filesystem_spec/commit/86438783f93b1398ef245b92f0e6063b445b611c",
+            "https://github.com/fsspec/filesystem_spec/commit/a1c16ab3f07f354aa371c38f7b1b07ea7fd4c5c8",
+            "https://github.com/fsspec/filesystem_spec/pull/2029",
+            "https://github.com/fsspec/filesystem_spec/pull/2039",
+            "https://github.com/fsspec/filesystem_spec/releases/tag/2026.6.0",
+            "https://github.com/fsspec/filesystem_spec/security/advisories/GHSA-27vj-qcqg-25rc",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-104851",
+            "https://www.cve.org/CVERecord?id=CVE-2026-104851"
+          ],
+          "PublishedDate": "2026-10-02T17:17:03.763Z",
+          "LastModifiedDate": "2026-10-05T20:17:09.373Z"
+        },
         {
           "VulnerabilityID": "CVE-2026-97687",
           "VendorIDs": [
@@ -40,13 +333,22 @@
             "CWE-440"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "ghsa": 3,
-            "redhat": 3
+            "nvd": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
               "V40Score": 7.6
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+              "V3Score": 8.1
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
@@ -54,18 +356,33 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:84578",
+            "https://access.redhat.com/errata/RHSA-2026:90494",
             "https://access.redhat.com/security/cve/CVE-2026-97687",
+            "https://advisory.echohq.com/cve/CVE-2026-97687",
+            "https://bugzilla.redhat.com/2543245",
+            "https://bugzilla.redhat.com/2543255",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543245",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543255",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97687",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97689",
+            "https://errata.almalinux.org/9/ALSA-2026-90494.html",
+            "https://errata.rockylinux.org/RLSA-2026:84578",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/07408cec79d1856d81bb42c74a904a24fdb9e465",
             "https://github.com/urllib3/urllib3/commit/b6447295fff7b38fdffc67e0df9712d60cef3cc3",
             "https://github.com/urllib3/urllib3/pull/5093",
             "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
+            "https://linux.oracle.com/cve/CVE-2026-97687.html",
+            "https://linux.oracle.com/errata/ELSA-2026-92474.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-97687",
+            "https://ubuntu.com/security/notices/USN-8926-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-97687"
           ],
           "PublishedDate": "2026-09-29T16:17:18.517Z",
-          "LastModifiedDate": "2026-09-30T21:17:19.473Z"
+          "LastModifiedDate": "2026-10-13T20:27:23.13Z"
         },
         {
           "VulnerabilityID": "CVE-2026-97689",
@@ -100,13 +417,24 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
             "ghsa": 3,
-            "redhat": 3
+            "nvd": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
               "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -114,23 +442,38 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:84578",
+            "https://access.redhat.com/errata/RHSA-2026:90494",
             "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://advisory.echohq.com/cve/CVE-2026-97689",
+            "https://bugzilla.redhat.com/2543245",
+            "https://bugzilla.redhat.com/2543255",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543245",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543255",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97687",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97689",
+            "https://errata.almalinux.org/9/ALSA-2026-90494.html",
+            "https://errata.rockylinux.org/RLSA-2026:84578",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
             "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://linux.oracle.com/cve/CVE-2026-97689.html",
+            "https://linux.oracle.com/errata/ELSA-2026-92474.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://ubuntu.com/security/notices/USN-8926-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-97689"
           ],
           "PublishedDate": "2026-09-29T16:17:18.837Z",
-          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
+          "LastModifiedDate": "2026-10-13T20:20:06.95Z"
         }
       ],
-      "vulnerability_count": 2
+      "vulnerability_count": 6
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 2
+    "total_vulnerabilities": 6
   }
 }

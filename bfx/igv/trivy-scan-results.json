@@ -1,11 +1,74 @@
 {
   "tool": "igv",
-  "scan_timestamp": "2026-10-01T09:35:17Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T10:24:37Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "2.19.8": {
       "image": "ghcr.io/bundlecore/products/bfx/igv:2.19.8",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2026-102554",
+          "VendorIDs": [
+            "GHSA-xxph-c9ww-hj94"
+          ],
+          "PkgName": "com.google.guava:guava",
+          "PkgPath": "usr/local/lib/igv/guava-32.1.3-jre.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.google.guava/guava@32.1.3-jre",
+            "UID": "bd887561205ef958"
+          },
+          "InstalledVersion": "32.1.3-jre",
+          "FixedVersion": "33.7.2",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:705ca2d1679693f3120d8f489e8e9254ab7da7608bf6d2b9923702e14ee28097",
+            "DiffID": "sha256:acdabbb6eb606cb25ea16fd710f2c0c3f2f6bce20fac4f38d831b943c9aac746"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-102554",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:932a7687df0062306d3a9e7fd49a04e8e505eb5f94f1ccffcea3fe2f25324e96",
+          "Title": "com.google.guava/guava: Google Guava: Denial of Service via unthrottled memory allocation during deserialization",
+          "Description": "Allocation of resources without limits or throttling (CWE-770) during Java object deserialization in Google Guava versions 4.0 through 33.7.1 allows an attacker to cause a Denial of Service via OutOfMemoryError. When deserializing CompactHashMap, CompactHashSet, or MapMakerInternalMap instances, Guava eagerly allocates an array based on a caller-specified size parameter without throttling, permitting memory exhaustion from crafted serialization streams.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-502",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V3Score": 5.9,
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-102554",
+            "https://advisory.echohq.com/cve/CVE-2026-102554",
+            "https://github.com/advisories/GHSA-xxph-c9ww-hj94",
+            "https://github.com/google/guava",
+            "https://github.com/google/guava/commit/b931fe9d6d5cf00bc55714ad3308d086f71850fe",
+            "https://github.com/google/guava/releases/tag/v33.7.2",
+            "https://github.com/google/guava/security/advisories/GHSA-xxph-c9ww-hj94",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-102554",
+            "https://www.cve.org/CVERecord?id=CVE-2026-102554"
+          ],
+          "PublishedDate": "2026-10-09T16:17:20.41Z",
+          "LastModifiedDate": "2026-10-09T18:17:01.38Z"
+        },
         {
           "VulnerabilityID": "CVE-2026-42583",
           "VendorIDs": [
@@ -55,13 +118,14 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-42583",
+            "https://advisory.echohq.com/cve/CVE-2026-42583",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/security/advisories/GHSA-mj4r-2hfc-f8p6",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-42583",
             "https://www.cve.org/CVERecord?id=CVE-2026-42583"
           ],
           "PublishedDate": "2026-05-13T19:17:23.903Z",
-          "LastModifiedDate": "2026-06-17T10:48:05.55Z"
+          "LastModifiedDate": "2026-10-26T17:10:03.27Z"
         },
         {
           "VulnerabilityID": "CVE-2026-59901",
@@ -116,6 +180,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59901",
+            "https://advisory.echohq.com/cve/CVE-2026-59901",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/releases/tag/netty-4.1.136.Final",
             "https://github.com/netty/netty/releases/tag/netty-4.2.16.Final",
@@ -191,7 +256,9 @@
             "https://access.redhat.com/errata/RHSA-2026:8159",
             "https://access.redhat.com/errata/RHSA-2026:8509",
             "https://access.redhat.com/security/cve/CVE-2026-33870",
+            "https://advisory.echohq.com/cve/CVE-2026-33870",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2452453",
+            "https://github.com/advisories/GHSA-pwqr-wmgm-9rr8",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/security/advisories/GHSA-pwqr-wmgm-9rr8",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-33870",
@@ -274,6 +341,7 @@
             "https://access.redhat.com/errata/RHSA-2026:66488",
             "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-42584",
+            "https://advisory.echohq.com/cve/CVE-2026-42584",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477224",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/security/advisories/GHSA-57rv-r2g8-2cj3",
@@ -283,7 +351,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42584"
           ],
           "PublishedDate": "2026-05-13T19:17:24.043Z",
-          "LastModifiedDate": "2026-09-18T13:18:20.81Z"
+          "LastModifiedDate": "2026-10-26T17:10:03.27Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42587",
@@ -361,7 +429,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42587"
           ],
           "PublishedDate": "2026-05-13T19:17:24.46Z",
-          "LastModifiedDate": "2026-09-18T13:18:21.533Z"
+          "LastModifiedDate": "2026-10-26T17:10:03.27Z"
         },
         {
           "VulnerabilityID": "CVE-2026-55831",
@@ -412,6 +480,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-55831",
+            "https://advisory.echohq.com/cve/CVE-2026-55831",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
             "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
@@ -472,6 +541,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-55833",
+            "https://advisory.echohq.com/cve/CVE-2026-55833",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
             "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
@@ -537,6 +607,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-56745",
+            "https://advisory.echohq.com/cve/CVE-2026-56745",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/commit/5b68c61f37aa4a3045cba624cbea239655c9003b",
             "https://github.com/netty/netty/commit/bb2ff68a1fb71cb4b0eb9a9e17b66c52aff680c6",
@@ -602,6 +673,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-75595",
+            "https://advisory.echohq.com/cve/CVE-2026-75595",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/commit/1b5abc6443b63726c72cdd285af2feb7ddbb8ff7",
             "https://github.com/netty/netty/commit/9e0519239108a69b7e9bbc5e9182ee139a0d7961",
@@ -614,7 +686,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-75595"
           ],
           "PublishedDate": "2026-08-19T21:17:37.563Z",
-          "LastModifiedDate": "2026-09-22T19:33:26.833Z"
+          "LastModifiedDate": "2026-10-26T10:10:00.14Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44249",
@@ -686,6 +758,7 @@
             "https://access.redhat.com/errata/RHSA-2026:66488",
             "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-44249",
+            "https://advisory.echohq.com/cve/CVE-2026-44249",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488081",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
@@ -765,6 +838,7 @@
             "https://access.redhat.com/errata/RHSA-2026:66488",
             "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-45416",
+            "https://advisory.echohq.com/cve/CVE-2026-45416",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488391",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
@@ -843,6 +917,7 @@
             "https://access.redhat.com/errata/RHSA-2026:66488",
             "https://access.redhat.com/errata/RHSA-2026:66545",
             "https://access.redhat.com/security/cve/CVE-2026-50010",
+            "https://advisory.echohq.com/cve/CVE-2026-50010",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2488429",
             "https://github.com/netty/netty",
             "https://github.com/netty/netty/releases/tag/netty-4.1.135.Final",
@@ -856,11 +931,11 @@
           "LastModifiedDate": "2026-09-18T13:18:31.64Z"
         }
       ],
-      "vulnerability_count": 12
+      "vulnerability_count": 13
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 12
+    "total_vulnerabilities": 13
   }
 }

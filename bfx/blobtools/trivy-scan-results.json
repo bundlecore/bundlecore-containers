@@ -1,7 +1,7 @@
 {
   "tool": "blobtools",
-  "scan_timestamp": "2026-10-01T08:56:28Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T09:25:25Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "1.1.1": {
       "image": "ghcr.io/bundlecore/products/bfx/blobtools:1.1.1",
@@ -66,7 +66,15 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2020:4641",
             "https://access.redhat.com/security/cve/CVE-2019-20477",
+            "https://bugzilla.redhat.com/1806005",
+            "https://bugzilla.redhat.com/1807367",
+            "https://bugzilla.redhat.com/1809065",
+            "https://bugzilla.redhat.com/1815643",
+            "https://bugzilla.redhat.com/1847416",
+            "https://bugzilla.redhat.com/1854926",
+            "https://bugzilla.redhat.com/1856481",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1806005",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1807367",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1809065",
@@ -248,7 +256,15 @@
           "References": [
             "http://lists.opensuse.org/opensuse-security-announce/2020-04/msg00017.html",
             "http://lists.opensuse.org/opensuse-security-announce/2020-05/msg00017.html",
+            "https://access.redhat.com/errata/RHSA-2020:4641",
             "https://access.redhat.com/security/cve/CVE-2020-1747",
+            "https://bugzilla.redhat.com/1806005",
+            "https://bugzilla.redhat.com/1807367",
+            "https://bugzilla.redhat.com/1809065",
+            "https://bugzilla.redhat.com/1815643",
+            "https://bugzilla.redhat.com/1847416",
+            "https://bugzilla.redhat.com/1854926",
+            "https://bugzilla.redhat.com/1856481",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1806005",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1807367",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1809065",
@@ -289,6 +305,52 @@
           ],
           "PublishedDate": "2020-03-24T15:15:12.293Z",
           "LastModifiedDate": "2026-06-17T03:02:19.383Z"
+        },
+        {
+          "VulnerabilityID": "GHSA-6q48-6c7w-9gw2",
+          "PkgName": "certifi",
+          "PkgPath": "usr/local/lib/python3.6/site-packages/certifi-2019.9.11-py3.6.egg-info/PKG-INFO",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/certifi@2019.9.11",
+            "UID": "e5106de543cdb6cd"
+          },
+          "InstalledVersion": "2019.9.11",
+          "FixedVersion": "2026.10.18",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:b8711a9ef255d2cb0282af85db3a3797549e29d5b240996d9adf7f66d9302089",
+            "DiffID": "sha256:fff2ffd1d2c0ff01e8ff9b513963addf3d1bab4716c9aaa6920677c50ce5e761"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:ce7d0e9b0f8c2e665c96cb920cf31c7f4783b3e4f91d5d42041e57a81781716a",
+          "Title": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "Description": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+          "Severity": "CRITICAL",
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/GHSA-6q48-6c7w-9gw2",
+            "https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576",
+            "https://emudhra.we-have-a-problem.com",
+            "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+            "https://github.com/certifi/python-certifi",
+            "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2"
+          ],
+          "PublishedDate": "2026-10-20T19:35:05Z",
+          "LastModifiedDate": "2026-10-26T16:02:12Z"
         },
         {
           "VulnerabilityID": "CVE-2023-37920",
@@ -545,7 +607,7 @@
             "https://www.oracle.com/security-alerts/cpujul2022.html"
           ],
           "PublishedDate": "2021-11-10T18:15:09.51Z",
-          "LastModifiedDate": "2026-08-25T16:28:27.31Z"
+          "LastModifiedDate": "2026-10-08T21:17:40.637Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40897",
@@ -714,6 +776,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://advisory.echohq.com/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -802,6 +865,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -881,6 +945,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:10590",
             "https://access.redhat.com/security/cve/CVE-2024-52804",
+            "https://advisory.echohq.com/cve/CVE-2024-52804",
             "https://bugzilla.redhat.com/2328045",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2328045",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -888,6 +953,7 @@
             "https://errata.almalinux.org/9/ALSA-2024-10590.html",
             "https://errata.rockylinux.org/RLSA-2024:10590",
             "https://github.com/advisories/GHSA-7pwv-g7hj-39pr",
+            "https://github.com/advisories/GHSA-8w49-h785-mj3c",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/d5ba4a1695fbf7c6a3e54313262639b198291533",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-8w49-h785-mj3c",
@@ -957,12 +1023,14 @@
             "https://access.redhat.com/errata/RHSA-2025:8135",
             "https://access.redhat.com/errata/RHSA-2025:8136",
             "https://access.redhat.com/security/cve/CVE-2025-47287",
+            "https://advisory.echohq.com/cve/CVE-2025-47287",
             "https://bugzilla.redhat.com/2366703",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366703",
             "https://creativecommons.org/licenses/by/4.0/",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-47287",
             "https://errata.almalinux.org/9/ALSA-2025-8136.html",
             "https://errata.rockylinux.org/RLSA-2025:8135",
+            "https://github.com/advisories/GHSA-7cx3-6m66-7c5m",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/b39b892bf78fe8fea01dd45199aa88307e7162f3",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-7cx3-6m66-7c5m",
@@ -1030,9 +1098,11 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:0930",
             "https://access.redhat.com/security/cve/CVE-2025-67725",
+            "https://advisory.echohq.com/cve/CVE-2025-67725",
             "https://bugzilla.redhat.com/2421722",
             "https://bugzilla.redhat.com/2421733",
             "https://errata.almalinux.org/8/ALSA-2026-0930.html",
+            "https://github.com/advisories/GHSA-c98p-7wgm-6p64",
             "https://github.com/pypa/advisory-database/tree/main/vulns/tornado/PYSEC-2025-266.yaml",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/771472cfdaeebc0d89a9cc46e249f8891a6b29cd",
@@ -1045,7 +1115,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-67725"
           ],
           "PublishedDate": "2025-12-12T06:15:41.38Z",
-          "LastModifiedDate": "2026-06-17T09:58:02.337Z"
+          "LastModifiedDate": "2026-10-07T20:10:01.97Z"
         },
         {
           "VulnerabilityID": "CVE-2025-67726",
@@ -1102,9 +1172,11 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:0930",
             "https://access.redhat.com/security/cve/CVE-2025-67726",
+            "https://advisory.echohq.com/cve/CVE-2025-67726",
             "https://bugzilla.redhat.com/2421722",
             "https://bugzilla.redhat.com/2421733",
             "https://errata.almalinux.org/8/ALSA-2026-0930.html",
+            "https://github.com/advisories/GHSA-jhmp-mqwm-3gq8",
             "https://github.com/pypa/advisory-database/tree/main/vulns/tornado/PYSEC-2025-267.yaml",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/771472cfdaeebc0d89a9cc46e249f8891a6b29cd",
@@ -1117,7 +1189,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2025-67726"
           ],
           "PublishedDate": "2025-12-12T07:15:44.92Z",
-          "LastModifiedDate": "2026-06-17T09:58:02.44Z"
+          "LastModifiedDate": "2026-10-07T20:10:01.97Z"
         },
         {
           "VulnerabilityID": "CVE-2026-31958",
@@ -1182,6 +1254,7 @@
             "https://access.redhat.com/errata/RHSA-2026:19034",
             "https://access.redhat.com/errata/RHSA-2026:19189",
             "https://access.redhat.com/security/cve/CVE-2026-31958",
+            "https://advisory.echohq.com/cve/CVE-2026-31958",
             "https://bugzilla.redhat.com/2446765",
             "https://bugzilla.redhat.com/2454716",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2446765",
@@ -1268,6 +1341,7 @@
             "https://access.redhat.com/errata/RHSA-2026:19034",
             "https://access.redhat.com/errata/RHSA-2026:19189",
             "https://access.redhat.com/security/cve/CVE-2026-35536",
+            "https://advisory.echohq.com/cve/CVE-2026-35536",
             "https://bugzilla.redhat.com/2446765",
             "https://bugzilla.redhat.com/2454716",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2446765",
@@ -1345,6 +1419,7 @@
             "https://access.redhat.com/errata/RHSA-2026:67146",
             "https://access.redhat.com/errata/RHSA-2026:67147",
             "https://access.redhat.com/security/cve/CVE-2026-49853",
+            "https://advisory.echohq.com/cve/CVE-2026-49853",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500672",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500686",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -1363,7 +1438,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-49853"
           ],
           "PublishedDate": "2026-07-14T21:17:02.13Z",
-          "LastModifiedDate": "2026-07-21T16:17:13.477Z"
+          "LastModifiedDate": "2026-10-24T21:10:00.13Z"
         },
         {
           "VulnerabilityID": "CVE-2026-49855",
@@ -1420,6 +1495,7 @@
             "https://access.redhat.com/errata/RHSA-2026:67146",
             "https://access.redhat.com/errata/RHSA-2026:67147",
             "https://access.redhat.com/security/cve/CVE-2026-49855",
+            "https://advisory.echohq.com/cve/CVE-2026-49855",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500672",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2500686",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -1437,7 +1513,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-49855"
           ],
           "PublishedDate": "2026-07-14T21:17:02.437Z",
-          "LastModifiedDate": "2026-07-16T16:19:10.69Z"
+          "LastModifiedDate": "2026-10-24T21:10:00.13Z"
         },
         {
           "VulnerabilityID": "CVE-2026-82397",
@@ -1473,8 +1549,10 @@
             "CWE-1284"
           ],
           "VendorSeverity": {
+            "alma": 3,
             "amazon": 3,
             "ghsa": 3,
+            "oracle-oval": 3,
             "photon": 3,
             "redhat": 3
           },
@@ -1489,12 +1567,17 @@
             }
           },
           "References": [
+            "https://access.redhat.com/errata/RHSA-2026:67146",
             "https://access.redhat.com/security/cve/CVE-2026-82397",
+            "https://advisory.echohq.com/cve/CVE-2026-82397",
+            "https://errata.almalinux.org/9/ALSA-2026-67146.html",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/8d6363ed7b69d5f0da806efe34d256627a2191de",
             "https://github.com/tornadoweb/tornado/pull/3704",
             "https://github.com/tornadoweb/tornado/releases/tag/v6.5.8",
             "https://github.com/tornadoweb/tornado/security/advisories/GHSA-mpf4-983q-p7j4",
+            "https://linux.oracle.com/cve/CVE-2026-82397.html",
+            "https://linux.oracle.com/errata/ELSA-2026-84798.html",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-82397",
             "https://www.cve.org/CVERecord?id=CVE-2026-82397"
           ],
@@ -1537,6 +1620,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-c2m8-h5v5-343r",
+            "https://github.com/advisories/GHSA-c2m8-h5v5-343r",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/437ab5f76565403b3403438d2e555d11f8128d32",
             "https://github.com/tornadoweb/tornado/commit/f9f50b8bab265a2abf9f2415a3d2da6264a5450b",
@@ -1583,6 +1668,8 @@
             }
           },
           "References": [
+            "https://advisory.echohq.com/cve/GHSA-chx6-46f5-w4vp",
+            "https://github.com/advisories/GHSA-chx6-46f5-w4vp",
             "https://github.com/tornadoweb/tornado",
             "https://github.com/tornadoweb/tornado/commit/15f056080d8e456f92cca8ad0c33e5a5480414ac",
             "https://github.com/tornadoweb/tornado/commit/6564e0a0922c16f239d3a18adccd04736e380c89",
@@ -1680,11 +1767,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 21
+      "vulnerability_count": 22
     }
   },
   "summary": {
     "total_versions_scanned": 1,
-    "total_vulnerabilities": 21
+    "total_vulnerabilities": 22
   }
 }

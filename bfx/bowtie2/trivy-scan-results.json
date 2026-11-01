@@ -1,7 +1,7 @@
 {
   "tool": "bowtie2",
-  "scan_timestamp": "2026-10-01T08:57:03Z",
-  "workflow_run_id": "36837607073",
+  "scan_timestamp": "2026-11-01T09:25:52Z",
+  "workflow_run_id": "41291059443",
   "versions": {
     "2.5.5": {
       "image": "ghcr.io/bundlecore/products/bfx/bowtie2:2.5.5",
@@ -183,6 +183,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://advisory.echohq.com/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -271,6 +272,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -384,6 +386,52 @@
     "2.3.5": {
       "image": "ghcr.io/bundlecore/products/bfx/bowtie2:2.3.5",
       "vulnerabilities": [
+        {
+          "VulnerabilityID": "GHSA-6q48-6c7w-9gw2",
+          "PkgName": "certifi",
+          "PkgPath": "usr/local/lib/python2.7/site-packages/certifi-2019.03.09-py2.7.egg-info",
+          "PkgIdentifier": {
+            "PURL": "pkg:pypi/certifi@2019.03.09",
+            "UID": "136fca4976a51491"
+          },
+          "InstalledVersion": "2019.03.09",
+          "FixedVersion": "2026.10.18",
+          "Status": "fixed",
+          "Layer": {
+            "Digest": "sha256:243bad013538eea96433ebfc229e27df5a452a4a8595b072514c67d181f9b010",
+            "DiffID": "sha256:349181e48cba3f5e6ff967687a4bdbdd148962a2101618205ca81ae64116aeb6"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory pip",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"
+          },
+          "Fingerprint": "sha256:15db742fd1199acf5d26dbe904d99ff520f2c8970950e70d4b25ee163fe23129",
+          "Title": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "Description": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+          "Severity": "CRITICAL",
+          "VendorSeverity": {
+            "ghsa": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V40Vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+              "V40Score": 9.1
+            }
+          },
+          "References": [
+            "https://advisory.echohq.com/cve/GHSA-6q48-6c7w-9gw2",
+            "https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576",
+            "https://emudhra.we-have-a-problem.com",
+            "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+            "https://github.com/certifi/python-certifi",
+            "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2"
+          ],
+          "PublishedDate": "2026-10-20T19:35:05Z",
+          "LastModifiedDate": "2026-10-26T16:02:12Z"
+        },
         {
           "VulnerabilityID": "CVE-2023-37920",
           "VendorIDs": [
@@ -658,7 +706,7 @@
             "https://www.oracle.com/security-alerts/cpujul2022.html"
           ],
           "PublishedDate": "2021-11-10T18:15:09.51Z",
-          "LastModifiedDate": "2026-08-25T16:28:27.31Z"
+          "LastModifiedDate": "2026-10-08T21:17:40.637Z"
         },
         {
           "VulnerabilityID": "CVE-2022-40897",
@@ -827,6 +875,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2024:6726",
             "https://access.redhat.com/security/cve/CVE-2024-6345",
+            "https://advisory.echohq.com/cve/CVE-2024-6345",
             "https://bugzilla.redhat.com/2297771",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2297771",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -915,6 +964,7 @@
             "https://access.redhat.com/errata/RHSA-2025:13578",
             "https://access.redhat.com/errata/RHSA-2025:9940",
             "https://access.redhat.com/security/cve/CVE-2025-47273",
+            "https://advisory.echohq.com/cve/CVE-2025-47273",
             "https://bugzilla.redhat.com/2366982",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2366982",
             "https://creativecommons.org/licenses/by/4.0/",
@@ -1023,11 +1073,11 @@
           "LastModifiedDate": "2026-06-17T05:02:13.177Z"
         }
       ],
-      "vulnerability_count": 7
+      "vulnerability_count": 8
     }
   },
   "summary": {
     "total_versions_scanned": 4,
-    "total_vulnerabilities": 11
+    "total_vulnerabilities": 12
   }
 }
